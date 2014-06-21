@@ -2,7 +2,7 @@ PROJECT = 01_model_loading
 
 SRC := $(wildcard *.cpp)
 OBJECTS = $(SRC:.cpp=.o)
-CFLAGS  = -I../../external/include -Wall -pedantic -g -std=c++11
+CFLAGS  = -I../../external/include -Wall -pedantic -g -std=c++11 -DGLM_FORCE_RADIANS
 
 all: $(PROJECT)
 

@@ -34,7 +34,9 @@ Fragmic::Fragmic(const std::string & title, const int &width,
   togglePolygonView(false)
 {
   window.init(title);
-  context.init(window);
+  if (!context.init(window)) {
+    exit(-1);
+  }
   shader.load("shaders/animation.v", "shaders/animation.f");
   shader.use();
   shader.createDefaultBindings();

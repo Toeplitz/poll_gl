@@ -52,26 +52,18 @@ GLuint GLshader::createShader(string fileName, GLenum type)
   GLuint shaderObject = glCreateShader(type);
   const GLchar *sources[] = {
     // Define GLshader version
-#ifdef GL_ES_VERSION_2_0
-    "#version 100\n"
-#else
-    "#version 330 core\n"
-#endif
+    ""
       ,
     // GLES2 precision specifiers
 #ifdef GL_ES_VERSION_2_0
     // Define default float precision for fragment shaders:
     (type == GL_FRAGMENT_SHADER) ?
-      "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
-      "precision highp float;           \n"
-      "#else                            \n"
-      "precision mediump float;         \n"
-      "#endif                           \n" : ""
+      ""
       // Note: OpenGL ES automatically defines this:
       // #define GL_ES
 #else
     // Ignore GLES 2 precision specifiers:
-    "#define lowp   \n" "#define mediump\n" "#define highp  \n"
+    ""
 #endif
       ,
     source
@@ -85,9 +77,10 @@ GLuint GLshader::createShader(string fileName, GLenum type)
   glGetShaderiv(shaderObject, GL_COMPILE_STATUS, &compile_ok);
 
   if (compile_ok == GL_FALSE) {
-    cout << "%s: " << fileName;
+    std::cout << "Fragmic ERROR: could not compile shader!" << std::endl;
     printLog(shaderObject);
     glDeleteShader(shaderObject);
+    exit(-1);
     return 0;
   }
 

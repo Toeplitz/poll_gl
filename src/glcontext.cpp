@@ -20,9 +20,8 @@ bool GLcontext::init(const UIwindow & uiwindow)
 
   const char *error = SDL_GetError();
   if (*error != '\0') {
-    cout << "SDL Error: " << error << endl;
+    cout << "GL CONTEXT SDL Error: " << error << endl;
     SDL_ClearError();
-    return false;
   }
 
   if (glewInit() != GLEW_OK) {
@@ -30,9 +29,9 @@ bool GLcontext::init(const UIwindow & uiwindow)
     return false;
   }
 
-  if (!checkVersion(3, 3)) {
+  if (!checkVersion(3, 0)) {
     cout << "Fragmic ERROR: OpenGL version not supported!" << endl;
-    exit(-1);
+    return false;
   }
 
   glEnable(GL_DEPTH_TEST);

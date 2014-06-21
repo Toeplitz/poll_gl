@@ -1,3 +1,9 @@
+#version 300 es
+
+precision mediump float;
+precision mediump int;
+
+
 layout(location = 0) in vec4 vertexCoord;
 layout(location = 1) in vec4 vertexNormal;
 layout(location = 2) in vec4 weights;
@@ -47,11 +53,11 @@ void main(void) {
     weights[1] * skinning[int(boneIndex[1])] +
     weights[2] * skinning[int(boneIndex[2])];
 
-  if (weights[0] == 0 && weights[1] == 0 && weights[2] == 0) {
+  if (weights[0] == 0.0 && weights[1] == 0.0 && weights[2] == 0.0) {
     animation = model;
   } 
 
-  if (debug.w == 1) {
+  if (debug.w == 1.0) {
     animation = model;
   }
 

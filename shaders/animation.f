@@ -1,3 +1,6 @@
+#version 300 es
+
+precision mediump float;
 uniform sampler2D tex;
 
 layout(location = 0) out vec4 FragColor;
@@ -13,7 +16,7 @@ vec3 ads() {
     vec3 Kd = vec3(1.0, 1.0, 1.0);
     vec3 Ks = vec3(1.0, 0.5, 0.5);
     vec3 intensity = vec3(1.0, 1.0, 1.0);
-    float shininess = 140;
+    float shininess = 140.0;
 
     vec3 n = normalize(Normal);
     vec3 s = normalize(vec3(lightPosEye) - Position);
