@@ -33,11 +33,10 @@ void UIwindow::checkError()
 }
 
 
-bool UIwindow::init(const string & title)
+bool UIwindow::init(const string &title)
 {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-    cout << "Fragmic error: failed to initialize SDL: " << SDL_GetError() <<
-      endl;
+    cout << "Fragmic error: failed to initialize SDL: " << SDL_GetError() << endl;
     return false;
   }
 
@@ -48,16 +47,21 @@ bool UIwindow::init(const string & title)
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+  //SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+       
+
   window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED,
                      SDL_WINDOWPOS_CENTERED, width, height,
                      SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
-
   return true;
 }
 
 
 void UIwindow::term()
 {
+  std::cout << "Deleting uiwindow (SDL)" << std::endl;
   SDL_DestroyWindow(window);
   SDL_Quit();
 }

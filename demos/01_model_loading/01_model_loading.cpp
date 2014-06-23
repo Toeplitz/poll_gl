@@ -38,7 +38,7 @@ class Demo {
       scene.printSceneGraph();
 
       fragmic.run();
-      fragmic.terminate();
+      fragmic.term();
     }
 
     void load()
@@ -49,8 +49,8 @@ class Demo {
       Node &node = scene.loadModel("data/zombie/", "new_thin_zombie.dae");
       t.translate(node, glm::vec3(-2.5, 2.5, 0));
 
-//      Node &node2 = scene.loadModel("data/bob/", "Bob_with_lamp.dae");
-//      t.translate(node2, glm::vec3(2.5, 2.5, 0));
+      Node &node2 = scene.loadModel("data/bob/", "Bob_with_lamp.dae");
+      t.translate(node2, glm::vec3(2.5, 2.5, 0));
       scene.printSceneGraph();
     }
 

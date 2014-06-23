@@ -14,36 +14,30 @@
 
 class GLshader {
 
-private:
-  GLuint vs;
-  GLuint fs;
-  GLuint gs;
+  private:
+    GLuint vs;
+    GLuint fs;
+    GLuint gs;
+    std::string vertexShaderFile;
+    std::string fragmentShaderFile;
+    std::string geomShaderFile;
 
-   std::string vertexShaderFile;
-   std::string fragmentShaderFile;
-   std::string geomShaderFile;
+    void    compile();
+    GLuint  create_shader(std::string fileName, GLenum type);
+    char   *file_read(const char *filename);
+    int     get_block_index(std::string blockName);
+    void    print_log(GLuint object);
+    void    validate();
 
+  public:
+    GLuint program;
 
-  char *fileRead(const char *filename);
-  GLuint createShader(std::string fileName, GLenum type);
-  void printLog(GLuint object);
-  void validate(void);
-  void compile(void);
+    GLshader();
+    ~GLshader(void);
 
-
-public:
-   GLuint program;
-
-   GLshader();
-  ~GLshader(void);
-
-  void load(const std::string & vertex, const std::string & fragment);
-
-  void use(void);
-
-  void createDefaultBindings();
-  int getBlockIndex(std::string blockName);
-  void printBlockNames();
+    void load(const std::string &vertex, const std::string &fragment);
+    void print_block_names();
+    void use();
 };
 
 

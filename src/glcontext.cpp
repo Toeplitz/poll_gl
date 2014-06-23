@@ -6,15 +6,18 @@ using std::string;
 using glm::vec4;
 using glm::vec3;
 
+
 GLcontext::GLcontext()
 {
 }
+
 
 GLcontext::~GLcontext()
 {
 }
 
-bool GLcontext::init(const UIwindow & uiwindow)
+
+bool GLcontext::init(const UIwindow &uiwindow)
 {
   glSdlContext = SDL_GL_CreateContext(uiwindow.window);
 
@@ -49,6 +52,7 @@ bool GLcontext::init(const UIwindow & uiwindow)
   return true;
 }
 
+
 void GLcontext::clear()
 {
   glm::vec4 color(1.0, 1.0, 1.0, 1.0);
@@ -56,22 +60,21 @@ void GLcontext::clear()
   glClearColor(color.x, color.y, color.z, color.a);
 }
 
+
 void GLcontext::checkError()
 {
   try {
     GLenum gl_error = glGetError();
     if (GL_NO_ERROR != gl_error) {
-
       throw std::runtime_error(std::string("OpenGL error: ") +
-                               reinterpret_cast <
-                               const char *>(gluErrorString(gl_error)));
-
+          reinterpret_cast<const char *>(gluErrorString(gl_error)));
     }
   } catch(std::exception & e) {
     std::cerr << e.what() << std::endl;
   }
 
 }
+
 
 bool GLcontext::checkVersion(const int &major, const int &minor)
 {
@@ -89,10 +92,12 @@ bool GLcontext::checkVersion(const int &major, const int &minor)
   return true;
 }
 
+
 void GLcontext::togglePolygonMesh(bool tog)
 {
   glPolygonMode(GL_FRONT_AND_BACK, tog ? GL_FILL : GL_LINE);
 }
+
 
 void GLcontext::setSwapInterval(const int &n)
 {
@@ -101,12 +106,15 @@ void GLcontext::setSwapInterval(const int &n)
   SDL_GL_SetSwapInterval(n);
 }
 
-void GLcontext::swap(const UIwindow & uiwindow)
+
+void GLcontext::swap(const UIwindow &uiwindow)
 {
   SDL_GL_SwapWindow(uiwindow.window);
 }
 
+
 void GLcontext::term()
 {
+  std::cout << "Deleting GL context" << std::endl;
   SDL_GL_DeleteContext(glSdlContext);
 }

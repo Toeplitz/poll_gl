@@ -49,24 +49,26 @@ class Fragmic {
     bool toggleMouseView;
     bool togglePolygonView;
 
+    void gl_init_uniform_buffers(GLshader &shader);
+
 
     void calcFps(Uint32 dt);
-    bool keyboardCallbackPressed(SDL_Keysym * keysym);
-    void keyboardCallbackReleased(SDL_Keysym * keysym);
-    void mouseButtonDown(SDL_MouseButtonEvent * ev);
-    void mouseButtonUp(SDL_MouseButtonEvent * ev);
-    void mouseMotion(SDL_MouseMotionEvent * ev);
+    bool keyboardCallbackPressed(SDL_Keysym *keysym);
+    void keyboardCallbackReleased(SDL_Keysym *keysym);
+    void mouseButtonDown(SDL_MouseButtonEvent *ev);
+    void mouseButtonUp(SDL_MouseButtonEvent *ev);
+    void mouseMotion(SDL_MouseMotionEvent *ev);
     bool pollEvents();
 
-    std::function < void (SDL_Keysym *) > customKeyboardPressedCallback;
+    std::function <void (SDL_Keysym *)> customKeyboardPressedCallback;
 
 
   public:
     Fragmic(const std::string &title, const int &width, const int &height);
     ~Fragmic();
 
-    template < typename Client >
-      void setKeyboardPressedCallback(Client * client, void (Client::*method) (SDL_Keysym *)) 
+    template <typename Client>
+      void setKeyboardPressedCallback(Client *client, void (Client::*method) (SDL_Keysym *)) 
       {
         customKeyboardPressedCallback = std::bind(method, client, _1);
       }
@@ -84,9 +86,8 @@ class Fragmic {
 
     void toggleDebug();
 
-    void demo();
     void run();
-    void terminate();
+    void term();
 
 };
 

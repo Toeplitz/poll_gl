@@ -10,7 +10,7 @@ all: $(PROJECT)
 	g++ -c -I../../src/ $(CFLAGS) $<
 
 $(PROJECT): $(OBJECTS)
-	g++ -o $(PROJECT) $(OBJECTS) -L../../external/lib/ -L../../build/ -lfragmic -lassimp -lGLU -lGLEW -lGL -lSDL2
+	g++ -o $(PROJECT) $(OBJECTS) -L../../external/lib/ -L../../build/ -lfragmic -lassimp -lGLU -lGLEW -lGL /home/ms/git/SDL2/build/libSDL2.so.2.0.0
 
 clean:
 	rm -f $(OBJECTS) $(PROJECT)

@@ -11,9 +11,10 @@
 class UIwindow {
 
 public:
-  SDL_Window * window;
-  int width;
-  int height;
+  SDL_Window     *window;
+  SDL_GLContext   glSdlContext;
+  int             width;
+  int             height;
 
    UIwindow(const int &_width, const int &_height);
   ~UIwindow();

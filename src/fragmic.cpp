@@ -1,15 +1,14 @@
 #include "fragmic.h"
 
-
-/**
- *
- * Classes to work on:
- *
- * Timer
- * Renderable (parent object)
- * Cube (paremt object for for example Aabb)
- * Profiling / Debugging
+/*
+ * - Fix naming convention to lowercase/underscore and class_t
+ * - Simplify GL code in Engine class? Remove all wrappers.
+ * - Simplify and clean up.
+ * - End goal: small and simple codebase with animated skeleton with bullet collision
+ *    - Calculate all bounding boxes for all animations on initial loading.
+ * - Particle animation on character when hittig something..
  */
+
 
 static void toggleMouseCursor(void)
 {
@@ -21,9 +20,28 @@ static void toggleMouseCursor(void)
   flagMouseCursor = !flagMouseCursor;
 }
 
+void Fragmic::gl_init_uniform_buffers(GLshader &shader)
+{
+  GLint uniform_block_index;
+  GLuint program = shader.program;
 
-Fragmic::Fragmic(const std::string & title, const int &width,
-    const int &height):
+  uniform_block_index = glGetUniformBlockIndex(program, "GlobalMatrices");
+  glUniformBlockBinding(program, uniform_block_index, UB_GLOBALMATRICES);
+  uniform_block_index = glGetUniformBlockIndex(program, "Matrices");
+  glUniformBlockBinding(program, uniform_block_index, UB_MATRICES);
+  uniform_block_index = glGetUniformBlockIndex(program, "Armature");
+  glUniformBlockBinding(program, uniform_block_index, UB_ARMATURE);
+  uniform_block_index = glGetUniformBlockIndex(program, "Material");
+  glUniformBlockBinding(program, uniform_block_index, UB_MATERIAL);
+  uniform_block_index = glGetUniformBlockIndex(program, "Light");
+  glUniformBlockBinding(program, uniform_block_index, UB_LIGHT);
+  uniform_block_index = glGetUniformBlockIndex(program, "Debug");
+  glUniformBlockBinding(program, uniform_block_index, UB_DEBUG);
+
+  /* FIXME: continue with filling the buffers */
+}
+
+Fragmic::Fragmic(const std::string & title, const int &width, const int &height):
   buffers(),
   camera(width, height), 
   context(), 
@@ -38,13 +56,17 @@ Fragmic::Fragmic(const std::string & title, const int &width,
     exit(-1);
   }
   shader.load("shaders/animation.v", "shaders/animation.f");
-  shader.use();
+
+  gl_init_uniform_buffers(shader);
+
+  /*
   shader.createDefaultBindings();
   context.setSwapInterval(0);
 
   buffers.init();
   camera.init(buffers);
   scene.init(buffers);
+  */
 }
 
 
@@ -215,6 +237,14 @@ void Fragmic::toggleDebug()
 
 void Fragmic::run()
 {
+  for (;;) {
+    if (!pollEvents()) {
+      std::cout << "Fragmic exiting..." << std::endl;
+      return;
+    }
+  }
+
+/*
   Uint32 lastTime = SDL_GetTicks();
 
   for (;;) {
@@ -241,10 +271,12 @@ void Fragmic::run()
     context.swap(window);
   }
 
+  */
+
 }
 
 
-void Fragmic::terminate()
+void Fragmic::term()
 {
   context.term();
   window.term();
