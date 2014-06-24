@@ -12,7 +12,7 @@
 
 #include "animated.h"
 #include "gldefaults.h"
-#include "uiwindow.h"
+#include "window.h"
 
 enum CameraMove { FORWARD, BACKWARD, SIDESTEP_RIGHT, SIDESTEP_LEFT};
 
@@ -88,7 +88,7 @@ class Camera {
     void update(double dt);
     void computeDirections();
     void updateView();
-    bool mouseViewUpdate(const UIwindow & uiwindow, int xPos, int yPos);
+    bool mouseViewUpdate(const Window & uiwindow, int xPos, int yPos);
     void setWayPoints(std::vector < glm::vec3 > points,
         std::vector < Uint32 > time, glm::vec3 _target,
         bool useCurPos);

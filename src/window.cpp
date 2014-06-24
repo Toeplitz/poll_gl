@@ -1,23 +1,23 @@
-#include "uiwindow.h"
+#include "window.h"
 
 using std::string;
 using std::cout;
 using std::endl;
 
 
-UIwindow::UIwindow(const int &_width, const int &_height): 
+Window::Window(const int &_width, const int &_height): 
   width(_width), 
   height(_height)
 {
 }
 
 
-UIwindow::~UIwindow()
+Window::~Window()
 {
 }
 
 
-void UIwindow::checkError()
+void Window::checkError()
 {
   try {
     const char *sdl_error = SDL_GetError();
@@ -33,7 +33,7 @@ void UIwindow::checkError()
 }
 
 
-bool UIwindow::init(const string &title)
+bool Window::init(const string &title)
 {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     cout << "Fragmic error: failed to initialize SDL: " << SDL_GetError() << endl;
@@ -59,7 +59,7 @@ bool UIwindow::init(const string &title)
 }
 
 
-void UIwindow::term()
+void Window::term()
 {
   std::cout << "Deleting uiwindow (SDL)" << std::endl;
   SDL_DestroyWindow(window);

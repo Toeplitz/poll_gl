@@ -23,6 +23,8 @@ class Node: public Animated {
   private:
 
   public:
+    GLuint gl_vao;
+
     Armature *armature;
     Material *material;
     Mesh *mesh;

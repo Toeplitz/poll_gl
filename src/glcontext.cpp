@@ -1,11 +1,5 @@
 #include "glcontext.h"
 
-using std::cout;
-using std::endl;
-using std::string;
-using glm::vec4;
-using glm::vec3;
-
 
 GLcontext::GLcontext()
 {
@@ -17,23 +11,23 @@ GLcontext::~GLcontext()
 }
 
 
-bool GLcontext::init(const UIwindow &uiwindow)
+bool GLcontext::init(const Window &uiwindow)
 {
   glSdlContext = SDL_GL_CreateContext(uiwindow.window);
 
   const char *error = SDL_GetError();
   if (*error != '\0') {
-    cout << "GL CONTEXT SDL Error: " << error << endl;
+    std::cout << "GL CONTEXT SDL Error: " << error << std::endl;
     SDL_ClearError();
   }
 
   if (glewInit() != GLEW_OK) {
-    cout << "Fragmic ERROR: failed to initalize GLEW" << endl;
+    std::cout << "Fragmic ERROR: failed to initalize GLEW" << std::endl;
     return false;
   }
 
-  if (!checkVersion(3, 0)) {
-    cout << "Fragmic ERROR: OpenGL version not supported!" << endl;
+  if (!check_version(3, 0)) {
+    std::cout << "Fragmic ERROR: OpenGL version not supported!" << std::endl;
     return false;
   }
 
@@ -44,10 +38,6 @@ bool GLcontext::init(const UIwindow &uiwindow)
   glEnable(GL_STENCIL_TEST);
   glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
   glViewport(0, 0, uiwindow.width, uiwindow.height);
-
-//  glEnable (GL_CULL_FACE); // cull face
-//  glCullFace (GL_BACK); // cull back face
-//  glFrontFace (GL_CW); // GL_CCW for counter clock-wise
 
   return true;
 }
@@ -61,7 +51,7 @@ void GLcontext::clear()
 }
 
 
-void GLcontext::checkError()
+void GLcontext::check_error()
 {
   try {
     GLenum gl_error = glGetError();
@@ -76,15 +66,15 @@ void GLcontext::checkError()
 }
 
 
-bool GLcontext::checkVersion(const int &major, const int &minor)
+bool GLcontext::check_version(const int &major, const int &minor)
 {
   int maj, min;
 
   glGetIntegerv(GL_MAJOR_VERSION, &maj);
   glGetIntegerv(GL_MINOR_VERSION, &min);
 
-  cout << "OpenGL version: " << glGetString(GL_VERSION) << endl;
-  cout << "OpenGL version number: " << maj << "." << min << endl;
+  std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
+  std::cout << "OpenGL version number: " << maj << "." << min << std::endl;
 
   if (maj < major)
     return false;
@@ -93,13 +83,13 @@ bool GLcontext::checkVersion(const int &major, const int &minor)
 }
 
 
-void GLcontext::togglePolygonMesh(bool tog)
+void GLcontext::polygon_mesh_toggle(bool tog)
 {
   glPolygonMode(GL_FRONT_AND_BACK, tog ? GL_FILL : GL_LINE);
 }
 
 
-void GLcontext::setSwapInterval(const int &n)
+void GLcontext::swap_interval_set(const int &n)
 {
   // 0 for immediate updates, 1 for updates synchronized with
   // the vertical retrace, -1 for late swap tearing
@@ -107,8 +97,9 @@ void GLcontext::setSwapInterval(const int &n)
 }
 
 
-void GLcontext::swap(const UIwindow &uiwindow)
+void GLcontext::swap(const Window &uiwindow)
 {
+  check_error();
   SDL_GL_SwapWindow(uiwindow.window);
 }
 

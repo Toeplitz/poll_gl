@@ -51,11 +51,13 @@ void Fragmic::gl_draw(Node &node)
   GLsizei count = (GLsizei) mesh->getSize();
   GLvoid *indices = (GLvoid *) (mesh->aabb.getNumIndices() * sizeof(GLushort));
   GLint baseVertex = (GLint) mesh->aabb.getNumVertices();
-  glBindVertexArray(gl_vao);
+  glBindVertexArray(node.gl_vao);
   glDrawElementsBaseVertex(GL_TRIANGLES, count, 
       GL_UNSIGNED_SHORT, 
       indices, 
       baseVertex);
+
+  glBindVertexArray(0);
 
 }
 
@@ -176,8 +178,8 @@ void Fragmic::gl_vertex_buffers_add(Node &node)
     std::vector<GLshort> indices;
     mesh->buffer_data_get(&vertices, &normals, &weights, &bone_indices, &uvs, &indices);
 
-    glGenVertexArrays(1, &gl_vao);
-    glBindVertexArray(gl_vao);
+    glGenVertexArrays(1, &node.gl_vao);
+    glBindVertexArray(node.gl_vao);
 
     target = GL_ARRAY_BUFFER;
     index = 0;
@@ -206,7 +208,7 @@ void Fragmic::gl_vertex_buffers_add(Node &node)
     glBindBuffer(target, buffer);
     glBufferData(target, bone_indices.size() * sizeof(bone_indices[0]), bone_indices.data(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(index);
-    glVertexAttribPointer(index, 4, GL_INT, GL_FALSE, 0, 0);
+    glVertexAttribIPointer(index, 4, GL_INT, 0, 0);
 
     index = 4;
     glGenBuffers(1, &buffer);
@@ -314,7 +316,7 @@ bool Fragmic::ui_keyboard_callback_pressed(SDL_Keysym *keysym)
       toggleMouseView = !toggleMouseView;
       break;
     case SDLK_p:
-      context.togglePolygonMesh(togglePolygonView);
+      context.polygon_mesh_toggle(togglePolygonView);
       togglePolygonView = !togglePolygonView;
       break;
     default:
@@ -402,9 +404,8 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
     exit(-1);
   }
   shader.load("shaders/animation.v", "shaders/animation.f");
-
   gl_uniform_buffers_init(shader, camera, scene);
-  context.setSwapInterval(0);
+  context.swap_interval_set(0);
 }
 
 
@@ -464,9 +465,7 @@ void Fragmic::run()
       gl_draw(*node);
     }
 
-    context.checkError();
     context.swap(window);
-
   }
 }
 

@@ -37,7 +37,6 @@ using namespace std::placeholders;
 
 class Fragmic {
   private:
-    GLuint gl_vao;
     GLuint gl_buffer_globalmatrices;
     GLuint gl_buffer_matrices;
     GLuint gl_buffer_armature;
@@ -46,7 +45,7 @@ class Fragmic {
     GLcontext context;
     GLshader shader;
     Scene scene;
-    UIwindow window;
+    Window window;
 
     bool toggleMouseView;
     bool togglePolygonView;

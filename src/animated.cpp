@@ -3,7 +3,7 @@
 #include <memory>
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
-#include "mixquat.h"
+#include "utils.h"
 
 using glm::vec3;
 using glm::quat;

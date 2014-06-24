@@ -178,7 +178,7 @@ void Camera::updateView()
 }  
 
 
-bool Camera::mouseViewUpdate(const UIwindow &uiwindow, int xPos, int yPos) 
+bool Camera::mouseViewUpdate(const Window &uiwindow, int xPos, int yPos) 
 {
   horizontalAngle += mouseSpeed * float (uiwindow.width / 2 - xPos);
   verticalAngle += mouseSpeed * float (uiwindow.height / 2 - yPos);

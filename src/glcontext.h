@@ -11,25 +11,25 @@
 #include <stdexcept>
 
 #include "gldefaults.h"
-#include "uiwindow.h"
+#include "window.h"
 
 
 class GLcontext {
-private:
-  SDL_GLContext glSdlContext;
+  private:
+    SDL_GLContext glSdlContext;
 
-public:
-  GLcontext();
-  ~GLcontext();
+  public:
+    GLcontext();
+    ~GLcontext();
 
-  bool init(const UIwindow & uiwindow);
-  bool checkVersion(const int &major, const int &minor);
-  void checkError();
-  void clear();
-  void setSwapInterval(const int &n);
-  void swap(const UIwindow & uiwindow);
-  void togglePolygonMesh(bool tog);
-  void term();
+    bool init(const Window & uiwindow);
+    bool check_version(const int &major, const int &minor);
+    void check_error();
+    void clear();
+    void swap_interval_set(const int &n);
+    void swap(const Window & uiwindow);
+    void polygon_mesh_toggle(bool tog);
+    void term();
 
 };
 
