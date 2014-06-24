@@ -1,18 +1,24 @@
 #include "scene.h"
 
 
-void Scene::indentBy(std::ostream & os, size_t indent) 
+/**************************************************/
+/***************** PRIVATE METHODS ****************/
+/**************************************************/
+
+void Scene::indent(std::ostream & os, size_t indent) 
 {
   for (size_t i = 0; i != indent; ++i) {
     os << "  ";
   }
 } 
 
+/**************************************************/
+/***************** CONSTRUCTORS *******************/
+/**************************************************/
 
 Scene::Scene(): 
   assets(), 
-  root(std::string("Fragmic")) ,
-  renderer()
+  root(std::string("Fragmic")) 
 {
 }
 
@@ -21,13 +27,91 @@ Scene::~Scene()
 {
 }
 
-void Scene::init(Buffers &buffers)
+
+/**************************************************/
+/***************** PUBLIC METHODS *****************/
+/**************************************************/
+
+Assets &Scene::assets_get()
 {
-  renderer.init(buffers);
+  return assets;
 }
 
 
-void Scene::traverse(Uint32 dt, Node &node)
+Node &Scene::load_model(const std::string &prefix, const std::string &filename) 
+{
+  Transform transform;
+
+  Model model;
+  Node *rootPtr = model.load(assets, root, prefix, filename);
+
+  transform.calculateGlobalTransformTopDown(root);
+  upload_queue_add(*rootPtr);
+
+  return *rootPtr;
+}
+
+
+void Scene::render_queue_add(Node &node) 
+{
+  render_queue.push_back(&node);
+}
+
+
+std::vector <Node *> Scene::render_queue_get() 
+{
+  return render_queue;
+}
+
+
+void Scene::scene_graph_print() 
+{
+  scene_graph_print_by_node(root);
+}
+
+
+void Scene::scene_graph_print_by_node(Node &node)
+{
+  if (node.active) {
+    indent(std::cout, node.treeLevel);
+    std::cout << node.treeLevel << ": '" << node.
+      name << "'" << &node << "";
+
+    if (node.mesh) {
+      std::cout << " (mesh)";
+    }
+
+    if (node.armature) {
+      std::cout << " (armature)";
+    }
+    std::cout << std::endl;
+
+  }
+
+  for (auto &child : node.children) {
+    scene_graph_print_by_node(*child);
+  }
+}
+
+
+void Scene::transform_queue_add(Node &node) 
+{
+  bool r = (std::find(transform_queue.begin(), transform_queue.end(), &node) != transform_queue.end());
+  if (r) {
+    std::cout << "Node is already in transform queue." << std::endl;
+    return;
+  }
+  transform_queue.push_back(&node);
+}
+
+
+std::vector <Node *> Scene::transform_queue_get() 
+{
+  return transform_queue;
+}
+
+
+void Scene::transform_update(Node &node, Uint32 dt)
 {
   glm::mat4 transform = node.currentLocalTransform;
   Node *parent = node.parent;
@@ -44,161 +128,38 @@ void Scene::traverse(Uint32 dt, Node &node)
   }
 
   for (auto &child : node.children) {
-    traverse(dt, *child);
+    transform_update(*child, dt);
   }
 }
 
 
-void Scene::update(Uint32 dt)
-{
-  std::lock_guard<std::mutex> lock(assets.getMutex());
-
-  Node *ptr = popUploadQueue();
-  while (ptr) {
-    renderer.upload(*ptr);
-    ptr = popUploadQueue();
-  }
-
-  for (auto &node : getTransformQueue()) {
-    traverse(dt, *node);
-  }
-
-  for (auto &armature : assets.getArmatures()) {
-    armature->updateBones();
-  }
-}
-
-
-void Scene::render()
-{
-  for (auto &node : getRenderQueue()) {
-    renderer.draw(*node);
-  }
-}
-
-
-Node &Scene::loadModel(const std::string &prefix, const std::string &filename) 
-{
-  Transform transform;
-
-  Model model;
-  Node *rootPtr = model.load(assets, root, prefix, filename);
-
-  transform.calculateGlobalTransformTopDown(root);
-  refreshQueue(*rootPtr);
-
-  queueUploadNode(*rootPtr);
-
-  return *rootPtr;
-}
-
-
-void Scene::refreshQueue(Node &node) 
+void Scene::upload_queue_add(Node &node) 
 {
   if (node.mesh) {
-    queueRenderableNode(node);
+    upload_queue.push_back(&node);
+    render_queue_add(node);
   } else if (node.armature) {
-    queueTransform(node);
-  }
-
-  for (auto & child:node.children) {
-    refreshQueue(*child);
-  }
-}
-
-
-void Scene::printSceneGraph() 
-{
-  printSceneGraphByNode(root);
-}
-
-
-void Scene::printSceneGraphByNode(Node &node)
-{
-  if (node.active) {
-    indentBy(std::cout, node.treeLevel);
-    std::cout << node.treeLevel << ": '" << node.
-      name << "'" << &node << "";
-
-    if (node.mesh) {
-      std::cout << " (mesh)";
-    }
-
-    if (node.armature) {
-      std::cout << " (armature)";
-    }
-    std::cout << std::endl;
-
+    transform_queue_add(node);
   }
 
   for (auto &child : node.children) {
-    printSceneGraphByNode(*child);
+    upload_queue_add(*child);
   }
 }
 
 
-void Scene::queueTransform(Node &node) 
+Node *Scene::upload_queue_pop()
 {
-  bool isPresent = (std::find(transformQueue.begin(), 
-                              transformQueue.end(), 
-                              &node) != transformQueue.end());
-  if (isPresent) {
-    std::cout << "Node is already in transform queue." << std::endl;
-    return;
-  }
-
-  transformQueue.push_back(&node);
-}
-
-
-Node *Scene::popUploadQueue()
-{
-  if (uploadQueue.empty()) {
+  if (upload_queue.empty()) {
     return nullptr;
   }
 
-  Node *node = uploadQueue.back();
+  Node *node = upload_queue.back();
   if (!node) {
     std::cout << "No item left in vector" << std::endl;
   }
 
-  uploadQueue.pop_back();
+  upload_queue.pop_back();
 
   return node;
-}
-
-
-void Scene::queueUploadNode(Node &node) 
-{
-  if (node.mesh) {
-    uploadQueue.push_back(&node);
-  }
-
-  for (auto &child : node.children) {
-    queueUploadNode(*child);
-  }
-}
-
-
-void Scene::queueRenderableNode(Node &node) 
-{
-  renderQueue.push_back(&node);
-}
-
-
-std::vector <Node *> Scene::getTransformQueue() 
-{
-  return transformQueue;
-}
-
-
-std::vector <Node *> Scene::getRenderQueue() 
-{
-  return renderQueue;
-}
-
-
-std::vector <Node *> Scene::getUploadQueue() 
-{
-  return uploadQueue;
 }

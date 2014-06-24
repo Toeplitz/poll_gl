@@ -66,8 +66,8 @@ void GLcontext::checkError()
   try {
     GLenum gl_error = glGetError();
     if (GL_NO_ERROR != gl_error) {
-      throw std::runtime_error(std::string("OpenGL error: ") +
-          reinterpret_cast<const char *>(gluErrorString(gl_error)));
+      std::cout << std::string("OpenGL error: ") << reinterpret_cast<const char *>(gluErrorString(gl_error));
+      exit(-1);
     }
   } catch(std::exception & e) {
     std::cerr << e.what() << std::endl;

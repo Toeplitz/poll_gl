@@ -10,8 +10,6 @@
 #include "material.h"
 #include "mesh.h"
 
-#include "glbuffer.h"
-
 
 class Assets {
   private:
@@ -42,13 +40,13 @@ class Assets {
     }
 
 
-    void addArmature(std::unique_ptr < Armature > &&armature) {
+    void addArmature(std::unique_ptr <Armature> &&armature) {
       std::lock_guard<std::mutex> lock(mutex);
       armatures.push_back(std::move(armature));
     }
 
 
-    std::vector<std::unique_ptr<Armature>> const &getArmatures() const 
+    std::vector<std::unique_ptr<Armature>> const &armatures_get() const 
     {
       return armatures;
     } 

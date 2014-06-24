@@ -16,7 +16,7 @@ class Demo {
     Demo(const std::string &title, const int &width, const int &height) 
       : fragmic(title, width, height)
     {
-      fragmic.setKeyboardPressedCallback(this, &Demo::keyboardPressedCallback);
+      fragmic.ui_set_keyboard_pressed_callback(this, &Demo::keyboardPressedCallback);
     }
 
     ~Demo() 
@@ -27,15 +27,15 @@ class Demo {
     void run()
     {
       Transform t;
-      Scene &scene = fragmic.getScene();
+      Scene &scene = fragmic.scene_get();
       
-      Camera &camera = fragmic.getCamera();
+      Camera &camera = fragmic.camera_get();
       camera.translate(glm::vec3(0, 3, 0));
 
-      scene.loadModel("data/", "scene_textured.dae");
+      scene.load_model("data/", "scene_textured.dae");
 
 //      scene.loadModel("data/", "tiling_plane.dae");
-      scene.printSceneGraph();
+      scene.scene_graph_print();
 
       fragmic.run();
       fragmic.term();
@@ -44,14 +44,14 @@ class Demo {
     void load()
     {
       Transform t;
-      Scene &scene = fragmic.getScene();
+      Scene &scene = fragmic.scene_get();
 
-      Node &node = scene.loadModel("data/zombie/", "new_thin_zombie.dae");
+      Node &node = scene.load_model("data/zombie/", "new_thin_zombie.dae");
       t.translate(node, glm::vec3(-2.5, 2.5, 0));
 
-      Node &node2 = scene.loadModel("data/bob/", "Bob_with_lamp.dae");
+      Node &node2 = scene.load_model("data/bob/", "Bob_with_lamp.dae");
       t.translate(node2, glm::vec3(2.5, 2.5, 0));
-      scene.printSceneGraph();
+      scene.scene_graph_print();
     }
 
     void keyboardPressedCallback(SDL_Keysym *keysym)
@@ -61,7 +61,7 @@ class Demo {
       float n = 90.0;
       float maxTime = 3000; 
 
-      Camera &camera = fragmic.getCamera();
+      Camera &camera = fragmic.camera_get();
 
       switch (keysym->sym) {
         case SDLK_d:

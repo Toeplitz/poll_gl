@@ -8,7 +8,6 @@
 #include <iostream>
 #include <vector>
 
-#include "glbuffer.h"
 #include "gldefaults.h"
 #include "vertex.h"
 

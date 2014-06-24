@@ -79,20 +79,7 @@ void Camera::update(double dt)
 {
   processInputMoves();
   processWayPoints(dt);
-
-  globalMatricesBuffer->update(view, sizeof(view));
 } 
-
-void Camera::init(Buffers &buffer)
-{
-  globalMatricesBuffer = buffer.getGlobalMatricesBuffer();
-  glm::mat4 globalMatrices[2];
-  globalMatrices[0] = perspective;
-  globalMatrices[1] = view;
-
-  globalMatricesBuffer->update(globalMatrices, 0);
-}
-
 
 void Camera::processWayPoints(double dt) 
 {

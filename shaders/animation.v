@@ -23,18 +23,6 @@ layout(std140) uniform Armature {
   mat4 skinning[64];
 };
 
-layout(std140) uniform Material {
-  vec4 ambient;
-  vec4 diffuse;
-  vec4 emissive;
-  vec4 specular;
-  float shininess;
-};
-
-layout(std140) uniform Light {
-  int numLights;
-  vec3 light[8];
-};
 
 layout(std140) uniform Debug {
   vec4 debug;

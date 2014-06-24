@@ -47,20 +47,14 @@ void Armature::updateBones()
   for (auto &boneEntry : bones) {
     Bone &bone = *boneEntry;
     const unsigned int id = bone.getIndex();
-    skinningMatrices[id] = bone.updateSkinningMatrix();
+    skinning_matrices[id] = bone.updateSkinningMatrix();
   }
-}
-
-
-void Armature::update(GLuniformBuffer *buffer)
-{
-  buffer->update(skinningMatrices, 0);
 }
 
 
 void Armature::addBone(std::unique_ptr<Bone> &&bone) {
   assert(bones.size() == bone->getIndex());
   bones.push_back(std::move(bone));
-  skinningMatrices.resize(bones.size());
+  skinning_matrices.resize(bones.size());
 }
 

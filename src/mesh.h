@@ -8,40 +8,30 @@
 #include <vector>
 
 #include "aabb.h"
-#include "glbuffer.h"
 
 
 class Mesh {
-
   private:
-
-
-
-    template <class T>
-      void addVertexBuffer(const std::vector<T> &data, const int &attributeIndex);
-    template <class T>
-      void addIndexBuffer(const std::vector<T> &data);
-
     Aabb generateBoundingAabb() const;
 
   public:
     Aabb aabb;
     std::vector<Vertex> vertices;
     std::vector<GLshort> indices;
-    GLvertexArray vertexArray;
-    std::vector<std::unique_ptr<GLvertexBuffer>> vertexBuffers;
-    std::vector<std::unique_ptr<GLindexBuffer>> indexBuffers;
     glm::mat4 model;
 
 
     Mesh();
     ~Mesh();
 
-    const unsigned int getSize();
+    void buffer_data_get(std::vector<glm::vec4> *vertices_ptr, 
+                         std::vector<glm::vec4> *normals_ptr,
+                         std::vector<glm::vec4> *weights_ptr,
+                         std::vector<glm::ivec4> *bone_indices_ptr,
+                         std::vector<glm::vec2> *uv_ptr,
+                         std::vector<GLshort> *indices_ptr);
 
-    void update(GLuniformBuffer *buffer);
-    void updateAabb(GLuniformBuffer *buffer);
-    void create();
+    const unsigned int getSize();
 };
 
 #endif

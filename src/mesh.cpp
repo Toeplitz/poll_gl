@@ -1,33 +1,12 @@
 #include "mesh.h"
 
 Mesh::Mesh():
-  vertexArray(), 
   model(glm::mat4(1.0))
 {
 }
 
 Mesh::~Mesh(void)
 {
-}
-
-
-  template <class T>
-void Mesh::addVertexBuffer(const std::vector<T> &data, const int &attributeIndex)
-{
-  std::unique_ptr<GLvertexBuffer> vertexBufferPtr(new GLvertexBuffer());
-  GLvertexBuffer &vertexBuffer= *vertexBufferPtr;
-  vertexBuffer.create(data, attributeIndex);
-  vertexBuffers.push_back(move(vertexBufferPtr));
-}
-
-
-  template <class T>
-void Mesh::addIndexBuffer(const std::vector<T> &data)
-{
-  std::unique_ptr<GLindexBuffer> indexBufferPtr(new GLindexBuffer());
-  GLindexBuffer &indexBuffer= *indexBufferPtr;
-  indexBuffer.create(data);
-  indexBuffers.push_back(move(indexBufferPtr));
 }
 
 
@@ -47,8 +26,8 @@ Aabb Mesh::generateBoundingAabb() const
 
   glm::vec3 minimum(std::numeric_limits<float>::max());
   glm::vec3 maximum(std::numeric_limits<float>::min());
-  
-  for (auto &v : vertices) {
+
+  for (auto &v: vertices) {
     minimum = glm::min(minimum, v.position);
     maximum = glm::max(maximum, v.position);
   }
@@ -57,13 +36,18 @@ Aabb Mesh::generateBoundingAabb() const
   std::cout << "maximum: " << maximum.x << ", " << maximum.y << ", " << maximum.z << std::endl;
 
   aabb.setBounds(minimum.x, minimum.y, minimum.z,
-                 maximum.x, maximum.y, maximum.z);
+      maximum.x, maximum.y, maximum.z);
 
   return aabb;
 }
 
 
-void Mesh::create()
+void Mesh::buffer_data_get(std::vector<glm::vec4> *vertices_ptr, 
+    std::vector<glm::vec4> *normals_ptr,
+    std::vector<glm::vec4> *weights_ptr,
+    std::vector<glm::ivec4> *bone_indices_ptr,
+    std::vector<glm::vec2> *uv_ptr,
+    std::vector<GLshort> *indices_ptr)
 {
   std::vector<glm::vec4> tempVert;
   std::vector<glm::vec4> tempNormal;
@@ -103,30 +87,10 @@ void Mesh::create()
     tempIndices.push_back(indices[i]);
   }
 
-  std::cout << "tempVert size: " << tempVert.size() << std::endl;
-  std::cout << "indicies size: " << indices.size() << std::endl;
-
-  addIndexBuffer(tempIndices);
-  addVertexBuffer(tempVert, 0);
-  addVertexBuffer(tempNormal, 1);
-  addVertexBuffer(tempWeight, 2);
-  addVertexBuffer(tempBoneIndex, 3);
-  addVertexBuffer(tempUv, 4);
-  vertexArray.create(indexBuffers, vertexBuffers);
-
-
+  *vertices_ptr = tempVert;
+  *normals_ptr = tempNormal;
+  *weights_ptr = tempWeight;
+  *bone_indices_ptr = tempBoneIndex;
+  *uv_ptr = tempUv;
+  *indices_ptr = tempIndices;
 }
-
-
-void Mesh::update(GLuniformBuffer *buffer)
-{
-  buffer->update(model, 0);
-}
-
-void Mesh::updateAabb(GLuniformBuffer *buffer)
-{
-  buffer->update(model * aabb.transform, 0);
-}
-
-
-

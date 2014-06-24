@@ -9,18 +9,14 @@
 #include "image.h"
 
 class Texture {
-private:
-
 public:
-  GLuint textureId;
-
-  std::unique_ptr < Image > image;
+  std::unique_ptr <Image> image;
   std::string filename;
+  GLuint gl_texture;
 
   Texture();
   ~Texture();
   bool loadImage(const std::string & _filename);
-  void upload();
 
 
 };

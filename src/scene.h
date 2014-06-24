@@ -15,44 +15,38 @@
 
 #include <SDL2/SDL.h>
 
-#include "buffers.h"
 #include "model.h"
 #include "node.h"
 #include "transform.h"
-#include "glrenderer.h"
 
 class Scene {
 
   private:
-    std::vector<Node *> renderQueue;
-    std::vector<Node *> transformQueue;
-    std::vector<Node *> uploadQueue;
+    std::vector<Node *> render_queue;
+    std::vector<Node *> transform_queue;
+    std::vector<Node *> upload_queue;
 
     Assets assets;
     Node root;
-    GLrenderer renderer;
 
-    void indentBy(std::ostream & os, size_t indent);
+    void                  indent(std::ostream &os, size_t indent);
 
   public:
     Scene();
     ~Scene();
 
-    void init(Buffers &buffers);
-    void traverse(Uint32 dt, Node &node);
-    void update(Uint32 dt);
-    void render();
-    Node &loadModel(const std::string &prefix, const std::string &filename);
-    void refreshQueue(Node &node);
-    void printSceneGraph();
-    void printSceneGraphByNode(Node &node);
-    void queueTransform(Node & node);
-    Node *popUploadQueue();
-    void queueUploadNode(Node &node);
-    void queueRenderableNode(Node &node);
-    std::vector<Node *> getTransformQueue();
-    std::vector<Node *> getRenderQueue();
-    std::vector<Node *> getUploadQueue();
+    Assets               &assets_get();
+    Node                 &load_model(const std::string &prefix, const std::string &filename);
+    void                  render_queue_add(Node &node);
+    std::vector<Node *>   render_queue_get();
+    void                  scene_graph_print();
+    void                  scene_graph_print_by_node(Node &node);
+    void                  transform_queue_add(Node &node);
+    std::vector<Node *>   transform_queue_get();
+    void                  transform_update(Node &node, Uint32 dt);
+    void                  upload_queue_add(Node &node);
+    Node                 *upload_queue_pop();
+
 
 
 };

@@ -10,23 +10,21 @@
 
 #include "bone.h"
 #include "node.h"
-#include "glbuffer.h"
 #include "gldefaults.h"
 
 class Armature {
   private:
     std::vector<std::unique_ptr<Bone>> bones;
-    std::vector<glm::mat4> skinningMatrices;
 
   public:
     Armature();
     ~Armature();
+    std::vector<glm::mat4> skinning_matrices;
 
     void addBone(std::unique_ptr<Bone> &&bone);
     unsigned int getNumBones();
     Node *findArmatureRootNode();
     void updateBones();
-    void update(GLuniformBuffer *buffer);
 
 };
 

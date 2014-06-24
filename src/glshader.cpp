@@ -3,7 +3,7 @@
 
 
 /**************************************************/
-/***************** PRIVATE METHODS *****************/
+/***************** PRIVATE METHODS ****************/
 /**************************************************/
 
 void GLshader::compile()
@@ -117,6 +117,7 @@ int GLshader::get_block_index(std::string blockName)
     std::cout << "Fragmic warning: Could not bind uniform " << uboIndex << std::
       endl;
   }
+  std::cout <<  blockName << ": " << uboIndex << std::endl;
 
   return uboIndex;
 }

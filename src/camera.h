@@ -11,9 +11,7 @@
 #include <vector>
 
 #include "animated.h"
-#include "buffers.h"
 #include "gldefaults.h"
-#include "glbuffer.h"
 #include "uiwindow.h"
 
 enum CameraMove { FORWARD, BACKWARD, SIDESTEP_RIGHT, SIDESTEP_LEFT};
@@ -69,8 +67,6 @@ class Camera {
     std::vector < CameraMove > cameraMoveQueue;
     CameraPan cameraPan;
 
-    GLuniformBuffer *globalMatricesBuffer;
-
     void updateViewProjection(void);
     void updateProjection(void);
     bool processInputMoves(void);
@@ -89,7 +85,6 @@ class Camera {
     glm::mat4 viewProjection;
     void addMove(CameraMove move);
     void deleteMove(CameraMove move);
-    void init(Buffers &buffer);
     void update(double dt);
     void computeDirections();
     void updateView();

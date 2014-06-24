@@ -281,7 +281,6 @@ void Model::parseMaterials(Assets &assets)
     aiMaterial &assimpMaterial = *scene->mMaterials[i];
     std::unique_ptr<Material> materialPtr(new Material());
     Material &material = *materialPtr;
-    material.id = i;
 
     std::cout << "\tProperties: " << assimpMaterial.mNumProperties <<std::endl;
     std::cout << "\tNone textures: " << assimpMaterial.GetTextureCount(aiTextureType_NONE) <<std::endl;
