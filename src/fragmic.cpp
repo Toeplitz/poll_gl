@@ -8,7 +8,6 @@
 /**************************************************/
 
 
-
 void Fragmic::profile_fps(Uint32 dt)
 {
   static int numFrames = 0;
@@ -87,7 +86,7 @@ void Fragmic::run()
 
     Assets &assets = scene.assets_get();
     for (auto &armature: assets.armatures_get()) {
-      armature->updateBones();
+      armature->update_bones();
     }
 
     glcontext.uniform_buffers_update_camera(camera);

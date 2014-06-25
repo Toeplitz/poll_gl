@@ -24,7 +24,7 @@ class Bone {
         const glm::mat4 & _offsetMatrix, Node * _jointNode);
     ~Bone();
 
-    const unsigned int getIndex();
+    unsigned int get_index();
     glm::mat4 updateSkinningMatrix();
 
 

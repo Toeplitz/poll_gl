@@ -1,5 +1,4 @@
-#ifndef SCENE_H
-#define SCENE_H
+#pragma once
 
 #include <memory>
 #include <string>
@@ -29,13 +28,10 @@ class Scene {
     Assets assets;
     Node root;
 
-    void                  indent(std::ostream &os, size_t indent);
-
   public:
     Scene();
     ~Scene();
 
-    Assets               &assets_get();
     Node                 &load_model(const std::string &prefix, const std::string &filename);
     void                  render_queue_add(Node &node);
     std::vector<Node *>   render_queue_get();
@@ -47,8 +43,7 @@ class Scene {
     void                  upload_queue_add(Node &node);
     Node                 *upload_queue_pop();
 
-
+    Assets               &assets_get();
 
 };
 
-#endif

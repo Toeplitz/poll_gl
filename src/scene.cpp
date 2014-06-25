@@ -1,16 +1,6 @@
 #include "scene.h"
+#include "utils.h"
 
-
-/**************************************************/
-/***************** PRIVATE METHODS ****************/
-/**************************************************/
-
-void Scene::indent(std::ostream & os, size_t indent) 
-{
-  for (size_t i = 0; i != indent; ++i) {
-    os << "  ";
-  }
-} 
 
 /**************************************************/
 /***************** CONSTRUCTORS *******************/
@@ -32,10 +22,6 @@ Scene::~Scene()
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
 
-Assets &Scene::assets_get()
-{
-  return assets;
-}
 
 
 Node &Scene::load_model(const std::string &prefix, const std::string &filename) 
@@ -72,21 +58,19 @@ void Scene::scene_graph_print()
 
 void Scene::scene_graph_print_by_node(Node &node)
 {
-  if (node.active) {
-    indent(std::cout, node.treeLevel);
-    std::cout << node.treeLevel << ": '" << node.
-      name << "'" << &node << "";
+  indent(std::cout, node.treeLevel);
+  std::cout << node.treeLevel << ": '" << node.
+    name << "'" << &node << "";
 
-    if (node.mesh) {
-      std::cout << " (mesh)";
-    }
-
-    if (node.armature) {
-      std::cout << " (armature)";
-    }
-    std::cout << std::endl;
-
+  if (node.mesh) {
+    std::cout << " (mesh)";
   }
+
+  if (node.armature) {
+    std::cout << " (armature)";
+  }
+  std::cout << std::endl;
+
 
   for (auto &child : node.children) {
     scene_graph_print_by_node(*child);
@@ -162,4 +146,10 @@ Node *Scene::upload_queue_pop()
   upload_queue.pop_back();
 
   return node;
+}
+
+
+Assets &Scene::assets_get()
+{
+  return assets;
 }

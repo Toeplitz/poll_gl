@@ -1,5 +1,4 @@
-#ifndef ARMATURE_H
-#define ARMATURE_H
+#pragma once
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -21,12 +20,11 @@ class Armature {
     ~Armature();
     std::vector<glm::mat4> skinning_matrices;
 
-    void addBone(std::unique_ptr<Bone> &&bone);
-    unsigned int getNumBones();
-    Node *findArmatureRootNode();
-    void updateBones();
+    void          addBone(std::unique_ptr<Bone> &&bone);
+    unsigned int  num_bones();
+    Node         *findArmatureRootNode();
+    void          update_bones();
 
 };
 
 
-#endif

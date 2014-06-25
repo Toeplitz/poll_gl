@@ -73,7 +73,7 @@ void Model::createBoneMap(Assets & assets,
     }
   }
 
-  if (armature->getNumBones() <= 0) {
+  if (armature->num_bones() <= 0) {
     return;
   }
 
@@ -103,7 +103,7 @@ Node *Model::createNodeMap(const aiNode & node, Node * parent, int level)
     createNodeMap(*node.mChildren[i], internalNode.get(), level + 1);
   }
 
-  parent->addChild(std::move(internalNode), level + 1);
+  parent->child_add(std::move(internalNode), level + 1);
 
   return nodePtr;
 }
@@ -164,7 +164,7 @@ void Model::createMesh(Assets &assets, const aiNode & node,
       for (unsigned int iw = 0; iw < assimpBone->mNumWeights; iw++) {
         int id = assimpBone->mWeights[iw].mVertexId;
         aiVertexWeight vertexWeight;
-        vertexWeight = aiVertexWeight(bone->getIndex(), assimpBone->mWeights[iw].mWeight);
+        vertexWeight = aiVertexWeight(bone->get_index(), assimpBone->mWeights[iw].mWeight);
         weightsPerVertex[id].push_back(vertexWeight);
       }
 
@@ -203,10 +203,7 @@ void Model::createMesh(Assets &assets, const aiNode & node,
         v.uv.x = assimpMesh->mTextureCoords[p][iv].x;
         v.uv.y = assimpMesh->mTextureCoords[p][iv].y;
         if (p > 0) {
-          std::
-            cout <<
-            "Fragmic warning: more than one set of vertex coordinates for one mesh"
-            << std::endl;
+          std::cout << "Fragmic warning: more than one set of texture coordinates for one mesh" << std::endl;
           std::cout << "NOT CURRENTLY SUPPORTED!" << std::endl;
         }
         p++;

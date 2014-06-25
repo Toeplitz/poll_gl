@@ -14,11 +14,10 @@ Bone::Bone(const std::string & _name, const unsigned int &_id,
 
 Bone::~Bone()
 {
-
 }
 
 
-const unsigned int Bone::getIndex()
+unsigned int Bone::get_index()
 {
   return id;
 }
