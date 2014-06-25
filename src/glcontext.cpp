@@ -57,8 +57,6 @@ void GLcontext::check_error()
 }
 
 
-
-
 void GLcontext::clear()
 {
   glm::vec4 color(1.0, 1.0, 1.0, 1.0);
@@ -85,16 +83,8 @@ void GLcontext::draw(Node &node)
 }
 
 
-bool GLcontext::init(const Window &window)
+bool GLcontext::init(const int width, const int height)
 {
-  glSdlContext = SDL_GL_CreateContext(window.window);
-
-  const char *error = SDL_GetError();
-  if (*error != '\0') {
-    std::cout << "GL CONTEXT SDL Error: " << error << std::endl;
-    SDL_ClearError();
-  }
-
   if (glewInit() != GLEW_OK) {
     std::cout << "GLcontext ERROR: failed to initalize GLEW" << std::endl;
     return false;
@@ -111,7 +101,7 @@ bool GLcontext::init(const Window &window)
   glEnable(GL_MULTISAMPLE);
   glEnable(GL_STENCIL_TEST);
   glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-  glViewport(0, 0, window.width, window.height);
+  glViewport(0, 0, width, height);
 
   return true;
 }
@@ -123,29 +113,7 @@ void GLcontext::polygon_mesh_toggle(bool tog)
 }
 
 
-void GLcontext::swap_interval_set(const int &n)
-{
-  // 0 for immediate updates, 1 for updates synchronized with
-  // the vertical retrace, -1 for late swap tearing
-  SDL_GL_SetSwapInterval(n);
-}
-
-
-void GLcontext::swap(const Window &uiwindow)
-{
-  check_error();
-  SDL_GL_SwapWindow(uiwindow.window);
-}
-
-
-void GLcontext::term()
-{
-  std::cout << "Deleting GL context" << std::endl;
-  SDL_GL_DeleteContext(glSdlContext);
-}
-
-
-void GLcontext::uniform_buffers_init(GLshader &shader, Camera &camera, Scene &scene)
+void GLcontext::uniform_buffers_init(GLshader &shader)
 {
   GLuint program = shader.program;
   GLint uniform_block_index;

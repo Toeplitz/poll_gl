@@ -55,12 +55,12 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   window(width, height)
 {
   window.init(title);
-  if (!glcontext.init(window)) {
+  window.swap_interval_set(0);
+  if (!glcontext.init(window.width, window.height)) {
     exit(-1);
   }
   shader.load("shaders/animation.v", "shaders/animation.f");
-  glcontext.uniform_buffers_init(shader, camera, scene);
-  glcontext.swap_interval_set(0);
+  glcontext.uniform_buffers_init(shader);
 }
 
 
@@ -88,7 +88,6 @@ void Fragmic::run()
       std::cout << "Fragmic exiting..." << std::endl;
       return;
     }
-    window.check_error();
     glcontext.clear();
     camera.update((double) dt / 1000.0);
 
@@ -113,14 +112,14 @@ void Fragmic::run()
       glcontext.draw(*node);
     }
 
-    glcontext.swap(window);
+    glcontext.check_error();
+    window.swap();
   }
 }
 
 
 void Fragmic::term()
 {
-  glcontext.term();
   window.term();
 }
 
