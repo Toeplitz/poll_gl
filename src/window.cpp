@@ -95,6 +95,7 @@ void Window::swap()
 
 void Window::term()
 {
+  /* FIXME: delete gl stuff here, buffers, vao etc. */
   std::cout << "Deleting GL context" << std::endl;
   SDL_GL_DeleteContext(gl_sdl_context);
   std::cout << "Deleting uiwindow (SDL)" << std::endl;

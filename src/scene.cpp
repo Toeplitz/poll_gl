@@ -79,7 +79,7 @@ void Scene::scene_graph_print_by_node(Node &node)
 }
 
 
-void Scene::transform_queue_add(Node &node) 
+void Scene::animation_queue_add(Node &node) 
 {
   bool r = (std::find(transform_queue.begin(), transform_queue.end(), &node) != transform_queue.end());
   if (r) {
@@ -90,13 +90,13 @@ void Scene::transform_queue_add(Node &node)
 }
 
 
-std::vector <Node *> Scene::transform_queue_get() 
+std::vector <Node *> Scene::animation_queue_get() 
 {
   return transform_queue;
 }
 
 
-void Scene::transform_update(Node &node, Uint32 dt)
+void Scene::animation_queue_update_transforms(Node &node, Uint32 dt)
 {
   glm::mat4 transform = node.transform_local_current;
   Node *parent = node.parent;
@@ -113,7 +113,7 @@ void Scene::transform_update(Node &node, Uint32 dt)
   }
 
   for (auto &child : node.children) {
-    transform_update(*child, dt);
+    animation_queue_update_transforms(*child, dt);
   }
 }
 
@@ -124,7 +124,7 @@ void Scene::upload_queue_add(Node &node)
     upload_queue.push_back(&node);
     render_queue_add(node);
   } else if (node.armature) {
-    transform_queue_add(node);
+    animation_queue_add(node);
   }
 
   for (auto &child : node.children) {

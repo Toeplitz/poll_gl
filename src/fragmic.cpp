@@ -49,9 +49,6 @@ void Fragmic::run()
       std::cout << "Fragmic exiting..." << std::endl;
       return;
     }
-    glcontext.clear();
-    camera.update((double) dt / 1000.0);
-
     Node *upload_node = scene.upload_queue_pop();
     while (upload_node) {
       glcontext.vertex_buffers_add(*upload_node);
@@ -62,16 +59,16 @@ void Fragmic::run()
     for (auto &armature: assets.armatures_get()) {
       armature->bones_update_skinningmatrices();
     }
-
-    for (auto &node: scene.transform_queue_get()) {
-      scene.transform_update(*node, dt);
+    for (auto &node: scene.animation_queue_get()) {
+      scene.animation_queue_update_transforms(*node, dt);
     }
 
+    camera.update((double) dt / 1000.0);
     glcontext.uniform_buffers_update_camera(camera);
+    glcontext.clear();
     for (auto &node: scene.render_queue_get()) {
       glcontext.draw(*node, window.aabb_view_toggle);
     }
-
     glcontext.check_error();
     window.swap();
   }

@@ -27,9 +27,9 @@ class Scene {
     std::vector<Node *>   render_queue_get();
     void                  scene_graph_print();
     void                  scene_graph_print_by_node(Node &node);
-    void                  transform_queue_add(Node &node);
-    std::vector<Node *>   transform_queue_get();
-    void                  transform_update(Node &node, Uint32 dt);
+    void                  animation_queue_add(Node &node);
+    std::vector<Node *>   animation_queue_get();
+    void                  animation_queue_update_transforms(Node &node, Uint32 dt);
     void                  upload_queue_add(Node &node);
     Node                 *upload_queue_pop();
 
