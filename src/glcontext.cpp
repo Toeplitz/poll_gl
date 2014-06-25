@@ -5,7 +5,7 @@
 /**************************************************/
 
 
-bool GLcontext::check_version(const int &major, const int &minor)
+bool GLcontext::check_version(const int &major)
 {
   int maj, min;
 
@@ -65,21 +65,32 @@ void GLcontext::clear()
 }
 
 
-void GLcontext::draw(Node &node)
+void GLcontext::draw(Node &node, bool aabb)
 {
   Mesh *mesh = node.mesh;
   if (!mesh) return;
 
+  glBindVertexArray(node.gl_vao);
   GLsizei count = (GLsizei) mesh->getSize();
   GLvoid *indices = (GLvoid *) (mesh->aabb.getNumIndices() * sizeof(GLushort));
   GLint baseVertex = (GLint) mesh->aabb.getNumVertices();
-  glBindVertexArray(node.gl_vao);
+  
+  if (aabb) {
+    uniform_buffers_update_mesh(*mesh, true);
+    glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, 0);
+    glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, (GLvoid*)(4*sizeof(GLushort)));
+    glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, (GLvoid*)(8*sizeof(GLushort)));
+    glLineWidth(2);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(1, 0);
+  }
+
+  uniform_buffers_update_node(node);
+  uniform_buffers_update_mesh(*mesh, false);
   glDrawElementsBaseVertex(GL_TRIANGLES, count, 
       GL_UNSIGNED_SHORT, 
       indices, 
       baseVertex);
-
-  glBindVertexArray(0);
 }
 
 
@@ -90,7 +101,7 @@ bool GLcontext::init(const int width, const int height)
     return false;
   }
 
-  if (!check_version(3, 0)) {
+  if (!check_version(3)) {
     std::cout << "GLcontext ERROR: OpenGL version not supported!" << std::endl;
     return false;
   }
@@ -117,7 +128,6 @@ void GLcontext::uniform_buffers_init(GLshader &shader)
 {
   GLuint program = shader.program;
   GLint uniform_block_index;
-  GLuint buffer;
   GLenum target;
   GLuint bindPointIndex;
 
@@ -164,14 +174,16 @@ void GLcontext::uniform_buffers_init(GLshader &shader)
   {
     glm::vec4 debug(0.5, 0.5, 0.5, 0);
     bindPointIndex = UB_DEBUG;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(target, buffer);
-    glBindBufferRange(target, bindPointIndex, buffer, 0, sizeof(debug));
-    glBindBufferBase(target, bindPointIndex, buffer);
+    glGenBuffers(1, &gl_buffer_debug);
+    glBindBuffer(target, gl_buffer_debug);
+    glBufferData(target, sizeof(debug), &debug, GL_STREAM_DRAW);
+    glBindBufferRange(target, bindPointIndex, gl_buffer_debug, 0, sizeof(debug));
+    glBindBufferBase(target, bindPointIndex, gl_buffer_debug);
   }
 }
 
-void GLcontext::uniform_buffers_update(GLshader &shader, Camera &camera)
+
+void GLcontext::uniform_buffers_update_camera(Camera &camera)
 {
   GLenum target = GL_UNIFORM_BUFFER;
   GLintptr offset = 0;
@@ -183,13 +195,35 @@ void GLcontext::uniform_buffers_update(GLshader &shader, Camera &camera)
 }
 
 
-void GLcontext::uniform_buffers_update_node(GLshader &shader, Node &node)
+void GLcontext::uniform_buffers_update_debug(glm::vec4 &data)
+{
+  GLenum target = GL_UNIFORM_BUFFER;
+  GLintptr offset = 0;
+  glBindBuffer(target, gl_buffer_debug);
+  glBufferSubData(target, offset, sizeof(data), &data);
+}
+
+void GLcontext::uniform_buffers_update_mesh(Mesh &mesh, bool aabb)
+{
+  GLenum target = GL_UNIFORM_BUFFER;
+  GLintptr offset = 0;
+  glm::mat4 d;
+  glBindBuffer(target, gl_buffer_matrices);
+  if (aabb) {
+    d = mesh.model * mesh.aabb.transform;
+  } else {
+    d = mesh.model;
+  }
+  glBufferSubData(target, offset, sizeof(d), &d);
+
+}
+
+void GLcontext::uniform_buffers_update_node(Node &node)
 {
   GLenum target = GL_UNIFORM_BUFFER;
   GLintptr offset = 0;
   Armature *armature = node.armature;
   Material *material = node.material;
-  Mesh *mesh = node.mesh;
 
   if (armature) {
     glBindBuffer(target, gl_buffer_armature);
@@ -203,12 +237,6 @@ void GLcontext::uniform_buffers_update_node(GLshader &shader, Node &node)
       glBindTexture(GL_TEXTURE_2D, texture->gl_texture);
     }
   }
-
-  if (mesh) {
-    glBindBuffer(target, gl_buffer_matrices);
-    glBufferSubData(target, offset, sizeof(mesh->model), &mesh->model);
-  }
-
 }
 
 

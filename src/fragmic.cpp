@@ -1,22 +1,6 @@
 #include "fragmic.h"
-
-
-void Fragmic::toggleDebug()
-{
-  /*
-  static int toggle = 0;
-
-  toggle = !toggle;
-
-  GLuniformBuffer *buffer = buffers.getDebugBuffer();
-
-  std::cout << "TOGGLE: " << toggle << std::endl;
-
-  glm::vec4 d(0.5, 0.5, 0.5, toggle);
-  buffer->update(d, 0);
-  */
-}
-
+#include <SDL2/SDL_timer.h>             // for SDL_GetTicks
+#include <iostream>                     // for operator<<, basic_ostream, etc
 
 
 /**************************************************/
@@ -49,18 +33,17 @@ void Fragmic::profile_fps(Uint32 dt)
 
 Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   camera(width, height), 
-  glcontext(), 
   shader(), 
   scene(), 
   window(width, height)
 {
   window.init(title);
   window.swap_interval_set(0);
-  if (!glcontext.init(window.width, window.height)) {
+  if (!window.glcontext_get().init(window.width, window.height)) {
     exit(-1);
   }
   shader.load("shaders/animation.v", "shaders/animation.f");
-  glcontext.uniform_buffers_init(shader);
+  window.glcontext_get().uniform_buffers_init(shader);
 }
 
 
@@ -77,6 +60,7 @@ Fragmic::~Fragmic()
 void Fragmic::run()
 {
   Uint32 lastTime = SDL_GetTicks();
+  GLcontext &glcontext = window.glcontext_get();
 
   for (;;) {
     Uint32 timeNow = SDL_GetTicks();
@@ -84,7 +68,7 @@ void Fragmic::run()
     lastTime = timeNow;
     profile_fps(dt);
 
-    if (!window.poll_events(camera, glcontext)) {
+    if (!window.poll_events(camera)) {
       std::cout << "Fragmic exiting..." << std::endl;
       return;
     }
@@ -106,10 +90,9 @@ void Fragmic::run()
       armature->updateBones();
     }
 
-    glcontext.uniform_buffers_update(shader, camera);
+    glcontext.uniform_buffers_update_camera(camera);
     for (auto &node: scene.render_queue_get()) {
-      glcontext.uniform_buffers_update_node(shader, *node);
-      glcontext.draw(*node);
+      glcontext.draw(*node, window.aabb_view_toggle);
     }
 
     glcontext.check_error();

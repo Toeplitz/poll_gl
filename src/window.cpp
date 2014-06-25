@@ -1,4 +1,13 @@
 #include "window.h"
+#include <SDL2/SDL.h>                   // for SDL_Init, SDL_Quit, etc
+#include <SDL2/SDL_error.h>             // for SDL_GetError, etc
+#include <SDL2/SDL_keycode.h>           // for ::SDLK_e, ::SDLK_q, etc
+#include <SDL2/SDL_mouse.h>             // for SDL_ShowCursor, etc
+#include <exception>                    // for exception
+#include <iostream>                     // for operator<<, basic_ostream, etc
+#include <stdexcept>                    // for runtime_error
+#include "camera.h"                     
+#include "glcontext.h"                  
 
 
 /**************************************************/
@@ -21,7 +30,7 @@ void Window::check_error()
 }
 
 
-bool Window::keyboard_callback_pressed(SDL_Keysym *keysym, Camera &camera, GLcontext &glcontext)
+bool Window::keyboard_callback_pressed(SDL_Keysym *keysym, Camera &camera)
 {
   if (custom_keyboard_pressed_callback)
     custom_keyboard_pressed_callback(keysym);
@@ -49,6 +58,9 @@ bool Window::keyboard_callback_pressed(SDL_Keysym *keysym, Camera &camera, GLcon
     case SDLK_p:
       glcontext.polygon_mesh_toggle(polygon_view_toggle);
       polygon_view_toggle = !polygon_view_toggle;
+      break;
+    case SDLK_a:
+      aabb_view_toggle = !aabb_view_toggle;
       break;
     default:
       break;
@@ -134,7 +146,9 @@ void Window::mouse_motion(SDL_MouseMotionEvent *ev, Camera &camera)
 
 Window::Window(const int &width, const int &height): 
   mouse_view_toggle(false),
-  polygon_view_toggle(false)
+  polygon_view_toggle(false),
+  glcontext(),
+  aabb_view_toggle(false)
 {
   this->width = width;
   this->height = height;
@@ -185,6 +199,15 @@ bool Window::init(const std::string &title)
 }
 
 
+void Window::debug_toggle()
+{
+  static int toggle = 0;
+  toggle = !toggle;
+  glm::vec4 d(0, 0, 0, toggle);
+  glcontext.uniform_buffers_update_debug(d);
+}
+
+
 void Window::swap_interval_set(const int n)
 {
   // 0 for immediate updates, 1 for updates synchronized with
@@ -209,7 +232,7 @@ void Window::term()
 }
 
 
-bool Window::poll_events(Camera &camera, GLcontext &glcontext)
+bool Window::poll_events(Camera &camera)
 {
   SDL_Event event;
 
@@ -223,7 +246,7 @@ bool Window::poll_events(Camera &camera, GLcontext &glcontext)
         keyboard_callback_released(&event.key.keysym, camera);
         break;
       case SDL_KEYDOWN:
-        return keyboard_callback_pressed(&event.key.keysym, camera, glcontext);
+        return keyboard_callback_pressed(&event.key.keysym, camera);
       case SDL_MOUSEBUTTONDOWN:
         mouse_button_down(&event.button, camera);
         break;
@@ -240,6 +263,12 @@ bool Window::poll_events(Camera &camera, GLcontext &glcontext)
   }
 
   return true;
+}
+
+
+GLcontext &Window::glcontext_get()
+{
+  return glcontext;
 }
 
 

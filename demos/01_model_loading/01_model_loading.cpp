@@ -47,8 +47,8 @@ class Demo {
       Transform t;
       Scene &scene = fragmic.scene_get();
 
-      Node &node = scene.load_model("data/zombie/", "new_thin_zombie.dae");
-      t.translate(node, glm::vec3(-2.5, 2.5, 0));
+  //    Node &node = scene.load_model("data/zombie/", "new_thin_zombie.dae");
+  //    t.translate(node, glm::vec3(-2.5, 2.5, 0));
 
       Node &node2 = scene.load_model("data/bob/", "Bob_with_lamp.dae");
       t.translate(node2, glm::vec3(2.5, 2.5, 0));
@@ -63,10 +63,11 @@ class Demo {
       float maxTime = 3000; 
 
       Camera &camera = fragmic.camera_get();
+      Window &window = fragmic.window_get();
 
       switch (keysym->sym) {
         case SDLK_d:
-          fragmic.toggleDebug();
+          window.debug_toggle();
           break;
         case SDLK_l:
           load();
