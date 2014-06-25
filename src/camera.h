@@ -1,5 +1,4 @@
-#ifndef CAMERA_H
-#define CAMERA_H
+#pragma once
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -12,7 +11,7 @@
 
 #include "animated.h"
 #include "gldefaults.h"
-#include "window.h"
+
 
 enum CameraMove { FORWARD, BACKWARD, SIDESTEP_RIGHT, SIDESTEP_LEFT};
 
@@ -88,7 +87,7 @@ class Camera {
     void update(double dt);
     void computeDirections();
     void updateView();
-    bool mouseViewUpdate(const Window & uiwindow, int xPos, int yPos);
+    bool mouseViewUpdate(int xPos, int yPos, int width, int height);
     void setWayPoints(std::vector < glm::vec3 > points,
         std::vector < Uint32 > time, glm::vec3 _target,
         bool useCurPos);
@@ -97,6 +96,3 @@ class Camera {
     void createOrthoProjection(float width, float height);
     void translate(glm::vec3 dir);
 };
-
-
-#endif  /*  */

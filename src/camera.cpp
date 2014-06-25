@@ -178,12 +178,11 @@ void Camera::updateView()
 }  
 
 
-bool Camera::mouseViewUpdate(const Window &uiwindow, int xPos, int yPos) 
+bool Camera::mouseViewUpdate(int xPos, int yPos, int width, int height) 
 {
-  horizontalAngle += mouseSpeed * float (uiwindow.width / 2 - xPos);
-  verticalAngle += mouseSpeed * float (uiwindow.height / 2 - yPos);
+  horizontalAngle += mouseSpeed * float (width / 2 - xPos);
+  verticalAngle += mouseSpeed * float (height / 2 - yPos);
 
-  SDL_WarpMouseInWindow(uiwindow.window, uiwindow.width / 2, uiwindow.height / 2);
   
   computeDirections();
   updateView();

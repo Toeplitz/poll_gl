@@ -16,7 +16,8 @@ class Demo {
     Demo(const std::string &title, const int &width, const int &height) 
       : fragmic(title, width, height)
     {
-      fragmic.ui_set_keyboard_pressed_callback(this, &Demo::keyboardPressedCallback);
+      Window &window = fragmic.window_get();
+      window.keyboard_pressed_callback_set(this, &Demo::keyboardPressedCallback);
     }
 
     ~Demo() 
