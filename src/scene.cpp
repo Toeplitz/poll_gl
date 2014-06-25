@@ -1,4 +1,5 @@
 #include "scene.h"
+#include "transform.h"
 #include "utils.h"
 
 
@@ -58,8 +59,8 @@ void Scene::scene_graph_print()
 
 void Scene::scene_graph_print_by_node(Node &node)
 {
-  indent(std::cout, node.treeLevel);
-  std::cout << node.treeLevel << ": '" << node.
+  indent(std::cout, node.tree_level);
+  std::cout << node.tree_level << ": '" << node.
     name << "'" << &node << "";
 
   if (node.mesh) {
@@ -97,18 +98,18 @@ std::vector <Node *> Scene::transform_queue_get()
 
 void Scene::transform_update(Node &node, Uint32 dt)
 {
-  glm::mat4 transform = node.currentLocalTransform;
+  glm::mat4 transform = node.transform_local_current;
   Node *parent = node.parent;
 
   if (node.getNumKeyFrames() != 0) {
     node.stepTime((double) dt / 1000.0);
-    node.setCurrentLocalTransform(node.localInterpolatedMatrix);
+    node.local_transform_current_set(node.localInterpolatedMatrix);
   }
 
   if (parent) {
-    node.globalTransform = parent->globalTransform * transform;
+    node.transform_global = parent->transform_global * transform;
   } else {
-    node.globalTransform = transform;
+    node.transform_global = transform;
   }
 
   for (auto &child : node.children) {

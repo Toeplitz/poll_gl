@@ -17,8 +17,6 @@ class Assets {
     std::vector <std::unique_ptr <Material>> materials;
     std::vector <std::unique_ptr <Mesh>> meshes;
 
-    std::mutex mutex; 
-
   public:
 
     Assets() {
@@ -29,19 +27,16 @@ class Assets {
     }
 
     void addMaterial(std::unique_ptr<Material> &&material) {
-      std::lock_guard<std::mutex> lock(mutex);
       materials.push_back(std::move(material));
     }
 
 
-    void addMesh(std::unique_ptr <Mesh> &&mesh) {
-      std::lock_guard<std::mutex> lock(mutex);
+    void addMesh(std::unique_ptr<Mesh> &&mesh) {
       meshes.push_back(std::move(mesh));
     }
 
 
-    void addArmature(std::unique_ptr <Armature> &&armature) {
-      std::lock_guard<std::mutex> lock(mutex);
+    void addArmature(std::unique_ptr<Armature> &&armature) {
       armatures.push_back(std::move(armature));
     }
 
@@ -51,11 +46,6 @@ class Assets {
       return armatures;
     } 
 
-
-    std::mutex &getMutex()
-    {
-      return mutex;
-    }
 
 };
 

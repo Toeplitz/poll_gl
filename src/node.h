@@ -28,11 +28,11 @@ class Node: public Animated {
     Mesh         *mesh;
     Node         *parent;
     std::string   name;
-    glm::mat4     globalTransform;
-    glm::mat4     currentLocalTransform;
-    glm::mat4     originalLocalTransform;
+    glm::mat4     transform_global;
+    glm::mat4     transform_local_current;
+    glm::mat4     transform_local_original;
     Node_List     children;
-    int           treeLevel;
+    int           tree_level;
 
     Node(const std::string &_name);
     ~Node();

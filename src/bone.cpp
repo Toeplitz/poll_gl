@@ -25,7 +25,7 @@ unsigned int Bone::get_index()
 
 glm::mat4 Bone::updateSkinningMatrix() 
 {
-  skinningMatrix = jointNode->globalTransform * offsetMatrix;
+  skinningMatrix = jointNode->transform_global * offsetMatrix;
 
   return skinningMatrix;
 }

@@ -1,5 +1,11 @@
 #include "transform.h"
 
+
+/**************************************************/
+/***************** CONSTRUCTORS *******************/
+/**************************************************/
+
+
 Transform::Transform()
 {
 }
@@ -10,21 +16,20 @@ Transform::~Transform()
 }
 
 
-void Transform::calculateGlobalTransformTopDownConcurrent(std::vector<Node *> nodes)
-{
-
-}
+/**************************************************/
+/***************** PUBLIC METHODS *****************/
+/**************************************************/
 
 
 void Transform::calculateGlobalTransformTopDown(Node &node)
 {
-  glm::mat4 transform = node.currentLocalTransform;
+  glm::mat4 transform = node.transform_local_current;
   Node *parent = node.parent;
 
   if (parent) {
-    node.globalTransform = parent->globalTransform * transform;
+    node.transform_global = parent->transform_global * transform;
   } else {
-    node.globalTransform = transform;
+    node.transform_global = transform;
   }
 
   for (auto &child : node.children) {
@@ -32,24 +37,9 @@ void Transform::calculateGlobalTransformTopDown(Node &node)
   }
 }
 
-
-void Transform::calculateGlobalTransform(Node &node)
-{
-  glm::mat4 transform = node.currentLocalTransform;
-  Node *nodePtr = node.parent;
-
-  while (nodePtr) {
-    transform = nodePtr->currentLocalTransform * transform;
-    nodePtr = nodePtr->parent;
-  }
-
-  node.globalTransform = transform;
-}
-
-
 void Transform::translate(Node &node, glm::vec3 v)
 {
   glm::mat4 t = glm::translate(glm::mat4(1.f), v);
-  node.currentLocalTransform = node.currentLocalTransform * t;
+  node.transform_local_current = node.transform_local_current * t;
   calculateGlobalTransformTopDown(node);
 }

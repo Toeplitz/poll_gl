@@ -11,135 +11,6 @@
 
 
 /**************************************************/
-/***************** PRIVATE METHODS ****************/
-/**************************************************/
-
-
-void Window::check_error()
-{
-  try {
-    const char *sdl_error = SDL_GetError();
-    if ('\0' != sdl_error[0]) {
-      throw std::runtime_error(std::string("SDL error: ") + sdl_error);
-      SDL_ClearError();
-    }
-  }
-  catch(std::exception & e) {
-    std::cerr << e.what() << std::endl;
-  }
-}
-
-
-bool Window::keyboard_callback_pressed(SDL_Keysym *keysym, Camera &camera)
-{
-  if (custom_keyboard_pressed_callback)
-    custom_keyboard_pressed_callback(keysym);
-
-  switch (keysym->sym) {
-    case SDLK_ESCAPE:
-      return false;
-      break;
-    case SDLK_w:
-      camera.addMove(FORWARD);
-      break;
-    case SDLK_q:
-      camera.addMove(SIDESTEP_LEFT);
-      break;
-    case SDLK_s:
-      camera.addMove(BACKWARD);
-      break;
-    case SDLK_e:
-      camera.addMove(SIDESTEP_RIGHT);
-      break;
-    case SDLK_m:
-      mouse_cursor_toggle();
-      mouse_view_toggle = !mouse_view_toggle;
-      break;
-    case SDLK_p:
-      glcontext.polygon_mesh_toggle(polygon_view_toggle);
-      polygon_view_toggle = !polygon_view_toggle;
-      break;
-    case SDLK_a:
-      aabb_view_toggle = !aabb_view_toggle;
-      break;
-    default:
-      break;
-  }
-
-  return true;
-}
-
-
-void Window::keyboard_callback_released(SDL_Keysym *keysym, Camera &camera)
-{
-
-  switch (keysym->sym) {
-    case SDLK_w:
-      camera.deleteMove(FORWARD);
-      break;
-    case SDLK_q:
-      camera.deleteMove(SIDESTEP_LEFT);
-      break;
-    case SDLK_s:
-      camera.deleteMove(BACKWARD);
-      break;
-    case SDLK_e:
-      camera.deleteMove(SIDESTEP_RIGHT);
-      break;
-    default:
-      break;
-  }
-
-}
-
-
-void Window::mouse_button_down(SDL_MouseButtonEvent *ev, Camera &camera)
-{
-  if (ev->button != 3 || !mouse_view_toggle)
-    return;
-  camera.addMove(FORWARD);
-}
-
-
-void Window::mouse_button_up(SDL_MouseButtonEvent *ev, Camera &camera)
-{
-  if (ev->button != 3 || !mouse_view_toggle)
-    return;
-  camera.deleteMove(FORWARD);
-}
-
-
-void Window::mouse_cursor_toggle()
-{
-  static bool flagMouseCursor;
-  if (flagMouseCursor)
-    SDL_ShowCursor(1);
-  else
-    SDL_ShowCursor(0);
-  flagMouseCursor = !flagMouseCursor;
-}
-
-
-void Window::mouse_motion(SDL_MouseMotionEvent *ev, Camera &camera)
-{
-  static int last_x, last_y;
-
-  if (!mouse_view_toggle)
-    return;
-
-  if (!last_x)
-    last_x = ev->x;
-  if (!last_y)
-    last_y = ev->y;
-
-  camera.mouseViewUpdate(ev->x, ev->y, width, height);
-  SDL_WarpMouseInWindow(window, width / 2, height / 2);
-
-  last_x = ev->x;
-  last_y = ev->y;
-}
-
-/**************************************************/
 /***************** CONSTRUCTORS *******************/
 /**************************************************/
 
@@ -272,3 +143,131 @@ GLcontext &Window::glcontext_get()
 }
 
 
+/**************************************************/
+/***************** PRIVATE METHODS ****************/
+/**************************************************/
+
+
+void Window::check_error()
+{
+  try {
+    const char *sdl_error = SDL_GetError();
+    if ('\0' != sdl_error[0]) {
+      throw std::runtime_error(std::string("SDL error: ") + sdl_error);
+      SDL_ClearError();
+    }
+  }
+  catch(std::exception & e) {
+    std::cerr << e.what() << std::endl;
+  }
+}
+
+
+bool Window::keyboard_callback_pressed(SDL_Keysym *keysym, Camera &camera)
+{
+  if (custom_keyboard_pressed_callback)
+    custom_keyboard_pressed_callback(keysym);
+
+  switch (keysym->sym) {
+    case SDLK_ESCAPE:
+      return false;
+      break;
+    case SDLK_w:
+      camera.addMove(FORWARD);
+      break;
+    case SDLK_q:
+      camera.addMove(SIDESTEP_LEFT);
+      break;
+    case SDLK_s:
+      camera.addMove(BACKWARD);
+      break;
+    case SDLK_e:
+      camera.addMove(SIDESTEP_RIGHT);
+      break;
+    case SDLK_m:
+      mouse_cursor_toggle();
+      mouse_view_toggle = !mouse_view_toggle;
+      break;
+    case SDLK_p:
+      glcontext.polygon_mesh_toggle(polygon_view_toggle);
+      polygon_view_toggle = !polygon_view_toggle;
+      break;
+    case SDLK_a:
+      aabb_view_toggle = !aabb_view_toggle;
+      break;
+    default:
+      break;
+  }
+
+  return true;
+}
+
+
+void Window::keyboard_callback_released(SDL_Keysym *keysym, Camera &camera)
+{
+
+  switch (keysym->sym) {
+    case SDLK_w:
+      camera.deleteMove(FORWARD);
+      break;
+    case SDLK_q:
+      camera.deleteMove(SIDESTEP_LEFT);
+      break;
+    case SDLK_s:
+      camera.deleteMove(BACKWARD);
+      break;
+    case SDLK_e:
+      camera.deleteMove(SIDESTEP_RIGHT);
+      break;
+    default:
+      break;
+  }
+
+}
+
+
+void Window::mouse_button_down(SDL_MouseButtonEvent *ev, Camera &camera)
+{
+  if (ev->button != 3 || !mouse_view_toggle)
+    return;
+  camera.addMove(FORWARD);
+}
+
+
+void Window::mouse_button_up(SDL_MouseButtonEvent *ev, Camera &camera)
+{
+  if (ev->button != 3 || !mouse_view_toggle)
+    return;
+  camera.deleteMove(FORWARD);
+}
+
+
+void Window::mouse_cursor_toggle()
+{
+  static bool flagMouseCursor;
+  if (flagMouseCursor)
+    SDL_ShowCursor(1);
+  else
+    SDL_ShowCursor(0);
+  flagMouseCursor = !flagMouseCursor;
+}
+
+
+void Window::mouse_motion(SDL_MouseMotionEvent *ev, Camera &camera)
+{
+  static int last_x, last_y;
+
+  if (!mouse_view_toggle)
+    return;
+
+  if (!last_x)
+    last_x = ev->x;
+  if (!last_y)
+    last_y = ev->y;
+
+  camera.mouseViewUpdate(ev->x, ev->y, width, height);
+  SDL_WarpMouseInWindow(window, width / 2, height / 2);
+
+  last_x = ev->x;
+  last_y = ev->y;
+}

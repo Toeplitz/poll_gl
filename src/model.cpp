@@ -42,8 +42,7 @@ Model::~Model()
 }
 
 
-void Model::createBoneMap(Assets & assets,
-    BoneForAssimpBone & boneForAssimpBone)
+void Model::createBoneMap(Assets & assets, BoneForAssimpBone & boneForAssimpBone)
 {
   size_t boneIndex = 0;
   auto armature = std::unique_ptr < Armature > (new Armature());
@@ -68,21 +67,19 @@ void Model::createBoneMap(Assets & assets,
       assert(internalBone->jointNode);
 
       boneForAssimpBone[assimpBone] = internalBone.get();
-      armature->addBone(std::move(internalBone));
+      armature->bones_add(std::move(internalBone));
       ++boneIndex;
     }
   }
 
-  if (armature->num_bones() <= 0) {
+  if (armature->bones_num_get() <= 0) {
     return;
   }
 
-  Node *armatureRoot = armature->findArmatureRootNode();
-
+  Node *armatureRoot = armature->find_toplevel_node();
   if (armatureRoot) {
     armatureRoot->armature = armature.get();
   }
-
   armaturePtr = armature.get();
   assets.addArmature(std::move(armature));
 }
@@ -96,8 +93,8 @@ Node *Model::createNodeMap(const aiNode & node, Node * parent, int level)
 
   nodes[key] = internalNode.get();
   copyaiMat(&node.mTransformation, localTransform);
-  internalNode->setOriginalLocalTransform(localTransform);
-  internalNode->setCurrentLocalTransform(localTransform);
+  internalNode->local_transform_original_set(localTransform);
+  internalNode->local_transform_current_set(localTransform);
 
   for (size_t i = 0; i < node.mNumChildren; i++) {
     createNodeMap(*node.mChildren[i], internalNode.get(), level + 1);
@@ -175,16 +172,16 @@ void Model::createMesh(Assets &assets, const aiNode & node,
       // to make a guess at where the skeleton root is and calculate how to
       // transform mesh coordinates to skeleton root coordinates.  The Mesh::model
       // will then need to be calculated on each frame as 
-      // mesh.model = mesh.skeletonNode->globalTransform * mesh.skeletonTransform
+      // mesh.model = mesh.skeletonNode->transform_global * mesh.skeletonTransform
       // We can set mesh.skeletonNode to mesh.node and mesh.skeletonTransform
       // to identity if the mesh has no bones.
-      m.model = bone->jointNode->globalTransform * bone->offsetMatrix;
+      m.model = bone->jointNode->transform_global * bone->offsetMatrix;
     }
 
     if (!assimpMesh->mNumBones) {
       std::cout << "Fragmic Info: no bones for mesh, setting model transform:" << std::endl;
       printMatrix(std::cout, m.model, 0);
-      m.model = meshNode->globalTransform;
+      m.model = meshNode->transform_global;
     }
 
     for (unsigned int iv = 0; iv < assimpMesh->mNumVertices; iv++) {
@@ -368,7 +365,7 @@ Node *Model::load(Assets &assets, Node &root,
       aiProcess_GenSmoothNormals |
       aiProcess_FlipUVs | aiProcess_LimitBoneWeights);
 
-  Node *rootPtr = createNodeMap(*scene->mRootNode, &root, root.treeLevel);
+  Node *rootPtr = createNodeMap(*scene->mRootNode, &root, root.tree_level);
 
   t.calculateGlobalTransformTopDown(*rootPtr);
 

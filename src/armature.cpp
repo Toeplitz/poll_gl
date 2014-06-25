@@ -1,5 +1,11 @@
 #include "armature.h"
 
+
+/**************************************************/
+/***************** CONSTRUCTORS *******************/
+/**************************************************/
+
+
 Armature::Armature()
 {
 } 
@@ -10,39 +16,19 @@ Armature::~Armature()
 }
 
 
-unsigned int Armature::num_bones()
-{
-  return bones.size();
+/**************************************************/
+/***************** PUBLIC METHODS *****************/
+/**************************************************/
+
+
+void Armature::bones_add(std::unique_ptr<Bone> &&bone) {
+  assert(bones.size() == bone->get_index());
+  bones.push_back(std::move(bone));
+  skinning_matrices.resize(bones.size());
 }
 
 
-Node *Armature::findArmatureRootNode()
-{
-  Node *root = nullptr;
-
-  for (auto &boneEntry : bones) {
-    Bone &bone = *boneEntry;
-
-    if (!root) {
-      root = bone.jointNode;
-    } else {
-      Node *node = bone.jointNode;
-
-      if (root->treeLevel >= node->treeLevel) {
-        root = node;
-      }
-
-    }
-  }
-
-  if (!root->parent)
-    return root;
-
-  return root->parent;
-}
-
-
-void Armature::update_bones()
+void Armature::bones_update_skinningmatrices()
 {
   for (auto &bone_entry: bones) {
     Bone &bone = *bone_entry;
@@ -52,9 +38,28 @@ void Armature::update_bones()
 }
 
 
-void Armature::addBone(std::unique_ptr<Bone> &&bone) {
-  assert(bones.size() == bone->get_index());
-  bones.push_back(std::move(bone));
-  skinning_matrices.resize(bones.size());
+unsigned int Armature::bones_num_get()
+{
+  return bones.size();
 }
 
+
+Node *Armature::find_toplevel_node()
+{
+  Node *root = nullptr;
+  for (auto &boneEntry : bones) {
+    Bone &bone = *boneEntry;
+    if (!root) {
+      root = bone.jointNode;
+    } else {
+      Node *node = bone.jointNode;
+      if (root->tree_level >= node->tree_level) {
+        root = node;
+      }
+    }
+  }
+  if (!root->parent)
+    return root;
+
+  return root->parent;
+}

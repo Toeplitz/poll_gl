@@ -4,28 +4,6 @@
 
 
 /**************************************************/
-/***************** PRIVATE METHODS ****************/
-/**************************************************/
-
-
-void Fragmic::profile_fps(Uint32 dt)
-{
-  static int numFrames = 0;
-  static Uint32 t;
-
-  numFrames++;
-  t += dt;
-
-  if (t >= 1000) {
-    std::cout << numFrames << " frames/sec, " << 1000.0 /
-      numFrames << " ms/frame" << std::endl;
-    t = 0;
-    numFrames = 0;
-  }
-}
-
-
-/**************************************************/
 /***************** CONSTRUCTORS *******************/
 /**************************************************/
 
@@ -80,13 +58,13 @@ void Fragmic::run()
       upload_node = scene.upload_queue_pop();
     }
 
-    for (auto &node: scene.transform_queue_get()) {
-      scene.transform_update(*node, dt);
-    }
-
     Assets &assets = scene.assets_get();
     for (auto &armature: assets.armatures_get()) {
-      armature->update_bones();
+      armature->bones_update_skinningmatrices();
+    }
+
+    for (auto &node: scene.transform_queue_get()) {
+      scene.transform_update(*node, dt);
     }
 
     glcontext.uniform_buffers_update_camera(camera);
@@ -126,3 +104,23 @@ Window &Fragmic::window_get()
 
 
 
+/**************************************************/
+/***************** PRIVATE METHODS ****************/
+/**************************************************/
+
+
+void Fragmic::profile_fps(Uint32 dt)
+{
+  static int numFrames = 0;
+  static Uint32 t;
+
+  numFrames++;
+  t += dt;
+
+  if (t >= 1000) {
+    std::cout << numFrames << " frames/sec, " << 1000.0 /
+      numFrames << " ms/frame" << std::endl;
+    t = 0;
+    numFrames = 0;
+  }
+}

@@ -1,22 +1,12 @@
 #pragma once
 
-#include <memory>
 #include <string>
 #include <vector>
-#include <deque>
-#include <thread>
-#include <mutex>
-#include <future>
-#include <thread>
-#include <chrono>
-#include <iostream>
 
-
-#include <SDL2/SDL.h>
+#include <SDL2/SDL_stdinc.h>            // for Uint32
 
 #include "model.h"
 #include "node.h"
-#include "transform.h"
 
 class Scene {
 

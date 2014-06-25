@@ -1,26 +1,5 @@
 #include "glcontext.h"
 
-/**************************************************/
-/***************** PRIVATE METHODS ****************/
-/**************************************************/
-
-
-bool GLcontext::check_version(const int &major)
-{
-  int maj, min;
-
-  glGetIntegerv(GL_MAJOR_VERSION, &maj);
-  glGetIntegerv(GL_MINOR_VERSION, &min);
-
-  std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
-  std::cout << "OpenGL version number: " << maj << "." << min << std::endl;
-
-  if (maj < major)
-    return false;
-
-  return true;
-}
-
 
 /**************************************************/
 /***************** CONSTRUCTORS *******************/
@@ -317,4 +296,26 @@ void GLcontext::vertex_buffers_add(Node &node)
           0, GL_RGB, GL_UNSIGNED_BYTE, texture->image->data);
     }
   }
+}
+
+
+/**************************************************/
+/***************** PRIVATE METHODS ****************/
+/**************************************************/
+
+
+bool GLcontext::check_version(const int &major)
+{
+  int maj, min;
+
+  glGetIntegerv(GL_MAJOR_VERSION, &maj);
+  glGetIntegerv(GL_MINOR_VERSION, &min);
+
+  std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
+  std::cout << "OpenGL version number: " << maj << "." << min << std::endl;
+
+  if (maj < major)
+    return false;
+
+  return true;
 }

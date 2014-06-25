@@ -16,10 +16,7 @@ class Transform
     ~Transform();
 
 
-    void calculateGlobalTransform(Node &node);
     void calculateGlobalTransformTopDown(Node &node);
-    void calculateGlobalTransformTopDownConcurrent(std::vector<Node *> nodes);
-
     void translate(Node &node, glm::vec3 v);
 };
 
