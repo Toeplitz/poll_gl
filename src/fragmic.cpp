@@ -10,6 +10,7 @@
 
 Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   camera(width, height), 
+  physics(),
   shader(), 
   scene(), 
   window(width, height)
@@ -44,7 +45,7 @@ void Fragmic::run()
     Uint32 timeNow = SDL_GetTicks();
     Uint32 dt = timeNow - lastTime;
     lastTime = timeNow;
- //   profile_fps(dt);
+    profile_fps(dt);
 
     if (!window.poll_events(camera)) {
       std::cout << "Fragmic exiting..." << std::endl;
@@ -63,6 +64,8 @@ void Fragmic::run()
     for (auto &node: scene.animation_list_get()) {
       scene.animation_list_update_transforms(*node, dt);
     }
+
+    physics.step(dt);
 
     camera.update((double) dt / 1000.0);
     glcontext.uniform_buffers_update_camera(camera);

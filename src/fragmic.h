@@ -5,6 +5,7 @@
 #include "camera.h"                     
 #include "glcontext.h"                  
 #include "glshader.h"                   
+#include "physics.h"
 #include "scene.h"                      
 #include "window.h"                     
 
@@ -12,6 +13,7 @@
 class Fragmic {
   private:
     Camera camera;
+    Physics physics;
     GLshader shader;
     Scene scene;
     Window window;

@@ -2,7 +2,7 @@ PROJECT = 01_model_loading
 
 SRC := $(wildcard *.cpp)
 OBJECTS = $(SRC:.cpp=.o)
-CFLAGS  = -I../../external/include -Wall -pedantic -g -std=c++11 -DGLM_FORCE_RADIANS
+CFLAGS  = -I/usr/include/bullet/ -I../../external/include -Wall -pedantic -g -std=c++11 -DGLM_FORCE_RADIANS
 
 all: $(PROJECT)
 
@@ -10,7 +10,7 @@ all: $(PROJECT)
 	g++ -c -I../../src/ $(CFLAGS) $<
 
 $(PROJECT): $(OBJECTS)
-	g++ -o $(PROJECT) $(OBJECTS) -L../../external/lib/ -L../../build/ -lfragmic -lassimp -lGLU -lGLEW -lGL /home/ms/git/SDL2/build/libSDL2.so.2.0.0
+	g++ -o $(PROJECT) $(OBJECTS) -L../../external/lib/ -L../../build/ -lfragmic -lassimp -lGLU -lGLEW -lGL /home/ms/git/SDL2/build/libSDL2.so.2.0.0 -lBulletDynamics -lBulletCollision -lLinearMath
 
 clean:
 	rm -f $(OBJECTS) $(PROJECT)
