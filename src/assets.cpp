@@ -58,9 +58,3 @@ void Assets::mesh_print_all()
 {
 
 }
-
-
-void Assets::print_stored()
-{
-
-}
