@@ -1,52 +1,32 @@
-#ifndef ASSETS_H
-#define ASSETS_H
+#pragma once
 
 #include <memory>
 #include <vector>
-#include <thread>
-#include <mutex>
 
 #include "armature.h"
 #include "material.h"
 #include "mesh.h"
 
+typedef std::vector<std::unique_ptr<Armature>> Armature_Unique_Ptr_List;
 
 class Assets {
   private:
-    std::vector <std::unique_ptr <Armature>> armatures;
-    std::vector <std::unique_ptr <Material>> materials;
-    std::vector <std::unique_ptr <Mesh>> meshes;
+    Armature_Unique_Ptr_List armatures;
+    std::vector<std::unique_ptr<Material>> materials;
+    std::vector<std::unique_ptr<Mesh>> meshes;
 
   public:
+    Assets();
+    ~Assets();
 
-    Assets() {
-    } 
-
-
-    ~Assets() {
-    }
-
-    void addMaterial(std::unique_ptr<Material> &&material) {
-      materials.push_back(std::move(material));
-    }
-
-
-    void addMesh(std::unique_ptr<Mesh> &&mesh) {
-      meshes.push_back(std::move(mesh));
-    }
-
-
-    void addArmature(std::unique_ptr<Armature> &&armature) {
-      armatures.push_back(std::move(armature));
-    }
-
-
-    std::vector<std::unique_ptr<Armature>> const &armatures_get() const 
-    {
-      return armatures;
-    } 
-
+    void                             armature_add(std::unique_ptr<Armature> &&armature);
+    Armature_Unique_Ptr_List  const &armature_get_all() const;
+    void                             armature_print_all();
+    void                             material_add(std::unique_ptr<Material> &&material);
+    void                             material_print_all();
+    void                             mesh_add(std::unique_ptr<Mesh> &&mesh);
+    void                             mesh_print_all();
+    void                             print_all();
 
 };
 
-#endif

@@ -39,15 +39,15 @@ Node &Scene::load_model(const std::string &prefix, const std::string &filename)
 }
 
 
-void Scene::render_queue_add(Node &node) 
+void Scene::render_list_add(Node &node) 
 {
-  render_queue.push_back(&node);
+  render_list.push_back(&node);
 }
 
 
-std::vector <Node *> Scene::render_queue_get() 
+std::vector <Node *> Scene::render_list_get() 
 {
-  return render_queue;
+  return render_list;
 }
 
 
@@ -79,24 +79,24 @@ void Scene::scene_graph_print_by_node(Node &node)
 }
 
 
-void Scene::animation_queue_add(Node &node) 
+void Scene::animation_list_add(Node &node) 
 {
-  bool r = (std::find(transform_queue.begin(), transform_queue.end(), &node) != transform_queue.end());
+  bool r = (std::find(animation_list.begin(), animation_list.end(), &node) != animation_list.end());
   if (r) {
     std::cout << "Node is already in transform queue." << std::endl;
     return;
   }
-  transform_queue.push_back(&node);
+  animation_list.push_back(&node);
 }
 
 
-std::vector <Node *> Scene::animation_queue_get() 
+std::vector <Node *> Scene::animation_list_get() 
 {
-  return transform_queue;
+  return animation_list;
 }
 
 
-void Scene::animation_queue_update_transforms(Node &node, Uint32 dt)
+void Scene::animation_list_update_transforms(Node &node, Uint32 dt)
 {
   glm::mat4 transform = node.transform_local_current;
   Node *parent = node.parent;
@@ -113,7 +113,7 @@ void Scene::animation_queue_update_transforms(Node &node, Uint32 dt)
   }
 
   for (auto &child : node.children) {
-    animation_queue_update_transforms(*child, dt);
+    animation_list_update_transforms(*child, dt);
   }
 }
 
@@ -122,9 +122,9 @@ void Scene::upload_queue_add(Node &node)
 {
   if (node.mesh) {
     upload_queue.push_back(&node);
-    render_queue_add(node);
+    render_list_add(node);
   } else if (node.armature) {
-    animation_queue_add(node);
+    animation_list_add(node);
   }
 
   for (auto &child : node.children) {

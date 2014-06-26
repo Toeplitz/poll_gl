@@ -38,6 +38,7 @@ void Fragmic::run()
 {
   Uint32 lastTime = SDL_GetTicks();
   GLcontext &glcontext = window.glcontext_get();
+  Assets &assets = scene.assets_get();
 
   for (;;) {
     Uint32 timeNow = SDL_GetTicks();
@@ -49,24 +50,24 @@ void Fragmic::run()
       std::cout << "Fragmic exiting..." << std::endl;
       return;
     }
+
     Node *upload_node = scene.upload_queue_pop();
     while (upload_node) {
       glcontext.vertex_buffers_add(*upload_node);
       upload_node = scene.upload_queue_pop();
     }
 
-    Assets &assets = scene.assets_get();
-    for (auto &armature: assets.armatures_get()) {
+    for (auto &armature: assets.armature_get_all()) {
       armature->bones_update_skinningmatrices();
     }
-    for (auto &node: scene.animation_queue_get()) {
-      scene.animation_queue_update_transforms(*node, dt);
+    for (auto &node: scene.animation_list_get()) {
+      scene.animation_list_update_transforms(*node, dt);
     }
 
     camera.update((double) dt / 1000.0);
     glcontext.uniform_buffers_update_camera(camera);
     glcontext.clear();
-    for (auto &node: scene.render_queue_get()) {
+    for (auto &node: scene.render_list_get()) {
       glcontext.draw(*node, window.aabb_view_toggle);
     }
     glcontext.check_error();

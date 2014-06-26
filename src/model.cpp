@@ -81,7 +81,7 @@ void Model::createBoneMap(Assets & assets, BoneForAssimpBone & boneForAssimpBone
     armatureRoot->armature = armature.get();
   }
   armaturePtr = armature.get();
-  assets.addArmature(std::move(armature));
+  assets.armature_add(std::move(armature));
 }
 
 Node *Model::createNodeMap(const aiNode & node, Node * parent, int level)
@@ -218,7 +218,7 @@ void Model::createMesh(Assets &assets, const aiNode & node,
 
     meshNode->mesh = meshPtr.get();
     meshNode->armature = armaturePtr;
-    assets.addMesh(std::move(meshPtr));
+    assets.mesh_add(std::move(meshPtr));
   }
 
 }
@@ -346,7 +346,7 @@ void Model::parseMaterials(Assets &assets)
     }
 
     materials.push_back(materialPtr.get());
-    assets.addMaterial(std::move(materialPtr));
+    assets.material_add(std::move(materialPtr));
   }
 }
 
