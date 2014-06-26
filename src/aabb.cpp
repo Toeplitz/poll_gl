@@ -74,7 +74,7 @@ void Aabb::setBounds(float minX, float minY, float minZ,
 
   transform = glm::translate(glm::mat4(1), center) * glm::scale(glm::mat4(1), size);
 
-  std::cout << "center: (" << center.x << ", " << center.y << "," << center.z << ")" << std::endl;
-  std::cout << "size: (" << size.x << ", " << size.y << "," << size.z << ")" << std::endl;
+ // std::cout << "center: (" << center.x << ", " << center.y << "," << center.z << ")" << std::endl;
+ // std::cout << "size: (" << size.x << ", " << size.y << "," << size.z << ")" << std::endl;
 }
 

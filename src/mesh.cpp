@@ -10,11 +10,9 @@ Mesh::~Mesh(void)
 }
 
 
-const unsigned int Mesh::getSize()
-{
+unsigned int Mesh::num_indices_get() {
   return indices.size();
 }
-
 
 Aabb Mesh::generateBoundingAabb() const
 {
@@ -32,8 +30,8 @@ Aabb Mesh::generateBoundingAabb() const
     maximum = glm::max(maximum, v.position);
   }
 
-  std::cout << "minimum: " << minimum.x << ", " << minimum.y << ", " << minimum.z << std::endl;
-  std::cout << "maximum: " << maximum.x << ", " << maximum.y << ", " << maximum.z << std::endl;
+ // std::cout << "minimum: " << minimum.x << ", " << minimum.y << ", " << minimum.z << std::endl;
+ // std::cout << "maximum: " << maximum.x << ", " << maximum.y << ", " << maximum.z << std::endl;
 
   aabb.setBounds(minimum.x, minimum.y, minimum.z,
       maximum.x, maximum.y, maximum.z);
@@ -60,15 +58,15 @@ void Mesh::buffer_data_get(std::vector<glm::vec4> *vertices_ptr,
   aabb = generateBoundingAabb();
 
   for (size_t i = 0; i < aabb.vertices.size(); i++) {
-    std::cout << "AABB: (" << aabb.vertices[i].position.x << ", " << aabb.vertices[i].position.y << "," << aabb.vertices[i].position.z << ")" << std::endl;
+ //   std::cout << "AABB: (" << aabb.vertices[i].position.x << ", " << aabb.vertices[i].position.y << "," << aabb.vertices[i].position.z << ")" << std::endl;
     tempVert.push_back(glm::vec4(aabb.vertices[i].position, 1.0));
     tempNormal.push_back(glm::vec4(0, 0, 0, 1.0));
     tempWeight.push_back(glm::vec4(0, 0, 0, 0));
     tempBoneIndex.push_back(glm::ivec4(0,0,0,0));
     tempUv.push_back(glm::vec2(0,0));
   }
-  std::cout << "tempVert size: " << tempVert.size() << std::endl;
-  std::cout << "indicies size: " << indices.size() << std::endl;
+ // std::cout << "tempVert size: " << tempVert.size() << std::endl;
+ // std::cout << "indicies size: " << indices.size() << std::endl;
 
   for (size_t i = 0; i < aabb.indices.size(); i++) {
     tempIndices.push_back(aabb.indices[i]);

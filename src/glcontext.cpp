@@ -50,7 +50,7 @@ void GLcontext::draw(Node &node, bool aabb)
   if (!mesh) return;
 
   glBindVertexArray(node.gl_vao);
-  GLsizei count = (GLsizei) mesh->getSize();
+  GLsizei count = (GLsizei) mesh->num_indices_get();
   GLvoid *indices = (GLvoid *) (mesh->aabb.getNumIndices() * sizeof(GLushort));
   GLint baseVertex = (GLint) mesh->aabb.getNumVertices();
   

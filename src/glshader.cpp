@@ -3,6 +3,26 @@
 
 
 /**************************************************/
+/***************** CONSTRUCTORS *******************/
+/**************************************************/
+
+
+GLshader::GLshader()
+{
+}
+
+
+GLshader::~GLshader(void)
+{
+  std::cout << "Detatching and deleting GLshader object" << std::endl;
+
+  glDetachShader(program, vs);
+  glDetachShader(program, fs);
+  glDeleteShader(program);
+}
+
+
+/**************************************************/
 /***************** PRIVATE METHODS ****************/
 /**************************************************/
 
@@ -117,7 +137,6 @@ int GLshader::get_block_index(std::string blockName)
     std::cout << "Fragmic warning: Could not bind uniform " << uboIndex << std::
       endl;
   }
-  std::cout <<  blockName << ": " << uboIndex << std::endl;
 
   return uboIndex;
 }
@@ -160,24 +179,6 @@ void GLshader::validate(void)
   }
 }
 
-/**************************************************/
-/***************** CONSTRUCTORS *******************/
-/**************************************************/
-
-GLshader::GLshader()
-{
-  std::cout << "Constructing GLshader object" << std::endl;
-}
-
-
-GLshader::~GLshader(void)
-{
-  std::cout << "Detatching and deleting GLshader object" << std::endl;
-
-  glDetachShader(program, vs);
-  glDetachShader(program, fs);
-  glDeleteShader(program);
-}
 
 /**************************************************/
 /***************** PUBLIC METHODS *****************/

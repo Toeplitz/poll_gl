@@ -1,5 +1,4 @@
-#ifndef MESH_H
-#define MESH_H
+#pragma once
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -31,7 +30,6 @@ class Mesh {
                          std::vector<glm::vec2> *uv_ptr,
                          std::vector<GLshort> *indices_ptr);
 
-    const unsigned int getSize();
+    unsigned int num_indices_get();
 };
 
-#endif

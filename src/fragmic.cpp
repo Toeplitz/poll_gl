@@ -44,7 +44,7 @@ void Fragmic::run()
     Uint32 timeNow = SDL_GetTicks();
     Uint32 dt = timeNow - lastTime;
     lastTime = timeNow;
-    profile_fps(dt);
+ //   profile_fps(dt);
 
     if (!window.poll_events(camera)) {
       std::cout << "Fragmic exiting..." << std::endl;
@@ -98,8 +98,6 @@ Window &Fragmic::window_get()
 {
   return window;
 }
-
-
 
 
 /**************************************************/

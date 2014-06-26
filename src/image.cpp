@@ -23,7 +23,7 @@ bool Image::load(const string &fileName)
           return false;
      }
 
-     cout << fileName << " loaded, size: " << width << " x " << height << ", " << components << endl;
+ //    cout << fileName << " loaded, size: " << width << " x " << height << ", " << components << endl;
 
      return true;
 }

@@ -60,18 +60,15 @@ void Scene::scene_graph_print()
 void Scene::scene_graph_print_by_node(Node &node)
 {
   indent(std::cout, node.tree_level);
-  std::cout << node.tree_level << ": '" << node.
-    name << "'" << &node << "";
+  std::cout << node.tree_level << ": '" << node.name << "'" << &node << "";
 
   if (node.mesh) {
     std::cout << " (mesh)";
   }
-
   if (node.armature) {
     std::cout << " (armature)";
   }
   std::cout << std::endl;
-
 
   for (auto &child : node.children) {
     scene_graph_print_by_node(*child);

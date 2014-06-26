@@ -1,5 +1,4 @@
-#ifndef BONE_H
-#define BONE_H
+#pragma once
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -10,25 +9,17 @@
 #include "node.h"
 
 class Bone {
-
   private:
-    glm::mat4 skinningMatrix;
-    unsigned int id;
+    unsigned int     id;
+    std::string      name;
+    const glm::mat4  offset_matrix;
 
   public:
-    std::string name;
-    const glm::mat4 offsetMatrix;
-    Node *jointNode;
+    Node            *joint_node;
 
-    Bone(const std::string & _name, const unsigned int &_id,
-        const glm::mat4 & _offsetMatrix, Node * _jointNode);
+    Bone(const std::string &name, const unsigned int &id, const glm::mat4 &m, Node *joint_node);
     ~Bone();
 
-    unsigned int get_index();
-    glm::mat4 updateSkinningMatrix();
-
-
+    unsigned int  index_get();
+    glm::mat4     skinning_matrix_update();
 };
-
-
-#endif

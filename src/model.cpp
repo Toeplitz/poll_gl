@@ -1,7 +1,72 @@
 #include "model.h"
 
+template <typename Key, typename Value>
+static const Value &lookupIn(const Key &key, const std::map<Key, Value> &map);
 
-static void copyaiMat(const aiMatrix4x4 * from, glm::mat4 & to)
+
+/**************************************************/
+/***************** CONSTRUCTORS *******************/
+/**************************************************/
+
+
+Model::Model(): armaturePtr(nullptr)
+{
+}
+
+
+Model::~Model()
+{
+  //std::cout << "Deleting model object" << std::endl;
+}
+
+
+
+/**************************************************/
+/***************** PUBLIC METHODS *****************/
+/**************************************************/
+
+
+Node *Model::load(Assets &assets, Node &root,
+    const std::string &prefix, const std::string &filename)
+{
+  Transform t;
+  std::string fullName = prefix + "/" + filename;
+  this->prefix = prefix;
+
+  Assimp::Importer importer;
+  importer.SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 3);
+  scene = importer.ReadFile(fullName.c_str(), aiProcess_Triangulate |
+      aiProcess_GenSmoothNormals |
+      aiProcess_FlipUVs | aiProcess_LimitBoneWeights);
+
+  Node *rootPtr = node_map_create(*scene->mRootNode, &root, root.tree_level);
+  t.calculateGlobalTransformTopDown(*rootPtr);
+  BoneForAssimpBone boneForAssimpBone;
+  bone_map_create(assets, boneForAssimpBone);
+  materials_parse(assets);
+  //parseTextures();
+
+  mesh_create_all(assets, *scene->mRootNode, boneForAssimpBone);
+  key_frames_parse();
+
+  return rootPtr;
+}
+
+
+/**************************************************/
+/***************** PRIVATE METHODS ****************/
+/**************************************************/
+
+template <typename Key, typename Value>
+static const Value &lookupIn(const Key &key, const std::map<Key, Value> &map)
+{
+  typename std::map < Key, Value >::const_iterator iter = map.find(key);
+  assert(iter != map.end());
+  return iter->second;
+}
+
+
+void Model::ai_mat_copy(const aiMatrix4x4 * from, glm::mat4 & to)
 {
   to[0][0] = from->a1;
   to[1][0] = from->a2;
@@ -21,28 +86,8 @@ static void copyaiMat(const aiMatrix4x4 * from, glm::mat4 & to)
   to[3][3] = from->d4;
 }
 
-  template < typename Key, typename Value >
-static const Value & lookupIn(const Key & key, const std::map < Key,
-    Value > &map)
-{
-  typename std::map < Key, Value >::const_iterator iter = map.find(key);
-  assert(iter != map.end());
-  return iter->second;
-}
 
-Model::Model():
-  armaturePtr(nullptr)
-{
-}
-
-
-Model::~Model()
-{
-  std::cout << "Deleting model object" << std::endl;
-}
-
-
-void Model::createBoneMap(Assets & assets, BoneForAssimpBone & boneForAssimpBone)
+void Model::bone_map_create(Assets & assets, BoneForAssimpBone & boneForAssimpBone)
 {
   size_t boneIndex = 0;
   auto armature = std::unique_ptr < Armature > (new Armature());
@@ -59,13 +104,9 @@ void Model::createBoneMap(Assets & assets, BoneForAssimpBone & boneForAssimpBone
       auto &node = nodes.at(assimpBone->mName.data);
       auto key = std::string(assimpBone->mName.data);
       glm::mat4 offsetMatrix;
-      copyaiMat(&assimpBone->mOffsetMatrix, offsetMatrix);
-
+      ai_mat_copy(&assimpBone->mOffsetMatrix, offsetMatrix);
       std::unique_ptr<Bone> internalBone(new Bone(key, boneIndex, offsetMatrix, node));
-
       assert(!boneForAssimpBone[assimpBone]);
-      assert(internalBone->jointNode);
-
       boneForAssimpBone[assimpBone] = internalBone.get();
       armature->bones_add(std::move(internalBone));
       ++boneIndex;
@@ -76,15 +117,19 @@ void Model::createBoneMap(Assets & assets, BoneForAssimpBone & boneForAssimpBone
     return;
   }
 
+  std::cout << "Found num bones" << armature->bones_num_get() << std::endl;
+
   Node *armatureRoot = armature->find_toplevel_node();
   if (armatureRoot) {
+    std::cout << "Setting armature: " << armatureRoot->name << std::endl;
     armatureRoot->armature = armature.get();
   }
   armaturePtr = armature.get();
   assets.armature_add(std::move(armature));
 }
 
-Node *Model::createNodeMap(const aiNode & node, Node * parent, int level)
+
+Node *Model::node_map_create(const aiNode & node, Node * parent, int level)
 {
   glm::mat4 localTransform;
   std::string key(node.mName.data);
@@ -92,12 +137,12 @@ Node *Model::createNodeMap(const aiNode & node, Node * parent, int level)
   Node *nodePtr = internalNode.get();
 
   nodes[key] = internalNode.get();
-  copyaiMat(&node.mTransformation, localTransform);
+  ai_mat_copy(&node.mTransformation, localTransform);
   internalNode->local_transform_original_set(localTransform);
   internalNode->local_transform_current_set(localTransform);
 
   for (size_t i = 0; i < node.mNumChildren; i++) {
-    createNodeMap(*node.mChildren[i], internalNode.get(), level + 1);
+    node_map_create(*node.mChildren[i], internalNode.get(), level + 1);
   }
 
   parent->child_add(std::move(internalNode), level + 1);
@@ -105,18 +150,117 @@ Node *Model::createNodeMap(const aiNode & node, Node * parent, int level)
   return nodePtr;
 }
 
-void Model::createMeshes(Assets & assets, const aiNode & node,
-    const BoneForAssimpBone & boneForAssimpBone)
+
+void Model::materials_parse(Assets &assets)
 {
-  createMesh(assets, node, boneForAssimpBone);
-  for (unsigned int i = 0; i < node.mNumChildren; i++) {
-    createMeshes(assets, *node.mChildren[i], boneForAssimpBone);
+  if (!scene->HasMaterials()) {
+    std::cout << "Fragmic warning: model '" << this << "'has no materials" << std::endl;
+    return;
   }
 
+  //std::cout << "Number of materials: " << scene->mNumMaterials << std::endl;
+
+  for (unsigned int i = 0; i < scene->mNumMaterials; i++) {
+    aiMaterial &assimpMaterial = *scene->mMaterials[i];
+    std::unique_ptr<Material> materialPtr(new Material());
+    Material &material = *materialPtr;
+
+    /*
+    std::cout << "\tProperties: " << assimpMaterial.mNumProperties <<std::endl;
+    std::cout << "\tNone textures: " << assimpMaterial.GetTextureCount(aiTextureType_NONE) <<std::endl;
+    std::cout << "\tAmbient textures: " << assimpMaterial.GetTextureCount(aiTextureType_AMBIENT) <<std::endl;
+    std::cout << "\tDiffuse textures: " << assimpMaterial.GetTextureCount(aiTextureType_DIFFUSE) <<std::endl;
+    std::cout << "\tSpecular textures: " << assimpMaterial.GetTextureCount(aiTextureType_SPECULAR) <<std::endl;
+    std::cout << "\tEmissive textures: " << assimpMaterial.GetTextureCount(aiTextureType_EMISSIVE) <<std::endl;
+    */
+
+    {
+      aiColor4D color;
+      aiReturn ret;
+
+      ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_AMBIENT, &color);
+      if (ret == AI_SUCCESS) {
+        /*
+        std::cout << "\tAmbient (r,g,b,a) = (" << color.r << ","
+          << color.g << "," << color.b
+          << "," << color.a << ")" <<std::endl;
+          */
+      }
+
+      ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_DIFFUSE, &color);
+      if (ret == AI_SUCCESS) {
+        /*
+        std::cout << "\tDiffuse (r,g,b,a) = (" << color.r << ","
+          << color.g << "," << color.b
+          << "," << color.a << ")" << std::endl;
+          */
+      }
+
+      ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_SPECULAR, &color);
+      if (ret == AI_SUCCESS) {
+        /*
+        std::cout << "\tSpecular (r,g,b,a) = (" << color.r << ","
+          << color.g << "," << color.b
+          << "," << color.a << ")" << std::endl;
+          */
+      }
+
+      ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_EMISSIVE, &color);
+      if (ret == AI_SUCCESS) {
+        /*
+        std::cout << "\tEmissive (r,g,b,a) = (" << color.r << ","
+          << color.g << "," << color.b
+          << "," << color.a << ")" <<std::endl;
+          */
+      }
+
+      ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_REFLECTIVE, &color);
+      if (ret == AI_SUCCESS) {
+        /*
+        std::cout << "\tReflective (r,g,b,a) = (" << color.r << ","
+          << color.g << "," << color.b
+          << "," << color.a << ")" <<std::endl;
+          */
+      }
+    }
+
+    {
+      int texIndex = 0;
+      aiString path;
+      aiReturn texFound = assimpMaterial.GetTexture(aiTextureType_DIFFUSE, texIndex, &path);
+      if (texFound == AI_SUCCESS) {
+        if (texIndex > 0) {
+          std::cout << "Fragmic warning: more then one diffuse texture for material" << std::endl;
+          std::cout << "NOT CURRENTLY SUPPORTED!" << std::endl;
+        }
+
+       // std::cout << "\tDiffuse texture file: " << path.data << std::endl;
+        std::unique_ptr<Texture> texturePtr(new Texture());
+        Texture &texture = *texturePtr;
+        texture.loadImage(prefix + std::string(path.data));
+        material.texture = std::move(texturePtr);
+
+        texIndex++;
+        texFound = assimpMaterial.GetTexture(aiTextureType_DIFFUSE, texIndex, &path);
+      }
+    }
+
+    materials.push_back(materialPtr.get());
+    assets.material_add(std::move(materialPtr));
+  }
 }
 
-void Model::createMesh(Assets &assets, const aiNode & node,
-    const BoneForAssimpBone & boneForAssimpBone)
+
+void Model::mesh_create_all(Assets &assets, const aiNode &node, const BoneForAssimpBone &boneForAssimpBone)
+{
+  mesh_create(assets, node, boneForAssimpBone);
+  for (unsigned int i = 0; i < node.mNumChildren; i++) {
+    mesh_create_all(assets, *node.mChildren[i], boneForAssimpBone);
+  }
+}
+
+
+void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpBone &boneForAssimpBone)
 {
   if (!node.mNumMeshes) {
     return;
@@ -161,7 +305,7 @@ void Model::createMesh(Assets &assets, const aiNode & node,
       for (unsigned int iw = 0; iw < assimpBone->mNumWeights; iw++) {
         int id = assimpBone->mWeights[iw].mVertexId;
         aiVertexWeight vertexWeight;
-        vertexWeight = aiVertexWeight(bone->get_index(), assimpBone->mWeights[iw].mWeight);
+        vertexWeight = aiVertexWeight(bone->index_get(), assimpBone->mWeights[iw].mWeight);
         weightsPerVertex[id].push_back(vertexWeight);
       }
 
@@ -175,12 +319,11 @@ void Model::createMesh(Assets &assets, const aiNode & node,
       // mesh.model = mesh.skeletonNode->transform_global * mesh.skeletonTransform
       // We can set mesh.skeletonNode to mesh.node and mesh.skeletonTransform
       // to identity if the mesh has no bones.
-      m.model = bone->jointNode->transform_global * bone->offsetMatrix;
+      m.model = bone->skinning_matrix_update();
+      //m.model = bone->joint_node->transform_global * bone->offset_matrix;
     }
 
     if (!assimpMesh->mNumBones) {
-      std::cout << "Fragmic Info: no bones for mesh, setting model transform:" << std::endl;
-      printMatrix(std::cout, m.model, 0);
       m.model = meshNode->transform_global;
     }
 
@@ -224,10 +367,10 @@ void Model::createMesh(Assets &assets, const aiNode & node,
 }
 
 
-void Model::parseKeyFrames(void)
+void Model::key_frames_parse(void)
 {
   if (!scene->HasAnimations()) {
-    std::cout << "Fragmic WARNING: model '" << this << "'has no keyframes" << std::endl;
+    //std::cout << "Fragmic WARNING: model '" << this << "'has no keyframes" << std::endl;
     return;
   }
 
@@ -256,129 +399,6 @@ void Model::parseKeyFrames(void)
 
         node.addKeyFrame(s, q, t, animNode->mPositionKeys[npk].mTime);
       }
-
     }
   }
-}
-
-
-void Model::parseMaterials(Assets &assets)
-{
-  if (!scene->HasMaterials()) {
-    std::cout << "Fragmic warning: model '" << this << "'has no materials" << std::endl;
-    return;
-  }
-
-  std::cout << "Number of materials: " << scene->mNumMaterials << std::endl;
-
-  for (unsigned int i = 0; i < scene->mNumMaterials; i++) {
-    aiMaterial &assimpMaterial = *scene->mMaterials[i];
-    std::unique_ptr<Material> materialPtr(new Material());
-    Material &material = *materialPtr;
-
-    std::cout << "\tProperties: " << assimpMaterial.mNumProperties <<std::endl;
-    std::cout << "\tNone textures: " << assimpMaterial.GetTextureCount(aiTextureType_NONE) <<std::endl;
-    std::cout << "\tAmbient textures: " << assimpMaterial.GetTextureCount(aiTextureType_AMBIENT) <<std::endl;
-    std::cout << "\tDiffuse textures: " << assimpMaterial.GetTextureCount(aiTextureType_DIFFUSE) <<std::endl;
-    std::cout << "\tSpecular textures: " << assimpMaterial.GetTextureCount(aiTextureType_SPECULAR) <<std::endl;
-    std::cout << "\tEmissive textures: " << assimpMaterial.GetTextureCount(aiTextureType_EMISSIVE) <<std::endl;
-
-    {
-      aiColor4D color;
-      aiReturn ret;
-
-      ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_AMBIENT, &color);
-      if (ret == AI_SUCCESS) {
-        std::cout << "\tAmbient (r,g,b,a) = (" << color.r << ","
-          << color.g << "," << color.b
-          << "," << color.a << ")" <<std::endl;
-      }
-
-      ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_DIFFUSE, &color);
-      if (ret == AI_SUCCESS) {
-        std::cout << "\tDiffuse (r,g,b,a) = (" << color.r << ","
-          << color.g << "," << color.b
-          << "," << color.a << ")" << std::endl;
-      }
-
-      ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_SPECULAR, &color);
-      if (ret == AI_SUCCESS) {
-        std::cout << "\tSpecular (r,g,b,a) = (" << color.r << ","
-          << color.g << "," << color.b
-          << "," << color.a << ")" << std::endl;
-      }
-
-      ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_EMISSIVE, &color);
-      if (ret == AI_SUCCESS) {
-        std::cout << "\tEmissive (r,g,b,a) = (" << color.r << ","
-          << color.g << "," << color.b
-          << "," << color.a << ")" <<std::endl;
-      }
-
-      ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_REFLECTIVE, &color);
-      if (ret == AI_SUCCESS) {
-        std::cout << "\tReflective (r,g,b,a) = (" << color.r << ","
-          << color.g << "," << color.b
-          << "," << color.a << ")" <<std::endl;
-      }
-
-    }
-
-    {
-      int texIndex = 0;
-      aiString path;
-      aiReturn texFound = assimpMaterial.GetTexture(aiTextureType_DIFFUSE, texIndex, &path);
-      if (texFound == AI_SUCCESS) {
-        if (texIndex > 0) {
-          std::cout << "Fragmic warning: more then one diffuse texture for material" << std::endl;
-          std::cout << "NOT CURRENTLY SUPPORTED!" << std::endl;
-        }
-
-        std::cout << "\tDiffuse texture file: " << path.data << std::endl;
-        std::unique_ptr<Texture> texturePtr(new Texture());
-        Texture &texture = *texturePtr;
-        texture.loadImage(prefix + std::string(path.data));
-        material.texture = std::move(texturePtr);
-
-        texIndex++;
-        texFound = assimpMaterial.GetTexture(aiTextureType_DIFFUSE, texIndex, &path);
-      }
-    }
-
-    materials.push_back(materialPtr.get());
-    assets.material_add(std::move(materialPtr));
-  }
-}
-
-
-
-Node *Model::load(Assets &assets, Node &root,
-    const std::string &_prefix, const std::string &filename)
-{
-  Transform t;
-  std::string fullName = _prefix + "/" + filename;
-  prefix = _prefix;
-
-  Assimp::Importer importer;
-  importer.SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 3);
-  scene = importer.ReadFile(fullName.c_str(), aiProcess_Triangulate |
-      aiProcess_GenSmoothNormals |
-      aiProcess_FlipUVs | aiProcess_LimitBoneWeights);
-
-  Node *rootPtr = createNodeMap(*scene->mRootNode, &root, root.tree_level);
-
-  t.calculateGlobalTransformTopDown(*rootPtr);
-
-  BoneForAssimpBone boneForAssimpBone;
-  createBoneMap(assets, boneForAssimpBone);
-
-  parseMaterials(assets);
-  //parseTextures();
-
-  createMeshes(assets, *scene->mRootNode, boneForAssimpBone);
-
-  parseKeyFrames();
-
-
-  return rootPtr;
 }

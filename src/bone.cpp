@@ -1,14 +1,17 @@
 #include "bone.h"
 
 
-Bone::Bone(const std::string & _name, const unsigned int &_id,
-    const glm::mat4 & _offsetMatrix, Node * _jointNode):
-  skinningMatrix(1), 
-  id(_id),
-  name(_name),
-  offsetMatrix(_offsetMatrix),
-  jointNode(_jointNode) 
+/**************************************************/
+/***************** CONSTRUCTORS *******************/
+/**************************************************/
+
+
+Bone::Bone(const std::string &name, const unsigned int &id, const glm::mat4 &m, Node *joint_node):
+  offset_matrix(m)
 {
+  this->id = id;
+  this->name = name;
+  this->joint_node = joint_node;
 } 
 
 
@@ -17,15 +20,17 @@ Bone::~Bone()
 }
 
 
-unsigned int Bone::get_index()
+/**************************************************/
+/***************** PUBLIC METHODS *****************/
+/**************************************************/
+
+unsigned int Bone::index_get()
 {
   return id;
 }
 
 
-glm::mat4 Bone::updateSkinningMatrix() 
+glm::mat4 Bone::skinning_matrix_update() 
 {
-  skinningMatrix = jointNode->transform_global * offsetMatrix;
-
-  return skinningMatrix;
+  return joint_node->transform_global * offset_matrix;
 }
