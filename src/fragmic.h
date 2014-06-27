@@ -27,6 +27,7 @@ class Fragmic {
     void     run();
     void     term();
     Camera  &camera_get();
+    Physics &physics_get();
     Scene   &scene_get();
     Window  &window_get();
 };

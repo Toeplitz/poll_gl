@@ -90,6 +90,10 @@ Camera &Fragmic::camera_get()
   return camera;
 }
 
+Physics &Fragmic::physics_get() 
+{
+  return physics;
+}
 
 Scene &Fragmic::scene_get()
 {
