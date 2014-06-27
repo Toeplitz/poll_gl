@@ -1,4 +1,4 @@
-PROJECT = 01_model_loading
+PROJECT = 02_physics_simple
 
 SRC := $(wildcard *.cpp)
 OBJECTS = $(SRC:.cpp=.o)

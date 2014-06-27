@@ -10,7 +10,7 @@ all: $(PROJECT)
 	g++ -c $(CFLAGS) $<
 
 $(PROJECT): $(OBJECTS)
-	g++ -shared -o $(PROJECT) $(OBJECTS) -L../external/lib/ -lm -lGLU -lGLEW -lGL -L/home/ms/git/SDL2/build/libSDL2.so.2.0.0 -lpthread -lassimp -lBulletCollision -lBulletDynamics -lLinearMath
+	g++ -shared -o $(PROJECT) $(OBJECTS) -L../external/lib/ -lm -lGLU -lGLEW -lGL -lSDL2 -lassimp -lBulletCollision -lBulletDynamics -lLinearMath
 	mv $(PROJECT) ../build/.
 
 clean:
