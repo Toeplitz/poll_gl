@@ -4,7 +4,14 @@
 #include <SDL2/SDL_stdinc.h>            // for Uint32
 #include <functional>
 #include "node.h"
+#include "gldebug.h"
 #include "utils.h"
+
+//
+// User manual:
+// http://www.cs.uu.nl/docs/vakken/mgp/assignment/Bullet%20-%20User%20Manual.pdf
+//
+//
 
 
 enum Physics_Collision_Shape 
@@ -44,6 +51,8 @@ class Physics
     btDiscreteDynamicsWorld              *world;
 
     std::vector<Physics_Node>             p_nodes;
+    Physics_Debug_Drawer                  debug_drawer;
+    bool                                  pause_toggle;
 
     btRigidBody *bullet_collision_rigidbody_create(Node &node, Physics_Collision_Shape shape);
     void         bullet_collision_rigidbody_delete(btRigidBody *rb);
@@ -59,6 +68,7 @@ class Physics
     
     void collision_node_add(Node &node, const Physics_Collision_Shape shape, bool recursive);
     void collision_node_callback_set(const Node &node, const std::function<void (int)> callback);
+    void pause();
     void step(const Uint32 dt);
 };
 

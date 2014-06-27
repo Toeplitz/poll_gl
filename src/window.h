@@ -51,6 +51,11 @@ class Window {
       {
         custom_keyboard_pressed_callback = std::bind(method, client, _1);
       }
+
+      void keyboard_pressed_callback_set(const std::function<void (SDL_Keysym *)> callback)
+      {
+        custom_keyboard_pressed_callback = callback;
+      }
 };
 
 

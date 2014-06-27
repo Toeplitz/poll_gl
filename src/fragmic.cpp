@@ -65,11 +65,11 @@ void Fragmic::run()
       scene.animation_list_update_transforms(*node, dt);
     }
 
+    glcontext.clear();
     physics.step(dt);
 
     camera.update((double) dt / 1000.0);
     glcontext.uniform_buffers_update_camera(camera);
-    glcontext.clear();
     for (auto &node: scene.render_list_get()) {
       glcontext.draw(*node, window.aabb_view_toggle);
     }

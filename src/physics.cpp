@@ -8,6 +8,7 @@
 
 Physics::Physics()
 {
+  pause_toggle = false;
   bullet_init();
 }
 
@@ -55,6 +56,11 @@ void Physics::collision_node_callback_set(const Node &node, const std::function<
   callback(1);
 }
 
+
+void Physics::pause()
+{
+  pause_toggle = !pause_toggle;
+}
 
 void Physics::step(const Uint32 dt)
 {
@@ -109,12 +115,26 @@ void Physics::bullet_init()
   world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collision_config);
 
   world->setGravity(btVector3(0,-1,0));
+
+
+  // Options avaliable:
+  // btIDebugDraw::DBG_DrawWireframe 
+  // btIDebugDraw::DBG_DrawAabb 
+  // btIDebugDraw::DBG_DrawConstraints 
+  // btIDebugDraw::DBG_DrawConstraintLimits 
+  // Page 16 in manual
+  world->setDebugDrawer(&debug_drawer);
+  debug_drawer.setDebugMode(btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb); 
 }
 
 
 void Physics::bullet_step(const Uint32 dt)
 {
-  world->stepSimulation((double) dt / 1000.0, 10);
+  if (!pause_toggle) {
+    world->stepSimulation((double) dt / 1000.0, 10);
+  }
+
+  world->debugDrawWorld();
 }
 
 
