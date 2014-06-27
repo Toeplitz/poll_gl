@@ -10,13 +10,11 @@ Physics_Debug_Drawer::Physics_Debug_Drawer()
 
 Physics_Debug_Drawer::~Physics_Debug_Drawer()
 {
-
 }
 
 
 void	Physics_Debug_Drawer::drawLine(const btVector3 &from,const btVector3 &to, const btVector3 &fromColor, const btVector3 &toColor)
 {
-
   glBegin(GL_LINES);
   glColor3f(fromColor.getX(), fromColor.getY(), fromColor.getZ());
   glVertex3d(from.getX(), from.getY(), from.getZ());
@@ -74,12 +72,37 @@ void	Physics_Debug_Drawer::drawSphere(const btVector3 &p, btScalar radius, const
 void	Physics_Debug_Drawer::drawTriangle(const btVector3 &a, const btVector3 &b, const btVector3 &c,const btVector3 &color, btScalar alpha)
 {
   std::cout << "drawTriangle" << std::endl;
+
+  const btVector3 n=btCross(b-a,c-a).normalized();
+  glBegin(GL_TRIANGLES);    
+  glColor4f(color.getX(), color.getY(), color.getZ(),alpha);
+  glNormal3d(n.getX(),n.getY(),n.getZ());
+  glVertex3d(a.getX(),a.getY(),a.getZ());
+  glVertex3d(b.getX(),b.getY(),b.getZ());
+  glVertex3d(c.getX(),c.getY(),c.getZ());
+  glEnd();
+
+
 }
 
 
-void	Physics_Debug_Drawer::drawContactPoint(const btVector3 &PointOnB, const btVector3 &normalOnB, btScalar distance, int lifeTime, const btVector3& color)
+void	Physics_Debug_Drawer::drawContactPoint(const btVector3 &pointOnB, const btVector3 &normalOnB, btScalar distance, int lifeTime, const btVector3& color)
 {
   std::cout << "drawContactPoint" << std::endl;
+
+  btVector3 to= pointOnB + normalOnB * 1; //distance;
+  const btVector3 &from = pointOnB;
+  glColor4f(color.getX(), color.getY(), color.getZ(),1.f);
+  glBegin(GL_LINES);
+  glVertex3d(from.getX(), from.getY(), from.getZ());
+  glVertex3d(to.getX(), to.getY(), to.getZ());
+  glEnd();
+
+}
+
+
+void Physics_Debug_Drawer::draw3dText(const btVector3 &location, const char *textString)
+{
 }
 
 
@@ -89,14 +112,8 @@ void	Physics_Debug_Drawer::reportErrorWarning(const char *s)
 }
 
 
-void	Physics_Debug_Drawer::draw3dText(const btVector3 &location, const char *textString)
-{
-}
-
-
 void	Physics_Debug_Drawer::setDebugMode(int debug_mode)
 {
-  std::cout << "setDebugMode" << std::endl;
   this->debug_mode = debug_mode;
 }
 

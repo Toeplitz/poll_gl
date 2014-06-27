@@ -55,6 +55,7 @@ void GLcontext::draw(Node &node, bool aabb)
   GLint baseVertex = (GLint) mesh->aabb.getNumVertices();
   
   if (aabb) {
+    /*
     uniform_buffers_update_mesh(*mesh, true);
     glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, 0);
     glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, (GLvoid*)(4*sizeof(GLushort)));
@@ -62,6 +63,7 @@ void GLcontext::draw(Node &node, bool aabb)
     glLineWidth(2);
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(1, 0);
+    */
   }
 
   uniform_buffers_update_node(node);
@@ -181,6 +183,7 @@ void GLcontext::uniform_buffers_update_debug(glm::vec4 &data)
   glBindBuffer(target, gl_buffer_debug);
   glBufferSubData(target, offset, sizeof(data), &data);
 }
+
 
 void GLcontext::uniform_buffers_update_mesh(Mesh &mesh, bool aabb)
 {

@@ -32,6 +32,7 @@ class Physics_Motion_State: public btMotionState
 {
   private:
     Node *node;
+    btTransform transform;
 
   public:
     Physics_Motion_State(const btTransform &start_position, Node &node);
@@ -52,7 +53,7 @@ class Physics
 
     std::vector<Physics_Node>             p_nodes;
     Physics_Debug_Drawer                  debug_drawer;
-    bool                                  pause_toggle;
+    int                                   pause_toggle;
 
     btRigidBody *bullet_collision_rigidbody_create(Node &node, Physics_Collision_Shape shape);
     void         bullet_collision_rigidbody_delete(btRigidBody *rb);
