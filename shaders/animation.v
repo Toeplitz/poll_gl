@@ -46,8 +46,8 @@ void main(void) {
   } 
 
   if (debug.w == 1.0) {
-    animation = mat4(1.0);
-    //animation = model;
+    //animation = mat4(1.0);
+    animation = model;
   }
 
   mat4 modelView = view * animation;
