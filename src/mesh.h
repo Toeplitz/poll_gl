@@ -3,18 +3,14 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
+#include "gldefaults.h"
+#include "vertex.h"
 #include <vector>
-
-#include "aabb.h"
-
 
 class Mesh {
   private:
-    Aabb generateBoundingAabb() const;
 
   public:
-    Aabb aabb;
     std::vector<Vertex> vertices;
     std::vector<GLshort> indices;
     glm::mat4 model;

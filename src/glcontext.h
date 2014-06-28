@@ -1,5 +1,4 @@
-#ifndef GLCONTEXT_H
-#define GLCONTEXT_H
+#pragma once
 
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
@@ -31,17 +30,13 @@ class GLcontext {
 
     void check_error();
     void clear();
-    void draw(Node &node, bool aabb);
+    void draw(Node &node);
     bool init(const int width, const int height);
     void polygon_mesh_toggle(bool tog);
     void uniform_buffers_init(GLshader &shader);
     void uniform_buffers_update_camera(Camera &camera);
     void uniform_buffers_update_debug(glm::vec4 &data);
-    void uniform_buffers_update_mesh(Mesh &mesh, bool aabb);
+    void uniform_buffers_update_mesh(Mesh &mesh);
     void uniform_buffers_update_node(Node &node);
     void vertex_buffers_add(Node &node);
-
 };
-
-
-#endif

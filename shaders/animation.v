@@ -8,7 +8,7 @@ layout(location = 4) in vec2 textureCoord;
 
 layout(std140) uniform GlobalMatrices {
   mat4 projection;
-  mat4 view;
+mat4 view;
 };
 
 layout(std140) uniform Matrices {
@@ -43,9 +43,11 @@ void main(void) {
 
   if (debug.w == 1.0) {
     animation = model;
+  //animation = mat4(1);
   }
 
   mat4 modelView = view * animation;
+
   mat3 normalMatrix = mat3(transpose(inverse(modelView)));
 
   vec4 lightPos = vec4(50, 100, 0, 1);

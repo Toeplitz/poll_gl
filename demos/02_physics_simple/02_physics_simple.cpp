@@ -17,6 +17,9 @@ void keyboard_pressed_cb(SDL_Keysym *keysym)
     case SDLK_SPACE:
       physics.pause();
       break;
+    case SDLK_d:
+      physics.debug();
+      break;
     default:
       break;
   }

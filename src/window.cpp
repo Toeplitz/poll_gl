@@ -18,8 +18,7 @@
 Window::Window(const int &width, const int &height): 
   mouse_view_toggle(false),
   polygon_view_toggle(false),
-  glcontext(),
-  aabb_view_toggle(false)
+  glcontext()
 {
   this->width = width;
   this->height = height;
@@ -76,6 +75,7 @@ void Window::debug_toggle()
   toggle = !toggle;
   glm::vec4 d(0, 0, 0, toggle);
   glcontext.uniform_buffers_update_debug(d);
+  std::cout << "Debug symbol to shader: " << d.w << std::endl;
 }
 
 
@@ -83,7 +83,7 @@ void Window::swap_interval_set(const int n)
 {
   // 0 for immediate updates, 1 for updates synchronized with
   // the vertical retrace, -1 for late swap tearing
-  SDL_GL_SetSwapInterval(1);
+  SDL_GL_SetSwapInterval(n);
 }
 
 
@@ -193,8 +193,8 @@ bool Window::keyboard_callback_pressed(SDL_Keysym *keysym, Camera &camera)
       glcontext.polygon_mesh_toggle(polygon_view_toggle);
       polygon_view_toggle = !polygon_view_toggle;
       break;
-    case SDLK_a:
-      aabb_view_toggle = !aabb_view_toggle;
+    case SDLK_d:
+      debug_toggle();
       break;
     default:
       break;

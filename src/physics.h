@@ -3,7 +3,9 @@
 #include <btBulletDynamicsCommon.h>
 #include <SDL2/SDL_stdinc.h>            // for Uint32
 #include <functional>
+#include "camera.h"
 #include "node.h"
+#include "glcontext.h"
 #include "gldebug.h"
 #include "utils.h"
 
@@ -51,8 +53,12 @@ class Physics
     btSequentialImpulseConstraintSolver  *solver;
     btDiscreteDynamicsWorld              *world;
 
+    Camera                               *camera;
+    GLshader                              glshader;
+    GLcontext                            *glcontext;
     std::vector<Physics_Node>             p_nodes;
     Physics_Debug_Drawer                  debug_drawer;
+    int                                   debug_toggle;
     int                                   pause_toggle;
 
     btRigidBody *bullet_collision_rigidbody_create(Node &node, Physics_Collision_Shape shape);
@@ -69,6 +75,8 @@ class Physics
     
     void collision_node_add(Node &node, const Physics_Collision_Shape shape, bool recursive);
     void collision_node_callback_set(const Node &node, const std::function<void (int)> callback);
+    void debug();
+    void init(Camera &camera, GLcontext &glcontext);
     void pause();
     void step(const Uint32 dt);
 };

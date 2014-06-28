@@ -1,5 +1,4 @@
-#ifndef GLDEFAULTS_H
-#define GLDEFAULTS_H
+#pragma once
 
 #define UB_GLOBALMATRICES 0
 #define UB_MATRICES 1
@@ -11,5 +10,3 @@
 #include <GL/glew.h>
 #include <GL/glu.h>
 
-
-#endif

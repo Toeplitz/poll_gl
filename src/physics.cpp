@@ -9,6 +9,7 @@ static btTransform  bullet_convert_transform(glm::mat4 transform);
 
 
 Physics::Physics():
+  debug_toggle(false),
   pause_toggle(false)
 {
   bullet_init();
@@ -58,11 +59,25 @@ void Physics::collision_node_callback_set(const Node &node, const std::function<
   callback(1);
 }
 
+void Physics::debug()
+{
+  debug_toggle = !debug_toggle;
+}
+
+
+void Physics::init(Camera &camera, GLcontext &glcontext)
+{
+  this->glcontext = &glcontext;
+  this->camera = &camera;
+  glshader.load("shaders/debug.v", "shaders/debug.f");
+}
+
 
 void Physics::pause()
 {
   pause_toggle = !pause_toggle;
 }
+
 
 void Physics::step(const Uint32 dt)
 {
@@ -154,10 +169,20 @@ void Physics::bullet_init()
 
 void Physics::bullet_step(const Uint32 dt)
 {
+  float timestep = (float) dt / 1000.f;
+  int max_sub_steps = 7;
+  float fixed_time_step = 1.f / 60.f;
+
+  //std::cout << "timeStep <  maxSubSteps * fixedTimeStep: " << timestep << " < " << max_sub_steps * fixed_time_step << std::endl;
   if (pause_toggle) {
-    world->stepSimulation(dt / 1000., 7);
+    world->stepSimulation(timestep, max_sub_steps, fixed_time_step);
   }
-  world->debugDrawWorld();
+
+  if (debug_toggle) {
+    glcontext->uniform_buffers_update_camera(*camera);
+    glshader.use();
+    world->debugDrawWorld();
+  }
 }
 
 
@@ -206,7 +231,7 @@ void Physics_Motion_State::setWorldTransform(const btTransform &t)
   if (!node) return;
 
   glm::mat4 m = bullet_convert_glm(t);
-  printMatrix(std::cout, m, 0);
+//  printMatrix(std::cout, m, 0);
   node->mesh->model = m;
 }
 

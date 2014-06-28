@@ -43,34 +43,16 @@ void GLcontext::clear()
 }
 
 
-void GLcontext::draw(Node &node, bool aabb)
+void GLcontext::draw(Node &node)
 {
   Mesh *mesh = node.mesh;
   if (!mesh) return;
 
   glBindVertexArray(node.gl_vao);
   GLsizei count = (GLsizei) mesh->num_indices_get();
-  GLvoid *indices = (GLvoid *) (mesh->aabb.getNumIndices() * sizeof(GLushort));
-  GLint baseVertex = (GLint) mesh->aabb.getNumVertices();
-  
-  if (aabb) {
-    /*
-    uniform_buffers_update_mesh(*mesh, true);
-    glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, 0);
-    glDrawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, (GLvoid*)(4*sizeof(GLushort)));
-    glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, (GLvoid*)(8*sizeof(GLushort)));
-    glLineWidth(2);
-    glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(1, 0);
-    */
-  }
-
   uniform_buffers_update_node(node);
-  uniform_buffers_update_mesh(*mesh, false);
-  glDrawElementsBaseVertex(GL_TRIANGLES, count, 
-      GL_UNSIGNED_SHORT, 
-      indices, 
-      baseVertex);
+  uniform_buffers_update_mesh(*mesh);
+  glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, 0);
 }
 
 
@@ -184,19 +166,12 @@ void GLcontext::uniform_buffers_update_debug(glm::vec4 &data)
 }
 
 
-void GLcontext::uniform_buffers_update_mesh(Mesh &mesh, bool aabb)
+void GLcontext::uniform_buffers_update_mesh(Mesh &mesh)
 {
   GLenum target = GL_UNIFORM_BUFFER;
   GLintptr offset = 0;
-  glm::mat4 d;
   glBindBuffer(target, gl_buffer_matrices);
-  if (aabb) {
-    d = mesh.model * mesh.aabb.transform;
-  } else {
-    d = mesh.model;
-  }
-  glBufferSubData(target, offset, sizeof(d), &d);
-
+  glBufferSubData(target, offset, sizeof(mesh.model), &mesh.model);
 }
 
 void GLcontext::uniform_buffers_update_node(Node &node)

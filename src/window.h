@@ -30,7 +30,6 @@ class Window {
 
     std::function <void (SDL_Keysym *)> custom_keyboard_pressed_callback;
   public:
-    bool aabb_view_toggle;
     int  width;
     int  height;
 

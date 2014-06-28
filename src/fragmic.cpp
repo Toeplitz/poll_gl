@@ -18,13 +18,13 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   GLcontext &glcontext = window.glcontext_get();
 
   window.init(title);
-  window.swap_interval_set(0);
+  window.swap_interval_set(1);
   if (!glcontext.init(window.width, window.height)) {
     exit(-1);
   }
   shader.load("shaders/animation.v", "shaders/animation.f");
-  shader.print_block_names();
   glcontext.uniform_buffers_init(shader);
+  physics.init(camera, glcontext);
 }
 
 
@@ -72,10 +72,11 @@ void Fragmic::run()
     glcontext.clear();
     physics.step(dt);
 
+    shader.use();
     camera.update((double) dt / 1000.0);
     glcontext.uniform_buffers_update_camera(camera);
     for (auto &node: scene.render_list_get()) {
-      glcontext.draw(*node, window.aabb_view_toggle);
+      glcontext.draw(*node);
     }
     
     glcontext.check_error();

@@ -1,12 +1,16 @@
 #pragma once
 
 #include <LinearMath/btIDebugDraw.h>
-
+#include "glshader.h"
+#include <vector>
 
 
 class Physics_Debug_Drawer : public btIDebugDraw
 {
-	int debug_mode;
+  GLuint    gl_vertex_buffer;
+  GLuint    gl_color_buffer;
+  GLuint    gl_vao;
+	int       debug_mode;
 
 public:
 
