@@ -1,4 +1,7 @@
-#version 440
+#version 140
+#extension GL_ARB_separate_shader_objects : enable
+#extension GL_ARB_gpu_shader5 : enable
+
 
 precision mediump float;
 precision mediump int;
