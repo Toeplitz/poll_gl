@@ -134,8 +134,7 @@ int GLshader::get_block_index(std::string blockName)
 {
   GLint uboIndex = glGetUniformBlockIndex(program, blockName.c_str());
   if (uboIndex == -1) {
-    std::cout << "Fragmic warning: Could not bind uniform " << uboIndex << std::
-      endl;
+    std::cout << "Fragmic warning: Could not bind uniform " << uboIndex << std::endl;
   }
 
   return uboIndex;

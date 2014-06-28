@@ -82,10 +82,7 @@ bool GLcontext::init(const int width, const int height)
     return false;
   }
 
-  if (!check_version(3)) {
-    std::cout << "GLcontext ERROR: OpenGL version not supported!" << std::endl;
-    return false;
-  }
+  check_version(3);
 
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);
@@ -310,12 +307,17 @@ void GLcontext::vertex_buffers_add(Node &node)
 bool GLcontext::check_version(const int &major)
 {
   int maj, min;
+  int glsl;
 
   glGetIntegerv(GL_MAJOR_VERSION, &maj);
   glGetIntegerv(GL_MINOR_VERSION, &min);
 
   std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
   std::cout << "OpenGL version number: " << maj << "." << min << std::endl;
+  std::cout << "GLSL version number: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+  std::cout << "GL vendor: " << glGetString(GL_VENDOR) << std::endl;
+  std::cout << "GL renderer: " << glGetString(GL_RENDERER) << std::endl;
+
 
   if (maj < major)
     return false;
