@@ -129,12 +129,30 @@ void Model::bone_map_create(Assets & assets, BoneForAssimpBone & boneForAssimpBo
 }
 
 
-Node *Model::node_map_create(const aiNode & node, Node * parent, int level)
+Node *Model::node_map_create(const aiNode & node, Node *parent, int level)
 {
   glm::mat4 localTransform;
   std::string key(node.mName.data);
   auto internalNode = std::unique_ptr<Node>(new Node(key));
   Node *nodePtr = internalNode.get();
+  {
+    aiVector3t<float> scaling;
+    aiQuaterniont<float> rotation;
+    aiVector3t<float> position;
+
+    node.mTransformation.Decompose(scaling, rotation, position);
+    std::cout << "Report for: " << node.mName.C_Str() << std::endl;
+    std::cout << "Scaling: " << scaling.x << ", " << scaling.y << ", " << scaling.z << std::endl;
+    std::cout << "Position: " << position.x << ", " << position.y << ", " << position.z << std::endl;
+    std::cout << "Rotation quaternion: " << rotation.x << ", " << rotation.y << ", " << rotation.z << ", " << rotation.w << std::endl;
+
+    glm::vec3 scale_vec(scaling.x, scaling.y, scaling.z);
+    glm::vec3 position_vec(position.x, position.y, position.z);
+    glm::quat rotation_quat(rotation.x, rotation.y, rotation.z, rotation.w);
+    nodePtr->original_scaling = scale_vec;
+    nodePtr->original_position = position_vec;
+    nodePtr->original_rotation = rotation_quat;
+  }
 
   nodes[key] = internalNode.get();
   ai_mat_copy(&node.mTransformation, localTransform);

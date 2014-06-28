@@ -24,7 +24,7 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   }
   shader.load("shaders/animation.v", "shaders/animation.f");
   glcontext.uniform_buffers_init(shader);
-  physics.init(camera, glcontext);
+  physics.init();
 }
 
 

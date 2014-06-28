@@ -53,9 +53,7 @@ class Physics
     btSequentialImpulseConstraintSolver  *solver;
     btDiscreteDynamicsWorld              *world;
 
-    Camera                               *camera;
     GLshader                              glshader;
-    GLcontext                            *glcontext;
     std::vector<Physics_Node>             p_nodes;
     Physics_Debug_Drawer                  debug_drawer;
     int                                   debug_toggle;
@@ -76,7 +74,7 @@ class Physics
     void collision_node_add(Node &node, const Physics_Collision_Shape shape, bool recursive);
     void collision_node_callback_set(const Node &node, const std::function<void (int)> callback);
     void debug();
-    void init(Camera &camera, GLcontext &glcontext);
+    void init();
     void pause();
     void step(const Uint32 dt);
 };

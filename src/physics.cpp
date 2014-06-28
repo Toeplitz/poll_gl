@@ -64,11 +64,8 @@ void Physics::debug()
   debug_toggle = !debug_toggle;
 }
 
-
-void Physics::init(Camera &camera, GLcontext &glcontext)
+void Physics::init()
 {
-  this->glcontext = &glcontext;
-  this->camera = &camera;
   glshader.load("shaders/debug.v", "shaders/debug.f");
 }
 
@@ -114,13 +111,16 @@ static btTransform bullet_convert_transform(glm::mat4 transform)
 btRigidBody *Physics::bullet_collision_rigidbody_create(Node &node, Physics_Collision_Shape shape)
 {
   btCollisionShape *collision_shape = nullptr;
+  glm::vec3 position = node.original_position;
+  glm::vec3 scaling = node.original_scaling;
+  glm::quat rotation = node.original_rotation;
 
   switch (shape) {
     case PHYSICS_COLLISION_SPHERE:
       collision_shape = new btSphereShape(btScalar(1));
       break;
     case PHYSICS_COLLISION_BOX:
-      collision_shape = new btBoxShape(btVector3(1, 1, 1));
+      collision_shape = new btBoxShape(btVector3(scaling.x, scaling.y, scaling.z));
       break;
     default:
       break;
@@ -131,10 +131,18 @@ btRigidBody *Physics::bullet_collision_rigidbody_create(Node &node, Physics_Coll
     return nullptr;
   }
 
-  btTransform t = bullet_convert_transform(node.mesh->model);
+  //btTransform t = bullet_convert_transform(node.mesh->model);
   printMatrix(std::cout, node.mesh->model, 0);
-  Physics_Motion_State *motion_state = new Physics_Motion_State(btTransform(btQuaternion(0,0,0,1),btVector3(0,0,0)), node);
-  //Physics_Motion_State *motion_state = new Physics_Motion_State(t, node);
+  btTransform t;
+  t.setIdentity();
+  t.setOrigin(btVector3(position.x, position.y, position.z));
+  t.setRotation(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
+  std::cout << "Position: " << position.x << ", " << position.y << ", " << position.z << std::endl;
+  //Physics_Motion_State *motion_state = new Physics_Motion_State(btTransform(btQuaternion(0,0,0,1),
+  //      btVector3(node.original_position.x, node.original_position.y, node.
+  //      original_position.z)), node);
+  //printMatrix(std::cout, node.transform_local_current,0);
+  Physics_Motion_State *motion_state = new Physics_Motion_State(t, node);
 
   btScalar mass = 1;
   btVector3 inertia(0, 0, 0);
@@ -179,7 +187,6 @@ void Physics::bullet_step(const Uint32 dt)
   }
 
   if (debug_toggle) {
-    glcontext->uniform_buffers_update_camera(*camera);
     glshader.use();
     world->debugDrawWorld();
   }

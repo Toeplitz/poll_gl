@@ -31,6 +31,10 @@ class Node: public Animated {
     glm::mat4     transform_global;
     glm::mat4     transform_local_current;
     glm::mat4     transform_local_original;
+
+    glm::vec3     original_scaling;
+    glm::vec3     original_position;
+    glm::quat     original_rotation;
     Node_List     children;
     int           tree_level;
 
