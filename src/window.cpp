@@ -53,7 +53,6 @@ bool Window::init(const std::string &title)
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-       
 
   window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED,
                      SDL_WINDOWPOS_CENTERED, width, height,
@@ -66,6 +65,7 @@ bool Window::init(const std::string &title)
     std::cout << "GL CONTEXT SDL Error: " << error << std::endl;
     SDL_ClearError();
   }
+
   return true;
 }
 

@@ -1,6 +1,5 @@
-#version 330 core
+#version 330
 
-precision mediump float;
 uniform sampler2D tex;
 
 layout(location = 0) out vec4 FragColor;

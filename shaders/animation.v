@@ -1,8 +1,4 @@
-#version 330 core
-
-precision mediump float;
-precision mediump int;
-
+#version 330
 
 layout(location = 0) in vec4 vertexCoord;
 layout(location = 1) in vec4 vertexNormal;

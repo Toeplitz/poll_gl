@@ -15,13 +15,16 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   scene(), 
   window(width, height)
 {
+  GLcontext &glcontext = window.glcontext_get();
+
   window.init(title);
   window.swap_interval_set(0);
-  if (!window.glcontext_get().init(window.width, window.height)) {
+  if (!glcontext.init(window.width, window.height)) {
     exit(-1);
   }
   shader.load("shaders/animation.v", "shaders/animation.f");
-  window.glcontext_get().uniform_buffers_init(shader);
+  shader.print_block_names();
+  glcontext.uniform_buffers_init(shader);
 }
 
 
@@ -58,6 +61,7 @@ void Fragmic::run()
       upload_node = scene.upload_queue_pop();
     }
 
+
     for (auto &armature: assets.armature_get_all()) {
       armature->bones_update_skinningmatrices();
     }
@@ -73,6 +77,7 @@ void Fragmic::run()
     for (auto &node: scene.render_list_get()) {
       glcontext.draw(*node, window.aabb_view_toggle);
     }
+    
     glcontext.check_error();
     window.swap();
   }

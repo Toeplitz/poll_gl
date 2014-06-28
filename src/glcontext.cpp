@@ -26,8 +26,7 @@ void GLcontext::check_error()
   try {
     GLenum gl_error = glGetError();
     if (GL_NO_ERROR != gl_error) {
-      std::cout << std::string("OpenGL error: ") << reinterpret_cast<const char *>(gluErrorString(gl_error));
-      exit(-1);
+      std::cout << std::string("OpenGL error: ") << reinterpret_cast<const char *>(gluErrorString(gl_error)) << std::endl;   
     }
   } catch(std::exception & e) {
     std::cerr << e.what() << std::endl;
@@ -77,13 +76,14 @@ void GLcontext::draw(Node &node, bool aabb)
 
 bool GLcontext::init(const int width, const int height)
 {
+  glewExperimental= GL_TRUE;
   if (glewInit() != GLEW_OK) {
     std::cout << "GLcontext ERROR: failed to initalize GLEW" << std::endl;
     return false;
   }
+  check_error();
 
   check_version(3);
-
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -91,6 +91,8 @@ bool GLcontext::init(const int width, const int height)
   glEnable(GL_STENCIL_TEST);
   glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
   glViewport(0, 0, width, height);
+
+  std::cout << "initialized GL" << std::endl;
 
   return true;
 }
@@ -307,7 +309,6 @@ void GLcontext::vertex_buffers_add(Node &node)
 bool GLcontext::check_version(const int &major)
 {
   int maj, min;
-  int glsl;
 
   glGetIntegerv(GL_MAJOR_VERSION, &maj);
   glGetIntegerv(GL_MINOR_VERSION, &min);
