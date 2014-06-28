@@ -1,4 +1,4 @@
-#version 300 es
+#version 440
 
 precision mediump float;
 precision mediump int;
@@ -46,7 +46,6 @@ void main(void) {
   } 
 
   if (debug.w == 1.0) {
-    //animation = mat4(1.0);
     animation = model;
   }
 

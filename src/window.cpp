@@ -83,7 +83,7 @@ void Window::swap_interval_set(const int n)
 {
   // 0 for immediate updates, 1 for updates synchronized with
   // the vertical retrace, -1 for late swap tearing
-  SDL_GL_SetSwapInterval(n);
+  SDL_GL_SetSwapInterval(1);
 }
 
 
