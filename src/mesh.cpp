@@ -1,4 +1,5 @@
 #include "mesh.h"
+#include <iostream>
 
 Mesh::Mesh():
   model(glm::mat4(1.0))
@@ -31,6 +32,7 @@ void Mesh::buffer_data_get(std::vector<glm::vec4> *vertices_ptr,
   size_t n = vertices.size();
 
   for (size_t i = 0; i < n; i++) {
+    //std::cout << vertices[i].position.x << ", " << vertices[i].position.y << ", " << vertices[i].position.z << std::endl;
     tempVert.push_back(glm::vec4(vertices[i].position, 1.0));
     tempNormal.push_back(glm::vec4(vertices[i].normal, 1.0));
     tempWeight.push_back(vertices[i].weights);

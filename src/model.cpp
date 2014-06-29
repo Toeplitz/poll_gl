@@ -342,6 +342,7 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
     }
 
     if (!assimpMesh->mNumBones) {
+//      m.model = glm::rotate(meshNode->transform_global, -90.f, glm::vec3(1.f, 0.f, 0.f));
       m.model = meshNode->transform_global;
     }
 

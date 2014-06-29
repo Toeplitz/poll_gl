@@ -14,6 +14,7 @@ class Mesh {
     std::vector<Vertex> vertices;
     std::vector<GLshort> indices;
     glm::mat4 model;
+    glm::mat4 physics_matrix;
 
 
     Mesh();

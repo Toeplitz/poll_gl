@@ -168,10 +168,13 @@ void GLcontext::uniform_buffers_update_debug(glm::vec4 &data)
 
 void GLcontext::uniform_buffers_update_mesh(Mesh &mesh)
 {
+  glm::mat4 m;
+  m = mesh.model * mesh.physics_matrix;
+
   GLenum target = GL_UNIFORM_BUFFER;
   GLintptr offset = 0;
   glBindBuffer(target, gl_buffer_matrices);
-  glBufferSubData(target, offset, sizeof(mesh.model), &mesh.model);
+  glBufferSubData(target, offset, sizeof(m), &m);
 }
 
 void GLcontext::uniform_buffers_update_node(Node &node)

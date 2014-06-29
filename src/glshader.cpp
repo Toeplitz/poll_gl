@@ -1,5 +1,6 @@
 #include "glshader.h"
 #include "gldefaults.h"
+#include "utils.h"
 
 
 /**************************************************/
@@ -188,6 +189,15 @@ void GLshader::load(const std::string &vertex, const std::string &fragment)
 {
   vertexShaderFile = vertex;
   fragmentShaderFile = fragment;
+
+  if (!file_exists(vertex)) {
+    std::cout << "GLSL (vertex shader) file '" << vertex << "' does not exist. Exiting ..." << std::endl;
+    exit(-1);
+  }
+  if (!file_exists(fragment)) {
+    std::cout << "GLSL (fragment shader) file '" << fragment << "' does not exist. Exiting ..." << std::endl;
+    exit(-1);
+  }
 
   compile();
   use();

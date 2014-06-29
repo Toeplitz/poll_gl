@@ -121,6 +121,7 @@ btRigidBody *Physics::bullet_collision_rigidbody_create(Node &node, Physics_Coll
       break;
     case PHYSICS_COLLISION_BOX:
       collision_shape = new btBoxShape(btVector3(scaling.x, scaling.y, scaling.z));
+//      collision_shape = new btBoxShape(btVector3(1, 1, 1));
       break;
     default:
       break;
@@ -131,8 +132,8 @@ btRigidBody *Physics::bullet_collision_rigidbody_create(Node &node, Physics_Coll
     return nullptr;
   }
 
-  //btTransform t = bullet_convert_transform(node.mesh->model);
-  printMatrix(std::cout, node.mesh->model, 0);
+  print_matrix(std::cout, node.mesh->model, 0);
+  btTransform t2 = bullet_convert_transform(node.mesh->model);
   btTransform t;
   t.setIdentity();
   t.setOrigin(btVector3(position.x, position.y, position.z));
@@ -141,8 +142,8 @@ btRigidBody *Physics::bullet_collision_rigidbody_create(Node &node, Physics_Coll
   //Physics_Motion_State *motion_state = new Physics_Motion_State(btTransform(btQuaternion(0,0,0,1),
   //      btVector3(node.original_position.x, node.original_position.y, node.
   //      original_position.z)), node);
-  //printMatrix(std::cout, node.transform_local_current,0);
-  Physics_Motion_State *motion_state = new Physics_Motion_State(t, node);
+  //print_matrix(std::cout, node.transform_local_current,0);
+  Physics_Motion_State *motion_state = new Physics_Motion_State(t2, node);
 
   btScalar mass = 1;
   btVector3 inertia(0, 0, 0);
@@ -237,8 +238,12 @@ void Physics_Motion_State::setWorldTransform(const btTransform &t)
 {
   if (!node) return;
 
-  glm::mat4 m = bullet_convert_glm(t);
-//  printMatrix(std::cout, m, 0);
-  node->mesh->model = m;
+  glm::mat4 m;
+
+//  glm::mat4 m = bullet_convert_glm(t);
+  t.getOpenGLMatrix((btScalar *) &m);
+//  print_matrix(std::cout, m, 0);
+//  node->mesh->model = m;
+  node->mesh->physics_matrix = m;
 }
 

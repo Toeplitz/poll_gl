@@ -11,7 +11,13 @@ void indent(std::ostream &os,size_t indent)
 }
 
 
-void printMatrix(std::ostream &os, const glm::mat4 &mat, size_t i)
+bool file_exists(const std::string &name) {
+  struct stat buffer; 
+  return (stat(name.c_str(), &buffer) == 0); 
+}
+
+
+void print_matrix(std::ostream &os, const glm::mat4 &mat, size_t i)
 {
   ios::fmtflags old_flags = os.setf(ios::fixed);
   std::streamsize old_precision = os.precision(2);
