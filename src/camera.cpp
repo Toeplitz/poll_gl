@@ -148,7 +148,7 @@ void Camera::createPerspectiveProjection(float width, float height)
 void Camera::setStartPosition(void) 
 {
   horizontalAngle = 3.14f;
-  verticalAngle = 0.0f;
+  verticalAngle = 0.0f; 
   speed = 0.1f;
   mouseSpeed = 0.0005f;
   position = vec3(0, 0, 10);
@@ -161,13 +161,11 @@ void Camera::setStartPosition(void)
 
 void Camera::computeDirections() 
 {
-  direction =
-    vec3(cosf(verticalAngle) * sinf(horizontalAngle), sinf(verticalAngle),
-        cosf(verticalAngle) * cosf(horizontalAngle) );
-  right =
-    vec3(sinf(horizontalAngle - 3.14f / 2.0f), 0,
-        cosf(horizontalAngle - 3.14f / 2.0f) );
+  direction = vec3(cosf(verticalAngle) * sinf(horizontalAngle), sinf(verticalAngle),
+        cosf(verticalAngle) * cosf(horizontalAngle));
+  right = vec3(sinf(horizontalAngle - 3.14f / 2.0f), 0, cosf(horizontalAngle - 3.14f / 2.0f) );
   up = cross(right, direction);
+  std::cout << position.x << ", " << position.y << ", " << position.z << std::endl;
 }  
 
 

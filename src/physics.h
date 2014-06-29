@@ -59,7 +59,7 @@ class Physics
     int                                   debug_toggle;
     int                                   pause_toggle;
 
-    btRigidBody *bullet_collision_rigidbody_create(Node &node, Physics_Collision_Shape shape);
+    btRigidBody *bullet_collision_rigidbody_create(Node &node, Physics_Collision_Shape shape, float m);
     void         bullet_collision_rigidbody_delete(btRigidBody *rb);
     void         bullet_init();
     void         bullet_step(const Uint32 dt);
@@ -71,7 +71,7 @@ class Physics
     Physics();
     ~Physics();
     
-    void collision_node_add(Node &node, const Physics_Collision_Shape shape, bool recursive);
+    void collision_node_add(Node &node, const Physics_Collision_Shape shape, bool recursive, float mass);
     void collision_node_callback_set(const Node &node, const std::function<void (int)> callback);
     void debug();
     void init();

@@ -128,7 +128,6 @@ void Model::bone_map_create(Assets & assets, BoneForAssimpBone & boneForAssimpBo
   assets.armature_add(std::move(armature));
 }
 
-
 Node *Model::node_map_create(const aiNode & node, Node *parent, int level)
 {
   glm::mat4 localTransform;
@@ -156,8 +155,8 @@ Node *Model::node_map_create(const aiNode & node, Node *parent, int level)
 
   nodes[key] = internalNode.get();
   ai_mat_copy(&node.mTransformation, localTransform);
-  internalNode->local_transform_original_set(localTransform);
-  internalNode->local_transform_current_set(localTransform);
+  internalNode->local_transform_original_set(right_handed_to_left_handed(localTransform));
+  internalNode->local_transform_current_set(right_handed_to_left_handed(localTransform));
 
   for (size_t i = 0; i < node.mNumChildren; i++) {
     node_map_create(*node.mChildren[i], internalNode.get(), level + 1);
@@ -344,6 +343,7 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
     if (!assimpMesh->mNumBones) {
 //      m.model = glm::rotate(meshNode->transform_global, -90.f, glm::vec3(1.f, 0.f, 0.f));
       m.model = meshNode->transform_global;
+      //m.model = right_handed_to_left_handed(meshNode->transform_global);
     }
 
     for (unsigned int iv = 0; iv < assimpMesh->mNumVertices; iv++) {

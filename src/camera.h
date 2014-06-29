@@ -11,6 +11,7 @@
 
 #include "animated.h"
 #include "gldefaults.h"
+#include "utils.h"
 
 
 enum CameraMove { FORWARD, BACKWARD, SIDESTEP_RIGHT, SIDESTEP_LEFT};

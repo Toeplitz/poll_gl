@@ -169,7 +169,7 @@ void GLcontext::uniform_buffers_update_debug(glm::vec4 &data)
 void GLcontext::uniform_buffers_update_mesh(Mesh &mesh)
 {
   glm::mat4 m;
-  m = mesh.model * mesh.physics_matrix;
+  m = mesh.model;
 
   GLenum target = GL_UNIFORM_BUFFER;
   GLintptr offset = 0;

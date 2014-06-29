@@ -41,6 +41,34 @@ void print_matrix(std::ostream &os, const glm::mat4 &mat, size_t i)
 }
 
 
+glm::mat4 right_handed_to_left_handed(glm::mat4 &rh)
+{
+  glm::mat4 lh;
+
+  lh[0][0] = rh[0][0];
+  lh[1][0] = rh[2][0];
+  lh[2][0] = rh[1][0];
+  lh[3][0] = rh[3][0];
+
+  lh[0][1] = rh[0][2];
+  lh[1][1] = rh[2][2];
+  lh[2][1] = -rh[1][2];
+  lh[3][1] = rh[3][2];
+
+  lh[0][2] = rh[0][1];
+  lh[1][2] = rh[2][1];
+  lh[2][2] = rh[1][1];
+  lh[3][2] = rh[3][1];
+
+  lh[0][3] = 0.f;
+  lh[1][3] = 0.f;
+  lh[2][3] = 0.f;
+  lh[3][3] = 1.f;
+
+  return lh;
+}
+
+
 glm::quat mixQuat(const glm::quat &a, const glm::quat &b, float factor)
 {
   auto dot_product = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;

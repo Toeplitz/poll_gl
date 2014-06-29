@@ -27,7 +27,7 @@ Physics::~Physics()
 /**************************************************/
 
 
-void Physics::collision_node_add(Node &node, const Physics_Collision_Shape shape, bool recursive)
+void Physics::collision_node_add(Node &node, const Physics_Collision_Shape shape, bool recursive, float mass)
 {
   Physics_Node p_node;
 
@@ -36,7 +36,7 @@ void Physics::collision_node_add(Node &node, const Physics_Collision_Shape shape
   } else {
 
     p_node.node = &node;
-    p_node.rigidbody = bullet_collision_rigidbody_create(node, shape);
+    p_node.rigidbody = bullet_collision_rigidbody_create(node, shape, mass);
     p_nodes.push_back(p_node);
     bullet_world_add(p_node);
 
@@ -47,7 +47,7 @@ void Physics::collision_node_add(Node &node, const Physics_Collision_Shape shape
     return;
 
   for (auto &child : node.children) {
-    collision_node_add(*child, shape, recursive);
+    collision_node_add(*child, shape, recursive, mass);
   }
 
 }
@@ -108,7 +108,7 @@ static btTransform bullet_convert_transform(glm::mat4 transform)
 
 
 
-btRigidBody *Physics::bullet_collision_rigidbody_create(Node &node, Physics_Collision_Shape shape)
+btRigidBody *Physics::bullet_collision_rigidbody_create(Node &node, Physics_Collision_Shape shape, float m)
 {
   btCollisionShape *collision_shape = nullptr;
   glm::vec3 position = node.original_position;
@@ -117,11 +117,10 @@ btRigidBody *Physics::bullet_collision_rigidbody_create(Node &node, Physics_Coll
 
   switch (shape) {
     case PHYSICS_COLLISION_SPHERE:
-      collision_shape = new btSphereShape(btScalar(1));
+      collision_shape = new btSphereShape(btScalar(scaling.x));
       break;
     case PHYSICS_COLLISION_BOX:
       collision_shape = new btBoxShape(btVector3(scaling.x, scaling.y, scaling.z));
-//      collision_shape = new btBoxShape(btVector3(1, 1, 1));
       break;
     default:
       break;
@@ -132,8 +131,6 @@ btRigidBody *Physics::bullet_collision_rigidbody_create(Node &node, Physics_Coll
     return nullptr;
   }
 
-  print_matrix(std::cout, node.mesh->model, 0);
-  btTransform t2 = bullet_convert_transform(node.mesh->model);
   btTransform t;
   t.setIdentity();
   t.setOrigin(btVector3(position.x, position.y, position.z));
@@ -143,9 +140,9 @@ btRigidBody *Physics::bullet_collision_rigidbody_create(Node &node, Physics_Coll
   //      btVector3(node.original_position.x, node.original_position.y, node.
   //      original_position.z)), node);
   //print_matrix(std::cout, node.transform_local_current,0);
-  Physics_Motion_State *motion_state = new Physics_Motion_State(t2, node);
+  Physics_Motion_State *motion_state = new Physics_Motion_State(t, node);
 
-  btScalar mass = 1;
+  btScalar mass = m;
   btVector3 inertia(0, 0, 0);
   collision_shape->calculateLocalInertia(mass, inertia);
   btRigidBody::btRigidBodyConstructionInfo rb_ci(mass, motion_state, collision_shape, inertia);
@@ -170,7 +167,7 @@ void Physics::bullet_init()
   solver = new btSequentialImpulseConstraintSolver;
   world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collision_config);
 
-  world->setGravity(btVector3(0, -1, 0));
+  world->setGravity(btVector3(0, 0, -1));
   world->setDebugDrawer(&debug_drawer);
   debug_drawer.setDebugMode(btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb); 
 }
@@ -189,6 +186,9 @@ void Physics::bullet_step(const Uint32 dt)
 
   if (debug_toggle) {
     glshader.use();
+    debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(1, 0, 0), btVector3(1, 0, 0), btVector3(1, 0, 0));
+    debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(0, 1, 0), btVector3(0, 1, 0), btVector3(0, 1, 0));
+    debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(0, 0, 1), btVector3(0, 0, 1), btVector3(0, 0, 1));
     world->debugDrawWorld();
   }
 }
@@ -243,7 +243,7 @@ void Physics_Motion_State::setWorldTransform(const btTransform &t)
 //  glm::mat4 m = bullet_convert_glm(t);
   t.getOpenGLMatrix((btScalar *) &m);
 //  print_matrix(std::cout, m, 0);
-//  node->mesh->model = m;
-  node->mesh->physics_matrix = m;
+  node->mesh->model = m * glm::scale(glm::mat4(1.f), node->original_scaling);
+  // node->mesh->physics_matrix = right_handed_to_left_handed(m);
 }
 

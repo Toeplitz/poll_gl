@@ -31,9 +31,15 @@ void Mesh::buffer_data_get(std::vector<glm::vec4> *vertices_ptr,
   std::vector<GLshort> tempIndices;
   size_t n = vertices.size();
 
+  glm::mat4 blender_rotation = glm::rotate(glm::mat4(1.0f), glm::degrees(-(float) M_PI / 2.f), glm::vec3(1.f, 0.f, 0.f));
   for (size_t i = 0; i < n; i++) {
     //std::cout << vertices[i].position.x << ", " << vertices[i].position.y << ", " << vertices[i].position.z << std::endl;
-    tempVert.push_back(glm::vec4(vertices[i].position, 1.0));
+    Vertex v;
+    v.position.x = vertices[i].position.x;
+    v.position.y = vertices[i].position.y;
+    v.position.z = vertices[i].position.z;
+
+    tempVert.push_back(glm::vec4(v.position, 1.0));
     tempNormal.push_back(glm::vec4(vertices[i].normal, 1.0));
     tempWeight.push_back(vertices[i].weights);
     tempBoneIndex.push_back(vertices[i].bones);
