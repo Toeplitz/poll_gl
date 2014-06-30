@@ -25,12 +25,12 @@ Scene::~Scene()
 
 
 
-Node &Scene::load_model(const std::string &prefix, const std::string &filename) 
+Node &Scene::load_model(const std::string &prefix, const std::string &filename, bool lefthanded) 
 {
   Transform transform;
 
   Model model;
-  Node *rootPtr = model.load(assets, root, prefix, filename);
+  Node *rootPtr = model.load(assets, root, prefix, filename, lefthanded);
 
   transform.calculateGlobalTransformTopDown(root);
   upload_queue_add(*rootPtr);

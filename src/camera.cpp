@@ -165,7 +165,7 @@ void Camera::computeDirections()
         cosf(verticalAngle) * cosf(horizontalAngle));
   right = vec3(sinf(horizontalAngle - 3.14f / 2.0f), 0, cosf(horizontalAngle - 3.14f / 2.0f) );
   up = cross(right, direction);
-  std::cout << position.x << ", " << position.y << ", " << position.z << std::endl;
+  //std::cout << position.x << ", " << position.y << ", " << position.z << std::endl;
 }  
 
 

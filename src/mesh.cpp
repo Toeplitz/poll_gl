@@ -31,7 +31,6 @@ void Mesh::buffer_data_get(std::vector<glm::vec4> *vertices_ptr,
   std::vector<GLshort> tempIndices;
   size_t n = vertices.size();
 
-  glm::mat4 blender_rotation = glm::rotate(glm::mat4(1.0f), glm::degrees(-(float) M_PI / 2.f), glm::vec3(1.f, 0.f, 0.f));
   for (size_t i = 0; i < n; i++) {
     //std::cout << vertices[i].position.x << ", " << vertices[i].position.y << ", " << vertices[i].position.z << std::endl;
     Vertex v;

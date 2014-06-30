@@ -24,7 +24,7 @@ class Scene {
     Scene();
     ~Scene();
 
-    Node                 &load_model(const std::string &prefix, const std::string &filename);
+    Node                 &load_model(const std::string &prefix, const std::string &filename, bool lefthanded);
     void                  render_list_add(Node &node);
     std::vector<Node *>   render_list_get();
     void                  scene_graph_print();

@@ -1,4 +1,5 @@
 #include "physics.h"
+#include "utils.h"
 
 static glm::mat4    bullet_convert_glm(btTransform transform);
 static btTransform  bullet_convert_transform(glm::mat4 transform);
@@ -120,6 +121,7 @@ btRigidBody *Physics::bullet_collision_rigidbody_create(Node &node, Physics_Coll
       collision_shape = new btSphereShape(btScalar(scaling.x));
       break;
     case PHYSICS_COLLISION_BOX:
+      // btTransform does not have scaling, so we need to do it here.
       collision_shape = new btBoxShape(btVector3(scaling.x, scaling.y, scaling.z));
       break;
     default:
@@ -131,16 +133,17 @@ btRigidBody *Physics::bullet_collision_rigidbody_create(Node &node, Physics_Coll
     return nullptr;
   }
 
+  glm::mat4 matrix;
   btTransform t;
   t.setIdentity();
   t.setOrigin(btVector3(position.x, position.y, position.z));
   t.setRotation(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
-  std::cout << "Position: " << position.x << ", " << position.y << ", " << position.z << std::endl;
-  //Physics_Motion_State *motion_state = new Physics_Motion_State(btTransform(btQuaternion(0,0,0,1),
-  //      btVector3(node.original_position.x, node.original_position.y, node.
-  //      original_position.z)), node);
-  //print_matrix(std::cout, node.transform_local_current,0);
-  Physics_Motion_State *motion_state = new Physics_Motion_State(t, node);
+  btTransform t2;
+  t2.setFromOpenGLMatrix((btScalar *) &node.mesh->model);
+ // matrix = right_handed_to_left_handed(matrix);
+  //t = bullet_convert_transform(matrix);
+
+  Physics_Motion_State *motion_state = new Physics_Motion_State(t2, node);
 
   btScalar mass = m;
   btVector3 inertia(0, 0, 0);
@@ -167,7 +170,7 @@ void Physics::bullet_init()
   solver = new btSequentialImpulseConstraintSolver;
   world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collision_config);
 
-  world->setGravity(btVector3(0, 0, -1));
+  world->setGravity(btVector3(0, -1, 0));
   world->setDebugDrawer(&debug_drawer);
   debug_drawer.setDebugMode(btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb); 
 }
@@ -223,13 +226,17 @@ void Physics::bullet_world_delete(Physics_Node &p_node)
 
 Physics_Motion_State::Physics_Motion_State(const btTransform &start_position, Node &node)
 {
-  this->transform = start_position;
+  glm::mat4 scale_matrix = glm::scale(glm::mat4(1.f), node.original_scaling);
+  glm::mat4 model_no_scaling = node.mesh->model * glm::inverse(scale_matrix);
+  this->transform.setFromOpenGLMatrix((btScalar *) &model_no_scaling);
+  //this->transform = start_position;
   this->node = &node;
 }
 
 
 void Physics_Motion_State::getWorldTransform(btTransform &t) const
 {
+  std::cout << "GET WORLD TRANSFORM" << std::endl;
   t = transform;
 }
 
@@ -242,7 +249,7 @@ void Physics_Motion_State::setWorldTransform(const btTransform &t)
 
 //  glm::mat4 m = bullet_convert_glm(t);
   t.getOpenGLMatrix((btScalar *) &m);
-//  print_matrix(std::cout, m, 0);
+  //print_matrix(std::cout, m, 0);
   node->mesh->model = m * glm::scale(glm::mat4(1.f), node->original_scaling);
   // node->mesh->physics_matrix = right_handed_to_left_handed(m);
 }

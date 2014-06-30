@@ -28,8 +28,8 @@ vec3 ads() {
 
 void main() {
   vec3 texColor = texture(tex, f_textureCoord).rgb;
-  FragColor = vec4(ads() * texColor, 1);
+  //FragColor = vec4(ads() * texColor, 1);
   //FragColor = vec4(ads(), 1);
-  //FragColor = vec4(vec3(0.5, 0.5, 0.5), 1);
+  FragColor = vec4(ads() * vec3(0.7, 0.7, 0.7), 1);
   //FragColor = vec4(f_textureCoord.r, f_textureCoord.g, 1.0, 1);
 }

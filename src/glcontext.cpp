@@ -37,7 +37,7 @@ void GLcontext::check_error()
 
 void GLcontext::clear()
 {
-  glm::vec4 color(1.0, 1.0, 1.0, 1.0);
+  glm::vec4 color(0.0, 0.0, 0.0, 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   glClearColor(color.x, color.y, color.z, color.a);
 }

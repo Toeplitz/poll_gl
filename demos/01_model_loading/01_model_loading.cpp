@@ -34,7 +34,7 @@ class Demo {
       Camera &camera = fragmic.camera_get();
       camera.translate(glm::vec3(0, 3, 0));
 
-      scene.load_model("data/", "scene_textured.dae");
+      scene.load_model("data/", "scene_textured.dae", 1);
 
 //      scene.loadModel("data/", "tiling_plane.dae");
       scene.scene_graph_print();
@@ -53,7 +53,7 @@ class Demo {
   //    Node &node = scene.load_model("data/zombie/", "new_thin_zombie.dae");
   //    t.translate(node, glm::vec3(-2.5, 2.5, 0));
 
-      Node &node2 = scene.load_model("data/bob/", "Bob_with_lamp.dae");
+      Node &node2 = scene.load_model("data/bob/", "Bob_with_lamp.dae", 1);
       t.translate(node2, glm::vec3(2.5, 2.5, 0));
       scene.scene_graph_print();
       assets.print_all();

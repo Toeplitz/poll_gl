@@ -26,8 +26,7 @@ Model::~Model()
 /**************************************************/
 
 
-Node *Model::load(Assets &assets, Node &root,
-    const std::string &prefix, const std::string &filename)
+Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const std::string &filename, bool lefthanded)
 {
   Transform t;
   std::string fullName = prefix + "/" + filename;
@@ -35,9 +34,15 @@ Node *Model::load(Assets &assets, Node &root,
 
   Assimp::Importer importer;
   importer.SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 3);
+  if (lefthanded) {
   scene = importer.ReadFile(fullName.c_str(), aiProcess_Triangulate |
-      aiProcess_GenSmoothNormals |
-      aiProcess_FlipUVs | aiProcess_LimitBoneWeights);
+      aiProcess_GenSmoothNormals | aiProcess_ConvertToLeftHanded
+      | aiProcess_FlipUVs | aiProcess_LimitBoneWeights);
+  } else {
+    scene = importer.ReadFile(fullName.c_str(), aiProcess_Triangulate |
+        aiProcess_GenSmoothNormals | 
+        aiProcess_FlipUVs | aiProcess_LimitBoneWeights);
+  }
 
   Node *rootPtr = node_map_create(*scene->mRootNode, &root, root.tree_level);
   t.calculateGlobalTransformTopDown(*rootPtr);
@@ -134,7 +139,6 @@ Node *Model::node_map_create(const aiNode & node, Node *parent, int level)
   std::string key(node.mName.data);
   auto internalNode = std::unique_ptr<Node>(new Node(key));
   Node *nodePtr = internalNode.get();
-  {
     aiVector3t<float> scaling;
     aiQuaterniont<float> rotation;
     aiVector3t<float> position;
@@ -146,17 +150,23 @@ Node *Model::node_map_create(const aiNode & node, Node *parent, int level)
     std::cout << "Rotation quaternion: " << rotation.x << ", " << rotation.y << ", " << rotation.z << ", " << rotation.w << std::endl;
 
     glm::vec3 scale_vec(scaling.x, scaling.y, scaling.z);
-    glm::vec3 position_vec(position.x, position.y, position.z);
-    glm::quat rotation_quat(rotation.x, rotation.y, rotation.z, rotation.w);
+    glm::vec3 position_vec(position.x, position.y, -position.z);
+    glm::quat rotation_quat(rotation.x, rotation.y, -rotation.z, rotation.w);
     nodePtr->original_scaling = scale_vec;
     nodePtr->original_position = position_vec;
     nodePtr->original_rotation = rotation_quat;
-  }
+
+    glm::mat4 scale_matrix = glm::scale(glm::mat4(1.f), scale_vec);
+    glm::mat4 translate_matrix = glm::translate(glm::mat4(1.f), position_vec);
+    glm::mat4 rotation_matrix = glm::mat4_cast(glm::quat(rotation.x, rotation.y, rotation.z, rotation.w));
 
   nodes[key] = internalNode.get();
-  ai_mat_copy(&node.mTransformation, localTransform);
-  internalNode->local_transform_original_set(right_handed_to_left_handed(localTransform));
-  internalNode->local_transform_current_set(right_handed_to_left_handed(localTransform));
+  //ai_mat_copy(&node.mTransformation, localTransform);
+  //internalNode->local_transform_original_set(right_handed_to_left_handed(localTransform));
+  //internalNode->local_transform_current_set(right_handed_to_left_handed(localTransform));
+  localTransform = translate_matrix * rotation_matrix * scale_matrix;
+  internalNode->local_transform_original_set(localTransform);
+  internalNode->local_transform_current_set(localTransform);
 
   for (size_t i = 0; i < node.mNumChildren; i++) {
     node_map_create(*node.mChildren[i], internalNode.get(), level + 1);
