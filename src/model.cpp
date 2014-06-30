@@ -35,9 +35,9 @@ Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const s
   Assimp::Importer importer;
   importer.SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 3);
   if (lefthanded) {
-  scene = importer.ReadFile(fullName.c_str(), aiProcess_Triangulate |
-      aiProcess_GenSmoothNormals | aiProcess_ConvertToLeftHanded
-      | aiProcess_FlipUVs | aiProcess_LimitBoneWeights);
+    scene = importer.ReadFile(fullName.c_str(), aiProcess_Triangulate |
+        aiProcess_GenSmoothNormals | aiProcess_ConvertToLeftHanded
+        | aiProcess_FlipUVs | aiProcess_LimitBoneWeights);
   } else {
     scene = importer.ReadFile(fullName.c_str(), aiProcess_Triangulate |
         aiProcess_GenSmoothNormals | 
@@ -62,7 +62,7 @@ Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const s
 /***************** PRIVATE METHODS ****************/
 /**************************************************/
 
-template <typename Key, typename Value>
+  template <typename Key, typename Value>
 static const Value &lookupIn(const Key &key, const std::map<Key, Value> &map)
 {
   typename std::map < Key, Value >::const_iterator iter = map.find(key);
@@ -139,32 +139,36 @@ Node *Model::node_map_create(const aiNode & node, Node *parent, int level)
   std::string key(node.mName.data);
   auto internalNode = std::unique_ptr<Node>(new Node(key));
   Node *nodePtr = internalNode.get();
-    aiVector3t<float> scaling;
-    aiQuaterniont<float> rotation;
-    aiVector3t<float> position;
+  aiVector3t<float> scaling;
+  aiQuaterniont<float> rotation;
+  aiVector3t<float> position;
 
-    node.mTransformation.Decompose(scaling, rotation, position);
-    std::cout << "Report for: " << node.mName.C_Str() << std::endl;
-    std::cout << "Scaling: " << scaling.x << ", " << scaling.y << ", " << scaling.z << std::endl;
-    std::cout << "Position: " << position.x << ", " << position.y << ", " << position.z << std::endl;
-    std::cout << "Rotation quaternion: " << rotation.x << ", " << rotation.y << ", " << rotation.z << ", " << rotation.w << std::endl;
+  node.mTransformation.Decompose(scaling, rotation, position);
+  std::cout << "Report for: " << node.mName.C_Str() << std::endl;
+  std::cout << "Scaling: " << scaling.x << ", " << scaling.y << ", " << scaling.z << std::endl;
+  std::cout << "Position: " << position.x << ", " << position.y << ", " << position.z << std::endl;
+  std::cout << "Rotation quaternion: " << rotation.x << ", " << rotation.y << ", " << rotation.z << ", " << rotation.w << std::endl;
 
-    glm::vec3 scale_vec(scaling.x, scaling.y, scaling.z);
-    glm::vec3 position_vec(position.x, position.y, -position.z);
-    glm::quat rotation_quat(rotation.x, rotation.y, -rotation.z, rotation.w);
-    nodePtr->original_scaling = scale_vec;
-    nodePtr->original_position = position_vec;
-    nodePtr->original_rotation = rotation_quat;
+  glm::vec3 scale_vec(scaling.x, scaling.y, scaling.z);
+  glm::vec3 position_vec(position.x, position.y, -position.z);
+  glm::quat rotation_quat(rotation.x, rotation.y, -rotation.z, rotation.w);
+  nodePtr->original_scaling = scale_vec;
+  nodePtr->original_position = position_vec;
+  nodePtr->original_rotation = rotation_quat;
 
-    glm::mat4 scale_matrix = glm::scale(glm::mat4(1.f), scale_vec);
-    glm::mat4 translate_matrix = glm::translate(glm::mat4(1.f), position_vec);
-    glm::mat4 rotation_matrix = glm::mat4_cast(glm::quat(rotation.x, rotation.y, rotation.z, rotation.w));
+  glm::mat4 scale_matrix = glm::scale(glm::mat4(1.f), scale_vec);
+  glm::mat4 translate_matrix = glm::translate(glm::mat4(1.f), position_vec);
+  glm::mat4 neg_translate_matrix = glm::translate(glm::mat4(1.f), -position_vec);
+  glm::mat4 rotation_matrix = glm::mat4_cast(glm::quat(rotation.x, rotation.y, rotation.z, rotation.w));
+  glm::mat4 blender_compensatinon = glm::rotate(glm::mat4(1.0f), 90.0f, glm::vec3(0.f, 1.f, 0.f));
 
-  nodes[key] = internalNode.get();
-  //ai_mat_copy(&node.mTransformation, localTransform);
+//  localTransform = translate_matrix * rotation_matrix * scale_matrix * blender_compensatinon;
+
+    nodes[key] = internalNode.get();
+  ai_mat_copy(&node.mTransformation, localTransform);
   //internalNode->local_transform_original_set(right_handed_to_left_handed(localTransform));
   //internalNode->local_transform_current_set(right_handed_to_left_handed(localTransform));
-  localTransform = translate_matrix * rotation_matrix * scale_matrix;
+ //  localTransform = translate_matrix * rotation_matrix * scale_matrix;
   internalNode->local_transform_original_set(localTransform);
   internalNode->local_transform_current_set(localTransform);
 
@@ -193,13 +197,13 @@ void Model::materials_parse(Assets &assets)
     Material &material = *materialPtr;
 
     /*
-    std::cout << "\tProperties: " << assimpMaterial.mNumProperties <<std::endl;
-    std::cout << "\tNone textures: " << assimpMaterial.GetTextureCount(aiTextureType_NONE) <<std::endl;
-    std::cout << "\tAmbient textures: " << assimpMaterial.GetTextureCount(aiTextureType_AMBIENT) <<std::endl;
-    std::cout << "\tDiffuse textures: " << assimpMaterial.GetTextureCount(aiTextureType_DIFFUSE) <<std::endl;
-    std::cout << "\tSpecular textures: " << assimpMaterial.GetTextureCount(aiTextureType_SPECULAR) <<std::endl;
-    std::cout << "\tEmissive textures: " << assimpMaterial.GetTextureCount(aiTextureType_EMISSIVE) <<std::endl;
-    */
+       std::cout << "\tProperties: " << assimpMaterial.mNumProperties <<std::endl;
+       std::cout << "\tNone textures: " << assimpMaterial.GetTextureCount(aiTextureType_NONE) <<std::endl;
+       std::cout << "\tAmbient textures: " << assimpMaterial.GetTextureCount(aiTextureType_AMBIENT) <<std::endl;
+       std::cout << "\tDiffuse textures: " << assimpMaterial.GetTextureCount(aiTextureType_DIFFUSE) <<std::endl;
+       std::cout << "\tSpecular textures: " << assimpMaterial.GetTextureCount(aiTextureType_SPECULAR) <<std::endl;
+       std::cout << "\tEmissive textures: " << assimpMaterial.GetTextureCount(aiTextureType_EMISSIVE) <<std::endl;
+       */
 
     {
       aiColor4D color;
@@ -208,46 +212,46 @@ void Model::materials_parse(Assets &assets)
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_AMBIENT, &color);
       if (ret == AI_SUCCESS) {
         /*
-        std::cout << "\tAmbient (r,g,b,a) = (" << color.r << ","
-          << color.g << "," << color.b
-          << "," << color.a << ")" <<std::endl;
-          */
+           std::cout << "\tAmbient (r,g,b,a) = (" << color.r << ","
+           << color.g << "," << color.b
+           << "," << color.a << ")" <<std::endl;
+           */
       }
 
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_DIFFUSE, &color);
       if (ret == AI_SUCCESS) {
         /*
-        std::cout << "\tDiffuse (r,g,b,a) = (" << color.r << ","
-          << color.g << "," << color.b
-          << "," << color.a << ")" << std::endl;
-          */
+           std::cout << "\tDiffuse (r,g,b,a) = (" << color.r << ","
+           << color.g << "," << color.b
+           << "," << color.a << ")" << std::endl;
+           */
       }
 
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_SPECULAR, &color);
       if (ret == AI_SUCCESS) {
         /*
-        std::cout << "\tSpecular (r,g,b,a) = (" << color.r << ","
-          << color.g << "," << color.b
-          << "," << color.a << ")" << std::endl;
-          */
+           std::cout << "\tSpecular (r,g,b,a) = (" << color.r << ","
+           << color.g << "," << color.b
+           << "," << color.a << ")" << std::endl;
+           */
       }
 
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_EMISSIVE, &color);
       if (ret == AI_SUCCESS) {
         /*
-        std::cout << "\tEmissive (r,g,b,a) = (" << color.r << ","
-          << color.g << "," << color.b
-          << "," << color.a << ")" <<std::endl;
-          */
+           std::cout << "\tEmissive (r,g,b,a) = (" << color.r << ","
+           << color.g << "," << color.b
+           << "," << color.a << ")" <<std::endl;
+           */
       }
 
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_REFLECTIVE, &color);
       if (ret == AI_SUCCESS) {
         /*
-        std::cout << "\tReflective (r,g,b,a) = (" << color.r << ","
-          << color.g << "," << color.b
-          << "," << color.a << ")" <<std::endl;
-          */
+           std::cout << "\tReflective (r,g,b,a) = (" << color.r << ","
+           << color.g << "," << color.b
+           << "," << color.a << ")" <<std::endl;
+           */
       }
     }
 
@@ -261,7 +265,7 @@ void Model::materials_parse(Assets &assets)
           std::cout << "NOT CURRENTLY SUPPORTED!" << std::endl;
         }
 
-       // std::cout << "\tDiffuse texture file: " << path.data << std::endl;
+        // std::cout << "\tDiffuse texture file: " << path.data << std::endl;
         std::unique_ptr<Texture> texturePtr(new Texture());
         Texture &texture = *texturePtr;
         texture.loadImage(prefix + std::string(path.data));
@@ -351,7 +355,7 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
     }
 
     if (!assimpMesh->mNumBones) {
-//      m.model = glm::rotate(meshNode->transform_global, -90.f, glm::vec3(1.f, 0.f, 0.f));
+      //      m.model = glm::rotate(meshNode->transform_global, -90.f, glm::vec3(1.f, 0.f, 0.f));
       m.model = meshNode->transform_global;
       //m.model = right_handed_to_left_handed(meshNode->transform_global);
     }

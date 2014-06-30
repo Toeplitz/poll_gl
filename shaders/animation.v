@@ -50,7 +50,7 @@ void main(void) {
 
   mat3 normalMatrix = mat3(transpose(inverse(modelView)));
 
-  vec4 lightPos = vec4(50, 100, 0, 1);
+  vec4 lightPos = vec4(10, 10, 0, 1);
   lightPosEye = view * lightPos;
 
   Position = vec3(modelView * vertexCoord);

@@ -33,14 +33,9 @@ int main()
   Window &window = fragmic.window_get();
   window.keyboard_pressed_callback_set(keyboard_pressed_cb);
 
-  Node &box_node_rh = scene.load_model("data/", "box_translated_scaled.dae", 0);
-  physics.collision_node_add(box_node_rh, PHYSICS_COLLISION_BOX, true, 1.f);
+  Node &bob_node = scene.load_model("data/bob/", "Bob_with_lamp.dae", 0);
+  physics.collision_node_add(bob_node, PHYSICS_COLLISION_BOX, true, 1.f);
 
-  Node &sphere_node = scene.load_model("data/", "sphere_translated_scaled.dae", 0);
-  physics.collision_node_add(sphere_node, PHYSICS_COLLISION_SPHERE, true, 1.f);
-
-  Node &base_node= scene.load_model("data/", "base.dae", 0);
-  physics.collision_node_add(base_node, PHYSICS_COLLISION_BOX, true, 0);
 
   scene.scene_graph_print();
 

@@ -54,7 +54,9 @@ void Assets::material_print_all()
   for (auto &material: materials) {
     auto &texture = material->texture;
     std::cout << "\t(" << &material << ") ";
-    std::cout << "texture: " << texture->filename << std::endl;
+    if (texture) {
+      std::cout << "texture: " << texture->filename << std::endl;
+    }
   }
 
 }

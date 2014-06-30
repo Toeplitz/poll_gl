@@ -170,7 +170,7 @@ void Physics::bullet_init()
   solver = new btSequentialImpulseConstraintSolver;
   world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collision_config);
 
-  world->setGravity(btVector3(0, -1, 0));
+  world->setGravity(btVector3(0, -9.81, 0));
   world->setDebugDrawer(&debug_drawer);
   debug_drawer.setDebugMode(btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb); 
 }
