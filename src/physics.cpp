@@ -176,10 +176,11 @@ void Physics::bullet_init()
 }
 
 
-void Physics::bullet_step(const Uint32 dt)
+int Physics::bullet_step(const Uint32 dt)
 {
-  float timestep = (float) dt / 1000.f;
-  int max_sub_steps = 7;
+  float timestep = 1.f / 60.f;
+  //float timestep = (float) dt / 1000.f;
+  int max_sub_steps = 1;
   float fixed_time_step = 1.f / 60.f;
 
   //std::cout << "timeStep <  maxSubSteps * fixedTimeStep: " << timestep << " < " << max_sub_steps * fixed_time_step << std::endl;
@@ -194,6 +195,8 @@ void Physics::bullet_step(const Uint32 dt)
     debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(0, 0, 1), btVector3(0, 0, 1), btVector3(0, 0, 1));
     world->debugDrawWorld();
   }
+
+  return debug_toggle;
 }
 
 
@@ -251,6 +254,7 @@ void Physics_Motion_State::setWorldTransform(const btTransform &t)
   t.getOpenGLMatrix((btScalar *) &m);
   //print_matrix(std::cout, m, 0);
   node->mesh->model = m * glm::scale(glm::mat4(1.f), node->original_scaling);
+  //node->mesh->model = m;
   // node->mesh->physics_matrix = right_handed_to_left_handed(m);
 }
 

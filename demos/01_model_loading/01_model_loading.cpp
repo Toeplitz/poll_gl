@@ -49,11 +49,13 @@ class Demo {
       Transform t;
       Scene &scene = fragmic.scene_get();
       Assets &assets = scene.assets_get();
+      Physics &physics = fragmic.physics_get();
 
   //    Node &node = scene.load_model("data/zombie/", "new_thin_zombie.dae");
   //    t.translate(node, glm::vec3(-2.5, 2.5, 0));
 
       Node &node2 = scene.load_model("data/bob/", "Bob_with_lamp.dae", 1);
+      physics.collision_node_add(node2, PHYSICS_COLLISION_BOX, true, 1);
       t.translate(node2, glm::vec3(2.5, 2.5, 0));
       scene.scene_graph_print();
       assets.print_all();

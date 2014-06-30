@@ -62,7 +62,7 @@ class Physics
     btRigidBody *bullet_collision_rigidbody_create(Node &node, Physics_Collision_Shape shape, float m);
     void         bullet_collision_rigidbody_delete(btRigidBody *rb);
     void         bullet_init();
-    void         bullet_step(const Uint32 dt);
+    int          bullet_step(const Uint32 dt);
     void         bullet_term();
     void         bullet_world_add(Physics_Node &p_node);
     void         bullet_world_delete(Physics_Node &p_node);
