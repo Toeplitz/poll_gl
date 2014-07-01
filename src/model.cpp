@@ -29,17 +29,22 @@ Model::~Model()
 Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const std::string &filename, bool lefthanded)
 {
   Transform t;
-  std::string fullName = prefix + "/" + filename;
+  std::string full_name = prefix + "/" + filename;
   this->prefix = prefix;
+
+  if (!file_exists(full_name)) {
+    std::cout << "Model file '" << full_name << "' does not exist. Exiting ..." << std::endl;
+    exit(-1);
+  }
 
   Assimp::Importer importer;
   importer.SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 3);
   if (lefthanded) {
-    scene = importer.ReadFile(fullName.c_str(), aiProcess_Triangulate |
+    scene = importer.ReadFile(full_name.c_str(), aiProcess_Triangulate |
         aiProcess_GenSmoothNormals | aiProcess_ConvertToLeftHanded
         | aiProcess_FlipUVs | aiProcess_LimitBoneWeights);
   } else {
-    scene = importer.ReadFile(fullName.c_str(), aiProcess_Triangulate |
+    scene = importer.ReadFile(full_name.c_str(), aiProcess_Triangulate |
         aiProcess_GenSmoothNormals | 
         aiProcess_FlipUVs | aiProcess_LimitBoneWeights);
   }

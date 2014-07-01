@@ -33,7 +33,7 @@ int main()
   Window &window = fragmic.window_get();
   window.keyboard_pressed_callback_set(keyboard_pressed_cb);
 
-  Node &bob_node = scene.load_model("data/bob/", "Bob_with_lamp.dae", 0);
+  Node &bob_node = scene.load_model("data/", "rabbit.dae", 0);
   physics.collision_node_add(bob_node, PHYSICS_COLLISION_CONVEX_HULL, true, 1.f);
 
 
