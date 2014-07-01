@@ -33,6 +33,7 @@ class GLcontext {
     void draw(Node &node);
     bool init(const int width, const int height);
     void polygon_mesh_toggle(bool tog);
+    void texture_create(Texture &texture);
     void uniform_buffers_init(GLshader &shader);
     void uniform_buffers_update_camera(Camera &camera);
     void uniform_buffers_update_debug(glm::vec4 &data);

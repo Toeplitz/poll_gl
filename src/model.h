@@ -21,6 +21,13 @@
 #include "utils.h"
 
 
+enum Model_Texture_Type
+{
+  MODEL_TEXTURE_DIFFUSE,
+  MODEL_TEXTURE_NORMAL
+};
+
+
 class Model {
   private:
     typedef std::map <const aiBone *, Bone *> BoneForAssimpBone;
@@ -31,6 +38,8 @@ class Model {
     const aiScene           *scene;
     std::string              prefix;
     Armature                *armaturePtr;
+
+    void   assimp_material_add_texture(Material &material, aiMaterial &assimp_material, Model_Texture_Type type);
 
     void   ai_mat_copy(const aiMatrix4x4 *from, glm::mat4 &to);
     void   bone_map_create(Assets &assets, BoneForAssimpBone &boneForAssimpBone);

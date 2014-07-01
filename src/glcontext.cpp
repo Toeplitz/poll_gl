@@ -86,6 +86,20 @@ void GLcontext::polygon_mesh_toggle(bool tog)
 }
 
 
+void GLcontext::texture_create(Texture &texture) 
+{
+  glGenTextures(1, &texture.gl_texture);
+  glBindTexture(GL_TEXTURE_2D, texture.gl_texture);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.image->width, texture.image->height,
+      0, GL_RGB, GL_UNSIGNED_BYTE, texture.image->data);
+}
+
+
 void GLcontext::uniform_buffers_init(GLshader &shader)
 {
   GLuint program = shader.program;
@@ -191,9 +205,13 @@ void GLcontext::uniform_buffers_update_node(Node &node)
   }
 
   if (material) {
-    auto &texture = material->texture;
-    if (texture) {
-      glBindTexture(GL_TEXTURE_2D, texture->gl_texture);
+    if (material->diffuse) {
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_2D, material->diffuse->gl_texture);
+    }
+    if (material->normal) {
+      glActiveTexture(GL_TEXTURE1);
+      glBindTexture(GL_TEXTURE_2D, material->normal->gl_texture);
     }
   }
 }
@@ -262,18 +280,11 @@ void GLcontext::vertex_buffers_add(Node &node)
   }
 
   if (material) {
-    auto &texture = material->texture;
-
-    if (texture) {
-      glGenTextures(1, &texture->gl_texture);
-      glBindTexture(GL_TEXTURE_2D, texture->gl_texture);
-      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture->image->width, texture->image->height,
-          0, GL_RGB, GL_UNSIGNED_BYTE, texture->image->data);
+    if (material->diffuse) {
+      texture_create(*material->diffuse);
+    }
+    if (material->normal) {
+      texture_create(*material->normal);
     }
   }
 }

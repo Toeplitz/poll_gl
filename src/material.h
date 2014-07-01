@@ -1,5 +1,4 @@
-#ifndef MATERIAL_H
-#define MATERIAL_H
+#pragma once
 
 #include <memory>
 #include "texture.h"
@@ -7,10 +6,10 @@
 class Material 
 {
   public:
-    std::unique_ptr<Texture> texture;
+    std::unique_ptr<Texture> diffuse;
+    std::unique_ptr<Texture> normal;
 
     Material();
     ~Material();
 };
 
-#endif

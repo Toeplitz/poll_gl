@@ -54,7 +54,6 @@ Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const s
   BoneForAssimpBone boneForAssimpBone;
   bone_map_create(assets, boneForAssimpBone);
   materials_parse(assets);
-  //parseTextures();
 
   mesh_create_all(assets, *scene->mRootNode, boneForAssimpBone);
   key_frames_parse();
@@ -67,12 +66,61 @@ Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const s
 /***************** PRIVATE METHODS ****************/
 /**************************************************/
 
+
   template <typename Key, typename Value>
 static const Value &lookupIn(const Key &key, const std::map<Key, Value> &map)
 {
   typename std::map < Key, Value >::const_iterator iter = map.find(key);
   assert(iter != map.end());
   return iter->second;
+}
+
+
+void Model::assimp_material_add_texture(Material &material, aiMaterial &assimp_material, Model_Texture_Type type)
+{
+  int texIndex = 0;
+  aiString path;
+  aiTextureType assimp_type;
+
+  switch (type) {
+    case MODEL_TEXTURE_DIFFUSE:
+      assimp_type = aiTextureType_DIFFUSE;
+      break;
+    case MODEL_TEXTURE_NORMAL:
+      assimp_type = aiTextureType_NORMALS;
+      break;
+    default:
+      break;
+  }
+
+  aiReturn texFound = assimp_material.GetTexture(assimp_type, texIndex, &path);
+
+  if (texFound == AI_SUCCESS) {
+    if (texIndex > 0) {
+      std::cout << "Fragmic warning: more then one texture of this type for material" << std::endl;
+      std::cout << "NOT CURRENTLY SUPPORTED!" << std::endl;
+    }
+
+    std::cout << "\tTexture file: " << path.data << std::endl;
+    std::unique_ptr<Texture> texturePtr(new Texture());
+    Texture &texture = *texturePtr;
+    texture.loadImage(prefix + std::string(path.data));
+
+    switch (type) {
+      case MODEL_TEXTURE_DIFFUSE:
+        material.diffuse = std::move(texturePtr);
+        break;
+      case MODEL_TEXTURE_NORMAL:
+        material.normal = std::move(texturePtr);
+        break;
+      default:
+        break;
+    }
+
+    texIndex++;
+    texFound = assimp_material.GetTexture(assimp_type, texIndex, &path);
+  }
+
 }
 
 
@@ -149,10 +197,12 @@ Node *Model::node_map_create(const aiNode & node, Node *parent, int level)
   aiVector3t<float> position;
 
   node.mTransformation.Decompose(scaling, rotation, position);
-  std::cout << "Report for: " << node.mName.C_Str() << std::endl;
-  std::cout << "Scaling: " << scaling.x << ", " << scaling.y << ", " << scaling.z << std::endl;
-  std::cout << "Position: " << position.x << ", " << position.y << ", " << position.z << std::endl;
-  std::cout << "Rotation quaternion: " << rotation.x << ", " << rotation.y << ", " << rotation.z << ", " << rotation.w << std::endl;
+  /*
+     std::cout << "Report for: " << node.mName.C_Str() << std::endl;
+     std::cout << "Scaling: " << scaling.x << ", " << scaling.y << ", " << scaling.z << std::endl;
+     std::cout << "Position: " << position.x << ", " << position.y << ", " << position.z << std::endl;
+     std::cout << "Rotation quaternion: " << rotation.x << ", " << rotation.y << ", " << rotation.z << ", " << rotation.w << std::endl;
+     */
 
   glm::vec3 scale_vec(scaling.x, scaling.y, scaling.z);
   glm::vec3 position_vec(position.x, position.y, -position.z);
@@ -161,21 +211,21 @@ Node *Model::node_map_create(const aiNode & node, Node *parent, int level)
   nodePtr->original_position = position_vec;
   nodePtr->original_rotation = rotation_quat;
 
-//  glm::mat4 scale_matrix = glm::scale(glm::mat4(1.f), scale_vec);
+  //  glm::mat4 scale_matrix = glm::scale(glm::mat4(1.f), scale_vec);
   /*
-  glm::mat4 translate_matrix = glm::translate(glm::mat4(1.f), position_vec);
-  glm::mat4 neg_translate_matrix = glm::translate(glm::mat4(1.f), -position_vec);
-  glm::mat4 rotation_matrix = glm::mat4_cast(glm::quat(rotation.x, rotation.y, rotation.z, rotation.w));
-  glm::mat4 blender_compensatinon = glm::rotate(glm::mat4(1.0f), 90.0f, glm::vec3(0.f, 1.f, 0.f));
-*/
+     glm::mat4 translate_matrix = glm::translate(glm::mat4(1.f), position_vec);
+     glm::mat4 neg_translate_matrix = glm::translate(glm::mat4(1.f), -position_vec);
+     glm::mat4 rotation_matrix = glm::mat4_cast(glm::quat(rotation.x, rotation.y, rotation.z, rotation.w));
+     glm::mat4 blender_compensatinon = glm::rotate(glm::mat4(1.0f), 90.0f, glm::vec3(0.f, 1.f, 0.f));
+     */
 
-//  localTransform = translate_matrix * rotation_matrix * scale_matrix * blender_compensatinon;
+  //  localTransform = translate_matrix * rotation_matrix * scale_matrix * blender_compensatinon;
 
-    nodes[key] = internalNode.get();
+  nodes[key] = internalNode.get();
   ai_mat_copy(&node.mTransformation, localTransform);
   //internalNode->local_transform_original_set(right_handed_to_left_handed(localTransform));
   //internalNode->local_transform_current_set(right_handed_to_left_handed(localTransform));
- //  localTransform = translate_matrix * rotation_matrix * scale_matrix;
+  //  localTransform = translate_matrix * rotation_matrix * scale_matrix;
   internalNode->local_transform_original_set(localTransform);
   internalNode->local_transform_current_set(localTransform);
 
@@ -187,6 +237,8 @@ Node *Model::node_map_create(const aiNode & node, Node *parent, int level)
 
   return nodePtr;
 }
+
+
 
 
 void Model::materials_parse(Assets &assets)
@@ -203,85 +255,56 @@ void Model::materials_parse(Assets &assets)
     std::unique_ptr<Material> materialPtr(new Material());
     Material &material = *materialPtr;
 
-    /*
-       std::cout << "\tProperties: " << assimpMaterial.mNumProperties <<std::endl;
-       std::cout << "\tNone textures: " << assimpMaterial.GetTextureCount(aiTextureType_NONE) <<std::endl;
-       std::cout << "\tAmbient textures: " << assimpMaterial.GetTextureCount(aiTextureType_AMBIENT) <<std::endl;
-       std::cout << "\tDiffuse textures: " << assimpMaterial.GetTextureCount(aiTextureType_DIFFUSE) <<std::endl;
-       std::cout << "\tSpecular textures: " << assimpMaterial.GetTextureCount(aiTextureType_SPECULAR) <<std::endl;
-       std::cout << "\tEmissive textures: " << assimpMaterial.GetTextureCount(aiTextureType_EMISSIVE) <<std::endl;
-       */
-
+    std::cout << "\tProperties: " << assimpMaterial.mNumProperties <<std::endl;
+    std::cout << "\tNone textures: " << assimpMaterial.GetTextureCount(aiTextureType_NONE) <<std::endl;
+    std::cout << "\tAmbient textures: " << assimpMaterial.GetTextureCount(aiTextureType_AMBIENT) <<std::endl;
+    std::cout << "\tDiffuse textures: " << assimpMaterial.GetTextureCount(aiTextureType_DIFFUSE) <<std::endl;
+    std::cout << "\tSpecular textures: " << assimpMaterial.GetTextureCount(aiTextureType_SPECULAR) <<std::endl;
+    std::cout << "\tEmissive textures: " << assimpMaterial.GetTextureCount(aiTextureType_EMISSIVE) <<std::endl;
+    std::cout << "\tNormals textures: " << assimpMaterial.GetTextureCount(aiTextureType_NORMALS) <<std::endl;
+    std::cout << "\tLightmap textures: " << assimpMaterial.GetTextureCount(aiTextureType_LIGHTMAP) <<std::endl;
     {
       aiColor4D color;
       aiReturn ret;
 
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_AMBIENT, &color);
       if (ret == AI_SUCCESS) {
-        /*
-           std::cout << "\tAmbient (r,g,b,a) = (" << color.r << ","
-           << color.g << "," << color.b
-           << "," << color.a << ")" <<std::endl;
-           */
+        std::cout << "\tAmbient (r,g,b,a) = (" << color.r << ","
+          << color.g << "," << color.b
+          << "," << color.a << ")" <<std::endl;
       }
 
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_DIFFUSE, &color);
       if (ret == AI_SUCCESS) {
-        /*
-           std::cout << "\tDiffuse (r,g,b,a) = (" << color.r << ","
-           << color.g << "," << color.b
-           << "," << color.a << ")" << std::endl;
-           */
+        std::cout << "\tDiffuse (r,g,b,a) = (" << color.r << ","
+          << color.g << "," << color.b
+          << "," << color.a << ")" << std::endl;
       }
 
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_SPECULAR, &color);
       if (ret == AI_SUCCESS) {
-        /*
-           std::cout << "\tSpecular (r,g,b,a) = (" << color.r << ","
-           << color.g << "," << color.b
-           << "," << color.a << ")" << std::endl;
-           */
+        std::cout << "\tSpecular (r,g,b,a) = (" << color.r << ","
+          << color.g << "," << color.b
+          << "," << color.a << ")" << std::endl;
       }
 
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_EMISSIVE, &color);
       if (ret == AI_SUCCESS) {
-        /*
-           std::cout << "\tEmissive (r,g,b,a) = (" << color.r << ","
-           << color.g << "," << color.b
-           << "," << color.a << ")" <<std::endl;
-           */
+        std::cout << "\tEmissive (r,g,b,a) = (" << color.r << ","
+          << color.g << "," << color.b
+          << "," << color.a << ")" <<std::endl;
       }
 
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_REFLECTIVE, &color);
       if (ret == AI_SUCCESS) {
-        /*
-           std::cout << "\tReflective (r,g,b,a) = (" << color.r << ","
-           << color.g << "," << color.b
-           << "," << color.a << ")" <<std::endl;
-           */
+        std::cout << "\tReflective (r,g,b,a) = (" << color.r << ","
+          << color.g << "," << color.b
+          << "," << color.a << ")" <<std::endl;
       }
     }
 
-    {
-      int texIndex = 0;
-      aiString path;
-      aiReturn texFound = assimpMaterial.GetTexture(aiTextureType_DIFFUSE, texIndex, &path);
-      if (texFound == AI_SUCCESS) {
-        if (texIndex > 0) {
-          std::cout << "Fragmic warning: more then one diffuse texture for material" << std::endl;
-          std::cout << "NOT CURRENTLY SUPPORTED!" << std::endl;
-        }
-
-        // std::cout << "\tDiffuse texture file: " << path.data << std::endl;
-        std::unique_ptr<Texture> texturePtr(new Texture());
-        Texture &texture = *texturePtr;
-        texture.loadImage(prefix + std::string(path.data));
-        material.texture = std::move(texturePtr);
-
-        texIndex++;
-        texFound = assimpMaterial.GetTexture(aiTextureType_DIFFUSE, texIndex, &path);
-      }
-    }
+    assimp_material_add_texture(material, assimpMaterial, MODEL_TEXTURE_DIFFUSE);
+    assimp_material_add_texture(material, assimpMaterial, MODEL_TEXTURE_NORMAL);
 
     materials.push_back(materialPtr.get());
     assets.material_add(std::move(materialPtr));

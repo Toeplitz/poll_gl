@@ -16,6 +16,7 @@ bool Texture::loadImage(const std::string &filename)
   this->filename = filename;
 
   if (!image->load(filename)) {
+    std::cout << "Error: coult not load image" << std::endl;
     return false;
   }
 
