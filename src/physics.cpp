@@ -1,9 +1,6 @@
 #include "physics.h"
 #include "utils.h"
 
-static glm::mat4    bullet_convert_glm(btTransform transform);
-static btTransform  bullet_convert_transform(glm::mat4 transform);
-
 /**************************************************/
 /***************** CONSTRUCTORS *******************/
 /**************************************************/
@@ -84,26 +81,6 @@ void Physics::step(const Uint32 dt)
 
 
 /**************************************************/
-/***************** STATIC FUNCTIONS ***************/
-/**************************************************/
-
-static glm::mat4 bullet_convert_glm(btTransform transform)
-{
-  float data[16];
-  transform.getOpenGLMatrix(data);
-  return glm::make_mat4(data);
-}
-
-
-static btTransform bullet_convert_transform(glm::mat4 transform)
-{
-  const float *data = glm::value_ptr(transform);
-  btTransform bulletTransform;
-  bulletTransform.setFromOpenGLMatrix(data);
-  return bulletTransform;
-}
-
-/**************************************************/
 /***************** PRIVATE METHODS ****************/
 /**************************************************/
 
@@ -123,6 +100,9 @@ btRigidBody *Physics::bullet_collision_rigidbody_create(Node &node, Physics_Coll
     case PHYSICS_COLLISION_BOX:
       // btTransform does not have scaling, so we need to do it here.
       collision_shape = new btBoxShape(btVector3(scaling.x, scaling.y, scaling.z));
+      break;
+    case PHYSICS_COLLISION_CONVEX_HULL:
+      collision_shape = bullet_collision_shape_convex_hull_create(node);
       break;
     default:
       break;
@@ -159,6 +139,19 @@ btRigidBody *Physics::bullet_collision_rigidbody_create(Node &node, Physics_Coll
 void Physics::bullet_collision_rigidbody_delete(btRigidBody *rb)
 {
   delete rb;
+}
+
+
+btCollisionShape *Physics::bullet_collision_shape_convex_hull_create(Node &node)
+{
+  btCollisionShape *collision_shape = nullptr;
+  std::vector<glm::vec4> vertices = node.mesh->vertices_get(true);
+  int n = vertices.size();
+
+  std::cout << "Num: " << vertices.size() << std::endl;
+  collision_shape = new btConvexHullShape((btScalar *) vertices.data(), n);
+
+  return collision_shape;
 }
 
 

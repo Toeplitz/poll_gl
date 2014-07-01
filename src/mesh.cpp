@@ -1,6 +1,11 @@
 #include "mesh.h"
 #include <iostream>
 
+/**************************************************/
+/***************** CONSTRUCTORS *******************/
+/**************************************************/
+
+
 Mesh::Mesh():
   model(glm::mat4(1.0))
 {
@@ -11,9 +16,9 @@ Mesh::~Mesh(void)
 }
 
 
-unsigned int Mesh::num_indices_get() {
-  return indices.size();
-}
+/**************************************************/
+/***************** PUBLIC METHODS *****************/
+/**************************************************/
 
 
 void Mesh::buffer_data_get(std::vector<glm::vec4> *vertices_ptr, 
@@ -55,4 +60,34 @@ void Mesh::buffer_data_get(std::vector<glm::vec4> *vertices_ptr,
   *bone_indices_ptr = tempBoneIndex;
   *uv_ptr = tempUv;
   *indices_ptr = tempIndices;
+}
+
+
+unsigned int Mesh::num_indices_get() {
+  return indices.size();
+}
+
+
+std::vector<glm::vec4>  Mesh::vertices_get(bool scale)
+{
+  std::vector<glm::vec4> temp_vertices;
+  size_t n = vertices.size();
+
+  for (size_t i = 0; i < n; i++) {
+    Vertex v;
+    glm::vec4 position;
+    v.position.x = vertices[i].position.x;
+    v.position.y = vertices[i].position.y;
+    v.position.z = vertices[i].position.z;
+
+    if (scale) {
+      position = glm::vec4(v.position, 1.0) * scale_matrix;
+    } else {
+      position = glm::vec4(v.position, 1.0);
+    }
+
+    temp_vertices.push_back(position);
+  }
+
+  return temp_vertices;
 }

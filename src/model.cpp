@@ -156,11 +156,13 @@ Node *Model::node_map_create(const aiNode & node, Node *parent, int level)
   nodePtr->original_position = position_vec;
   nodePtr->original_rotation = rotation_quat;
 
-  glm::mat4 scale_matrix = glm::scale(glm::mat4(1.f), scale_vec);
+//  glm::mat4 scale_matrix = glm::scale(glm::mat4(1.f), scale_vec);
+  /*
   glm::mat4 translate_matrix = glm::translate(glm::mat4(1.f), position_vec);
   glm::mat4 neg_translate_matrix = glm::translate(glm::mat4(1.f), -position_vec);
   glm::mat4 rotation_matrix = glm::mat4_cast(glm::quat(rotation.x, rotation.y, rotation.z, rotation.w));
   glm::mat4 blender_compensatinon = glm::rotate(glm::mat4(1.0f), 90.0f, glm::vec3(0.f, 1.f, 0.f));
+*/
 
 //  localTransform = translate_matrix * rotation_matrix * scale_matrix * blender_compensatinon;
 
@@ -392,6 +394,7 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
       }
     }
 
+    meshPtr->scale_matrix = glm::scale(glm::mat4(1.0f), meshNode->original_scaling);
     meshNode->mesh = meshPtr.get();
     meshNode->armature = armaturePtr;
     assets.mesh_add(std::move(meshPtr));

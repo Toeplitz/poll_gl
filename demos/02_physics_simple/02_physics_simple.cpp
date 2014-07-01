@@ -39,6 +39,9 @@ int main()
   Node &sphere_node = scene.load_model("data/", "sphere_translated_scaled.dae", 0);
   physics.collision_node_add(sphere_node, PHYSICS_COLLISION_SPHERE, true, 1.f);
 
+  Node &monkey_node = scene.load_model("data/", "convex_hull.dae", 0);
+  physics.collision_node_add(monkey_node, PHYSICS_COLLISION_CONVEX_HULL, true, 1.f);
+
   Node &base_node= scene.load_model("data/", "base.dae", 0);
   physics.collision_node_add(base_node, PHYSICS_COLLISION_BOX, true, 0);
 

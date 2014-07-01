@@ -19,7 +19,8 @@
 enum Physics_Collision_Shape 
 {
   PHYSICS_COLLISION_BOX,
-  PHYSICS_COLLISION_SPHERE
+  PHYSICS_COLLISION_SPHERE,
+  PHYSICS_COLLISION_CONVEX_HULL
 };
 
 
@@ -59,13 +60,14 @@ class Physics
     int                                   debug_toggle;
     int                                   pause_toggle;
 
-    btRigidBody *bullet_collision_rigidbody_create(Node &node, Physics_Collision_Shape shape, float m);
-    void         bullet_collision_rigidbody_delete(btRigidBody *rb);
-    void         bullet_init();
-    int          bullet_step(const Uint32 dt);
-    void         bullet_term();
-    void         bullet_world_add(Physics_Node &p_node);
-    void         bullet_world_delete(Physics_Node &p_node);
+    btRigidBody      *bullet_collision_rigidbody_create(Node &node, Physics_Collision_Shape shape, float m);
+    void              bullet_collision_rigidbody_delete(btRigidBody *rb);
+    btCollisionShape *bullet_collision_shape_convex_hull_create(Node &node);
+    void              bullet_init();
+    int               bullet_step(const Uint32 dt);
+    void              bullet_term();
+    void              bullet_world_add(Physics_Node &p_node);
+    void              bullet_world_delete(Physics_Node &p_node);
 
   public:
     Physics();
