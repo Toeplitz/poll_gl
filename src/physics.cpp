@@ -145,11 +145,12 @@ void Physics::bullet_collision_rigidbody_delete(btRigidBody *rb)
 btCollisionShape *Physics::bullet_collision_shape_convex_hull_create(Node &node)
 {
   btCollisionShape *collision_shape = nullptr;
-  std::vector<glm::vec4> vertices = node.mesh->vertices_get(true);
+  std::vector<glm::vec4> vertices = node.mesh->vertices_get(false);
   int n = vertices.size();
 
   std::cout << "Num: " << vertices.size() << std::endl;
   collision_shape = new btConvexHullShape((btScalar *) vertices.data(), n);
+  collision_shape->setLocalScaling(btVector3(node.original_scaling.x, node.original_scaling.y, node.original_scaling.z));
 
   return collision_shape;
 }

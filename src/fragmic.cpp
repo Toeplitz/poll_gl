@@ -1,7 +1,14 @@
 #include "fragmic.h"
-#include <SDL2/SDL_timer.h>             // for SDL_GetTicks
-#include <iostream>                     // for operator<<, basic_ostream, etc
+#include <SDL2/SDL_timer.h> 
+#include <iostream>
 
+/* TODO:
+ * 
+ * For optimization:
+ * - Remove if statements in shader, espacially for weights.
+ * - Frustnum culling
+ *   - Calculate AABB, minimum/maximum vertex approach.
+ */
 
 /**************************************************/
 /***************** CONSTRUCTORS *******************/
