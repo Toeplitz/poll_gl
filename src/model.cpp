@@ -49,6 +49,11 @@ Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const s
         aiProcess_FlipUVs | aiProcess_LimitBoneWeights);
   }
 
+  if (!scene) {
+    std::cout << "Error parsing '" <<  full_name.c_str() << "': " << importer.GetErrorString() << std::endl;
+    exit(-1);
+  }
+
   Node *rootPtr = node_map_create(*scene->mRootNode, &root, root.tree_level);
   t.calculateGlobalTransformTopDown(*rootPtr);
   BoneForAssimpBone boneForAssimpBone;

@@ -6,21 +6,37 @@ Fragmic fragmic("Demo 4", 1280, 720);
 
 void keyboard_pressed_cb(SDL_Keysym *keysym)
 {
+  Physics &physics = fragmic.physics_get();
+
   switch (keysym->sym) {
     case SDLK_SPACE:
+      physics.pause();
+      break;
+    case SDLK_d:
+      physics.debug();
       break;
     default:
       break;
   }
+
 }
 
 int main() 
 {
   Scene &scene = fragmic.scene_get();
   Window &window = fragmic.window_get();
+  Physics &physics = fragmic.physics_get();
+
   window.keyboard_pressed_callback_set(keyboard_pressed_cb);
 
-  scene.load_model("data/normal_map/", "box_simple.dae", 0);
+  Node &crate =scene.load_model("data/normal_map/", "crate.dae", 0);
+  physics.collision_node_add(crate, PHYSICS_COLLISION_CONVEX_HULL, true, 1);
+
+  Node &box = scene.load_model("data/normal_map/", "box_simple.dae", 0);
+  physics.collision_node_add(box, PHYSICS_COLLISION_CONVEX_HULL, true, 1);
+
+  Node &floor = scene.load_model("data/normal_map/", "wood_floor.dae", 0);
+  physics.collision_node_add(floor, PHYSICS_COLLISION_CONVEX_HULL, true, 0);
 
   scene.scene_graph_print();
 
