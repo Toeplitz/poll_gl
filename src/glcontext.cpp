@@ -228,11 +228,14 @@ void GLcontext::vertex_buffers_add(Node &node)
   if  (mesh) {
     std::vector<glm::vec4> vertices;
     std::vector<glm::vec4> normals;
+    std::vector<glm::vec4> tangents;
+    std::vector<glm::vec4> bitangents;
     std::vector<glm::vec4> weights;
     std::vector<glm::ivec4> bone_indices;
     std::vector<glm::vec2> uvs;
     std::vector<GLshort> indices;
-    mesh->buffer_data_get(&vertices, &normals, &weights, &bone_indices, &uvs, &indices);
+    mesh->buffer_data_get(&vertices, &normals, &tangents, &bitangents,
+        &weights, &bone_indices, &uvs, &indices);
 
     glGenVertexArrays(1, &node.gl_vao);
     glBindVertexArray(node.gl_vao);
@@ -255,18 +258,32 @@ void GLcontext::vertex_buffers_add(Node &node)
     index = 2;
     glGenBuffers(1, &buffer);
     glBindBuffer(target, buffer);
-    glBufferData(target, weights.size() * sizeof(weights[0]), weights.data(), GL_STATIC_DRAW);
+    glBufferData(target, tangents.size() * sizeof(tangents[0]), tangents.data(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(index);
     glVertexAttribPointer(index, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
     index = 3;
     glGenBuffers(1, &buffer);
     glBindBuffer(target, buffer);
+    glBufferData(target, bitangents.size() * sizeof(bitangents[0]), bitangents.data(), GL_STATIC_DRAW);
+    glEnableVertexAttribArray(index);
+    glVertexAttribPointer(index, 4, GL_FLOAT, GL_FALSE, 0, 0);
+
+    index = 4;
+    glGenBuffers(1, &buffer);
+    glBindBuffer(target, buffer);
+    glBufferData(target, weights.size() * sizeof(weights[0]), weights.data(), GL_STATIC_DRAW);
+    glEnableVertexAttribArray(index);
+    glVertexAttribPointer(index, 4, GL_FLOAT, GL_FALSE, 0, 0);
+
+    index = 5;
+    glGenBuffers(1, &buffer);
+    glBindBuffer(target, buffer);
     glBufferData(target, bone_indices.size() * sizeof(bone_indices[0]), bone_indices.data(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(index);
     glVertexAttribIPointer(index, 4, GL_INT, 0, 0);
 
-    index = 4;
+    index = 6;
     glGenBuffers(1, &buffer);
     glBindBuffer(target, buffer);
     glBufferData(target, uvs.size() * sizeof(uvs[0]), uvs.data(), GL_STATIC_DRAW);

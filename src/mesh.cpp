@@ -23,6 +23,8 @@ Mesh::~Mesh(void)
 
 void Mesh::buffer_data_get(std::vector<glm::vec4> *vertices_ptr, 
     std::vector<glm::vec4> *normals_ptr,
+    std::vector<glm::vec4> *tangent_ptr,
+    std::vector<glm::vec4> *bitangent_ptr,
     std::vector<glm::vec4> *weights_ptr,
     std::vector<glm::ivec4> *bone_indices_ptr,
     std::vector<glm::vec2> *uv_ptr,
@@ -30,6 +32,8 @@ void Mesh::buffer_data_get(std::vector<glm::vec4> *vertices_ptr,
 {
   std::vector<glm::vec4> tempVert;
   std::vector<glm::vec4> tempNormal;
+  std::vector<glm::vec4> temp_tangent;
+  std::vector<glm::vec4> temp_bitangent;
   std::vector<glm::vec4> tempWeight;
   std::vector<glm::ivec4> tempBoneIndex;
   std::vector<glm::vec2> tempUv;
@@ -45,6 +49,8 @@ void Mesh::buffer_data_get(std::vector<glm::vec4> *vertices_ptr,
 
     tempVert.push_back(glm::vec4(v.position, 1.0));
     tempNormal.push_back(glm::vec4(vertices[i].normal, 1.0));
+    temp_tangent.push_back(glm::vec4(vertices[i].tangent, 1.0));
+    temp_bitangent.push_back(glm::vec4(vertices[i].bitangent, 1.0));
     tempWeight.push_back(vertices[i].weights);
     tempBoneIndex.push_back(vertices[i].bones);
     tempUv.push_back(vertices[i].uv);
@@ -56,6 +62,8 @@ void Mesh::buffer_data_get(std::vector<glm::vec4> *vertices_ptr,
 
   *vertices_ptr = tempVert;
   *normals_ptr = tempNormal;
+  *tangent_ptr = temp_tangent;
+  *bitangent_ptr = temp_bitangent;
   *weights_ptr = tempWeight;
   *bone_indices_ptr = tempBoneIndex;
   *uv_ptr = tempUv;

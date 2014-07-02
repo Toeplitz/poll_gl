@@ -44,7 +44,4 @@ class Node: public Animated {
     void child_add(std::unique_ptr<Node> &&node, int level);
     void local_transform_current_set(const glm::mat4 &transform);
     void local_transform_original_set(const glm::mat4 &transform);
-
 };
-
-

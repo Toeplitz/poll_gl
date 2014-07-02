@@ -41,11 +41,11 @@ Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const s
   importer.SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 3);
   if (lefthanded) {
     scene = importer.ReadFile(full_name.c_str(), aiProcess_Triangulate |
-        aiProcess_GenSmoothNormals | aiProcess_ConvertToLeftHanded
+        aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded
         | aiProcess_FlipUVs | aiProcess_LimitBoneWeights);
   } else {
     scene = importer.ReadFile(full_name.c_str(), aiProcess_Triangulate |
-        aiProcess_GenSmoothNormals | 
+        aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace |
         aiProcess_FlipUVs | aiProcess_LimitBoneWeights);
   }
 
@@ -400,6 +400,22 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
         v.normal.y = assimpMesh->mNormals[iv].y;
         v.normal.z = assimpMesh->mNormals[iv].z;
       }
+
+      if (assimpMesh->HasTangentsAndBitangents()) {
+        v.tangent.x = assimpMesh->mTangents[iv].x;
+        v.tangent.y = assimpMesh->mTangents[iv].y;
+        v.tangent.z = assimpMesh->mTangents[iv].z;
+
+        v.bitangent.x = assimpMesh->mBitangents[iv].x;
+        v.bitangent.y = assimpMesh->mBitangents[iv].y;
+        v.bitangent.z = assimpMesh->mBitangents[iv].z;
+
+        /*
+        std::cout << "tanget x,y,z = " << v.tangent.x  << ", " << v.tanget.y << ", " << v.tangent.z << std::endl;
+        std::cout << "bitanget x,y,z = " << v.bitangent.x  << ", " << v.bitangent.y << ", " << v.bitangent.z << std::endl;
+        */
+      }
+
 
       unsigned int p = 0;
       while (assimpMesh->HasTextureCoords(p)) {
