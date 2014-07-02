@@ -31,6 +31,7 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   }
 
   //shader.load("shaders/animation.v", "shaders/animation.f");
+  //shader.load("shaders/normal_mapping.v", "shaders/normal_mapping.f");
   shader.load("shaders/normal_mapping.v", "shaders/normal_mapping.f");
   glcontext.uniform_buffers_init(shader);
   physics.init();

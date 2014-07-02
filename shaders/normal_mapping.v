@@ -52,7 +52,7 @@ void main(void) {
   mat4 modelView = view * animation;
   mat3 normalMatrix = mat3(transpose(inverse(modelView)));
 
-  vec4 lightPos = vec4(0, 10, 0, 1);
+  vec4 lightPos = vec4(5, 10, 5, 1);
   lightPosEye = view * lightPos;
 
   Position = vec3(modelView * vertexCoord);
@@ -75,9 +75,9 @@ void main(void) {
   vec3 pos = vec3(modelView * vertexCoord);
 
   // Transform light dir. and view dir. to tangent space
-  LightDir = normalize(toObjectLocal * (lightPos.xyz - pos));
+  LightDir = normalize(toObjectLocal * (lightPosEye.xyz - pos));
   ViewDir = toObjectLocal * normalize(-pos);
 
-  gl_Position = projection * vec4(Position, 1.0);
+  gl_Position = projection * vec4(pos, 1.0);
   f_textureCoord = textureCoord;
 }

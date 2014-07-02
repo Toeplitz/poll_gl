@@ -67,11 +67,13 @@ bool GLcontext::init(const int width, const int height)
 
   check_version(3);
   glEnable(GL_DEPTH_TEST);
+  /*
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_MULTISAMPLE);
   glEnable(GL_STENCIL_TEST);
   glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+  */
   glViewport(0, 0, width, height);
 
   std::cout << "initialized GL" << std::endl;
@@ -86,9 +88,10 @@ void GLcontext::polygon_mesh_toggle(bool tog)
 }
 
 
-void GLcontext::texture_create(Texture &texture) 
+void GLcontext::texture_create(Texture &texture, GLenum n) 
 {
   glGenTextures(1, &texture.gl_texture);
+  glActiveTexture(n);
   glBindTexture(GL_TEXTURE_2D, texture.gl_texture);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -156,6 +159,18 @@ void GLcontext::uniform_buffers_init(GLshader &shader)
     glBindBufferRange(target, bindPointIndex, gl_buffer_debug, 0, sizeof(debug));
     glBindBufferBase(target, bindPointIndex, gl_buffer_debug);
   }
+
+  {
+    GLint location;
+    location = glGetUniformLocation(program, "ColorTex");
+    std::cout << "Colortex on location: " << location << std::endl;
+    glUniform1i(location, 0);
+
+    location = glGetUniformLocation(program, "NormalMapTex");
+    glUniform1i(location, 1);
+    std::cout << "NormalMapTex on location: " << location << std::endl;
+  }
+
 }
 
 
@@ -298,10 +313,10 @@ void GLcontext::vertex_buffers_add(Node &node)
 
   if (material) {
     if (material->diffuse) {
-      texture_create(*material->diffuse);
+      texture_create(*material->diffuse, GL_TEXTURE0);
     }
     if (material->normal) {
-      texture_create(*material->normal);
+      texture_create(*material->normal, GL_TEXTURE1);
     }
   }
 }

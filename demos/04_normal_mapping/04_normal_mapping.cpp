@@ -18,7 +18,7 @@ int main()
   Window &window = fragmic.window_get();
   window.keyboard_pressed_callback_set(keyboard_pressed_cb);
 
-  scene.load_model("data/", "normal_map.dae", 0);
+  scene.load_model("data/", "normal_map_cube.dae", 0);
 
   scene.scene_graph_print();
 

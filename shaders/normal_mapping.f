@@ -1,7 +1,5 @@
 #version 330
 
-uniform sampler2D ColorTex;
-uniform sampler2D NormalMapTex;
 
 layout(location = 0) out vec4 FragColor;
 
@@ -9,9 +7,11 @@ in vec3 Position;
 in vec3 Normal;
 in vec4 lightPosEye;
 in vec2 f_textureCoord;
-
 in vec3 LightDir;
 in vec3 ViewDir;
+
+uniform sampler2D ColorTex;
+uniform sampler2D NormalMapTex;
 
 vec3 ads() 
 {
@@ -33,10 +33,10 @@ vec3 ads()
 vec3 phongModel(vec3 norm, vec3 diffR)
 {
     vec3 Ka = vec3(0.0, 0.0, 0.0);
-    vec3 Kd = vec3(1.0, 1.0, 1.0);
-    vec3 Ks = vec3(1.0, 0.5, 0.5);
-    vec3 intensity = vec3(1.0, 1.0, 1.0);
-    float shininess = 140.0;
+    vec3 Kd = vec3(0.6, 0.6, 0.6);
+    vec3 Ks = vec3(0.409091, 0.409091, 0.409091);
+    vec3 intensity = vec3(0.8, 0.6, 0.4);
+    float shininess = 50;
 
     vec3 r = reflect(-LightDir, norm);
     vec3 ambient = intensity * Ka;
@@ -54,9 +54,12 @@ void main() {
 
 // ORIGINAL
 // vec3 texColor = texture(ColorTex, f_textureCoord).rgb;
-// FragColor = vec4(ads() * texColor, 1);
 
    vec4 normal = texture(NormalMapTex, f_textureCoord);
-   vec4 texColor = texture(ColorTex, f_textureCoord);
+//   vec4 texColor = texture(ColorTex, f_textureCoord);
+  vec4 texColor = vec4(0.5, 0.5, 0.5, 1);
    FragColor = vec4(phongModel(normal.xyz, texColor.rgb), 1.0);
+//   FragColor = vec4(ads() * texColor.rgb, 1);
+//   FragColor = vec4(normal.xyz + texColor.rgb, 1.0);
+//   FragColor = texture(NormalMapTex, f_textureCoord);
 }

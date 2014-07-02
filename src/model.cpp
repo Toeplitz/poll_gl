@@ -301,6 +301,20 @@ void Model::materials_parse(Assets &assets)
           << color.g << "," << color.b
           << "," << color.a << ")" <<std::endl;
       }
+
+      ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_SHININESS, &color);
+      if (ret == AI_SUCCESS) {
+        std::cout << "\tShininess (r,g,b,a) = (" << color.r << ","
+          << color.g << "," << color.b
+          << "," << color.a << ")" <<std::endl;
+      }
+
+      ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_SHININESS_STRENGTH, &color);
+      if (ret == AI_SUCCESS) {
+        std::cout << "\tShininess strength (r,g,b,a) = (" << color.r << ","
+          << color.g << "," << color.b
+          << "," << color.a << ")" <<std::endl;
+      }
     }
 
     assimp_material_add_texture(material, assimpMaterial, MODEL_TEXTURE_DIFFUSE);
