@@ -67,16 +67,12 @@ bool GLcontext::init(const int width, const int height)
 
   check_version(3);
   glEnable(GL_DEPTH_TEST);
-  /*
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_MULTISAMPLE);
   glEnable(GL_STENCIL_TEST);
   glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-  */
   glViewport(0, 0, width, height);
-
-  std::cout << "initialized GL" << std::endl;
 
   return true;
 }
@@ -169,6 +165,10 @@ void GLcontext::uniform_buffers_init(GLshader &shader)
     location = glGetUniformLocation(program, "NormalMapTex");
     glUniform1i(location, 1);
     std::cout << "NormalMapTex on location: " << location << std::endl;
+
+    location = glGetUniformLocation(program, "SpecularTex");
+    glUniform1i(location, 2);
+    std::cout << "Specular on location: " << location << std::endl;
   }
 
 }
@@ -227,6 +227,10 @@ void GLcontext::uniform_buffers_update_node(Node &node)
     if (material->normal) {
       glActiveTexture(GL_TEXTURE1);
       glBindTexture(GL_TEXTURE_2D, material->normal->gl_texture);
+    }
+    if (material->specular) {
+      glActiveTexture(GL_TEXTURE2);
+      glBindTexture(GL_TEXTURE_2D, material->specular->gl_texture);
     }
   }
 }
@@ -317,6 +321,9 @@ void GLcontext::vertex_buffers_add(Node &node)
     }
     if (material->normal) {
       texture_create(*material->normal, GL_TEXTURE1);
+    }
+    if (material->specular) {
+      texture_create(*material->specular, GL_TEXTURE2);
     }
   }
 }

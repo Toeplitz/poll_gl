@@ -89,6 +89,9 @@ void Model::assimp_material_add_texture(Material &material, aiMaterial &assimp_m
     case MODEL_TEXTURE_NORMAL:
       assimp_type = aiTextureType_NORMALS;
       break;
+    case MODEL_TEXTURE_SPECULAR:
+      assimp_type = aiTextureType_SPECULAR;
+      break;
     default:
       break;
   }
@@ -113,6 +116,9 @@ void Model::assimp_material_add_texture(Material &material, aiMaterial &assimp_m
       case MODEL_TEXTURE_NORMAL:
         material.normal = std::move(texturePtr);
         break;
+    case MODEL_TEXTURE_SPECULAR:
+        material.specular = std::move(texturePtr);
+      break;
       default:
         break;
     }
@@ -319,6 +325,7 @@ void Model::materials_parse(Assets &assets)
 
     assimp_material_add_texture(material, assimpMaterial, MODEL_TEXTURE_DIFFUSE);
     assimp_material_add_texture(material, assimpMaterial, MODEL_TEXTURE_NORMAL);
+    assimp_material_add_texture(material, assimpMaterial, MODEL_TEXTURE_SPECULAR);
 
     materials.push_back(materialPtr.get());
     assets.material_add(std::move(materialPtr));

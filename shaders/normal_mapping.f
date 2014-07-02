@@ -12,54 +12,32 @@ in vec3 ViewDir;
 
 uniform sampler2D ColorTex;
 uniform sampler2D NormalMapTex;
-
-vec3 ads() 
-{
-    vec3 Ka = vec3(0.0, 0.0, 0.0);
-    vec3 Kd = vec3(1.0, 1.0, 1.0);
-    vec3 Ks = vec3(1.0, 0.5, 0.5);
-    vec3 intensity = vec3(1.0, 1.0, 1.0);
-    float shininess = 140.0;
-
-    vec3 n = normalize(Normal);
-    vec3 s = normalize(vec3(lightPosEye) - Position);
-    vec3 v = normalize(vec3(-Position));
-    vec3 r = reflect(-s, n);
-
-    return intensity * (Ka + Kd * max(dot(s, n), 0.0) + Ks * pow(max(dot(r,v), 0.0), shininess));
-}
-
+uniform sampler2D SpecularTex;
 
 vec3 phongModel(vec3 norm, vec3 diffR)
 {
-    vec3 Ka = vec3(0.0, 0.0, 0.0);
-    vec3 Kd = vec3(0.6, 0.6, 0.6);
-    vec3 Ks = vec3(0.409091, 0.409091, 0.409091);
-    vec3 intensity = vec3(0.8, 0.6, 0.4);
-    float shininess = 50;
+  vec4 specular = texture(SpecularTex, f_textureCoord);
+  vec3 Ka = vec3(0.0, 0.0, 0.0);
+  vec3 Kd = vec3(0.6, 0.6, 0.6);
+  vec3 Ks = vec3(0.1, 0.1, 0.1);
+  //vec3 Ks = vec3(specular.x, specular.y, specular.z);
+  vec3 intensity = vec3(1.0, 1.0, 1.0);
+  float shininess = 1;
 
-    vec3 r = reflect(-LightDir, norm);
-    vec3 ambient = intensity * Ka;
-    float sDotN = max(dot(LightDir, norm), 0.0);
-    vec3 diffuse = intensity * diffR * sDotN;
-    vec3 spec = vec3(0.0);
-    if (sDotN  > 0.0) {
-      spec = intensity * Ks * pow(max(dot(r, ViewDir), 0.0), shininess);
-    }
+  vec3 r = reflect(-LightDir, norm);
+  vec3 ambient = intensity * Ka;
+  float sDotN = max(dot(LightDir, norm), 0.0);
+  vec3 diffuse = intensity * diffR * sDotN;
+  vec3 spec = vec3(0.0);
+  if (sDotN  > 0.0) {
+    spec = intensity * Ks * pow(max(dot(r, ViewDir), 0.0), shininess);
+  }
 
-    return ambient + diffuse * spec;
+  return ambient + diffuse + spec;
 }
 
 void main() {
-
-// ORIGINAL
-// vec3 texColor = texture(ColorTex, f_textureCoord).rgb;
-
    vec4 normal = texture(NormalMapTex, f_textureCoord);
-//   vec4 texColor = texture(ColorTex, f_textureCoord);
-  vec4 texColor = vec4(0.5, 0.5, 0.5, 1);
+   vec4 texColor = texture(ColorTex, f_textureCoord);
    FragColor = vec4(phongModel(normal.xyz, texColor.rgb), 1.0);
-//   FragColor = vec4(ads() * texColor.rgb, 1);
-//   FragColor = vec4(normal.xyz + texColor.rgb, 1.0);
-//   FragColor = texture(NormalMapTex, f_textureCoord);
 }

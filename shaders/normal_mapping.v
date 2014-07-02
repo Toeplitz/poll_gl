@@ -52,7 +52,7 @@ void main(void) {
   mat4 modelView = view * animation;
   mat3 normalMatrix = mat3(transpose(inverse(modelView)));
 
-  vec4 lightPos = vec4(5, 10, 5, 1);
+  vec4 lightPos = vec4(4.2, 5.7, 3.8, 1);
   lightPosEye = view * lightPos;
 
   Position = vec3(modelView * vertexCoord);
@@ -63,7 +63,8 @@ void main(void) {
   vec3 tang = normalize(normalMatrix * vec3(tangent));
 
   // Compute the binormal
-  vec3 binormal = normalize(cross(norm, tang)) * 1;
+  //vec3 binormal = normalize(cross(norm, tang)) * -1;
+  vec3 binormal = vec3(bitangent) * -1;
 
   // Matrix for transformation to tangent space
   mat3 toObjectLocal = mat3(

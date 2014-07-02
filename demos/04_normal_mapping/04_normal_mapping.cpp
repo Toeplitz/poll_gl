@@ -3,13 +3,15 @@
 
 Fragmic fragmic("Demo 4", 1280, 720);
 
+
 void keyboard_pressed_cb(SDL_Keysym *keysym)
 {
   switch (keysym->sym) {
+    case SDLK_SPACE:
+      break;
     default:
       break;
   }
-
 }
 
 int main() 
@@ -18,7 +20,7 @@ int main()
   Window &window = fragmic.window_get();
   window.keyboard_pressed_callback_set(keyboard_pressed_cb);
 
-  scene.load_model("data/", "normal_map_cube.dae", 0);
+  scene.load_model("data/normal_map/", "box_simple.dae", 0);
 
   scene.scene_graph_print();
 
