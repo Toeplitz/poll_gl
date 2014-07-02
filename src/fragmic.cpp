@@ -29,7 +29,9 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   if (!glcontext.init(window.width, window.height)) {
     exit(-1);
   }
-  shader.load("shaders/animation.v", "shaders/animation.f");
+
+  //shader.load("shaders/animation.v", "shaders/animation.f");
+  shader.load("shaders/normal_mapping.v", "shaders/normal_mapping.f");
   glcontext.uniform_buffers_init(shader);
   physics.init();
 }

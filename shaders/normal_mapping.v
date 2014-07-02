@@ -10,7 +10,7 @@ layout(location = 6) in vec2 textureCoord;
 
 layout(std140) uniform GlobalMatrices {
   mat4 projection;
-mat4 view;
+  mat4 view;
 };
 
 layout(std140) uniform Matrices {
@@ -31,6 +31,8 @@ out vec3 Position;
 out vec3 Normal;
 out vec4 lightPosEye;
 out vec2 f_textureCoord;
+out vec3 LightDir;
+out vec3 ViewDir;
 
 
 void main(void) {
@@ -45,11 +47,9 @@ void main(void) {
 
   if (debug.w == 1.0) {
     animation = model;
-  //animation = mat4(1);
   }
 
   mat4 modelView = view * animation;
-
   mat3 normalMatrix = mat3(transpose(inverse(modelView)));
 
   vec4 lightPos = vec4(-10, 10, -3, 1);
@@ -57,6 +57,27 @@ void main(void) {
 
   Position = vec3(modelView * vertexCoord);
   Normal = normalize(normalMatrix * vec3(vertexNormal));
+
+  // Transform normal and tangent to eye space
+  vec3 norm = normalize(normalMatrix * vec3(vertexNormal));
+  vec3 tang = normalize(normalMatrix * vec3(tangent));
+
+  // Compute the binormal
+  vec3 binormal = normalize(cross(norm, tang)) * -1;
+
+  // Matrix for transformation to tangent space
+  mat3 toObjectLocal = mat3(
+    tang.x, binormal.x, norm.x,
+    tang.y, binormal.y, norm.y,
+    tang.z, binormal.z, norm.z);
+
+  // Get the position in eye coordinate
+  vec3 pos = vec3(modelView * vertexCoord);
+
+  // Transform light dir. and view dir. to tangent space
+  LightDir = normalize(toObjectLocal * (lightPos.xyz - pos));
+  ViewDir = toObjectLocal * normalize(-pos);
+
 
   gl_Position = projection * vec4(Position, 1.0);
   f_textureCoord = textureCoord;
