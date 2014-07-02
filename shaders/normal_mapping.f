@@ -43,7 +43,7 @@ vec3 phongModel(vec3 norm, vec3 diffR)
     float sDotN = max(dot(LightDir, norm), 0.0);
     vec3 diffuse = intensity * diffR * sDotN;
     vec3 spec = vec3(0.0);
-    if (sDotN > 0.0) {
+    if (sDotN  > 0.0) {
       spec = intensity * Ks * pow(max(dot(r, ViewDir), 0.0), shininess);
     }
 
@@ -59,8 +59,4 @@ void main() {
    vec4 normal = texture(NormalMapTex, f_textureCoord);
    vec4 texColor = texture(ColorTex, f_textureCoord);
    FragColor = vec4(phongModel(normal.xyz, texColor.rgb), 1.0);
-
-  //FragColor = vec4(ads(), 1);
-  //FragColor = vec4(ads() * vec3(0.7, 0.7, 0.7), 1);
-  //FragColor = vec4(f_textureCoord.r, f_textureCoord.g, 1.0, 1);
 }
