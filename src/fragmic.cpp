@@ -5,7 +5,7 @@
 /* TODO:
  * 
  * For optimization:
- * - Remove if statements in shader, espacially for weights.
+ * - Remove if statements in glshader, espacially for weights.
  * - Frustnum culling
  *   - Calculate AABB, minimum/maximum vertex approach.
  */
@@ -18,7 +18,7 @@
 Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   camera(width, height), 
   physics(),
-  shader(), 
+  glshader(), 
   scene(), 
   window(width, height)
 {
@@ -30,10 +30,10 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
     exit(-1);
   }
 
-  //shader.load("shaders/animation.v", "shaders/animation.f");
-  //shader.load("shaders/normal_mapping.v", "shaders/normal_mapping.f");
-  shader.load("shaders/normal_mapping.v", "shaders/normal_mapping.f");
-  glcontext.uniform_buffers_init(shader);
+  //glshader.load("glshaders/animation.v", "glshaders/animation.f");
+  //glshader.load("glshaders/normal_mapping.v", "glshaders/normal_mapping.f");
+  glshader.load("shaders/normal_mapping.v", "shaders/normal_mapping.f");
+  glcontext.uniform_buffers_create(glshader);
   physics.init();
 }
 
@@ -67,10 +67,9 @@ void Fragmic::run()
 
     Node *upload_node = scene.upload_queue_pop();
     while (upload_node) {
-      glcontext.vertex_buffers_add(*upload_node);
+      glcontext.vertex_buffers_create(*upload_node);
       upload_node = scene.upload_queue_pop();
     }
-
 
     for (auto &armature: assets.armature_get_all()) {
       armature->bones_update_skinningmatrices();
@@ -82,7 +81,7 @@ void Fragmic::run()
     glcontext.clear();
     physics.step(dt);
 
-    shader.use();
+    glshader.use();
     camera.update((double) dt / 1000.0);
     glcontext.uniform_buffers_update_camera(camera);
     for (auto &node: scene.render_list_get()) {
@@ -97,6 +96,13 @@ void Fragmic::run()
 
 void Fragmic::term()
 {
+  GLcontext &glcontext = window.glcontext_get();
+
+  glcontext.uniform_buffers_delete();
+  for (auto &node: scene.render_list_get()) {
+    glcontext.vertex_buffers_delete(*node);
+  }
+  glshader.term();
   window.term();
 }
 

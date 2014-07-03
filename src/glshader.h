@@ -37,6 +37,7 @@ class GLshader {
     void load(const std::string &vertex, const std::string &fragment);
     int  get_block_index(std::string blockName);
     void print_block_names();
+    void term();
     void use();
 };
 

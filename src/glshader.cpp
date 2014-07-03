@@ -15,11 +15,6 @@ GLshader::GLshader()
 
 GLshader::~GLshader(void)
 {
-  std::cout << "Detatching and deleting GLshader object" << std::endl;
-
-  glDetachShader(program, vs);
-  glDetachShader(program, fs);
-  glDeleteShader(program);
 }
 
 
@@ -229,6 +224,16 @@ void GLshader::print_block_names()
       std::cout << "Block name: " << nameList[il] << ", index: " <<
       get_block_index(nameList[il]) << std::endl;
   }
+}
+
+
+void GLshader::term()
+{
+  std::cout << "Detatching and deleting GLshader object" << std::endl;
+
+  glDetachShader(program, vs);
+  glDetachShader(program, fs);
+  glDeleteShader(program);
 }
 
 

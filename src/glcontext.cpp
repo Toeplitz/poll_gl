@@ -84,22 +84,7 @@ void GLcontext::polygon_mesh_toggle(bool tog)
 }
 
 
-void GLcontext::texture_create(Texture &texture, GLenum n) 
-{
-  glGenTextures(1, &texture.gl_texture);
-  glActiveTexture(n);
-  glBindTexture(GL_TEXTURE_2D, texture.gl_texture);
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.image->width, texture.image->height,
-      0, GL_RGB, GL_UNSIGNED_BYTE, texture.image->data);
-}
-
-
-void GLcontext::uniform_buffers_init(GLshader &shader)
+void GLcontext::uniform_buffers_create(GLshader &shader)
 {
   GLuint program = shader.program;
   GLint uniform_block_index;
@@ -173,6 +158,16 @@ void GLcontext::uniform_buffers_init(GLshader &shader)
 
 }
 
+void GLcontext::uniform_buffers_delete()
+{
+  glDeleteBuffers(1, &gl_buffer_globalmatrices);
+  glDeleteBuffers(1, &gl_buffer_matrices);
+  glDeleteBuffers(1, &gl_buffer_armature);
+  glDeleteBuffers(1, &gl_buffer_debug);
+
+  std::cout << "Deleting uniform buffers in glcontext" << std::endl;
+
+}
 
 void GLcontext::uniform_buffers_update_camera(Camera &camera)
 {
@@ -236,9 +231,8 @@ void GLcontext::uniform_buffers_update_node(Node &node)
 }
 
 
-void GLcontext::vertex_buffers_add(Node &node)
+void GLcontext::vertex_buffers_create(Node &node)
 {
-  GLuint buffer;
   GLenum target;
   GLint index;
   Mesh *mesh = node.mesh;
@@ -258,60 +252,53 @@ void GLcontext::vertex_buffers_add(Node &node)
 
     glGenVertexArrays(1, &node.gl_vao);
     glBindVertexArray(node.gl_vao);
+    glGenBuffers(8, gl_vertex_buffers);
 
     target = GL_ARRAY_BUFFER;
     index = 0;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(target, buffer);
+    glBindBuffer(target, gl_vertex_buffers[index]);
     glBufferData(target, vertices.size() * sizeof(vertices[0]), vertices.data(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(index);
     glVertexAttribPointer(index, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
     index = 1;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(target, buffer);
+    glBindBuffer(target, gl_vertex_buffers[index]);
     glBufferData(target, normals.size() * sizeof(normals[0]), normals.data(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(index);
     glVertexAttribPointer(index, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
     index = 2;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(target, buffer);
+    glBindBuffer(target, gl_vertex_buffers[index]);
     glBufferData(target, tangents.size() * sizeof(tangents[0]), tangents.data(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(index);
     glVertexAttribPointer(index, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
     index = 3;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(target, buffer);
+    glBindBuffer(target, gl_vertex_buffers[index]);
     glBufferData(target, bitangents.size() * sizeof(bitangents[0]), bitangents.data(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(index);
     glVertexAttribPointer(index, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
     index = 4;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(target, buffer);
+    glBindBuffer(target, gl_vertex_buffers[index]);
     glBufferData(target, weights.size() * sizeof(weights[0]), weights.data(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(index);
     glVertexAttribPointer(index, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
     index = 5;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(target, buffer);
+    glBindBuffer(target, gl_vertex_buffers[index]);
     glBufferData(target, bone_indices.size() * sizeof(bone_indices[0]), bone_indices.data(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(index);
     glVertexAttribIPointer(index, 4, GL_INT, 0, 0);
 
     index = 6;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(target, buffer);
+    glBindBuffer(target, gl_vertex_buffers[index]);
     glBufferData(target, uvs.size() * sizeof(uvs[0]), uvs.data(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(index);
     glVertexAttribPointer(index, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
     target = GL_ELEMENT_ARRAY_BUFFER;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(target, buffer);
+    glBindBuffer(target, gl_vertex_buffers[7]);
     glBufferData(target, indices.size() * sizeof(indices[0]), indices.data(), GL_STATIC_DRAW);
   }
 
@@ -326,6 +313,31 @@ void GLcontext::vertex_buffers_add(Node &node)
       texture_create(*material->specular, GL_TEXTURE2);
     }
   }
+}
+
+
+void GLcontext::vertex_buffers_delete(Node &node)
+{
+  Mesh *mesh = node.mesh;
+  Material *material = node.material;
+
+  if (mesh) {
+    std::cout << "Deleting opengl buffer data for mesh: " << node.name << std::endl;
+    glDeleteBuffers(8, gl_vertex_buffers);
+    glDeleteVertexArrays(1, &node.gl_vao);
+  }
+  if (material) {
+    if (material->diffuse) {
+      texture_delete(*material->diffuse);
+    }
+    if (material->normal) {
+      texture_delete(*material->normal);
+    }
+    if (material->specular) {
+      texture_delete(*material->specular);
+    }
+  }
+
 }
 
 
@@ -353,3 +365,40 @@ bool GLcontext::check_version(const int &major)
 
   return true;
 }
+
+
+void GLcontext::framebuffer_create()
+{
+  glGenFramebuffers(1, &fbo);
+  glGenRenderbuffers(1, &rb_depth_buffer);
+}
+
+
+void GLcontext::framebuffer_delete()
+{
+
+}
+
+
+void GLcontext::texture_create(Texture &texture, GLenum n) 
+{
+  glGenTextures(1, &texture.gl_texture);
+  glActiveTexture(n);
+  glBindTexture(GL_TEXTURE_2D, texture.gl_texture);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.image->width, texture.image->height,
+      0, GL_RGB, GL_UNSIGNED_BYTE, texture.image->data);
+}
+
+
+void GLcontext::texture_delete(Texture &texture)
+{
+  std::cout << "Deleting opengl texture buffer: " << texture.filename << "'" <<  std::endl;
+  glDeleteTextures(1, &texture.gl_texture);
+}
+
+

@@ -14,7 +14,7 @@ class Fragmic {
   private:
     Camera camera;
     Physics physics;
-    GLshader shader;
+    GLshader glshader;
     Scene scene;
     Window window;
 
