@@ -45,7 +45,7 @@ Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const s
         | aiProcess_FlipUVs | aiProcess_LimitBoneWeights);
   } else {
     scene = importer.ReadFile(full_name.c_str(), aiProcess_Triangulate |
-        aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace |
+        aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_SortByPType |
         aiProcess_FlipUVs | aiProcess_LimitBoneWeights);
   }
 
@@ -267,6 +267,7 @@ void Model::materials_parse(Assets &assets)
     Material &material = *materialPtr;
 
     std::cout << "\tProperties: " << assimpMaterial.mNumProperties <<std::endl;
+    std::cout << "\tAllocated: " << assimpMaterial.mNumAllocated <<std::endl;
     std::cout << "\tNone textures: " << assimpMaterial.GetTextureCount(aiTextureType_NONE) <<std::endl;
     std::cout << "\tAmbient textures: " << assimpMaterial.GetTextureCount(aiTextureType_AMBIENT) <<std::endl;
     std::cout << "\tDiffuse textures: " << assimpMaterial.GetTextureCount(aiTextureType_DIFFUSE) <<std::endl;

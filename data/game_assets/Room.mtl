@@ -1,0 +1,22 @@
+newmtl Crate
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0 0 0
+Ns 127
+map_Kd Crate_Box.jpg
+newmtl Floor
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0 0 0
+Ns 127
+map_Kd BuildMat105BoH.JPG
+newmtl Wall
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.831373 0.831373 0.831373
+Ns 127
+newmtl Material2
+Ka 0 0 0
+Kd 0.333333 0 0
+Ks 0 0 0
+Ns 127

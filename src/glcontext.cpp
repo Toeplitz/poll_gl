@@ -144,16 +144,16 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
   {
     GLint location;
     location = glGetUniformLocation(program, "diffuse_texture");
-    std::cout << "Colortex on location: " << location << std::endl;
+    std::cout << "diffuse_texture on location: " << location << std::endl;
     glUniform1i(location, 0);
 
     location = glGetUniformLocation(program, "normal_texture");
     glUniform1i(location, 1);
-    std::cout << "NormalMapTex on location: " << location << std::endl;
+    std::cout << "normal_texture on location: " << location << std::endl;
 
     location = glGetUniformLocation(program, "specular_texture");
     glUniform1i(location, 2);
-    std::cout << "Specular on location: " << location << std::endl;
+    std::cout << "specular_texture on location: " << location << std::endl;
   }
 
 }
@@ -386,8 +386,8 @@ void GLcontext::texture_create(Texture &texture, GLenum n)
   glActiveTexture(n);
   glBindTexture(GL_TEXTURE_2D, texture.gl_texture);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.image->width, texture.image->height,

@@ -36,19 +36,6 @@ void main(void) {
 	gl_Position = proj * view * model * vertex_position;
 	st = texture_coord;
 
-  mat4 animation = 
-    weights[0] * skinning[int(bone_index[0])] +
-    weights[1] * skinning[int(bone_index[1])] +
-    weights[2] * skinning[int(bone_index[2])];
-
-  if (weights[0] == 0.0 && weights[1] == 0.0 && weights[2] == 0.0) {
-    animation = model;
-  } 
-
-  if (debug.w == 1.0) {
-    animation = model;
-  }
-
 	/* HACK */
 	vec3 cam_pos_wor = (inverse (view) * vec4 (0.0, 0.0, 0.0, 1.0)).xyz;
 	vec3 light_dir_wor = vec3 (0.0, 0.0, -1.0);
