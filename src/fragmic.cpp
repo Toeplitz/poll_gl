@@ -32,7 +32,7 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
 
   //glshader.load("glshaders/animation.v", "glshaders/animation.f");
   //glshader.load("glshaders/normal_mapping.v", "glshaders/normal_mapping.f");
-  glshader.load("shaders/normal_mapping.v", "shaders/normal_mapping.f");
+  glshader.load("shaders/normal_mapping_anton.v", "shaders/normal_mapping_anton.f");
   glcontext.uniform_buffers_create(glshader);
   physics.init();
 }
@@ -97,7 +97,6 @@ void Fragmic::run()
 void Fragmic::term()
 {
   GLcontext &glcontext = window.glcontext_get();
-
   glcontext.uniform_buffers_delete();
   for (auto &node: scene.render_list_get()) {
     glcontext.vertex_buffers_delete(*node);

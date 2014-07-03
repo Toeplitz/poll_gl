@@ -233,7 +233,6 @@ Physics_Motion_State::Physics_Motion_State(const btTransform &start_position, No
 
 void Physics_Motion_State::getWorldTransform(btTransform &t) const
 {
-  std::cout << "GET WORLD TRANSFORM" << std::endl;
   t = transform;
 }
 

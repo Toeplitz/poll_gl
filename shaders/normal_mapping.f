@@ -11,7 +11,7 @@ in vec3 LightDir;
 in vec3 ViewDir;
 
 uniform sampler2D ColorTex;
-uniform sampler2D NormalMapTex;
+uniform sampler2D normal_map;
 uniform sampler2D SpecularTex;
 
 vec3 phongModel(vec3 norm, vec3 diffR)
@@ -37,7 +37,7 @@ vec3 phongModel(vec3 norm, vec3 diffR)
 }
 
 void main() {
-   vec4 normal = texture(NormalMapTex, f_textureCoord);
+   vec4 normal = texture(normal_map, f_textureCoord);
    vec4 texColor = texture(ColorTex, f_textureCoord);
    FragColor = vec4(phongModel(normal.xyz, texColor.rgb), 1.0);
 }

@@ -143,15 +143,15 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
 
   {
     GLint location;
-    location = glGetUniformLocation(program, "ColorTex");
+    location = glGetUniformLocation(program, "diffuse_texture");
     std::cout << "Colortex on location: " << location << std::endl;
     glUniform1i(location, 0);
 
-    location = glGetUniformLocation(program, "NormalMapTex");
+    location = glGetUniformLocation(program, "normal_texture");
     glUniform1i(location, 1);
     std::cout << "NormalMapTex on location: " << location << std::endl;
 
-    location = glGetUniformLocation(program, "SpecularTex");
+    location = glGetUniformLocation(program, "specular_texture");
     glUniform1i(location, 2);
     std::cout << "Specular on location: " << location << std::endl;
   }
