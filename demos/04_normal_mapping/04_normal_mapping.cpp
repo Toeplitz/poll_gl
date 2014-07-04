@@ -23,6 +23,7 @@ void keyboard_pressed_cb(SDL_Keysym *keysym)
 
 int main() 
 {
+  Transform t;
   Scene &scene = fragmic.scene_get();
   Window &window = fragmic.window_get();
   Physics &physics = fragmic.physics_get();
@@ -37,6 +38,10 @@ int main()
 
   Node &floor = scene.load_model("data/normal_map/", "wood_floor.dae", 0);
   physics.collision_node_add(floor, PHYSICS_COLLISION_CONVEX_HULL, true, 0);
+
+  Node &bob = scene.load_model("data/bob/", "Bob_with_lamp.dae", 1);
+  t.translate(bob, glm::vec3(2.5, 2.5, 4));
+  t.translate(bob, glm::vec3(0.3, 0.3, 0.3));
 
   scene.scene_graph_print();
 

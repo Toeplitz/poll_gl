@@ -18,6 +18,7 @@ class Transform
 
     void calculateGlobalTransformTopDown(Node &node);
     void translate(Node &node, glm::vec3 v);
+    void scale(Node &node, glm::vec3 v);
 };
 
 #endif

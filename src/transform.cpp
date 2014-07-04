@@ -43,3 +43,10 @@ void Transform::translate(Node &node, glm::vec3 v)
   node.transform_local_current = node.transform_local_current * t;
   calculateGlobalTransformTopDown(node);
 }
+
+void Transform::scale(Node &node, glm::vec3 v)
+{
+  glm::mat4 t = glm::scale(glm::mat4(1.f), v);
+  node.transform_local_current = node.transform_local_current * t;
+  calculateGlobalTransformTopDown(node);
+}

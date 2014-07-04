@@ -90,6 +90,35 @@ vec3 func_phong(vec3 ambient, vec3 diffuse, vec3 specular, float shine)
   return Is + Id + Ia;
 }
 
+
+vec3 func_phong_specular_normal()
+{
+  vec3 diffuse = texture(diffuse_texture, st).rgb;
+  vec3 specular = texture(specular_texture, st).rgb;
+  vec3 Ia = vec3 (0.2, 0.2, 0.2);
+
+  // sample the normal map and covert from 0:1 range to -1:1 range
+  vec3 normal_tan = texture (normal_texture, st).rgb;
+  normal_tan = normalize (normal_tan * 2.0 - 1.0);
+
+  // diffuse light equation done in tangent space
+  vec3 direction_to_light_tan = normalize (-light_dir_tan);
+  float dot_prod = dot (direction_to_light_tan, normal_tan);
+  dot_prod = max (dot_prod, 0.0);
+  vec3 Id =  Ld * diffuse * dot_prod;
+
+  // specular light equation done in tangent space
+  vec3 reflection_tan = reflect (normalize (light_dir_tan), normal_tan);
+  float dot_prod_specular = dot (reflection_tan, normalize (view_dir_tan));
+  dot_prod_specular = max (dot_prod_specular, 0.0);
+  float specular_factor = pow (dot_prod_specular, 100.0);
+  vec3 Is = Ls * specular * specular_factor;
+
+  // phong light output
+  return Is + Id + Ia;
+}
+
+
 vec3 func_diffuse_texture()
 {
   return func_ads(vec3(0,0,0), texture(diffuse_texture, st).rgb, vec3(1,1,1), 20);
@@ -109,6 +138,8 @@ void main()
 
   if (state_diffuse == 1) {
     out_color = func_diffuse_texture();
+  } else if (state_diffuse_specular_normal == 1) {
+    out_color = func_phong_specular_normal();
   } else if (state_standard == 1) {
     out_color = func_standard();
   }
