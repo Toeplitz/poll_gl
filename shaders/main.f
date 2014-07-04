@@ -3,6 +3,7 @@
 in vec2 st;
 in vec3 view_dir_tan;
 in vec3 light_dir_tan;
+in vec3 light_position_eye;
 in vec3 position_eye;
 in vec3 normal_eye;
 in vec3 position;
@@ -39,7 +40,6 @@ layout(std140) uniform State {
 
 out vec4 frag_color;
 
-vec3 light_position_world  = vec3 (-10.0, 10.0, -4.0);
 vec3 Ls = vec3 (1.0, 1.0, 1.0); // white specular colour
 vec3 Ld = vec3 (0.7, 0.7, 0.7); // dull white diffuse light colour
 vec3 La = vec3 (0.2, 0.2, 0.2); // grey ambient colour
@@ -50,10 +50,18 @@ vec3 La = vec3 (0.2, 0.2, 0.2); // grey ambient colour
 // -----------------------------------------------------------------
 
 
+vec3 func_diffuse(vec3 diffuse)
+{
+  vec3 Ia = vec3 (1, 1, 1);
+
+  vec3 s = normalize(vec3(light_position_eye) - position_eye);
+  float sDotN = max(dot(s, normal_eye), 0.0);
+  return Ia * diffuse * sDotN;
+}
+
+
 vec3 func_ads(vec3 ambient, vec3 diffuse, vec3 specular, float shine) {
     vec3 intensity = vec3(1.0, 1.0, 1.0);
-
-    vec3 light_position_eye = vec3(view * vec4 (light_position_world, 1.0));
 
     vec3 n = normalize(normal_eye);
     vec3 s = normalize(vec3(light_position_eye) - position_eye);
@@ -71,7 +79,6 @@ vec3 func_phong(vec3 ambient, vec3 diffuse, vec3 specular, float shine)
 
   // diffuse intensity
   // raise light position to eye space
-  vec3 light_position_eye = vec3(view * vec4 (light_position_world, 1.0));
   vec3 distance_to_light_eye = light_position_eye - position_eye;
   vec3 direction_to_light_eye = normalize(distance_to_light_eye);
   float dot_prod = dot(direction_to_light_eye, normal_eye);
@@ -132,7 +139,6 @@ vec3 func_toon(vec3 ambient, vec3 diffuse)
   int levels = 3;
   float scale_factor = 1;
 
-  vec3 light_position_eye = vec3(view * vec4 (light_position_world, 1.0));
   vec3 s = normalize(light_position_eye - position_eye);
   float cosine = max(0.0, dot(s, normal_eye));
   vec3 d = diffuse * floor(cosine * levels) * scale_factor;
@@ -147,16 +153,18 @@ vec3 func_toon(vec3 ambient, vec3 diffuse)
 
 vec3 func_diffuse_texture()
 {
-  return func_ads(vec3(0,0,0), texture(diffuse_texture, st).rgb, vec3(1,1,1), 20);
+  //return func_ads(vec3(0,0,0), texture(diffuse_texture, st).rgb, vec3(1,1,1), 20);
+  return func_diffuse(texture(diffuse_texture, st).rgb);
 }
 
 
 vec3 func_standard()
 {
- // return func_phong(vec3(0,0,0), Kd, vec3(1, 0.5, 0.5), 80);
- // return func_ads(vec3(0,0,0), Kd, vec3(1, 0.5, 0.5), 80);
- return func_toon(vec3(0,0,0), Kd);
-}
+ //return func_phong(vec3(0,0,0), Kd, vec3(1, 0.5, 0.5), 80);
+ //return func_ads(vec3(0,0,0), Kd, vec3(1, 0.5, 0.5), 80);
+ //return func_toon(vec3(0,0,0), Kd);
+ return func_diffuse(Kd);
+
 
 
 void main()

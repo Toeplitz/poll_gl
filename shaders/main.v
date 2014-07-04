@@ -41,11 +41,13 @@ layout(std140) uniform State {
 out vec2 st;
 out vec3 view_dir_tan;
 out vec3 light_dir_tan;
+out vec3 light_position_eye;
 out vec3 position_eye;
 out vec3 normal_eye;
 out vec3 position;
 out vec3 normal;
 
+vec3 light_position_world  = vec3 (-10.0, 10.0, -4.0);
 
 mat4 animation_matrix_get()
 {
@@ -71,6 +73,7 @@ void main(void)
   }
   mat4 model_view = view * m;
   position_eye = vec3(model_view * vertex_position);
+  light_position_eye = vec3(view * vec4(light_position_world, 1.0));
   
   mat3 normal_matrix = mat3(transpose(inverse(model_view)));
  // normal_eye = vec3(model_view * vec4(vec3(vertex_normal), 0));
