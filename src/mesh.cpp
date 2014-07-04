@@ -1,4 +1,5 @@
 #include "mesh.h"
+#include "utils.h"
 #include <iostream>
 
 /**************************************************/
@@ -71,8 +72,21 @@ void Mesh::buffer_data_get(std::vector<glm::vec4> *vertices_ptr,
 }
 
 
+void Mesh::print(const int indent_level)
+{
+  indent(std::cout, indent_level);
+
+  std::cout << "\tvertices: " << num_vertices_get() << ", indices: " << num_indices_get() << std::endl;
+}
+
+
 unsigned int Mesh::num_indices_get() {
   return indices.size();
+}
+
+
+unsigned int Mesh::num_vertices_get() {
+  return vertices.size();
 }
 
 

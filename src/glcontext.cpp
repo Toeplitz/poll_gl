@@ -215,6 +215,8 @@ void GLcontext::uniform_buffers_update_node(Node &node)
   }
 
   if (material) {
+    glBindTexture(GL_TEXTURE_2D, 0);
+
     if (material->diffuse) {
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, material->diffuse->gl_texture);

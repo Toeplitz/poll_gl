@@ -38,7 +38,7 @@ class Model {
     NodeMap                  nodes;
     const aiScene           *scene;
     std::string              prefix;
-    Armature                *armaturePtr;
+    Armature                *armature_ptr;
 
     void   assimp_material_add_texture(Material &material, aiMaterial &assimp_material, Model_Texture_Type type);
 

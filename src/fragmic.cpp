@@ -70,7 +70,6 @@ void Fragmic::run()
       glcontext.vertex_buffers_create(*upload_node);
       upload_node = scene.upload_queue_pop();
     }
-
     for (auto &armature: assets.armature_get_all()) {
       armature->bones_update_skinningmatrices();
     }

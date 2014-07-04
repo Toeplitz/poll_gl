@@ -9,7 +9,7 @@ static const Value &lookupIn(const Key &key, const std::map<Key, Value> &map);
 /**************************************************/
 
 
-Model::Model(): armaturePtr(nullptr)
+Model::Model(): armature_ptr(nullptr)
 {
 }
 
@@ -45,7 +45,7 @@ Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const s
         | aiProcess_FlipUVs | aiProcess_LimitBoneWeights);
   } else {
     scene = importer.ReadFile(full_name.c_str(), aiProcess_Triangulate |
-        aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_SortByPType |
+        aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | 
         aiProcess_FlipUVs | aiProcess_LimitBoneWeights);
   }
 
@@ -121,9 +121,9 @@ void Model::assimp_material_add_texture(Material &material, aiMaterial &assimp_m
       case MODEL_TEXTURE_NORMAL:
         material.normal = std::move(texturePtr);
         break;
-    case MODEL_TEXTURE_SPECULAR:
+      case MODEL_TEXTURE_SPECULAR:
         material.specular = std::move(texturePtr);
-      break;
+        break;
       default:
         break;
     }
@@ -193,7 +193,7 @@ void Model::bone_map_create(Assets & assets, BoneForAssimpBone & boneForAssimpBo
     std::cout << "Setting armature: " << armatureRoot->name << std::endl;
     armatureRoot->armature = armature.get();
   }
-  armaturePtr = armature.get();
+  armature_ptr = armature.get();
   assets.armature_add(std::move(armature));
 }
 
@@ -284,6 +284,9 @@ void Model::materials_parse(Assets &assets)
         std::cout << "\tAmbient (r,g,b,a) = (" << color.r << ","
           << color.g << "," << color.b
           << "," << color.a << ")" <<std::endl;
+        material.material_block.Ka.x = color.r;
+        material.material_block.Ka.y = color.g;
+        material.material_block.Ka.z = color.b;
       }
 
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_DIFFUSE, &color);
@@ -291,6 +294,9 @@ void Model::materials_parse(Assets &assets)
         std::cout << "\tDiffuse (r,g,b,a) = (" << color.r << ","
           << color.g << "," << color.b
           << "," << color.a << ")" << std::endl;
+        material.material_block.Kd.x = color.r;
+        material.material_block.Kd.y = color.g;
+        material.material_block.Kd.z = color.b;
       }
 
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_SPECULAR, &color);
@@ -298,6 +304,9 @@ void Model::materials_parse(Assets &assets)
         std::cout << "\tSpecular (r,g,b,a) = (" << color.r << ","
           << color.g << "," << color.b
           << "," << color.a << ")" << std::endl;
+        material.material_block.Ks.x = color.r;
+        material.material_block.Ks.y = color.g;
+        material.material_block.Ks.z = color.b;
       }
 
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_EMISSIVE, &color);
@@ -319,13 +328,14 @@ void Model::materials_parse(Assets &assets)
         std::cout << "\tShininess (r,g,b,a) = (" << color.r << ","
           << color.g << "," << color.b
           << "," << color.a << ")" <<std::endl;
+        material.material_block.shininess = color.r;
       }
 
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_SHININESS_STRENGTH, &color);
       if (ret == AI_SUCCESS) {
         std::cout << "\tShininess strength (r,g,b,a) = (" << color.r << ","
           << color.g << "," << color.b
-          << "," << color.a << ")" <<std::endl;
+          << "," << color.a << ")" << std::endl;
       }
     }
 
@@ -354,23 +364,33 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
     return;
   }
 
-  std::string nodeName = std::string(node.mName.data);
-  Node *meshNode = lookupIn(nodeName, nodes);
-  assert(meshNode);
+  std::string node_name = std::string(node.mName.data);
+  Node *mesh_node = lookupIn(node_name, nodes);
+  assert(mesh_node);
+  std::cout << "Node '" << mesh_node->name << "' has " << node.mNumMeshes << " mesh(es)" << std::endl;
 
   for (unsigned int i = 0; i < node.mNumMeshes; i++) {
     unsigned int meshIndex = node.mMeshes[i];
     aiMesh *assimpMesh = scene->mMeshes[meshIndex];
-    std::unique_ptr <Mesh> meshPtr(new Mesh());
-    Mesh &m = *meshPtr;
+    std::unique_ptr<Mesh> mesh_ptr(new Mesh());
+    Mesh &m = *mesh_ptr;
+    std::string key(node.mName.data);
+    auto sub_node = std::unique_ptr<Node>(new Node(key + std::string("_") + std::to_string(i)));
+    Node *parent_node = mesh_node;
+
+    if (node.mNumMeshes > 1) {
+      mesh_node = sub_node.get();
+    }
 
     // Point the mesh to the existing material, corresponding to the index
-    meshNode->material = materials[assimpMesh->mMaterialIndex];
+    mesh_node->material = materials[assimpMesh->mMaterialIndex];
+    std::cout << "Node: " << mesh_node->name << " has material " << mesh_node->material << " and num faces/vertices: " << assimpMesh->mNumFaces << "/" << assimpMesh->mNumVertices << std::endl;
 
     for (unsigned int ii = 0; ii < assimpMesh->mNumFaces; ii++) {
-      const aiFace & face = assimpMesh->mFaces[ii];
+      const aiFace &face = assimpMesh->mFaces[ii];
 
       if (face.mNumIndices < 3) {
+        std::cout << "Found degenerate polygon" << std::endl;
         // degenerate polygon -- no need to draw it
       } else {
         assert(face.mNumIndices == 3);
@@ -412,9 +432,9 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
     }
 
     if (!assimpMesh->mNumBones) {
-      //      m.model = glm::rotate(meshNode->transform_global, -90.f, glm::vec3(1.f, 0.f, 0.f));
-      m.model = meshNode->transform_global;
-      //m.model = right_handed_to_left_handed(meshNode->transform_global);
+      //      m.model = glm::rotate(mesh_node->transform_global, -90.f, glm::vec3(1.f, 0.f, 0.f));
+      m.model = mesh_node->transform_global;
+      //m.model = right_handed_to_left_handed(mesh_node->transform_global);
     }
 
     for (unsigned int iv = 0; iv < assimpMesh->mNumVertices; iv++) {
@@ -427,7 +447,6 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
         v.normal.y = assimpMesh->mNormals[iv].y;
         v.normal.z = assimpMesh->mNormals[iv].z;
       }
-
       if (assimpMesh->HasTangentsAndBitangents()) {
         v.tangent.x = assimpMesh->mTangents[iv].x;
         v.tangent.y = assimpMesh->mTangents[iv].y;
@@ -436,13 +455,7 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
         v.bitangent.x = assimpMesh->mBitangents[iv].x;
         v.bitangent.y = assimpMesh->mBitangents[iv].y;
         v.bitangent.z = assimpMesh->mBitangents[iv].z;
-
-        /*
-        std::cout << "tanget x,y,z = " << v.tangent.x  << ", " << v.tanget.y << ", " << v.tangent.z << std::endl;
-        std::cout << "bitanget x,y,z = " << v.bitangent.x  << ", " << v.bitangent.y << ", " << v.bitangent.z << std::endl;
-        */
       }
-
 
       unsigned int p = 0;
       while (assimpMesh->HasTextureCoords(p)) {
@@ -465,10 +478,15 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
       }
     }
 
-    meshPtr->scale_matrix = glm::scale(glm::mat4(1.0f), meshNode->original_scaling);
-    meshNode->mesh = meshPtr.get();
-    meshNode->armature = armaturePtr;
-    assets.mesh_add(std::move(meshPtr));
+
+    mesh_ptr->scale_matrix = glm::scale(glm::mat4(1.0f), mesh_node->original_scaling);
+    mesh_node->mesh = mesh_ptr.get();
+    mesh_node->armature = armature_ptr;
+    if (node.mNumMeshes > 1) {
+      parent_node->child_add(std::move(sub_node), parent_node->tree_level + 1);
+    }
+    assets.mesh_add(std::move(mesh_ptr));
+    mesh_node = lookupIn(node_name, nodes);
   }
 
 }

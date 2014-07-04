@@ -6,7 +6,6 @@ in vec3 view_dir_tan;
 in vec3 light_dir_tan;
 
 uniform sampler2D diffuse_texture;
-// the normal map texture
 uniform sampler2D normal_texture;
 uniform sampler2D specular_texture;
 
