@@ -70,7 +70,7 @@ void Assets::mesh_add(std::unique_ptr<Mesh> &&mesh)
 
 void Assets::mesh_print_all()
 {
-  std::cout << "Meshes: " << std::endl;
+  std::cout << "\nMeshes: " << std::endl;
   for (auto &mesh: meshes) {
     std::cout << "\t(" << &mesh<< ") " ;
     std::cout << "indices/vertices: " << mesh->indices.size();

@@ -28,6 +28,18 @@ void Armature::bones_add(std::unique_ptr<Bone> &&bone) {
 }
 
 
+Bone_Unique_Ptr_List const &Armature::bones_get_all() const
+{
+  return bones;
+} 
+
+
+unsigned int Armature::bones_num_get()
+{
+  return bones.size();
+}
+
+
 void Armature::bones_update_skinningmatrices()
 {
   for (auto &bone_entry: bones) {
@@ -35,12 +47,6 @@ void Armature::bones_update_skinningmatrices()
     const unsigned int id = bone.index_get();
     skinning_matrices[id] = bone.skinning_matrix_update();
   }
-}
-
-
-unsigned int Armature::bones_num_get()
-{
-  return bones.size();
 }
 
 

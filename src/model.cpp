@@ -109,7 +109,7 @@ void Model::assimp_material_add_texture(Material &material, aiMaterial &assimp_m
       std::cout << "NOT CURRENTLY SUPPORTED!" << std::endl;
     }
 
-    std::cout << "\tTexture file: " << path.data << std::endl;
+    //std::cout << "\tTexture file: " << path.data << std::endl;
     std::unique_ptr<Texture> texturePtr(new Texture());
     Texture &texture = *texturePtr;
     texture.loadImage(prefix + std::string(path.data));
@@ -190,7 +190,7 @@ void Model::bone_map_create(Assets & assets, BoneForAssimpBone & boneForAssimpBo
 
   Node *armatureRoot = armature->find_toplevel_node();
   if (armatureRoot) {
-    std::cout << "Setting armature: " << armatureRoot->name << std::endl;
+//    std::cout << "Setting armature: " << armatureRoot->name << std::endl;
     armatureRoot->armature = armature.get();
   }
   armature_ptr = armature.get();
@@ -251,7 +251,6 @@ Node *Model::node_map_create(const aiNode & node, Node *parent, int level)
 
 
 
-
 void Model::materials_parse(Assets &assets)
 {
   if (!scene->HasMaterials()) {
@@ -266,6 +265,8 @@ void Model::materials_parse(Assets &assets)
     std::unique_ptr<Material> materialPtr(new Material());
     Material &material = *materialPtr;
 
+    
+        /*
     std::cout << "\tProperties: " << assimpMaterial.mNumProperties <<std::endl;
     std::cout << "\tAllocated: " << assimpMaterial.mNumAllocated <<std::endl;
     std::cout << "\tNone textures: " << assimpMaterial.GetTextureCount(aiTextureType_NONE) <<std::endl;
@@ -275,15 +276,19 @@ void Model::materials_parse(Assets &assets)
     std::cout << "\tEmissive textures: " << assimpMaterial.GetTextureCount(aiTextureType_EMISSIVE) <<std::endl;
     std::cout << "\tNormals textures: " << assimpMaterial.GetTextureCount(aiTextureType_NORMALS) <<std::endl;
     std::cout << "\tLightmap textures: " << assimpMaterial.GetTextureCount(aiTextureType_LIGHTMAP) <<std::endl;
+    */
+
     {
       aiColor4D color;
       aiReturn ret;
 
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_AMBIENT, &color);
       if (ret == AI_SUCCESS) {
+        /*
         std::cout << "\tAmbient (r,g,b,a) = (" << color.r << ","
           << color.g << "," << color.b
           << "," << color.a << ")" <<std::endl;
+          */
         material.material_block.Ka.x = color.r;
         material.material_block.Ka.y = color.g;
         material.material_block.Ka.z = color.b;
@@ -291,9 +296,11 @@ void Model::materials_parse(Assets &assets)
 
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_DIFFUSE, &color);
       if (ret == AI_SUCCESS) {
+        /*
         std::cout << "\tDiffuse (r,g,b,a) = (" << color.r << ","
           << color.g << "," << color.b
           << "," << color.a << ")" << std::endl;
+          */
         material.material_block.Kd.x = color.r;
         material.material_block.Kd.y = color.g;
         material.material_block.Kd.z = color.b;
@@ -301,9 +308,11 @@ void Model::materials_parse(Assets &assets)
 
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_SPECULAR, &color);
       if (ret == AI_SUCCESS) {
+        /*
         std::cout << "\tSpecular (r,g,b,a) = (" << color.r << ","
           << color.g << "," << color.b
           << "," << color.a << ")" << std::endl;
+          */
         material.material_block.Ks.x = color.r;
         material.material_block.Ks.y = color.g;
         material.material_block.Ks.z = color.b;
@@ -311,31 +320,39 @@ void Model::materials_parse(Assets &assets)
 
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_EMISSIVE, &color);
       if (ret == AI_SUCCESS) {
+        /*
         std::cout << "\tEmissive (r,g,b,a) = (" << color.r << ","
           << color.g << "," << color.b
           << "," << color.a << ")" <<std::endl;
+          */
       }
 
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_REFLECTIVE, &color);
       if (ret == AI_SUCCESS) {
+        /*
         std::cout << "\tReflective (r,g,b,a) = (" << color.r << ","
           << color.g << "," << color.b
           << "," << color.a << ")" <<std::endl;
+          */
       }
 
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_SHININESS, &color);
       if (ret == AI_SUCCESS) {
+        /*
         std::cout << "\tShininess (r,g,b,a) = (" << color.r << ","
           << color.g << "," << color.b
           << "," << color.a << ")" <<std::endl;
+          */
         material.material_block.shininess = color.r;
       }
 
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_SHININESS_STRENGTH, &color);
       if (ret == AI_SUCCESS) {
+        /*
         std::cout << "\tShininess strength (r,g,b,a) = (" << color.r << ","
           << color.g << "," << color.b
           << "," << color.a << ")" << std::endl;
+          */
       }
     }
 
@@ -384,7 +401,7 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
 
     // Point the mesh to the existing material, corresponding to the index
     mesh_node->material = materials[assimpMesh->mMaterialIndex];
-    std::cout << "Node: " << mesh_node->name << " has material " << mesh_node->material << " and num faces/vertices: " << assimpMesh->mNumFaces << "/" << assimpMesh->mNumVertices << std::endl;
+    //std::cout << "Node: " << mesh_node->name << " has material " << mesh_node->material << " and num faces/vertices: " << assimpMesh->mNumFaces << "/" << assimpMesh->mNumVertices << std::endl;
 
     for (unsigned int ii = 0; ii < assimpMesh->mNumFaces; ii++) {
       const aiFace &face = assimpMesh->mFaces[ii];
@@ -479,7 +496,7 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
     }
 
 
-    std::cout << "vertices / indices: " << m.vertices.size() << " / " << m.indices.size() << std::endl;
+    //std::cout << "vertices / indices: " << m.vertices.size() << " / " << m.indices.size() << std::endl;
 
     mesh_ptr->scale_matrix = glm::scale(glm::mat4(1.0f), mesh_node->original_scaling);
     mesh_node->mesh = mesh_ptr.get();

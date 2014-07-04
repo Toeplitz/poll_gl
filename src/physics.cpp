@@ -29,6 +29,14 @@ void Physics::collision_mesh_add(Node &node, const std::string &prefix, const st
 {
   Model model;
   Node *root_ptr = model.load(collision_assets, node, prefix, filename,  false);
+  collision_assets.print_all();
+  std::cout << "Root ptr collision: " << root_ptr->name << std::endl;
+  for (auto &armature: collision_assets.armature_get_all()) {
+    for (auto &bone: armature->bones_get_all()) {
+      std::cout << bone->joint_node->name << std::endl;
+      // Here we have the name of the bone in the real mesh.
+    }
+  }
 
 }
 
