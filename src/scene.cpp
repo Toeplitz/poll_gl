@@ -116,10 +116,10 @@ void Scene::scene_graph_print_by_node(Node &node)
 
   }
   if (node.material) {
-    node.material->print(node.tree_level);
+  // node.material->print(node.tree_level);
   }
 
-  node.print_state(node.tree_level);
+  //node.print_state(node.tree_level);
   std::cout << std::endl;
 
   for (auto &child : node.children) {

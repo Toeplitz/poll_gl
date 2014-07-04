@@ -41,7 +41,7 @@ int main()
 
   Node &bob = scene.load_model("data/bob/", "Bob_with_lamp.dae", 1);
   t.translate(bob, glm::vec3(2.5, 2.5, 4));
-  t.translate(bob, glm::vec3(0.3, 0.3, 0.3));
+  t.scale(bob, glm::vec3(0.3, 0.3, 0.3));
 
   scene.scene_graph_print();
 

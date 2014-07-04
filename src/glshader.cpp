@@ -83,7 +83,7 @@ GLuint GLshader::create_shader(std::string fileName, GLenum type)
   glGetShaderiv(shaderObject, GL_COMPILE_STATUS, &compile_ok);
 
   if (compile_ok == GL_FALSE) {
-    std::cout << "Fragmic ERROR: could not compile shader!" << std::endl;
+    std::cout << "Fragmic ERROR: could not compile shader: " << fileName << std::endl;
     print_log(shaderObject);
     glDeleteShader(shaderObject);
     exit(-1);

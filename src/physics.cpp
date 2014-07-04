@@ -25,6 +25,14 @@ Physics::~Physics()
 /**************************************************/
 
 
+void Physics::collision_mesh_add(Node &node, const std::string &prefix, const std::string &filename)
+{
+  Model model;
+  Node *root_ptr = model.load(collision_assets, node, prefix, filename,  false);
+
+}
+
+
 void Physics::collision_node_add(Node &node, const Physics_Collision_Shape shape, bool recursive, float mass)
 {
   Physics_Node p_node;

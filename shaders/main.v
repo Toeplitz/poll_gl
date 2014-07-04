@@ -44,10 +44,10 @@ out vec3 light_dir_tan;
 out vec3 light_position_eye;
 out vec3 position_eye;
 out vec3 normal_eye;
-out vec3 position;
-out vec3 normal;
 
-vec3 light_position_world  = vec3 (-10.0, 10.0, -4.0);
+//vec3 light_position_world  = vec3 (-10.0, 10.0, -4.0);
+vec3 light_position_world  = vec3 (5, 22, 24.0);
+vec3 light_dir_wor = vec3 (0.0, 0.0, -1.0);
 
 mat4 animation_matrix_get()
 {
@@ -56,9 +56,9 @@ mat4 animation_matrix_get()
     weights[1] * skinning[int(bone_index[1])] +
     weights[2] * skinning[int(bone_index[2])];
 
-  if (weights[0] == 0.0 && weights[1] == 0.0 && weights[2] == 0.0) {
-    animation = model;
-  }
+  //if (weights[0] == 0.0 && weights[1] == 0.0 && weights[2] == 0.0) {
+  //  animation = model;
+  //}
 
   return animation;
 }
@@ -72,23 +72,18 @@ void main(void)
     m = animation_matrix_get();
   }
   mat4 model_view = view * m;
-  position_eye = vec3(model_view * vertex_position);
-  light_position_eye = vec3(view * vec4(light_position_world, 1.0));
-  
   mat3 normal_matrix = mat3(transpose(inverse(model_view)));
- // normal_eye = vec3(model_view * vec4(vec3(vertex_normal), 0));
+
+  position_eye = vec3(model_view * vertex_position);
   normal_eye = normalize(vec3(normal_matrix * vec3(vertex_normal)));
-  //gl_Position = proj * model_view * vertex_position;
+  light_position_eye = vec3(view * vec4(light_position_world, 1.0));
 
   gl_Position = proj * vec4(position_eye, 1.0);
 	st = texture_coord;
-  position = vec3(vertex_position);
-  normal = vec3(vertex_normal);
 
   if (state_diffuse_specular_normal == 1 || state_diffuse_normal == 1) {
     /* HACK */
     vec3 cam_pos_wor = (inverse (view) * vec4 (0.0, 0.0, 0.0, 1.0)).xyz;
-    vec3 light_dir_wor = vec3 (0.0, 0.0, -1.0);
     
     /* work out bi-tangent as cross product of normal and tangent. also multiply
        by the determinant, which we stored in .w to correct handedness

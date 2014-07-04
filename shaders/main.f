@@ -6,8 +6,6 @@ in vec3 light_dir_tan;
 in vec3 light_position_eye;
 in vec3 position_eye;
 in vec3 normal_eye;
-in vec3 position;
-in vec3 normal;
 
 
 uniform sampler2D diffuse_texture;
@@ -153,7 +151,7 @@ vec3 func_toon(vec3 ambient, vec3 diffuse)
 
 vec3 func_diffuse_texture()
 {
-  //return func_ads(vec3(0,0,0), texture(diffuse_texture, st).rgb, vec3(1,1,1), 20);
+  //return func_ads(vec3(0, 0, 0), texture(diffuse_texture, st).rgb, vec3(1, 1, 1), 20);
   return func_diffuse(texture(diffuse_texture, st).rgb);
 }
 
@@ -164,7 +162,7 @@ vec3 func_standard()
  //return func_ads(vec3(0,0,0), Kd, vec3(1, 0.5, 0.5), 80);
  //return func_toon(vec3(0,0,0), Kd);
  return func_diffuse(Kd);
-
+ }
 
 
 void main()

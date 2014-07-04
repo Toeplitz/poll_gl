@@ -1,0 +1,5 @@
+1 - 12 --- Idle
+16 - 35 --- Walk
+41 - 52 --- Run
+56 - 68 --- Yiiihaaa...Jump baby !!!
+
