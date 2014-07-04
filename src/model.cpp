@@ -479,6 +479,8 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
     }
 
 
+    std::cout << "vertices / indices: " << m.vertices.size() << " / " << m.indices.size() << std::endl;
+
     mesh_ptr->scale_matrix = glm::scale(glm::mat4(1.0f), mesh_node->original_scaling);
     mesh_node->mesh = mesh_ptr.get();
     mesh_node->armature = armature_ptr;

@@ -16,7 +16,20 @@
 class Armature;
 class Node;
 
+
+struct Node_State 
+{
+  int animated;
+  int debug;
+  int diffuse;
+  int diffuse_normal;
+  int diffuse_specular_normal;
+  int standard;
+};
+
+
 typedef std::vector<std::unique_ptr<Node>> Node_List;
+
 
 class Node: public Animated {
   private:
@@ -37,11 +50,13 @@ class Node: public Animated {
     glm::quat     original_rotation;
     Node_List     children;
     int           tree_level;
+    Node_State    state;
 
     Node(const std::string &_name);
     ~Node();
 
     void child_add(std::unique_ptr<Node> &&node, int level);
+    void print_state(int indent_level);
     void local_transform_current_set(const glm::mat4 &transform);
     void local_transform_original_set(const glm::mat4 &transform);
 };

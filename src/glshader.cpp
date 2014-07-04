@@ -128,12 +128,12 @@ char *GLshader::file_read(const char *filename)
 
 int GLshader::get_block_index(std::string blockName)
 {
-  GLint uboIndex = glGetUniformBlockIndex(program, blockName.c_str());
-  if (uboIndex == -1) {
-    std::cout << "Fragmic warning: Could not bind uniform " << uboIndex << std::endl;
+  GLint ubo_index = glGetUniformBlockIndex(program, blockName.c_str());
+  if (ubo_index == -1) {
+    std::cout << "Fragmic warning: Could not bind uniform " << ubo_index << " for block '" << blockName << "'" << std::endl;
   }
 
-  return uboIndex;
+  return ubo_index;
 }
 
 

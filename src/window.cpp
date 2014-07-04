@@ -74,7 +74,7 @@ void Window::debug_toggle()
   static int toggle = 0;
   toggle = !toggle;
   glm::vec4 d(0, 0, 0, toggle);
-  glcontext.uniform_buffers_update_debug(d);
+  //glcontext.uniform_buffers_update_debug(d);
   std::cout << "Debug symbol to shader: " << d.w << std::endl;
 }
 

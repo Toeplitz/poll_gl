@@ -23,6 +23,45 @@ Scene::~Scene()
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
 
+void Scene::animation_list_add(Node &node) 
+{
+  bool r = (std::find(animation_list.begin(), animation_list.end(), &node) != animation_list.end());
+  if (r) {
+    std::cout << "Node is already in transform queue." << std::endl;
+    return;
+  }
+  animation_list.push_back(&node);
+}
+
+
+std::vector <Node *> Scene::animation_list_get() 
+{
+  return animation_list;
+}
+
+
+void Scene::animation_list_update_transforms(Node &node, Uint32 dt)
+{
+  glm::mat4 transform = node.transform_local_current;
+  Node *parent = node.parent;
+
+  if (node.getNumKeyFrames() != 0) {
+    node.stepTime((double) dt / 1000.0);
+    node.local_transform_current_set(node.localInterpolatedMatrix);
+  }
+
+  if (parent) {
+    node.transform_global = parent->transform_global * transform;
+  } else {
+    node.transform_global = transform;
+  }
+
+  for (auto &child : node.children) {
+    animation_list_update_transforms(*child, dt);
+  }
+}
+
+
 
 
 Node &Scene::load_model(const std::string &prefix, const std::string &filename, bool lefthanded) 
@@ -30,12 +69,13 @@ Node &Scene::load_model(const std::string &prefix, const std::string &filename, 
   Transform transform;
 
   Model model;
-  Node *rootPtr = model.load(assets, root, prefix, filename, lefthanded);
+  Node *root_ptr = model.load(assets, root, prefix, filename, lefthanded);
+  state_update_recursive(*root_ptr);
 
   transform.calculateGlobalTransformTopDown(root);
-  upload_queue_add(*rootPtr);
+  upload_queue_add(*root_ptr);
 
-  return *rootPtr;
+  return *root_ptr;
 }
 
 
@@ -78,6 +118,8 @@ void Scene::scene_graph_print_by_node(Node &node)
   if (node.material) {
     node.material->print(node.tree_level);
   }
+
+  node.print_state(node.tree_level);
   std::cout << std::endl;
 
   for (auto &child : node.children) {
@@ -86,41 +128,26 @@ void Scene::scene_graph_print_by_node(Node &node)
 }
 
 
-void Scene::animation_list_add(Node &node) 
+void Scene::state_update_recursive(Node &node)
 {
-  bool r = (std::find(animation_list.begin(), animation_list.end(), &node) != animation_list.end());
-  if (r) {
-    std::cout << "Node is already in transform queue." << std::endl;
-    return;
-  }
-  animation_list.push_back(&node);
-}
-
-
-std::vector <Node *> Scene::animation_list_get() 
-{
-  return animation_list;
-}
-
-
-void Scene::animation_list_update_transforms(Node &node, Uint32 dt)
-{
-  glm::mat4 transform = node.transform_local_current;
-  Node *parent = node.parent;
-
-  if (node.getNumKeyFrames() != 0) {
-    node.stepTime((double) dt / 1000.0);
-    node.local_transform_current_set(node.localInterpolatedMatrix);
+  if (node.armature) {
+    node.state.animated = true;
   }
 
-  if (parent) {
-    node.transform_global = parent->transform_global * transform;
-  } else {
-    node.transform_global = transform;
+  if (node.material) {
+    if (node.material->diffuse && node.material->normal && node.material->specular ) {
+      node.state.diffuse_specular_normal = true;
+    } else if (node.material->diffuse && node.material->normal) {
+      node.state.diffuse_normal = true;
+    } else if (node.material->diffuse) {
+      node.state.diffuse = true;
+    } else {
+      node.state.standard = true;
+    }
   }
 
   for (auto &child : node.children) {
-    animation_list_update_transforms(*child, dt);
+    state_update_recursive(*child);
   }
 }
 
@@ -161,3 +188,4 @@ Assets &Scene::assets_get()
 {
   return assets;
 }
+

@@ -29,6 +29,7 @@ class Scene {
     std::vector<Node *>   render_list_get();
     void                  scene_graph_print();
     void                  scene_graph_print_by_node(Node &node);
+    void                  state_update_recursive(Node &node);
     void                  animation_list_add(Node &node);
     std::vector<Node *>   animation_list_get();
     void                  animation_list_update_transforms(Node &node, Uint32 dt);

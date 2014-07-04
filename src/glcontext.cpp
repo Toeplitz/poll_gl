@@ -1,4 +1,6 @@
 #include "glcontext.h"
+#include "material.h"
+#include "node.h"
 
 
 /**************************************************/
@@ -97,8 +99,10 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
   glUniformBlockBinding(program, uniform_block_index, UB_MATRICES);
   uniform_block_index = shader.get_block_index("Armature");
   glUniformBlockBinding(program, uniform_block_index, UB_ARMATURE);
-  uniform_block_index = shader.get_block_index("Debug");
-  glUniformBlockBinding(program, uniform_block_index, UB_DEBUG);
+  uniform_block_index = shader.get_block_index("Material");
+  glUniformBlockBinding(program, uniform_block_index, UB_MATERIAL);
+  uniform_block_index = shader.get_block_index("State");
+  glUniformBlockBinding(program, uniform_block_index, UB_STATE);
 
   target = GL_UNIFORM_BUFFER;
   {
@@ -132,13 +136,39 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
   }
 
   {
-    glm::vec4 debug(0.5, 0.5, 0.5, 0);
-    bindPointIndex = UB_DEBUG;
-    glGenBuffers(1, &gl_buffer_debug);
-    glBindBuffer(target, gl_buffer_debug);
-    glBufferData(target, sizeof(debug), &debug, GL_STREAM_DRAW);
-    glBindBufferRange(target, bindPointIndex, gl_buffer_debug, 0, sizeof(debug));
-    glBindBufferBase(target, bindPointIndex, gl_buffer_debug);
+    Material_Properties properties;
+    properties.Ka = glm::vec3(0, 0, 0);
+    properties.Kd = glm::vec3(0, 0, 0);
+    properties.Ks = glm::vec3(0, 0, 0);
+    properties.shininess = 0;
+
+    std::cout << "sizeof(Material_Properties) = " << sizeof(Material_Properties) << " == " << sizeof(float) * 3 * 3 + sizeof(float) << std::endl;
+    std::cout << "sizeof(material) = " << sizeof(properties) << std::endl;
+    bindPointIndex = UB_MATERIAL;
+    glGenBuffers(1, &gl_buffer_material);
+    glBindBuffer(target, gl_buffer_material);
+    glBufferData(target, sizeof(Material_Properties), &properties, GL_STREAM_DRAW);
+    glBindBufferRange(target, bindPointIndex, gl_buffer_material, 0, sizeof(properties));
+    glBindBufferBase(target, bindPointIndex, gl_buffer_material);
+  }
+
+  {
+    Node_State state;
+    state.animated = false;
+    state.debug = false;
+    state.diffuse = false;
+    state.diffuse_normal = false;
+    state.diffuse_specular_normal = false;
+    state.standard = false;
+
+    std::cout << "sizeof(Node_State) = " << sizeof(Node_State) << " == " << sizeof(bool) * 6  << std::endl;
+    std::cout << "sizeof(statE) = " << sizeof(state) << std::endl;
+    bindPointIndex = UB_STATE;
+    glGenBuffers(1, &gl_buffer_state);
+    glBindBuffer(target, gl_buffer_state);
+    glBufferData(target, sizeof(state), &state, GL_STREAM_DRAW);
+    glBindBufferRange(target, bindPointIndex, gl_buffer_state, 0, sizeof(state));
+    glBindBufferBase(target, bindPointIndex, gl_buffer_state);
   }
 
   {
@@ -163,7 +193,8 @@ void GLcontext::uniform_buffers_delete()
   glDeleteBuffers(1, &gl_buffer_globalmatrices);
   glDeleteBuffers(1, &gl_buffer_matrices);
   glDeleteBuffers(1, &gl_buffer_armature);
-  glDeleteBuffers(1, &gl_buffer_debug);
+  glDeleteBuffers(1, &gl_buffer_material);
+  glDeleteBuffers(1, &gl_buffer_state);
 
   std::cout << "Deleting uniform buffers in glcontext" << std::endl;
 
@@ -181,12 +212,23 @@ void GLcontext::uniform_buffers_update_camera(Camera &camera)
 }
 
 
+/*
 void GLcontext::uniform_buffers_update_debug(glm::vec4 &data)
 {
   GLenum target = GL_UNIFORM_BUFFER;
   GLintptr offset = 0;
   glBindBuffer(target, gl_buffer_debug);
   glBufferSubData(target, offset, sizeof(data), &data);
+}
+*/
+
+
+void GLcontext::uniform_buffers_update_material(Node &node)
+{
+  GLenum target = GL_UNIFORM_BUFFER;
+  GLintptr offset = 0;
+  glBindBuffer(target, gl_buffer_material);
+  glBufferSubData(target, offset, sizeof(node.material->material_block), &node.material->material_block);
 }
 
 
@@ -201,12 +243,16 @@ void GLcontext::uniform_buffers_update_mesh(Mesh &mesh)
   glBufferSubData(target, offset, sizeof(m), &m);
 }
 
+
 void GLcontext::uniform_buffers_update_node(Node &node)
 {
   GLenum target = GL_UNIFORM_BUFFER;
   GLintptr offset = 0;
   Armature *armature = node.armature;
   Material *material = node.material;
+
+  uniform_buffers_update_material(node);
+  uniform_buffers_update_state(node);
 
   if (armature) {
     glBindBuffer(target, gl_buffer_armature);
@@ -231,6 +277,16 @@ void GLcontext::uniform_buffers_update_node(Node &node)
     }
   }
 }
+
+
+void GLcontext::uniform_buffers_update_state(Node &node)
+{
+  GLenum target = GL_UNIFORM_BUFFER;
+  GLintptr offset = 0;
+  glBindBuffer(target, gl_buffer_state);
+  glBufferSubData(target, offset, sizeof(node.state), &node.state);
+}
+
 
 
 void GLcontext::vertex_buffers_create(Node &node)
