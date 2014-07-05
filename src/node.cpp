@@ -1,5 +1,6 @@
 #include "node.h"
 #include "utils.h"
+#include "transform.h"
 
 
 /**************************************************/
@@ -36,6 +37,15 @@ Node::~Node()
 /**************************************************/
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
+
+void Node::copy_transform_data(Node &node)
+{
+  Transform t;
+  this->original_rotation = node.original_rotation;
+  this->original_scaling = node.original_scaling;
+  this->original_position = node.original_position;
+  t.calculateGlobalTransformTopDown(node);
+}
 
 
 void Node::child_add(std::unique_ptr<Node> &&node, int level) 

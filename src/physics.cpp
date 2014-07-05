@@ -119,6 +119,8 @@ btRigidBody *Physics::bullet_collision_rigidbody_create(Node &node, Physics_Coll
       break;
     case PHYSICS_COLLISION_CONVEX_HULL:
       collision_shape = bullet_collision_shape_convex_hull_create(node);
+    case PHYSICS_COLLISION_TRIANGLE_MESH:
+      collision_shape = bullet_collision_shape_triangle_mesh_create(node);
       break;
     default:
       break;
@@ -136,8 +138,6 @@ btRigidBody *Physics::bullet_collision_rigidbody_create(Node &node, Physics_Coll
   t.setRotation(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
   btTransform t2;
   t2.setFromOpenGLMatrix((btScalar *) &node.mesh->model);
- // matrix = right_handed_to_left_handed(matrix);
-  //t = bullet_convert_transform(matrix);
 
   Physics_Motion_State *motion_state = new Physics_Motion_State(t2, node);
 
@@ -172,17 +172,82 @@ btCollisionShape *Physics::bullet_collision_shape_convex_hull_create(Node &node)
 }
 
 
+btCollisionShape *Physics::bullet_collision_shape_triangle_mesh_create(Node &node)
+{
+  btCollisionShape *collision_shape = nullptr;
+  std::vector<glm::vec4> vertices = node.mesh->vertices_get(false);
+  std::vector<GLshort> indices = node.mesh->indices_get();
+
+  btTriangleIndexVertexArray *array;
+  int num_triangles = node.mesh->num_indices_get();
+  array = new btTriangleIndexVertexArray(num_triangles, (int *) indices.data(), 0, node.mesh->num_vertices_get(), (btScalar *) vertices.data(), 0);
+
+  bool useQuantizedAabbCompression = true;
+  btVector3 aabbMin(-1000, -1000, -1000), aabbMax(1000, 1000, 1000);
+  collision_shape = new btBvhTriangleMeshShape(array, useQuantizedAabbCompression, aabbMin, aabbMax);
+
+  return collision_shape;
+}
+
+
 void Physics::bullet_init()
 {
-  broadphase = new btDbvtBroadphase();
   collision_config= new btDefaultCollisionConfiguration();
   dispatcher = new btCollisionDispatcher(collision_config);
   solver = new btSequentialImpulseConstraintSolver;
-  world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collision_config);
 
-  world->setGravity(btVector3(0, -4, 0));
+  btVector3 worldMin(-1000,-1000,-1000);
+  btVector3 worldMax(1000,1000,1000);
+  btAxisSweep3 *sweep_bp = new btAxisSweep3(worldMin,worldMax);
+  overlapping_pair_cache = sweep_bp;
+  //broadphase = new btDbvtBroadphase();
+
+  //world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collision_config);
+  world = new btDiscreteDynamicsWorld(dispatcher, overlapping_pair_cache, solver, collision_config);
+//  world->getDispatchInfo().m_allowedCcdPenetration=0.0001f;
+
+
+  world->setGravity(btVector3(0, -9.81, 0));
   world->setDebugDrawer(&debug_drawer);
   debug_drawer.setDebugMode(btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb); 
+}
+
+
+void Physics::bullet_kinematic_character_controller_create(Node &node)
+{
+  btKinematicCharacterController *m_character; 
+  btPairCachingGhostObject *m_ghostObject;
+
+  if (node.mesh) {
+    btTransform startTransform;
+    //startTransform.setIdentity ();
+    //startTransform.setOrigin(btVector3(node.original_position.x, node.original_position.y, node.original_position.z));
+    std::cout << "Adding character controller for node: '" << node.name << "'" << std::endl;
+    startTransform.setFromOpenGLMatrix((btScalar *) &node.mesh->model);
+    print_matrix(std::cout, node.mesh->model, 0);
+
+    m_ghostObject = new btPairCachingGhostObject();
+    m_ghostObject->setWorldTransform(startTransform);
+    overlapping_pair_cache->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+    btScalar characterHeight = 1;
+    btScalar characterWidth = 1;
+    btConvexShape* capsule = new btCapsuleShape(characterWidth,characterHeight);
+    m_ghostObject->setCollisionShape (capsule);
+    m_ghostObject->setCollisionFlags (btCollisionObject::CF_CHARACTER_OBJECT);
+
+    btScalar stepHeight = btScalar(0.35);
+    m_character = new btKinematicCharacterController(m_ghostObject, capsule, stepHeight);
+
+    // only collide with static for now (no interaction with dynamic objects)
+    world->addCollisionObject(m_ghostObject ,btBroadphaseProxy::CharacterFilter, 
+        btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
+
+    world->addAction(m_character);
+  }
+
+  for (auto &child : node.children) {
+    bullet_kinematic_character_controller_create(*child);
+  }
 }
 
 
@@ -259,7 +324,7 @@ void Physics_Motion_State::setWorldTransform(const btTransform &t)
 
   glm::mat4 m;
 
-//  glm::mat4 m = bullet_convert_glm(t);
+  //  glm::mat4 m = bullet_convert_glm(t);
   t.getOpenGLMatrix((btScalar *) &m);
   //print_matrix(std::cout, m, 0);
   node->mesh->model = m * glm::scale(glm::mat4(1.f), node->original_scaling);

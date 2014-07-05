@@ -1,6 +1,10 @@
 #pragma once
 
 #include <btBulletDynamicsCommon.h>
+#include <BulletCollision/BroadphaseCollision/btAxisSweep3.h>
+#include <BulletDynamics/Character/btKinematicCharacterController.h>
+#include <BulletCollision/CollisionDispatch/btGhostObject.h>
+#include <BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h>
 #include <SDL2/SDL_stdinc.h>            // for Uint32
 #include <functional>
 #include "assets.h"
@@ -21,7 +25,8 @@ enum Physics_Collision_Shape
 {
   PHYSICS_COLLISION_BOX,
   PHYSICS_COLLISION_SPHERE,
-  PHYSICS_COLLISION_CONVEX_HULL
+  PHYSICS_COLLISION_CONVEX_HULL,
+  PHYSICS_COLLISION_TRIANGLE_MESH
 };
 
 
@@ -48,6 +53,8 @@ class Physics_Motion_State: public btMotionState
 
 class Physics 
 {
+  class btBroadphaseInterface *overlapping_pair_cache;
+
   private:
     btBroadphaseInterface                *broadphase;
     btDefaultCollisionConfiguration      *collision_config;
@@ -65,6 +72,7 @@ class Physics
     btRigidBody      *bullet_collision_rigidbody_create(Node &node, Physics_Collision_Shape shape, float m);
     void              bullet_collision_rigidbody_delete(btRigidBody *rb);
     btCollisionShape *bullet_collision_shape_convex_hull_create(Node &node);
+    btCollisionShape *bullet_collision_shape_triangle_mesh_create(Node &node);
     void              bullet_init();
     int               bullet_step(const Uint32 dt);
     void              bullet_term();
@@ -74,6 +82,8 @@ class Physics
   public:
     Physics();
     ~Physics();
+
+    void bullet_kinematic_character_controller_create(Node &node);
     
     void collision_mesh_add(Node &node, const std::string &prefix, const std::string &filename);
     void collision_node_add(Node &node, const Physics_Collision_Shape shape, bool recursive, float mass);

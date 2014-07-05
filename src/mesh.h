@@ -23,6 +23,7 @@ class Mesh {
                                            std::vector<glm::vec4> *tangent_ptr, std::vector<glm::vec4> *bitangent_ptr,
                                            std::vector<glm::vec4> *weights_ptr, std::vector<glm::ivec4> *bone_indices_ptr,
                                            std::vector<glm::vec2> *uv_ptr, std::vector<GLshort> *indices_ptr);
+    std::vector<GLshort>    indices_get();
     void                    print(const int indent_level);
     unsigned int            num_indices_get();
     unsigned int            num_vertices_get();

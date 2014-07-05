@@ -72,6 +72,18 @@ void Mesh::buffer_data_get(std::vector<glm::vec4> *vertices_ptr,
 }
 
 
+std::vector<GLshort> Mesh::indices_get()
+{
+  std::vector<GLshort> temp_indices;
+
+  for (size_t i = 0; i < indices.size(); i++) {
+    temp_indices.push_back(indices[i]);
+  }
+
+  return temp_indices;
+}
+
+
 void Mesh::print(const int indent_level)
 {
   indent(std::cout, indent_level);
@@ -90,7 +102,7 @@ unsigned int Mesh::num_vertices_get() {
 }
 
 
-std::vector<glm::vec4>  Mesh::vertices_get(bool scale)
+std::vector<glm::vec4> Mesh::vertices_get(bool scale)
 {
   std::vector<glm::vec4> temp_vertices;
   size_t n = vertices.size();
@@ -113,3 +125,5 @@ std::vector<glm::vec4>  Mesh::vertices_get(bool scale)
 
   return temp_vertices;
 }
+
+

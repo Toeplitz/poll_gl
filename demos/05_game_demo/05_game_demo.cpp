@@ -30,16 +30,29 @@ int main()
 
   window.keyboard_pressed_callback_set(keyboard_pressed_cb);
 
-  Node &room = scene.load_model("data/game_assets/", "Room.dae", 0);
-  //physics.collision_node_add(room, PHYSICS_COLLISION_CONVEX_HULL, false, 1.f);
-  Node &panda = scene.load_model("data/game_assets/characters/panda/", "Panda.dae", 0);
-  physics.collision_mesh_add(panda, "data/game_assets/characters/panda/", "PandaColl.dae");
+  Node &room = scene.load_model("data/game_assets/", "Room_no_boxes.dae", 0);
+  physics.collision_node_add(room, PHYSICS_COLLISION_TRIANGLE_MESH, true, 0);
 
+//  Node &floor = scene.load_model("data/normal_map/", "wood_floor.dae", 0);
+//  physics.collision_node_add(floor, PHYSICS_COLLISION_CONVEX_HULL, true, 0);
+
+  Node &box = scene.load_model("data/normal_map/", "box_simple.dae", 0);
+  physics.collision_node_add(box, PHYSICS_COLLISION_CONVEX_HULL, true, 1);
+ 
+//  Node &panda = scene.load_model("data/game_assets/characters/panda/", "Panda.dae", 0);
+//  t.translate(panda, glm::vec3(30, 10, 0));
+//  physics.collision_mesh_add(panda, "data/game_assets/characters/panda/", "PandaColl.dae");
+
+  /*
   Node &bob = scene.load_model("data/bob/", "Bob_with_lamp.dae", 1);
   t.translate(bob, glm::vec3(-30, 10, 0));
   t.scale(bob, glm::vec3(3.5, 3.5, 3.5));
+*/
 
-  //scene.scene_graph_print();
+ // Node &cylinder = scene.load_model("data/game_assets/characters/placeholder/", "cylinder.dae", 1);
+ // physics.bullet_kinematic_character_controller_create(cylinder);
+
+  scene.scene_graph_print();
 
   fragmic.run();
   fragmic.term();

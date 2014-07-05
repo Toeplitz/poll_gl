@@ -502,6 +502,7 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
     mesh_node->mesh = mesh_ptr.get();
     mesh_node->armature = armature_ptr;
     if (node.mNumMeshes > 1) {
+      mesh_node->copy_transform_data(*parent_node);
       parent_node->child_add(std::move(sub_node), parent_node->tree_level + 1);
     }
     assets.mesh_add(std::move(mesh_ptr));
