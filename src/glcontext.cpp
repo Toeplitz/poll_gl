@@ -142,8 +142,6 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
     properties.Ks = glm::vec3(0, 0, 0);
     properties.shininess = 0;
 
-    std::cout << "sizeof(Material_Properties) = " << sizeof(Material_Properties) << " == " << sizeof(float) * 3 * 3 + sizeof(float) << std::endl;
-    std::cout << "sizeof(material) = " << sizeof(properties) << std::endl;
     bindPointIndex = UB_MATERIAL;
     glGenBuffers(1, &gl_buffer_material);
     glBindBuffer(target, gl_buffer_material);
@@ -161,8 +159,6 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
     state.diffuse_specular_normal = false;
     state.standard = false;
 
-    std::cout << "sizeof(Node_State) = " << sizeof(Node_State) << " == " << sizeof(bool) * 6  << std::endl;
-    std::cout << "sizeof(statE) = " << sizeof(state) << std::endl;
     bindPointIndex = UB_STATE;
     glGenBuffers(1, &gl_buffer_state);
     glBindBuffer(target, gl_buffer_state);
@@ -174,16 +170,11 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
   {
     GLint location;
     location = glGetUniformLocation(program, "diffuse_texture");
-    std::cout << "diffuse_texture on location: " << location << std::endl;
     glUniform1i(location, 0);
-
     location = glGetUniformLocation(program, "normal_texture");
     glUniform1i(location, 1);
-    std::cout << "normal_texture on location: " << location << std::endl;
-
     location = glGetUniformLocation(program, "specular_texture");
     glUniform1i(location, 2);
-    std::cout << "specular_texture on location: " << location << std::endl;
   }
 
 }
@@ -210,17 +201,6 @@ void GLcontext::uniform_buffers_update_camera(Camera &camera)
   glBindBuffer(target, gl_buffer_globalmatrices);
   glBufferSubData(target, offset, sizeof(data), &data);
 }
-
-
-/*
-void GLcontext::uniform_buffers_update_debug(glm::vec4 &data)
-{
-  GLenum target = GL_UNIFORM_BUFFER;
-  GLintptr offset = 0;
-  glBindBuffer(target, gl_buffer_debug);
-  glBufferSubData(target, offset, sizeof(data), &data);
-}
-*/
 
 
 void GLcontext::uniform_buffers_update_material(Node &node)
@@ -380,7 +360,6 @@ void GLcontext::vertex_buffers_delete(Node &node)
   Material *material = node.material;
 
   if (mesh) {
-    std::cout << "Deleting opengl buffer data for mesh: " << node.name << std::endl;
     glDeleteBuffers(8, gl_vertex_buffers);
     glDeleteVertexArrays(1, &node.gl_vao);
   }
