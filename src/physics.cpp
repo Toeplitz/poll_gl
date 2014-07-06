@@ -2,6 +2,29 @@
 #include "utils.h"
 #include <glm/gtx/string_cast.hpp>
 
+const int NUM_VERTS_X = 30;
+const int NUM_VERTS_Y = 30;
+const int totalVerts = NUM_VERTS_X*NUM_VERTS_Y;
+const float TRIANGLE_SIZE=8.f;
+
+void  Physics::setVertexPositions(float waveheight, float offset)
+{
+  int i;
+  int j;
+
+  for ( i=0;i<NUM_VERTS_X;i++)
+  {
+    for (j=0;j<NUM_VERTS_Y;j++)
+    {
+      gVertices[i+j*NUM_VERTS_X].setValue((i-NUM_VERTS_X*0.5f)*TRIANGLE_SIZE,
+          //0.f,
+          waveheight*sinf((float)i+offset)*cosf((float)j+offset),
+          (j-NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);
+    }
+  }
+}
+
+
 /**************************************************/
 /***************** CONSTRUCTORS *******************/
 /**************************************************/
@@ -151,7 +174,7 @@ btRigidBody *Physics::bullet_collision_rigidbody_create(Node &node, Physics_Coll
   btRigidBody* rb = new btRigidBody(rb_ci);
 
   //rb->setCollisionFlags(rb->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
- // rb->setCollisionFlags(rb->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+  // rb->setCollisionFlags(rb->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
 
 
   return rb;
@@ -187,25 +210,58 @@ btCollisionShape *Physics::bullet_collision_shape_triangle_mesh_create(Node &nod
   std::cout << "vertices: " << node.mesh->num_vertices_get()  << std::endl;
   std::cout << "indices: " << node.mesh->num_indices_get() << std::endl;
   std::cout << "indices / 3: " << node.mesh->num_indices_get() / 3 << std::endl;
+  std::cout << "num faces: " << node.mesh->num_faces << std::endl;
+  /*
+     int n = node.mesh->num_vertices_get();
+     int j = node.mesh->num_indices_get();
+     bt_vert = new btVector3[n];
+     ind = new int[j];
+     for (size_t i = 0; i < node.mesh->num_vertices_get(); i++) {
+     bt_vert->setX(node.mesh->vertices[i].position.x);
+     bt_vert->setY(node.mesh->vertices[i].position.y);
+     bt_vert->setZ(node.mesh->vertices[i].position.z);
+     }
+     for (size_t i = 0; i < node.mesh->num_indices_get(); i++) {
+     ind[i] = node.mesh->indices[i];
+     }
 
-  int n = node.mesh->num_vertices_get();
-  int j = node.mesh->num_indices_get();
-  bt_vert = new btVector3[n];
-  ind = new int[j];
+     assert(node.mesh->num_indices_get() % 3 == 0);
+     assert(node.mesh->num_faces == node.mesh->num_indices_get() / 3);
 
-  for (size_t i = 0; i < node.mesh->num_vertices_get(); i++) {
-    bt_vert->setX(node.mesh->vertices[i].position.x);
-    bt_vert->setY(node.mesh->vertices[i].position.y);
-    bt_vert->setZ(node.mesh->vertices[i].position.z);
- //   std::cout << glm::to_string(vertices[i]) << std::endl;
+     array = new btTriangleIndexVertexArray(node.mesh->num_indices_get() / 3, ind, 3 * sizeof(int), 
+     node.mesh->num_vertices_get(), (btScalar *) &bt_vert[0].x(), sizeof(btVector3));
+     */
+  int vertStride = sizeof(btVector3);
+  int indexStride = 3*sizeof(int);
+
+
+  const int totalTriangles = 2*(NUM_VERTS_X-1)*(NUM_VERTS_Y-1);
+
+  gVertices = new btVector3[totalVerts];
+  gIndices = new int[totalTriangles*3];
+
+  setVertexPositions(5.0f,0.f);
+
+  int index=0;
+  for (int i=0;i<NUM_VERTS_X-1;i++)
+  {
+    for (int j=0;j<NUM_VERTS_Y-1;j++)
+    {
+      gIndices[index++] = j*NUM_VERTS_X+i;
+      gIndices[index++] = j*NUM_VERTS_X+i+1;
+      gIndices[index++] = (j+1)*NUM_VERTS_X+i+1;
+
+      gIndices[index++] = j*NUM_VERTS_X+i;
+      gIndices[index++] = (j+1)*NUM_VERTS_X+i+1;
+      gIndices[index++] = (j+1)*NUM_VERTS_X+i;
+    }
   }
-  for (size_t i = 0; i < node.mesh->num_indices_get(); i++) {
-    ind[i] = node.mesh->indices[i];
-  }
 
-  assert(node.mesh->num_indices_get() % 3 == 0);
-  array = new btTriangleIndexVertexArray(node.mesh->num_indices_get() / 3, ind, 3 * sizeof(int), 
-      node.mesh->num_vertices_get(), (btScalar *) &bt_vert[0].x(), sizeof(btVector3));
+  array = new btTriangleIndexVertexArray(totalTriangles,
+      gIndices,
+      indexStride,
+      totalVerts, (btScalar*) &gVertices[0].x(), vertStride);
+
 
   bool useQuantizedAabbCompression = true;
   btVector3 aabbMin(-1000, -1000, -1000), aabbMax(1000, 1000, 1000);
@@ -230,7 +286,7 @@ void Physics::bullet_init()
 
   //world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collision_config);
   world = new btDiscreteDynamicsWorld(dispatcher, overlapping_pair_cache, solver, collision_config);
-//  world->getDispatchInfo().m_allowedCcdPenetration=0.0001f;
+  //  world->getDispatchInfo().m_allowedCcdPenetration=0.0001f;
 
 
   world->setGravity(btVector3(0, -9.81, 0));

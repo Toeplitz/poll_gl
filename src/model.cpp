@@ -39,6 +39,7 @@ Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const s
 
   Assimp::Importer importer;
   importer.SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 3);
+  importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_COLORS | aiComponent_LIGHTS | aiComponent_CAMERAS);
   if (lefthanded) {
   //  scene = importer.ReadFile(full_name.c_str(), aiProcess_Triangulate |
   //      aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded
@@ -46,7 +47,7 @@ Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const s
   } else {
     scene = importer.ReadFile(full_name.c_str(), aiProcess_Triangulate |
         aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_FindDegenerates |  aiProcess_JoinIdenticalVertices |
-        aiProcess_FlipUVs | aiProcess_LimitBoneWeights );
+        aiProcess_FlipUVs | aiProcess_LimitBoneWeights | aiProcess_RemoveComponent);
   }
 
   if (!scene) {
@@ -403,6 +404,7 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
     mesh_node->material = materials[assimpMesh->mMaterialIndex];
     //std::cout << "Node: " << mesh_node->name << " has material " << mesh_node->material << " and num faces/vertices: " << assimpMesh->mNumFaces << "/" << assimpMesh->mNumVertices << std::endl;
 
+    mesh_ptr->num_faces = assimpMesh->mNumFaces;
     for (unsigned int ii = 0; ii < assimpMesh->mNumFaces; ii++) {
       const aiFace &face = assimpMesh->mFaces[ii];
 

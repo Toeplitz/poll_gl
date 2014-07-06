@@ -60,6 +60,8 @@ class Physics
     btTriangleIndexVertexArray *array;
     btVector3 *bt_vert;
     int *ind;
+    btVector3 *gVertices;
+    int *gIndices;
 
     btBroadphaseInterface                *broadphase;
     btDefaultCollisionConfiguration      *collision_config;
@@ -73,6 +75,8 @@ class Physics
     int                                   debug_toggle;
     int                                   pause_toggle;
     Assets                                collision_assets;
+
+    void  setVertexPositions(float waveheight, float offset);
 
     btRigidBody      *bullet_collision_rigidbody_create(Node &node, Physics_Collision_Shape shape, float m);
     void              bullet_collision_rigidbody_delete(btRigidBody *rb);
