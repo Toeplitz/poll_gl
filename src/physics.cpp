@@ -203,70 +203,141 @@ btCollisionShape *Physics::bullet_collision_shape_convex_hull_create(Node &node)
 
 btCollisionShape *Physics::bullet_collision_shape_triangle_mesh_create(Node &node)
 {
+  Mesh *mesh = node.mesh;
   btCollisionShape *collision_shape = nullptr;
   std::vector<glm::vec3> vertices = node.mesh->vertices_get(false);
   std::vector<int> indices = node.mesh->indices_get();
 
-  std::cout << "vertices: " << node.mesh->num_vertices_get()  << std::endl;
-  std::cout << "indices: " << node.mesh->num_indices_get() << std::endl;
-  std::cout << "indices / 3: " << node.mesh->num_indices_get() / 3 << std::endl;
-  std::cout << "num faces: " << node.mesh->num_faces << std::endl;
-  /*
-     int n = node.mesh->num_vertices_get();
-     int j = node.mesh->num_indices_get();
-     bt_vert = new btVector3[n];
-     ind = new int[j];
-     for (size_t i = 0; i < node.mesh->num_vertices_get(); i++) {
-     bt_vert->setX(node.mesh->vertices[i].position.x);
-     bt_vert->setY(node.mesh->vertices[i].position.y);
-     bt_vert->setZ(node.mesh->vertices[i].position.z);
-     }
-     for (size_t i = 0; i < node.mesh->num_indices_get(); i++) {
-     ind[i] = node.mesh->indices[i];
-     }
+  if  (mesh) {
+    std::vector<glm::vec4> vertices;
+    std::vector<glm::vec4> normals;
+    std::vector<glm::vec4> tangents;
+    std::vector<glm::vec4> bitangents;
+    std::vector<glm::vec4> weights;
+    std::vector<glm::ivec4> bone_indices;
+    std::vector<glm::vec2> uvs;
+    std::vector<GLshort> indices;
+    mesh->buffer_data_get(&vertices, &normals, &tangents, &bitangents,
+        &weights, &bone_indices, &uvs, &indices);
 
-     assert(node.mesh->num_indices_get() % 3 == 0);
-     assert(node.mesh->num_faces == node.mesh->num_indices_get() / 3);
-
-     array = new btTriangleIndexVertexArray(node.mesh->num_indices_get() / 3, ind, 3 * sizeof(int), 
-     node.mesh->num_vertices_get(), (btScalar *) &bt_vert[0].x(), sizeof(btVector3));
-     */
-  int vertStride = sizeof(btVector3);
-  int indexStride = 3*sizeof(int);
-
-
-  const int totalTriangles = 2*(NUM_VERTS_X-1)*(NUM_VERTS_Y-1);
-
-  gVertices = new btVector3[totalVerts];
-  gIndices = new int[totalTriangles*3];
-
-  setVertexPositions(5.0f,0.f);
-
-  int index=0;
-  for (int i=0;i<NUM_VERTS_X-1;i++)
-  {
-    for (int j=0;j<NUM_VERTS_Y-1;j++)
-    {
-      gIndices[index++] = j*NUM_VERTS_X+i;
-      gIndices[index++] = j*NUM_VERTS_X+i+1;
-      gIndices[index++] = (j+1)*NUM_VERTS_X+i+1;
-
-      gIndices[index++] = j*NUM_VERTS_X+i;
-      gIndices[index++] = (j+1)*NUM_VERTS_X+i+1;
-      gIndices[index++] = (j+1)*NUM_VERTS_X+i;
+    int n = node.mesh->num_vertices_get();
+    int j = node.mesh->num_indices_get();
+    std::cout << "vertices: " << n << std::endl;
+    std::cout << "indices: " << j << std::endl;
+    std::cout << "indices / 3: " << j / 3 << std::endl;
+    std::cout << "num faces: " << node.mesh->num_faces << std::endl;
+    bt_vert = new btVector3[n];
+    ind = new int[j];
+    for (size_t i = 0; i < (size_t) n; i++) {
+      bt_vert->setX(vertices[i].x);
+      bt_vert->setY(vertices[i].y);
+      bt_vert->setZ(vertices[i].z);
     }
+    for (size_t i = 0; i < (size_t) j; i++) {
+      ind[i] = indices[i];
+    }
+
+    int vertStride = sizeof(btVector3);
+    int indexStride = 3 * sizeof(int);
+
+    assert(node.mesh->num_indices_get() % 3 == 0);
+    assert(node.mesh->num_faces == j / 3);
+
+    btTriangleMesh* ptrimesh = new btTriangleMesh();
+    for (unsigned int i = 0; i < node.mesh->num_faces; i = i + 3) {
+      std::cout << "Triangle points (x, y, z) , (x, y, z) , (x, y, z): " << std::endl;
+      std::cout << "(" << bt_vert[ind[i]].x() << ", " << bt_vert[ind[i]].y() << ", " << bt_vert[ind[i]].z() << ") ";
+      std::cout << "(" << bt_vert[ind[i + 1]].x() << ", " << bt_vert[ind[i + 1]].y() << ", " << bt_vert[ind[i + 1]].z() << ") ";
+      std::cout << "(" << bt_vert[ind[i + 2]].x() << ", " << bt_vert[ind[i + 2]].y() << ", " << bt_vert[ind[i + 2]].z() << ") " << std::endl;
+      ptrimesh->addTriangle(bt_vert[ind[i]], bt_vert[ind[i + 1]], bt_vert[ind[i + 2]]);
+
+    }
+
+    /*
+       float rx = 2.0f;
+       float ry = 2.0f;
+       float rz = 2.0f;
+
+       const int nverts = 8;
+       const btVector3 verts[nverts] = {
+       btVector3(-rx, -ry, -rz),
+       btVector3(-rx, -ry, rz),
+       btVector3(-rx, ry, -rz),
+       btVector3(-rx, ry, rz),
+       btVector3(rx, -ry, -rz),
+       btVector3(rx, -ry, rz),
+       btVector3(rx, ry, -rz),
+       btVector3(rx, ry, rz)};
+
+       const int nfaces = 12;
+       int faces[nfaces][3] = {
+       {0,1,2},
+       {3,1,2},
+       {0,1,4},
+       {5,1,4},
+       {0,2,4},
+       {6,2,4},
+       {7,6,5},
+       {4,6,5},
+       {7,6,3},
+       {2,6,3},
+       {7,5,3},
+       {1,5,3}};
+
+       btTriangleMesh* ptrimesh = new btTriangleMesh();
+       for (int i=0; i < nfaces; ++i) {
+       std::cout << "triangle: x, y, z = " << verts[faces[i][0]] << ", " << verts[faces[i][1]] << ", " << verts[faces[i][1]] << std::endl;
+       ptrimesh->addTriangle(verts[faces[i][0]], verts[faces[i][1]], verts[faces[i][2]]);
+       }
+       */
+
+    /*
+       array = new btTriangleIndexVertexArray(node.mesh->num_faces, 
+       ind, indexStride, 
+       n, (btScalar *) &bt_vert[0].x(), vertStride);
+       */
+
+    /*
+       const int totalTriangles = 2*(NUM_VERTS_X-1)*(NUM_VERTS_Y-1);
+
+       gVertices = new btVector3[totalVerts];
+       gIndices = new int[totalTriangles*3];
+
+       setVertexPositions(5.0f,0.f);
+
+       int index=0;
+       for (int i=0;i<NUM_VERTS_X-1;i++)
+       {
+       for (int j=0;j<NUM_VERTS_Y-1;j++)
+       {
+       gIndices[index++] = j*NUM_VERTS_X+i;
+       gIndices[index++] = j*NUM_VERTS_X+i+1;
+       gIndices[index++] = (j+1)*NUM_VERTS_X+i+1;
+
+       gIndices[index++] = j*NUM_VERTS_X+i;
+       gIndices[index++] = (j+1)*NUM_VERTS_X+i+1;
+       gIndices[index++] = (j+1)*NUM_VERTS_X+i;
+       }
+       }
+
+       std::cout << "Example totalVerts: " << totalVerts << std::endl;
+       std::cout << "Example triangles: " << totalTriangles << std::endl;
+       std::cout << "Example total indices: " << totalTriangles * 3 << std::endl;
+       array = new btTriangleIndexVertexArray(totalTriangles,
+       gIndices,
+       indexStride,
+       totalVerts, (btScalar*) &gVertices[0].x(), vertStride);
+
+*/
+
+    bool useQuantizedAabbCompression = true;
+    btVector3 aabbMin(-1000, -1000, -1000), aabbMax(1000, 1000, 1000);
+    //  collision_shape = new btBvhTriangleMeshShape(array, useQuantizedAabbCompression, aabbMin, aabbMax);
+    collision_shape = new btBvhTriangleMeshShape(ptrimesh, true);
+    collision_shape->setLocalScaling(btVector3(node.original_scaling.x, node.original_scaling.y, node.original_scaling.z));
+  } else {
+    std::cout << "ERROR: no mesh for node: " << node.name << std::endl;
   }
-
-  array = new btTriangleIndexVertexArray(totalTriangles,
-      gIndices,
-      indexStride,
-      totalVerts, (btScalar*) &gVertices[0].x(), vertStride);
-
-
-  bool useQuantizedAabbCompression = true;
-  btVector3 aabbMin(-1000, -1000, -1000), aabbMax(1000, 1000, 1000);
-  collision_shape = new btBvhTriangleMeshShape(array, useQuantizedAabbCompression, aabbMin, aabbMax);
-  collision_shape->setLocalScaling(btVector3(node.original_scaling.x, node.original_scaling.y, node.original_scaling.z));
 
   return collision_shape;
 }
