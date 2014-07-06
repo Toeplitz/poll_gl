@@ -2,28 +2,6 @@
 #include "utils.h"
 #include <glm/gtx/string_cast.hpp>
 
-const int NUM_VERTS_X = 30;
-const int NUM_VERTS_Y = 30;
-const int totalVerts = NUM_VERTS_X*NUM_VERTS_Y;
-const float TRIANGLE_SIZE=8.f;
-
-void  Physics::setVertexPositions(float waveheight, float offset)
-{
-  int i;
-  int j;
-
-  for ( i=0;i<NUM_VERTS_X;i++)
-  {
-    for (j=0;j<NUM_VERTS_Y;j++)
-    {
-      gVertices[i+j*NUM_VERTS_X].setValue((i-NUM_VERTS_X*0.5f)*TRIANGLE_SIZE,
-          //0.f,
-          waveheight*sinf((float)i+offset)*cosf((float)j+offset),
-          (j-NUM_VERTS_Y*0.5f)*TRIANGLE_SIZE);
-    }
-  }
-}
-
 
 /**************************************************/
 /***************** CONSTRUCTORS *******************/
@@ -244,13 +222,15 @@ void Physics::bullet_init()
 
   btVector3 worldMin(-1000,-1000,-1000);
   btVector3 worldMax(1000,1000,1000);
-  btAxisSweep3 *sweep_bp = new btAxisSweep3(worldMin,worldMax);
-  overlapping_pair_cache = sweep_bp;
-  //broadphase = new btDbvtBroadphase();
+  btAxisSweep3 *sweep_bp = new btAxisSweep3(worldMin, worldMax);
+  broadphase = new btDbvtBroadphase();
 
   //world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collision_config);
-  world = new btDiscreteDynamicsWorld(dispatcher, overlapping_pair_cache, solver, collision_config);
-  //  world->getDispatchInfo().m_allowedCcdPenetration=0.0001f;
+  world = new btDiscreteDynamicsWorld(dispatcher, sweep_bp, solver, collision_config);
+  world->getDispatchInfo().m_allowedCcdPenetration=0.0001f;
+
+  //broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+  sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 
 
   world->setGravity(btVector3(0, -9.81, 0));
@@ -259,6 +239,13 @@ void Physics::bullet_init()
 }
 
 
+// FIXME:
+// Try btCharacterControllerInterface implementation on:
+// http://bulletphysics.org/Bullet/phpBB3/viewtopic.php?f=9&t=5684
+//
+// - This is a ghost object, does not interract with rigid bodies for physics?
+// - Use rigidbodies for the skeletal collision mesh to interact with falling crates etc? 
+//
 void Physics::bullet_kinematic_character_controller_create(Node &node)
 {
   btKinematicCharacterController *m_character; 
@@ -274,18 +261,16 @@ void Physics::bullet_kinematic_character_controller_create(Node &node)
 
     m_ghostObject = new btPairCachingGhostObject();
     m_ghostObject->setWorldTransform(startTransform);
-    overlapping_pair_cache->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
-    btScalar characterHeight = 1;
-    btScalar characterWidth = 1;
-    btConvexShape* capsule = new btCapsuleShape(characterWidth,characterHeight);
-    m_ghostObject->setCollisionShape (capsule);
-    m_ghostObject->setCollisionFlags (btCollisionObject::CF_CHARACTER_OBJECT);
+    //btConvexShape* capsule = new btCapsuleShape(characterWidth,characterHeight);
+    btConvexShape* capsule = new btBoxShape(btVector3(1, 1, 1));
+    m_ghostObject->setCollisionShape(capsule);
+    m_ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
 
     btScalar stepHeight = btScalar(0.35);
     m_character = new btKinematicCharacterController(m_ghostObject, capsule, stepHeight);
 
     // only collide with static for now (no interaction with dynamic objects)
-    world->addCollisionObject(m_ghostObject ,btBroadphaseProxy::CharacterFilter, 
+    world->addCollisionObject(m_ghostObject, btBroadphaseProxy::CharacterFilter, 
         btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
 
     world->addAction(m_character);

@@ -198,7 +198,7 @@ void Model::bone_map_create(Assets & assets, BoneForAssimpBone & boneForAssimpBo
   assets.armature_add(std::move(armature));
 }
 
-Node *Model::node_map_create(const aiNode & node, Node *parent, int level)
+Node *Model::node_map_create(const aiNode &node, Node *parent, int level)
 {
   glm::mat4 localTransform;
   std::string key(node.mName.data);

@@ -57,11 +57,6 @@ class Physics
   class btBroadphaseInterface *overlapping_pair_cache;
 
   private:
-    btTriangleIndexVertexArray *array;
-    btVector3 *bt_vert;
-    int *ind;
-    btVector3 *gVertices;
-    int *gIndices;
 
     btBroadphaseInterface                *broadphase;
     btDefaultCollisionConfiguration      *collision_config;

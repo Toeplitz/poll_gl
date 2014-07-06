@@ -47,8 +47,8 @@ int main()
   t.scale(bob, glm::vec3(3.5, 3.5, 3.5));
 */
 
- // Node &cylinder = scene.load_model("data/game_assets/characters/placeholder/", "cylinder.dae", 1);
- // physics.bullet_kinematic_character_controller_create(cylinder);
+  Node &cylinder = scene.load_model("data/game_assets/characters/placeholder/", "cylinder.dae", 0);
+  physics.bullet_kinematic_character_controller_create(cylinder);
 
   scene.scene_graph_print();
 
