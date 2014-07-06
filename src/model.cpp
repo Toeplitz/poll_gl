@@ -488,6 +488,7 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
       }
 
       m.vertices.push_back(v);
+      m.positions.push_back(glm::vec3(v.position.x, v.position.y, v.position.z));
       assert(weightsPerVertex[iv].size() <= 4);
 
       for (unsigned int a = 0; a < weightsPerVertex[iv].size(); a++) {

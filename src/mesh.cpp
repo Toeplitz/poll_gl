@@ -1,6 +1,7 @@
 #include "mesh.h"
 #include "utils.h"
 #include <iostream>
+#include <glm/gtx/string_cast.hpp>
 
 /**************************************************/
 /***************** CONSTRUCTORS *******************/
@@ -67,15 +68,9 @@ void Mesh::buffer_data_get(std::vector<glm::vec4> *vertices_ptr,
 }
 
 
-std::vector<int> Mesh::indices_get()
+const std::vector<GLshort> &Mesh::indices_get() const
 {
-  std::vector<int> temp_indices;
-
-  for (size_t i = 0; i < indices.size(); i++) {
-    temp_indices.push_back((int) indices[i]);
-  }
-
-  return temp_indices;
+  return indices;
 }
 
 
@@ -97,6 +92,12 @@ unsigned int Mesh::num_vertices_get() {
 }
 
 
+const std::vector<glm::vec3> &Mesh::positions_get() const
+{
+  return positions;
+}
+
+
 std::vector<glm::vec3> Mesh::vertices_get(bool scale)
 {
   std::vector<glm::vec3> temp_vertices;
@@ -108,6 +109,7 @@ std::vector<glm::vec3> Mesh::vertices_get(bool scale)
     v.position.x = vertices[i].position.x;
     v.position.y = vertices[i].position.y;
     v.position.z = vertices[i].position.z;
+    std::cout << glm::to_string(v.position) << std::endl;
 
     if (scale) {
       //position = m::vec4(v.position, 1.0) * scale_matrix;
