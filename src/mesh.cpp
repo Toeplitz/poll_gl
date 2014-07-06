@@ -38,7 +38,6 @@ void Mesh::buffer_data_get(std::vector<glm::vec4> *vertices_ptr,
   std::vector<glm::vec4> tempWeight;
   std::vector<glm::ivec4> tempBoneIndex;
   std::vector<glm::vec2> tempUv;
-  std::vector<GLshort> tempIndices;
   size_t n = vertices.size();
 
   for (size_t i = 0; i < n; i++) {
@@ -57,10 +56,6 @@ void Mesh::buffer_data_get(std::vector<glm::vec4> *vertices_ptr,
     tempUv.push_back(vertices[i].uv);
   }
 
-  for (size_t i = 0; i < indices.size(); i++) {
-    tempIndices.push_back(indices[i]);
-  }
-
   *vertices_ptr = tempVert;
   *normals_ptr = tempNormal;
   *tangent_ptr = temp_tangent;
@@ -68,16 +63,16 @@ void Mesh::buffer_data_get(std::vector<glm::vec4> *vertices_ptr,
   *weights_ptr = tempWeight;
   *bone_indices_ptr = tempBoneIndex;
   *uv_ptr = tempUv;
-  *indices_ptr = tempIndices;
+  *indices_ptr = indices;
 }
 
 
-std::vector<GLshort> Mesh::indices_get()
+std::vector<int> Mesh::indices_get()
 {
-  std::vector<GLshort> temp_indices;
+  std::vector<int> temp_indices;
 
   for (size_t i = 0; i < indices.size(); i++) {
-    temp_indices.push_back(indices[i]);
+    temp_indices.push_back((int) indices[i]);
   }
 
   return temp_indices;
@@ -102,22 +97,23 @@ unsigned int Mesh::num_vertices_get() {
 }
 
 
-std::vector<glm::vec4> Mesh::vertices_get(bool scale)
+std::vector<glm::vec3> Mesh::vertices_get(bool scale)
 {
-  std::vector<glm::vec4> temp_vertices;
+  std::vector<glm::vec3> temp_vertices;
   size_t n = vertices.size();
 
   for (size_t i = 0; i < n; i++) {
     Vertex v;
-    glm::vec4 position;
+    glm::vec3 position;
     v.position.x = vertices[i].position.x;
     v.position.y = vertices[i].position.y;
     v.position.z = vertices[i].position.z;
 
     if (scale) {
-      position = glm::vec4(v.position, 1.0) * scale_matrix;
+      //position = m::vec4(v.position, 1.0) * scale_matrix;
     } else {
-      position = glm::vec4(v.position, 1.0);
+      //position = glm::vec3(glm::vec4(v.position, 1.0) * model);
+      position = v.position;
     }
 
     temp_vertices.push_back(position);

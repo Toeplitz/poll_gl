@@ -40,13 +40,13 @@ Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const s
   Assimp::Importer importer;
   importer.SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 3);
   if (lefthanded) {
-    scene = importer.ReadFile(full_name.c_str(), aiProcess_Triangulate |
-        aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded
-        | aiProcess_FlipUVs | aiProcess_LimitBoneWeights);
+  //  scene = importer.ReadFile(full_name.c_str(), aiProcess_Triangulate |
+  //      aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded
+  //      | aiProcess_FlipUVs | aiProcess_LimitBoneWeights);
   } else {
     scene = importer.ReadFile(full_name.c_str(), aiProcess_Triangulate |
-        aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | 
-        aiProcess_FlipUVs | aiProcess_LimitBoneWeights);
+        aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_FindDegenerates |  aiProcess_JoinIdenticalVertices |
+        aiProcess_FlipUVs | aiProcess_LimitBoneWeights );
   }
 
   if (!scene) {

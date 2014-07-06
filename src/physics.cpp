@@ -1,5 +1,6 @@
 #include "physics.h"
 #include "utils.h"
+#include <glm/gtx/string_cast.hpp>
 
 /**************************************************/
 /***************** CONSTRUCTORS *******************/
@@ -119,6 +120,7 @@ btRigidBody *Physics::bullet_collision_rigidbody_create(Node &node, Physics_Coll
       break;
     case PHYSICS_COLLISION_CONVEX_HULL:
       collision_shape = bullet_collision_shape_convex_hull_create(node);
+      break;
     case PHYSICS_COLLISION_TRIANGLE_MESH:
       collision_shape = bullet_collision_shape_triangle_mesh_create(node);
       break;
@@ -148,6 +150,10 @@ btRigidBody *Physics::bullet_collision_rigidbody_create(Node &node, Physics_Coll
 
   btRigidBody* rb = new btRigidBody(rb_ci);
 
+  //rb->setCollisionFlags(rb->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+ // rb->setCollisionFlags(rb->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+
+
   return rb;
 }
 
@@ -161,11 +167,11 @@ void Physics::bullet_collision_rigidbody_delete(btRigidBody *rb)
 btCollisionShape *Physics::bullet_collision_shape_convex_hull_create(Node &node)
 {
   btCollisionShape *collision_shape = nullptr;
-  std::vector<glm::vec4> vertices = node.mesh->vertices_get(false);
+  std::vector<glm::vec3> vertices = node.mesh->vertices_get(false);
   int n = vertices.size();
 
-  std::cout << "Num: " << vertices.size() << std::endl;
-  collision_shape = new btConvexHullShape((btScalar *) vertices.data(), n);
+  std::cout << "Convex hull Num: " << vertices.size() << std::endl;
+  collision_shape = new btConvexHullShape((btScalar *) vertices.data(), n, sizeof(glm::vec3));
   collision_shape->setLocalScaling(btVector3(node.original_scaling.x, node.original_scaling.y, node.original_scaling.z));
 
   return collision_shape;
@@ -175,16 +181,36 @@ btCollisionShape *Physics::bullet_collision_shape_convex_hull_create(Node &node)
 btCollisionShape *Physics::bullet_collision_shape_triangle_mesh_create(Node &node)
 {
   btCollisionShape *collision_shape = nullptr;
-  std::vector<glm::vec4> vertices = node.mesh->vertices_get(false);
-  std::vector<GLshort> indices = node.mesh->indices_get();
+  std::vector<glm::vec3> vertices = node.mesh->vertices_get(false);
+  std::vector<int> indices = node.mesh->indices_get();
 
-  btTriangleIndexVertexArray *array;
-  int num_triangles = node.mesh->num_indices_get();
-  array = new btTriangleIndexVertexArray(num_triangles, (int *) indices.data(), 0, node.mesh->num_vertices_get(), (btScalar *) vertices.data(), 0);
+  std::cout << "vertices: " << node.mesh->num_vertices_get()  << std::endl;
+  std::cout << "indices: " << node.mesh->num_indices_get() << std::endl;
+  std::cout << "indices / 3: " << node.mesh->num_indices_get() / 3 << std::endl;
+
+  int n = node.mesh->num_vertices_get();
+  int j = node.mesh->num_indices_get();
+  bt_vert = new btVector3[n];
+  ind = new int[j];
+
+  for (size_t i = 0; i < node.mesh->num_vertices_get(); i++) {
+    bt_vert->setX(node.mesh->vertices[i].position.x);
+    bt_vert->setY(node.mesh->vertices[i].position.y);
+    bt_vert->setZ(node.mesh->vertices[i].position.z);
+ //   std::cout << glm::to_string(vertices[i]) << std::endl;
+  }
+  for (size_t i = 0; i < node.mesh->num_indices_get(); i++) {
+    ind[i] = node.mesh->indices[i];
+  }
+
+  assert(node.mesh->num_indices_get() % 3 == 0);
+  array = new btTriangleIndexVertexArray(node.mesh->num_indices_get() / 3, ind, 3 * sizeof(int), 
+      node.mesh->num_vertices_get(), (btScalar *) &bt_vert[0].x(), sizeof(btVector3));
 
   bool useQuantizedAabbCompression = true;
   btVector3 aabbMin(-1000, -1000, -1000), aabbMax(1000, 1000, 1000);
   collision_shape = new btBvhTriangleMeshShape(array, useQuantizedAabbCompression, aabbMin, aabbMax);
+  collision_shape->setLocalScaling(btVector3(node.original_scaling.x, node.original_scaling.y, node.original_scaling.z));
 
   return collision_shape;
 }

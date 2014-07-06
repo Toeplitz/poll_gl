@@ -5,6 +5,7 @@
 #include <BulletDynamics/Character/btKinematicCharacterController.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h>
+#include <BulletCollision/CollisionDispatch/btInternalEdgeUtility.h>
 #include <SDL2/SDL_stdinc.h>            // for Uint32
 #include <functional>
 #include "assets.h"
@@ -56,6 +57,10 @@ class Physics
   class btBroadphaseInterface *overlapping_pair_cache;
 
   private:
+    btTriangleIndexVertexArray *array;
+    btVector3 *bt_vert;
+    int *ind;
+
     btBroadphaseInterface                *broadphase;
     btDefaultCollisionConfiguration      *collision_config;
     btCollisionDispatcher                *dispatcher;
