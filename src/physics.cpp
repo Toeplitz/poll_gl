@@ -190,7 +190,7 @@ void Physics::bullet_collision_rigidbody_delete(btRigidBody *rb)
 btCollisionShape *Physics::bullet_collision_shape_convex_hull_create(Node &node)
 {
   btCollisionShape *collision_shape = nullptr;
-  std::vector<glm::vec3> vertices = node.mesh->vertices_get(false);
+  std::vector<glm::vec3> vertices = node.mesh->positions_get();
   int n = vertices.size();
 
   std::cout << "Convex hull Num: " << vertices.size() << std::endl;
@@ -206,72 +206,31 @@ btCollisionShape *Physics::bullet_collision_shape_triangle_mesh_create(Node &nod
   Mesh *mesh = node.mesh;
   btCollisionShape *collision_shape = nullptr;
 
-  if  (mesh) {
-    std::vector<glm::vec3> positions = mesh->positions_get();
-    std::vector<GLshort> indices = mesh->indices_get();
-
-    assert(node.mesh->num_indices_get() % 3 == 0);
-
-    btTriangleMesh* ptrimesh = new btTriangleMesh();
-    for (unsigned int i = 0; i < node.mesh->num_indices_get(); i = i + 3) {
-      std::cout << "Triangle points (x, y, z) , (x, y, z) , (x, y, z): " << std::endl;
-      std::cout << "(" << positions[indices[i]].x << ", " << positions[indices[i]].y << ", " << positions[indices[i]].z << ") ";
-      std::cout << "(" << positions[indices[i + 1]].x << ", " << positions[indices[i + 1]].y << ", " << positions[indices[i + 1]].z << ") ";
-      std::cout << "(" << positions[indices[i + 2]].x << ", " << positions[indices[i + 2]].y << ", " << positions[indices[i + 2]].z << ") " << std::endl;
-      ptrimesh->addTriangle(btVector3(positions[indices[i]].x, positions[indices[i]].y, positions[indices[i]].z),
-          btVector3(positions[indices[i + 1]].x, positions[indices[i + 1]].y, positions[indices[i + 1]].z),
-          btVector3(positions[indices[i + 2]].x, positions[indices[i + 2]].y, positions[indices[i + 2]].z));
-    }
-
-    /*
-       float rx = 2.0f;
-       float ry = 2.0f;
-       float rz = 2.0f;
-
-       const int nverts = 8;
-       const btVector3 verts[nverts] = {
-       btVector3(-rx, -ry, -rz),
-       btVector3(-rx, -ry, rz),
-       btVector3(-rx, ry, -rz),
-       btVector3(-rx, ry, rz),
-       btVector3(rx, -ry, -rz),
-       btVector3(rx, -ry, rz),
-       btVector3(rx, ry, -rz),
-       btVector3(rx, ry, rz)};
-
-       const int nfaces = 12;
-       int faces[nfaces][3] = {
-       {0,1,2},
-       {3,1,2},
-       {0,1,4},
-       {5,1,4},
-       {0,2,4},
-       {6,2,4},
-       {7,6,5},
-       {4,6,5},
-       {7,6,3},
-       {2,6,3},
-       {7,5,3},
-       {1,5,3}};
-
-       btTriangleMesh* ptrimesh = new btTriangleMesh();
-       for (int i=0; i < nfaces; ++i) {
-       std::cout << "triangle: x, y, z = " << verts[faces[i][0]] << ", " << verts[faces[i][1]] << ", " << verts[faces[i][1]] << std::endl;
-       ptrimesh->addTriangle(verts[faces[i][0]], verts[faces[i][1]], verts[faces[i][2]]);
-       }
-       */
-
-       //array = new btTriangleIndexVertexArray(mesh->num_faces, 
-        //   (int *) indices.data(), 3 * sizeof(GLshort), 
-         //  positions.size(), (btScalar *) positions.data(), sizeof(glm::vec3));
-
-    bool useQuantizedAabbCompression = true;
-    btVector3 aabbMin(-1000, -1000, -1000), aabbMax(1000, 1000, 1000);
-    collision_shape = new btBvhTriangleMeshShape(ptrimesh, useQuantizedAabbCompression, aabbMin, aabbMax);
-    collision_shape->setLocalScaling(btVector3(node.original_scaling.x, node.original_scaling.y, node.original_scaling.z));
-  } else {
+  if  (!mesh) {
     std::cout << "ERROR: no mesh for node: " << node.name << std::endl;
+    return nullptr;
   }
+
+  std::vector<glm::vec3> positions = mesh->positions_get();
+  std::vector<GLshort> indices = mesh->indices_get();
+
+  assert(node.mesh->num_indices_get() % 3 == 0);
+
+  btTriangleMesh* ptrimesh = new btTriangleMesh();
+  for (unsigned int i = 0; i < node.mesh->num_indices_get(); i = i + 3) {
+    std::cout << "Triangle points (x, y, z) , (x, y, z) , (x, y, z): " << std::endl;
+    std::cout << "(" << positions[indices[i]].x << ", " << positions[indices[i]].y << ", " << positions[indices[i]].z << ") ";
+    std::cout << "(" << positions[indices[i + 1]].x << ", " << positions[indices[i + 1]].y << ", " << positions[indices[i + 1]].z << ") ";
+    std::cout << "(" << positions[indices[i + 2]].x << ", " << positions[indices[i + 2]].y << ", " << positions[indices[i + 2]].z << ") " << std::endl;
+    ptrimesh->addTriangle(btVector3(positions[indices[i]].x, positions[indices[i]].y, positions[indices[i]].z),
+        btVector3(positions[indices[i + 1]].x, positions[indices[i + 1]].y, positions[indices[i + 1]].z),
+        btVector3(positions[indices[i + 2]].x, positions[indices[i + 2]].y, positions[indices[i + 2]].z));
+  }
+
+  bool useQuantizedAabbCompression = true;
+  btVector3 aabbMin(-1000, -1000, -1000), aabbMax(1000, 1000, 1000);
+  collision_shape = new btBvhTriangleMeshShape(ptrimesh, useQuantizedAabbCompression, aabbMin, aabbMax);
+  collision_shape->setLocalScaling(btVector3(node.original_scaling.x, node.original_scaling.y, node.original_scaling.z));
 
   return collision_shape;
 }

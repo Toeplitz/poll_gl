@@ -31,7 +31,7 @@ int main()
   window.keyboard_pressed_callback_set(keyboard_pressed_cb);
 
   //Node &room = scene.load_model("data/game_assets/", "box.dae", 0);
-  Node &room = scene.load_model("data/game_assets/", "Room_no_boxes.dae", 0);
+  Node &room = scene.load_model("data/game_assets/", "Room.dae", 0);
   physics.collision_node_add(room, PHYSICS_COLLISION_TRIANGLE_MESH, true, 0);
 
   Node &box = scene.load_model("data/game_assets/", "cones.dae", 0);

@@ -1,6 +1,6 @@
 #version 330
 
-layout(location = 0) in vec4 vertex_position;
+layout(location = 0) in vec3 vertex_position;
 layout(location = 1) in vec4 vertex_normal;
 layout(location = 2) in vec4 vtangent;
 layout(location = 3) in vec4 bitangent;
@@ -74,7 +74,7 @@ void main(void)
   mat4 model_view = view * m;
   mat3 normal_matrix = mat3(transpose(inverse(model_view)));
 
-  position_eye = vec3(model_view * vertex_position);
+  position_eye = vec3(model_view * vec4(vertex_position, 1.0));
   normal_eye = normalize(vec3(normal_matrix * vec3(vertex_normal)));
   light_position_eye = vec3(view * vec4(light_position_world, 1.0));
 
@@ -94,7 +94,7 @@ void main(void)
     vec3 cam_pos_loc = vec3 (inverse (model) * vec4 (cam_pos_wor, 1.0));
     vec3 light_dir_loc = vec3 (inverse (model) * vec4 (light_dir_wor, 0.0));
     // ...and work out view _direction_ in local space
-    vec3 view_dir_loc = normalize (cam_pos_loc - vec3(vertex_position));
+    vec3 view_dir_loc = normalize (cam_pos_loc - vertex_position);
     
     /* this [dot,dot,dot] is the same as making a 3x3 inverse tangent matrix, and
        doing a matrix*vector multiplication.
