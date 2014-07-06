@@ -1,7 +1,21 @@
 #include "physics.h"
+#include "physics_char_cont.h"
 #include "utils.h"
 #include <glm/gtx/string_cast.hpp>
 
+
+
+struct FilterCallback : public btOverlapFilterCallback {
+
+  // return true when pairs need collision
+  virtual bool needBroadphaseCollision(btBroadphaseProxy* proxy0, btBroadphaseProxy* proxy1) const override
+  {
+    bool collides = (proxy0->m_collisionFilterGroup & proxy1->m_collisionFilterMask) &&
+      (proxy1->m_collisionFilterGroup & proxy0->m_collisionFilterMask);
+    //add some additional logic here that modified 'collides'
+    return collides;
+  }
+};
 
 /**************************************************/
 /***************** CONSTRUCTORS *******************/
@@ -222,18 +236,21 @@ void Physics::bullet_init()
 
   btVector3 worldMin(-1000,-1000,-1000);
   btVector3 worldMax(1000,1000,1000);
-  btAxisSweep3 *sweep_bp = new btAxisSweep3(worldMin, worldMax);
+  sweep_bp = new btAxisSweep3(worldMin, worldMax);
   broadphase = new btDbvtBroadphase();
 
-  //world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collision_config);
-  world = new btDiscreteDynamicsWorld(dispatcher, sweep_bp, solver, collision_config);
-  world->getDispatchInfo().m_allowedCcdPenetration=0.0001f;
+  world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collision_config);
+  //world = new btDiscreteDynamicsWorld(dispatcher, sweep_bp, solver, collision_config);
+  //world->getDispatchInfo().m_allowedCcdPenetration=0.0001f;
 
   //broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
-  sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+  //sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 
+  // broadphase filter callback
+  btOverlapFilterCallback * filterCallback = new FilterCallback();
+  world->getPairCache()->setOverlapFilterCallback(filterCallback);
 
-  world->setGravity(btVector3(0, -9.81, 0));
+  world->setGravity(btVector3(0, -10, 0));
   world->setDebugDrawer(&debug_drawer);
   debug_drawer.setDebugMode(btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb); 
 }
@@ -248,32 +265,82 @@ void Physics::bullet_init()
 //
 void Physics::bullet_kinematic_character_controller_create(Node &node)
 {
-  btKinematicCharacterController *m_character; 
-  btPairCachingGhostObject *m_ghostObject;
 
   if (node.mesh) {
+    //------------------------------ ground - static plane ------------------------------
+   
+    /*
+    btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0), 1);
+    btDefaultMotionState* groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(0,-1,0)));
+    btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, groundMotionState, groundShape, btVector3(0,0,0));
+    btRigidBody* groundRigidBody = new btRigidBody(groundRigidBodyCI);
+    world->addRigidBody(groundRigidBody, E_Static, E_Riggid | E_Actor);
+*/
+    //------------------------------ ghost ------------------------------
+    //
+    /*
+    btCollisionShape* ghostShape = new btBoxShape(btVector3(10, 1, 10));
+
+    btTransform transform; 
+    transform.setIdentity();
+    transform.setOrigin(btVector3(0.0f, 1.0f, 0.0f));
+
+    btPairCachingGhostObject* ghostObject = new btPairCachingGhostObject();
+    ghostObject->setWorldTransform(transform);
+
+    btGhostPairCallback* ghostPairCallback = new btGhostPairCallback();
+    broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(ghostPairCallback);
+
+    ghostObject->setCollisionShape(ghostShape);
+    ghostObject->setCollisionFlags(ghostObject->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+    */
+    //------------------------------ riggid box ------------------------------
+    btCollisionShape* fallShape = new btBoxShape(btVector3(1.0, 1.0, 1.0));
+   // fallShape->setLocalScaling(btVector3(node.original_scaling.x, node.original_scaling.y, node.original_scaling.z));
+
+    /*
+    btDefaultMotionState* fallMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(5,5,0)));
+    btVector3 fallInertia(0,0,0);
+    fallShape->calculateLocalInertia(1.0f, fallInertia);
+    */
+
+    /*
+    btRigidBody::btRigidBodyConstructionInfo fallRigidBodyCI(1.0f, fallMotionState, fallShape, fallInertia); // może być wspólne
+    btRigidBody* fallRigidBody = new btRigidBody(fallRigidBodyCI);
+    fallRigidBody->setUserPointer((void*)1);
+    */
+
+    //------------------------------ character ------------------------------
     btTransform startTransform;
-    //startTransform.setIdentity ();
-    //startTransform.setOrigin(btVector3(node.original_position.x, node.original_position.y, node.original_position.z));
-    std::cout << "Adding character controller for node: '" << node.name << "'" << std::endl;
     startTransform.setFromOpenGLMatrix((btScalar *) &node.mesh->model);
-    print_matrix(std::cout, node.mesh->model, 0);
 
-    m_ghostObject = new btPairCachingGhostObject();
-    m_ghostObject->setWorldTransform(startTransform);
-    //btConvexShape* capsule = new btCapsuleShape(characterWidth,characterHeight);
-    btConvexShape* capsule = new btBoxShape(btVector3(1, 1, 1));
-    m_ghostObject->setCollisionShape(capsule);
-    m_ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
+   // startTransform.setIdentity();
+   // startTransform.setOrigin(btVector3(node.original_position.x, node.original_position.y, node.original_rotation.z)); 
+    //startTransform.setOrigin(btVector3(0, 5, 0)); 
 
-    btScalar stepHeight = btScalar(0.35);
-    m_character = new btKinematicCharacterController(m_ghostObject, capsule, stepHeight);
+    btPairCachingGhostObject* actorGhost = new btPairCachingGhostObject();
+    actorGhost->setUserPointer((void*)2);
+    actorGhost->setWorldTransform(startTransform);
 
-    // only collide with static for now (no interaction with dynamic objects)
-    world->addCollisionObject(m_ghostObject, btBroadphaseProxy::CharacterFilter, 
-        btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
+    btGhostPairCallback* actorGhostPairCallback = new btGhostPairCallback();
+    broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(actorGhostPairCallback);
 
-    world->addAction(m_character);
+    actorGhost->setCollisionShape(fallShape);
+    actorGhost->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
+
+    CharacterController *character = new CharacterController(actorGhost, static_cast<btConvexShape*>(fallShape), 0.5f);
+
+    //------------------------------ add actor to the world ------------------------------
+    world->addCollisionObject(actorGhost, E_Actor, E_Static | E_Riggid | E_Actor | E_Trigger);
+    world->addAction(character);
+
+    //------------------------------ add rigid to the world ------------------------------
+    // world->addRigidBody(fallRigidBody, E_Riggid, E_Static | E_Riggid | E_Actor | E_Trigger);
+
+    //------------------------------ add ghost to the world ------------------------------
+    // world->addCollisionObject(ghostObject, E_Trigger, E_Riggid | E_Actor);
+
+
   }
 
   for (auto &child : node.children) {

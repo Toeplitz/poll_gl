@@ -30,15 +30,14 @@ int main()
 
   window.keyboard_pressed_callback_set(keyboard_pressed_cb);
 
-  //Node &room = scene.load_model("data/game_assets/", "box.dae", 0);
   Node &room = scene.load_model("data/game_assets/", "Room.dae", 0);
   physics.collision_node_add(room, PHYSICS_COLLISION_TRIANGLE_MESH, true, 0);
 
-  Node &box = scene.load_model("data/game_assets/", "cones.dae", 0);
-  physics.collision_node_add(box, PHYSICS_COLLISION_CONVEX_HULL, true, 1);
+ // Node &box = scene.load_model("data/game_assets/", "cones.dae", 0);
+ // physics.collision_node_add(box, PHYSICS_COLLISION_CONVEX_HULL, true, 1);
  
-  Node &panda = scene.load_model("data/game_assets/characters/panda/", "Panda.dae", 0);
-  t.translate(panda, glm::vec3(30, 10, 0));
+ // Node &panda = scene.load_model("data/game_assets/characters/panda/", "Panda.dae", 0);
+  //t.translate(panda, glm::vec3(30, 10, 0));
 //  physics.collision_mesh_add(panda, "data/game_assets/characters/panda/", "PandaColl.dae");
 
   /*
@@ -47,8 +46,9 @@ int main()
   t.scale(bob, glm::vec3(3.5, 3.5, 3.5));
 */
 
-  Node &cylinder = scene.load_model("data/game_assets/characters/placeholder/", "cylinder.dae", 0);
-  physics.bullet_kinematic_character_controller_create(cylinder);
+ //Node &cylinder = scene.load_model("data/game_assets/characters/placeholder/", "cylinder.dae", 0);
+  Node &box = scene.load_model("data/game_assets/", "box.dae", 0);
+  physics.bullet_kinematic_character_controller_create(box);
 
   scene.scene_graph_print();
 
