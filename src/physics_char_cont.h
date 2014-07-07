@@ -3,7 +3,7 @@
 #include <LinearMath/btVector3.h>
 #include <BulletDynamics/Character/btCharacterControllerInterface.h>
 #include <BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h>
-
+#include "node.h"
 
 class btCollisionShape;
 class btRigidBody;
@@ -16,7 +16,7 @@ class btConvexShape;
 ///btKinematicCharacterController is an object that supports a sliding motion in a world.
 ///It uses a ghost object and convex sweep test to test for upcoming collisions. This is combined with discrete collision detection to recover from penetrations.
 ///Interaction between btKinematicCharacterController and dynamic rigid bodies needs to be explicity implemented by the user.
-class CharacterController: public btCharacterControllerInterface
+class Physics_CharacterController: public btCharacterControllerInterface
 {
   protected:
 
@@ -62,6 +62,8 @@ class CharacterController: public btCharacterControllerInterface
     btScalar   m_velocityTimeInterval;
     int m_upAxis;
 
+    Node *node;
+
     static btVector3* getUpAxisDirections();
 
     btVector3 computeReflectionDirection (const btVector3& direction, const btVector3& normal);
@@ -74,8 +76,13 @@ class CharacterController: public btCharacterControllerInterface
     void stepForwardAndStrafe (btCollisionWorld* collisionWorld, const btVector3& walkMove);
     void stepDown (btCollisionWorld* collisionWorld, btScalar dt);
   public:
-    CharacterController(btPairCachingGhostObject* ghostObject,btConvexShape* convexShape,btScalar stepHeight, int upAxis = 1);
-    ~CharacterController();
+    Physics_CharacterController(btPairCachingGhostObject* ghostObject,btConvexShape* convexShape,btScalar stepHeight, int upAxis = 1);
+    ~Physics_CharacterController();
+
+    void set_node(Node &node) 
+    {
+      this->node = &node;
+    }
 
     ///btActionInterface interface
     virtual void updateAction( btCollisionWorld* collisionWorld,btScalar deltaTime)

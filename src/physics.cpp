@@ -40,6 +40,31 @@ Physics::~Physics()
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
 
+Physics_CharacterController *Physics::character_controller_add(Node &node)
+{
+  if (!node.mesh) {
+    std::cout << "Error: no mesh for character controller creation (node: '" << node.name << "')" << std::endl;
+    return nullptr;
+  }
+
+  return bullet_kinematic_character_controller_create(node);
+}
+
+
+void Physics::character_controller_remove(Physics_CharacterController *char_cont)
+{
+}
+
+
+void character_controller_move(Physics_CharacterController *char_cont, Physics_Direction dir)
+{
+}
+
+
+void character_controller_jump(Physics_CharacterController *char_cont)
+{
+}
+
 
 void Physics::collision_mesh_add(Node &node, const std::string &prefix, const std::string &filename)
 {
@@ -165,10 +190,6 @@ btRigidBody *Physics::bullet_collision_rigidbody_create(Node &node, Physics_Coll
 
   btRigidBody* rb = new btRigidBody(rb_ci);
 
-  //rb->setCollisionFlags(rb->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
-  // rb->setCollisionFlags(rb->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
-
-
   return rb;
 }
 
@@ -237,11 +258,11 @@ void Physics::bullet_init()
   btVector3 worldMin(-1000,-1000,-1000);
   btVector3 worldMax(1000,1000,1000);
   sweep_bp = new btAxisSweep3(worldMin, worldMax);
-  broadphase = new btDbvtBroadphase();
+  //broadphase = new btDbvtBroadphase();
 
-  world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collision_config);
-  //world = new btDiscreteDynamicsWorld(dispatcher, sweep_bp, solver, collision_config);
-  //world->getDispatchInfo().m_allowedCcdPenetration=0.0001f;
+  //world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collision_config);
+  world = new btDiscreteDynamicsWorld(dispatcher, sweep_bp, solver, collision_config);
+  world->getDispatchInfo().m_allowedCcdPenetration=0.0001f;
 
   //broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
   //sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
@@ -256,6 +277,41 @@ void Physics::bullet_init()
 }
 
 
+Physics_CharacterController *Physics::bullet_kinematic_character_controller_create(Node &node)
+{
+  Physics_CharacterController *character = nullptr;
+//  btCollisionShape* fallShape = new btBoxShape(btVector3(1.0, 1.0, 1.0));
+//  btCollisionShape* fallShape = new btCapsuleShape(3.0, 1.0);
+  btCollisionShape* fallShape = new btCylinderShape(btVector3(1.0, 1.0, 1.0));
+
+
+  btTransform startTransform;
+  startTransform.setFromOpenGLMatrix((btScalar *) &node.mesh->model);
+
+  btPairCachingGhostObject* actorGhost = new btPairCachingGhostObject();
+  actorGhost->setUserPointer((void*)2);
+  actorGhost->setWorldTransform(startTransform);
+
+  btGhostPairCallback* actorGhostPairCallback = new btGhostPairCallback();
+  sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(actorGhostPairCallback);
+//  broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(actorGhostPairCallback);
+
+  actorGhost->setCollisionShape(fallShape);
+  actorGhost->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
+
+  character = new Physics_CharacterController(actorGhost, static_cast<btConvexShape*>(fallShape), 0.5f);
+
+  //btKinematicCharacterController *character = new btKinematicCharacterController (actorGhost, static_cast<btConvexShape*>(fallShape), 0.5f);
+
+  //------------------------------ add actor to the world ------------------------------
+  world->addCollisionObject(actorGhost, E_Actor, E_Static | E_Riggid | E_Actor | E_Trigger);
+  world->addAction(character);
+  character->set_node(node);
+
+  return character;
+}
+
+
 // FIXME:
 // Try btCharacterControllerInterface implementation on:
 // http://bulletphysics.org/Bullet/phpBB3/viewtopic.php?f=9&t=5684
@@ -263,7 +319,7 @@ void Physics::bullet_init()
 // - This is a ghost object, does not interract with rigid bodies for physics?
 // - Use rigidbodies for the skeletal collision mesh to interact with falling crates etc? 
 //
-void Physics::bullet_kinematic_character_controller_create(Node &node)
+void Physics::bullet_kinematic_character_controller_create2(Node &node)
 {
 
   if (node.mesh) {
@@ -328,7 +384,9 @@ void Physics::bullet_kinematic_character_controller_create(Node &node)
     actorGhost->setCollisionShape(fallShape);
     actorGhost->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
 
-    CharacterController *character = new CharacterController(actorGhost, static_cast<btConvexShape*>(fallShape), 0.5f);
+//    Physics_CharacterController *character = new Physics_CharacterController(actorGhost, static_cast<btConvexShape*>(fallShape), 0.5f);
+
+    btKinematicCharacterController *character = new btKinematicCharacterController (actorGhost, static_cast<btConvexShape*>(fallShape), 0.5f);
 
     //------------------------------ add actor to the world ------------------------------
     world->addCollisionObject(actorGhost, E_Actor, E_Static | E_Riggid | E_Actor | E_Trigger);

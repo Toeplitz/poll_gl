@@ -23,6 +23,13 @@ Scene::~Scene()
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
 
+
+Assets &Scene::assets_get()
+{
+  return assets;
+}
+
+
 void Scene::animation_list_add(Node &node) 
 {
   bool r = (std::find(animation_list.begin(), animation_list.end(), &node) != animation_list.end());
@@ -63,7 +70,6 @@ void Scene::animation_list_update_transforms(Node &node, Uint32 dt)
 
 
 
-
 Node &Scene::load_model(const std::string &prefix, const std::string &filename, bool lefthanded) 
 {
   Transform transform;
@@ -76,6 +82,15 @@ Node &Scene::load_model(const std::string &prefix, const std::string &filename, 
   upload_queue_add(*root_ptr);
 
   return *root_ptr;
+}
+
+
+Node *Scene::node_find(Node *root_ptr, const std::string &name)
+{
+  if (root_ptr) 
+    return node_find_recursive(*root_ptr, name);
+  
+  return node_find_recursive(root, name);
 }
 
 
@@ -184,8 +199,25 @@ Node *Scene::upload_queue_pop()
 }
 
 
-Assets &Scene::assets_get()
-{
-  return assets;
-}
+/**************************************************/
+/***************** PRIVATE METHODS ****************/
+/**************************************************/
 
+
+Node *Scene::node_find_recursive(Node &node, const std::string &name)
+{
+  Node *ret = nullptr;
+  std::cout << "Looking for node '" << name << "', found '" << node.name << "'" << std::endl;
+
+  if (!node.name.compare(name)) {
+      std::cout << "Success" << std::endl;
+      return &node;
+  }
+
+  for (auto &child : node.children) {
+    ret = node_find_recursive(*child, name);
+  }
+
+
+  return ret;
+}

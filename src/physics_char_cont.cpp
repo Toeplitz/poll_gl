@@ -11,6 +11,8 @@
 
 //---------------------------------------------------------------------------------------
 // static helper method
+
+
 static btVector3 getNormalizedVector(const btVector3& v)
 {
   btVector3 n = v.normalized();
@@ -19,6 +21,7 @@ static btVector3 getNormalizedVector(const btVector3& v)
   }
   return n;
 }
+
 
 //---------------------------------------------------------------------------------------
 ///@todo Interact with dynamic objects,
@@ -45,6 +48,8 @@ class btKinematicClosestNotMeRayResultCallback : public btCollisionWorld::Closes
   protected:
     btCollisionObject* m_me;
 };
+
+
 //---------------------------------------------------------------------------------------
 class btKinematicClosestNotMeConvexResultCallback : public btCollisionWorld::ClosestConvexResultCallback
 {
@@ -88,13 +93,15 @@ class btKinematicClosestNotMeConvexResultCallback : public btCollisionWorld::Clo
     const btVector3 m_up;
     btScalar m_minSlopeDot;
 };
+
+
 //---------------------------------------------------------------------------------------
 /*
  * Returns the reflection direction of a ray going 'direction' hitting a surface with normal 'normal'
  *
  * from: http://www-cs-students.stanford.edu/~adityagp/final/node3.html
  */
-btVector3 CharacterController::computeReflectionDirection (const btVector3& direction, const btVector3& normal)
+btVector3 Physics_CharacterController::computeReflectionDirection (const btVector3& direction, const btVector3& normal)
 {
   return direction - (btScalar(2.0) * direction.dot(normal)) * normal;
 }
@@ -102,7 +109,7 @@ btVector3 CharacterController::computeReflectionDirection (const btVector3& dire
 /*
  * Returns the portion of 'direction' that is parallel to 'normal'
  */
-btVector3 CharacterController::parallelComponent (const btVector3& direction, const btVector3& normal)
+btVector3 Physics_CharacterController::parallelComponent (const btVector3& direction, const btVector3& normal)
 {
   btScalar magnitude = direction.dot(normal);
   return normal * magnitude;
@@ -111,12 +118,12 @@ btVector3 CharacterController::parallelComponent (const btVector3& direction, co
 /*
  * Returns the portion of 'direction' that is perpindicular to 'normal'
  */
-btVector3 CharacterController::perpindicularComponent (const btVector3& direction, const btVector3& normal)
+btVector3 Physics_CharacterController::perpindicularComponent (const btVector3& direction, const btVector3& normal)
 {
   return direction - parallelComponent(direction, normal);
 }
 //---------------------------------------------------------------------------------------
-CharacterController::CharacterController (btPairCachingGhostObject* ghostObject,btConvexShape* convexShape,btScalar stepHeight, int upAxis)
+Physics_CharacterController::Physics_CharacterController (btPairCachingGhostObject* ghostObject,btConvexShape* convexShape,btScalar stepHeight, int upAxis)
 {
   m_upAxis = upAxis;
   m_addedMargin = 0.02f;
@@ -125,7 +132,7 @@ CharacterController::CharacterController (btPairCachingGhostObject* ghostObject,
   m_ghostObject = ghostObject;
   m_stepHeight = stepHeight;
   m_turnAngle = btScalar(0.0);
-  m_convexShape=convexShape;   
+  m_convexShape=convexShape; 
   m_useWalkDirection = true;   // use walk direction by default, legacy behavior
   m_velocityTimeInterval = 0.0;
   m_verticalVelocity = 0.0;
@@ -138,11 +145,11 @@ CharacterController::CharacterController (btPairCachingGhostObject* ghostObject,
   setMaxSlope(btRadians(45.0f));
 }
 //---------------------------------------------------------------------------------------
-CharacterController::~CharacterController ()
+Physics_CharacterController::~Physics_CharacterController ()
 {
 }
 //---------------------------------------------------------------------------------------
-bool CharacterController::recoverFromPenetration ( btCollisionWorld* collisionWorld)
+bool Physics_CharacterController::recoverFromPenetration ( btCollisionWorld* collisionWorld)
 {
 
   bool penetration = false;
@@ -201,7 +208,7 @@ bool CharacterController::recoverFromPenetration ( btCollisionWorld* collisionWo
   return penetration;
 }
 //---------------------------------------------------------------------------------------
-void CharacterController::stepUp ( btCollisionWorld* world)
+void Physics_CharacterController::stepUp ( btCollisionWorld* world)
 {
   // phase 1: up
   btTransform start, end;
@@ -244,7 +251,7 @@ void CharacterController::stepUp ( btCollisionWorld* world)
   }
 }
 //---------------------------------------------------------------------------------------
-void CharacterController::updateTargetPositionBasedOnCollision (const btVector3& hitNormal, btScalar tangentMag, btScalar normalMag)
+void Physics_CharacterController::updateTargetPositionBasedOnCollision (const btVector3& hitNormal, btScalar tangentMag, btScalar normalMag)
 {
   btVector3 movementDirection = m_targetPosition - m_currentPosition;
   btScalar movementLength = movementDirection.length();
@@ -280,7 +287,7 @@ void CharacterController::updateTargetPositionBasedOnCollision (const btVector3&
   }
 }
 //---------------------------------------------------------------------------------------
-void CharacterController::stepForwardAndStrafe ( btCollisionWorld* collisionWorld, const btVector3& walkMove)
+void Physics_CharacterController::stepForwardAndStrafe ( btCollisionWorld* collisionWorld, const btVector3& walkMove)
 {
   // printf("m_normalizedDirection=%f,%f,%f\n",
   //    m_normalizedDirection[0],m_normalizedDirection[1],m_normalizedDirection[2]);
@@ -369,7 +376,7 @@ void CharacterController::stepForwardAndStrafe ( btCollisionWorld* collisionWorl
   }
 }
 //---------------------------------------------------------------------------------------
-void CharacterController::stepDown ( btCollisionWorld* collisionWorld, btScalar dt)
+void Physics_CharacterController::stepDown ( btCollisionWorld* collisionWorld, btScalar dt)
 {
   btTransform start, end;
 
@@ -429,14 +436,14 @@ void CharacterController::stepDown ( btCollisionWorld* collisionWorld, btScalar 
   }
 }
 //---------------------------------------------------------------------------------------
-void CharacterController::setWalkDirection(const btVector3& walkDirection)
+void Physics_CharacterController::setWalkDirection(const btVector3& walkDirection)
 {
   m_useWalkDirection = true;
   m_walkDirection = walkDirection;
   m_normalizedDirection = getNormalizedVector(m_walkDirection);
 }
 //---------------------------------------------------------------------------------------
-void CharacterController::setVelocityForTimeInterval(const btVector3& velocity, btScalar timeInterval)
+void Physics_CharacterController::setVelocityForTimeInterval(const btVector3& velocity, btScalar timeInterval)
 {
   //   printf("setVelocity!\n");
   //   printf("  interval: %f\n", timeInterval);
@@ -449,11 +456,11 @@ void CharacterController::setVelocityForTimeInterval(const btVector3& velocity, 
   m_velocityTimeInterval = timeInterval;
 }
 //---------------------------------------------------------------------------------------
-void CharacterController::reset ()
+void Physics_CharacterController::reset ()
 {
 }
 //---------------------------------------------------------------------------------------
-void CharacterController::warp (const btVector3& origin)
+void Physics_CharacterController::warp (const btVector3& origin)
 {
   btTransform xform;
   xform.setIdentity();
@@ -461,7 +468,7 @@ void CharacterController::warp (const btVector3& origin)
   m_ghostObject->setWorldTransform (xform);
 }
 //---------------------------------------------------------------------------------------
-void CharacterController::preStep (  btCollisionWorld* collisionWorld)
+void Physics_CharacterController::preStep (  btCollisionWorld* collisionWorld)
 {
 
   int numPenetrationLoops = 0;
@@ -484,7 +491,7 @@ void CharacterController::preStep (  btCollisionWorld* collisionWorld)
 //---------------------------------------------------------------------------------------
 //#include <stdio.h>
 
-void CharacterController::playerStep (  btCollisionWorld* collisionWorld, btScalar dt)
+void Physics_CharacterController::playerStep (  btCollisionWorld* collisionWorld, btScalar dt)
 {
   //   printf("playerStep(): ");
   //   printf("  dt = %f", dt);
@@ -512,6 +519,11 @@ void CharacterController::playerStep (  btCollisionWorld* collisionWorld, btScal
 
   btTransform xform;
   xform = m_ghostObject->getWorldTransform ();
+  glm::mat4 m;
+  //  glm::mat4 m = bullet_convert_glm(t);
+  xform.getOpenGLMatrix((btScalar *) &m);
+  //print_matrix(std::cout, m, 0);
+  node->mesh->model = m * glm::scale(glm::mat4(1.f), node->original_scaling);
 
   //   printf("walkDirection(%f,%f,%f)\n",walkDirection[0],walkDirection[1],walkDirection[2]);
   //   printf("walkSpeed=%f\n",walkSpeed);
@@ -542,10 +554,14 @@ void CharacterController::playerStep (  btCollisionWorld* collisionWorld, btScal
   m_ghostObject->setWorldTransform (xform);
 }
 //---------------------------------------------------------------------------------------
-void CharacterController::jump ()
+void Physics_CharacterController::jump ()
 {
-  if (!canJump())
+  if (!canJump()) {
+    std::cout << "No allowed to jump" << std::endl;
     return;
+  }
+
+  std::cout << "Jumping!" << std::endl;
 
   m_verticalVelocity = m_jumpSpeed;
   m_wasJumping = true;
@@ -561,16 +577,16 @@ void CharacterController::jump ()
 #endif
 }
 //---------------------------------------------------------------------------------------
-btVector3* CharacterController::getUpAxisDirections()
+btVector3* Physics_CharacterController::getUpAxisDirections()
 {
   static btVector3 sUpAxisDirection[3] = { btVector3(1.0f, 0.0f, 0.0f), btVector3(0.0f, 1.0f, 0.0f), btVector3(0.0f, 0.0f, 1.0f) };
 
   return sUpAxisDirection;
 }
 //---------------------------------------------------------------------------------------
-void CharacterController::debugDraw(btIDebugDraw* debugDrawer)
+void Physics_CharacterController::debugDraw(btIDebugDraw* debugDrawer)
 {
-  debugDrawer;
+  //  debugDrawer;
 }
 //---------------------------------------------------------------------------------------
 

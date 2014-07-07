@@ -29,6 +29,7 @@ class Window {
     void mouse_motion(SDL_MouseMotionEvent *ev, Camera &camera);
 
     std::function <void (SDL_Keysym *)> custom_keyboard_pressed_callback;
+    std::function <void (SDL_Keysym *)> custom_keyboard_released_callback;
   public:
     int  width;
     int  height;
@@ -54,6 +55,11 @@ class Window {
       void keyboard_pressed_callback_set(const std::function<void (SDL_Keysym *)> callback)
       {
         custom_keyboard_pressed_callback = callback;
+      }
+
+      void keyboard_released_callback_set(const std::function<void (SDL_Keysym *)> callback)
+      {
+        custom_keyboard_released_callback = callback;
       }
 };
 

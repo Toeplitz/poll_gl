@@ -69,7 +69,7 @@ void main(void)
   mat4 m = model;
 
   if (state_animated == 1) {
-    m = animation_matrix_get();
+    m = model * animation_matrix_get();
   }
   mat4 model_view = view * m;
   mat3 normal_matrix = mat3(transpose(inverse(model_view)));

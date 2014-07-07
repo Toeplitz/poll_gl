@@ -205,6 +205,8 @@ bool Window::keyboard_callback_pressed(SDL_Keysym *keysym, Camera &camera)
 
 void Window::keyboard_callback_released(SDL_Keysym *keysym, Camera &camera)
 {
+  if (custom_keyboard_released_callback)
+    custom_keyboard_released_callback(keysym);
 
   switch (keysym->sym) {
     case SDLK_w:

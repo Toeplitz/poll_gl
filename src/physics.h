@@ -14,6 +14,7 @@
 #include "glcontext.h"
 #include "gldebug.h"
 #include "utils.h"
+#include "physics_char_cont.h"
 
 //
 // User manual:
@@ -44,6 +45,17 @@ enum Physics_Collision_Shape
 };
 
 
+enum Physics_Direction
+{
+  PHYSICS_DIRECTION_FORWARD,
+  PHYSICS_DIRECTION_BACK,
+  PHYSICS_DIRECTION_STRAFE_LEFT,
+  PHYSICS_DIRECTION_STRAFE_RIGHT,
+  PHYSICS_DIRECTION_ROTATE_LEFT,
+  PHYSICS_DIRECTION_ROTATE_RIGHT
+};
+
+
 typedef struct 
 {
   Node *node;
@@ -70,7 +82,7 @@ class Physics
   class btBroadphaseInterface *overlapping_pair_cache;
 
   private:
-    btAxisSweep3 *sweep_bp;
+    btAxisSweep3                         *sweep_bp;
 
     btBroadphaseInterface                *broadphase;
     btDefaultCollisionConfiguration      *collision_config;
@@ -85,30 +97,33 @@ class Physics
     int                                   pause_toggle;
     Assets                                collision_assets;
 
-    void  setVertexPositions(float waveheight, float offset);
 
-    btRigidBody      *bullet_collision_rigidbody_create(Node &node, Physics_Collision_Shape shape, float m);
-    void              bullet_collision_rigidbody_delete(btRigidBody *rb);
-    btCollisionShape *bullet_collision_shape_convex_hull_create(Node &node);
-    btCollisionShape *bullet_collision_shape_triangle_mesh_create(Node &node);
-    void              bullet_init();
-    int               bullet_step(const Uint32 dt);
-    void              bullet_term();
-    void              bullet_world_add(Physics_Node &p_node);
-    void              bullet_world_delete(Physics_Node &p_node);
+    btRigidBody                  *bullet_collision_rigidbody_create(Node &node, Physics_Collision_Shape shape, float m);
+    void                          bullet_collision_rigidbody_delete(btRigidBody *rb);
+    btCollisionShape             *bullet_collision_shape_convex_hull_create(Node &node);
+    btCollisionShape             *bullet_collision_shape_triangle_mesh_create(Node &node);
+    void                          bullet_init();
+    Physics_CharacterController  *bullet_kinematic_character_controller_create(Node &node);
+    void                          bullet_kinematic_character_controller_create2(Node &node);
+    int                           bullet_step(const Uint32 dt);
+    void                          bullet_term();
+    void                          bullet_world_add(Physics_Node &p_node);
+    void                          bullet_world_delete(Physics_Node &p_node);
 
   public:
     Physics();
     ~Physics();
 
-    void bullet_kinematic_character_controller_create(Node &node);
+
+    Physics_CharacterController  *character_controller_add(Node &node);
+    void                          character_controller_remove(Physics_CharacterController *char_cont);
     
-    void collision_mesh_add(Node &node, const std::string &prefix, const std::string &filename);
-    void collision_node_add(Node &node, const Physics_Collision_Shape shape, bool recursive, float mass);
-    void collision_node_callback_set(const Node &node, const std::function<void (int)> callback);
-    void debug();
-    void init();
-    void pause();
-    void step(const Uint32 dt);
+    void                          collision_mesh_add(Node &node, const std::string &prefix, const std::string &filename);
+    void                          collision_node_add(Node &node, const Physics_Collision_Shape shape, bool recursive, float mass);
+    void                          collision_node_callback_set(const Node &node, const std::function<void (int)> callback);
+    void                          debug();
+    void                          init();
+    void                          pause();
+    void                          step(const Uint32 dt);
 };
 

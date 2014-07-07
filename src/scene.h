@@ -20,23 +20,24 @@ class Scene {
     Assets assets;
     Node root;
 
+    Node *node_find_recursive(Node &node, const std::string &name);
+
   public:
     Scene();
     ~Scene();
 
+    void                  animation_list_add(Node &node);
+    std::vector<Node *>   animation_list_get();
+    void                  animation_list_update_transforms(Node &node, Uint32 dt);
+    Assets               &assets_get();
     Node                 &load_model(const std::string &prefix, const std::string &filename, bool lefthanded);
+    Node                 *node_find(Node *root_ptr, const std::string &name);
     void                  render_list_add(Node &node);
     std::vector<Node *>   render_list_get();
     void                  scene_graph_print();
     void                  scene_graph_print_by_node(Node &node);
     void                  state_update_recursive(Node &node);
-    void                  animation_list_add(Node &node);
-    std::vector<Node *>   animation_list_get();
-    void                  animation_list_update_transforms(Node &node, Uint32 dt);
     void                  upload_queue_add(Node &node);
     Node                 *upload_queue_pop();
-
-    Assets               &assets_get();
-
 };
 
