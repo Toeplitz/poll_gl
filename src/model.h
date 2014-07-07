@@ -54,5 +54,5 @@ class Model {
     Model();
     ~Model();
 
-    Node *load(Assets &assets, Node &root, const std::string &prefix, const std::string &filename, bool lefthanded);
+    Node *load(Assets &assets, Node &root, const std::string &prefix, const std::string &filename);
 };

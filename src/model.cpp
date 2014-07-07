@@ -26,7 +26,7 @@ Model::~Model()
 /**************************************************/
 
 
-Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const std::string &filename, bool lefthanded)
+Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const std::string &filename)
 {
   Transform t;
   std::string full_name = prefix + "/" + filename;
@@ -40,15 +40,9 @@ Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const s
   Assimp::Importer importer;
   importer.SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 3);
   importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_COLORS | aiComponent_LIGHTS | aiComponent_CAMERAS);
-  if (lefthanded) {
-  //  scene = importer.ReadFile(full_name.c_str(), aiProcess_Triangulate |
-  //      aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_ConvertToLeftHanded
-  //      | aiProcess_FlipUVs | aiProcess_LimitBoneWeights);
-  } else {
-    scene = importer.ReadFile(full_name.c_str(), aiProcess_Triangulate |
-        aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_FindDegenerates |  aiProcess_JoinIdenticalVertices |
-        aiProcess_FlipUVs | aiProcess_LimitBoneWeights | aiProcess_RemoveComponent);
-  }
+  scene = importer.ReadFile(full_name.c_str(), aiProcess_Triangulate |
+      aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_FindDegenerates |  aiProcess_JoinIdenticalVertices |
+      aiProcess_FlipUVs | aiProcess_LimitBoneWeights | aiProcess_RemoveComponent);
 
   if (!scene) {
     std::cout << "Error parsing '" <<  full_name.c_str() << "': " << importer.GetErrorString() << std::endl;
@@ -505,6 +499,7 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
     //std::cout << "vertices / indices: " << m.vertices.size() << " / " << m.indices.size() << std::endl;
 
     mesh_ptr->scale_matrix = glm::scale(glm::mat4(1.0f), mesh_node->original_scaling);
+    mesh_ptr->aabb_generate_bounding();
     mesh_node->mesh = mesh_ptr.get();
     mesh_node->armature = armature_ptr;
     if (node.mNumMeshes > 1) {

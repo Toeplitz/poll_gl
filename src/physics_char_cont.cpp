@@ -139,7 +139,7 @@ Physics_CharacterController::Physics_CharacterController (btPairCachingGhostObje
   m_verticalOffset = 0.0;
   m_gravity = 9.8f * 3.0f ; // 3G acceleration.
   m_fallSpeed = 55.0f; // Terminal velocity of a sky diver in m/s.
-  m_jumpSpeed = 10.0f; // ?
+  m_jumpSpeed = 25.0f; // ?
   m_wasOnGround = false;
   m_wasJumping = false;
   setMaxSlope(btRadians(45.0f));

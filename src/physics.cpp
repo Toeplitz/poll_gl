@@ -40,14 +40,14 @@ Physics::~Physics()
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
 
-Physics_CharacterController *Physics::character_controller_add(Node &node)
+Physics_CharacterController *Physics::character_controller_add(Node &node, Node &collision_node)
 {
   if (!node.mesh) {
     std::cout << "Error: no mesh for character controller creation (node: '" << node.name << "')" << std::endl;
     return nullptr;
   }
 
-  return bullet_kinematic_character_controller_create(node);
+  return bullet_kinematic_character_controller_create(node, collision_node);
 }
 
 
@@ -69,7 +69,7 @@ void character_controller_jump(Physics_CharacterController *char_cont)
 void Physics::collision_mesh_add(Node &node, const std::string &prefix, const std::string &filename)
 {
   Model model;
-  Node *root_ptr = model.load(collision_assets, node, prefix, filename,  false);
+  Node *root_ptr = model.load(collision_assets, node, prefix, filename);
   collision_assets.print_all();
   std::cout << "Root ptr collision: " << root_ptr->name << std::endl;
   for (auto &armature: collision_assets.armature_get_all()) {
@@ -231,10 +231,13 @@ btCollisionShape *Physics::bullet_collision_shape_triangle_mesh_create(Node &nod
 
   btTriangleMesh* ptrimesh = new btTriangleMesh();
   for (unsigned int i = 0; i < node.mesh->num_indices_get(); i = i + 3) {
+    /*
     std::cout << "Triangle points (x, y, z) , (x, y, z) , (x, y, z): " << std::endl;
     std::cout << "(" << positions[indices[i]].x << ", " << positions[indices[i]].y << ", " << positions[indices[i]].z << ") ";
     std::cout << "(" << positions[indices[i + 1]].x << ", " << positions[indices[i + 1]].y << ", " << positions[indices[i + 1]].z << ") ";
     std::cout << "(" << positions[indices[i + 2]].x << ", " << positions[indices[i + 2]].y << ", " << positions[indices[i + 2]].z << ") " << std::endl;
+    */
+
     ptrimesh->addTriangle(btVector3(positions[indices[i]].x, positions[indices[i]].y, positions[indices[i]].z),
         btVector3(positions[indices[i + 1]].x, positions[indices[i + 1]].y, positions[indices[i + 1]].z),
         btVector3(positions[indices[i + 2]].x, positions[indices[i + 2]].y, positions[indices[i + 2]].z));
@@ -277,13 +280,17 @@ void Physics::bullet_init()
 }
 
 
-Physics_CharacterController *Physics::bullet_kinematic_character_controller_create(Node &node)
+Physics_CharacterController *Physics::bullet_kinematic_character_controller_create(Node &node, Node &collision_node)
 {
-  Physics_CharacterController *character = nullptr;
-//  btCollisionShape* fallShape = new btBoxShape(btVector3(1.0, 1.0, 1.0));
-//  btCollisionShape* fallShape = new btCapsuleShape(3.0, 1.0);
-  btCollisionShape* fallShape = new btCylinderShape(btVector3(1.0, 1.0, 1.0));
+  Mesh *mesh = node.mesh;
 
+  Physics_CharacterController *character = nullptr;
+  //btCollisionShape* fallShape = new btBoxShape(btVector3(1.0, 1.0, 1.0));
+  //btCollisionShape* fallShape = new btBoxShape(btVector3(aabb.size.x, aabb.size.y, aabb.size.z));
+  print_matrix(std::cout, mesh->scale_matrix, 0);
+  btCollisionShape *fallShape = bullet_collision_shape_convex_hull_create(collision_node);
+//  btCollisionShape* fallShape = new btCapsuleShape(3.0, 1.0);
+//  btCollisionShape* fallShape = new btCylinderShape(btVector3(1.0, 1.0, 1.0));
 
   btTransform startTransform;
   startTransform.setFromOpenGLMatrix((btScalar *) &node.mesh->model);
@@ -309,101 +316,6 @@ Physics_CharacterController *Physics::bullet_kinematic_character_controller_crea
   character->set_node(node);
 
   return character;
-}
-
-
-// FIXME:
-// Try btCharacterControllerInterface implementation on:
-// http://bulletphysics.org/Bullet/phpBB3/viewtopic.php?f=9&t=5684
-//
-// - This is a ghost object, does not interract with rigid bodies for physics?
-// - Use rigidbodies for the skeletal collision mesh to interact with falling crates etc? 
-//
-void Physics::bullet_kinematic_character_controller_create2(Node &node)
-{
-
-  if (node.mesh) {
-    //------------------------------ ground - static plane ------------------------------
-   
-    /*
-    btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0), 1);
-    btDefaultMotionState* groundMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(0,-1,0)));
-    btRigidBody::btRigidBodyConstructionInfo groundRigidBodyCI(0, groundMotionState, groundShape, btVector3(0,0,0));
-    btRigidBody* groundRigidBody = new btRigidBody(groundRigidBodyCI);
-    world->addRigidBody(groundRigidBody, E_Static, E_Riggid | E_Actor);
-*/
-    //------------------------------ ghost ------------------------------
-    //
-    /*
-    btCollisionShape* ghostShape = new btBoxShape(btVector3(10, 1, 10));
-
-    btTransform transform; 
-    transform.setIdentity();
-    transform.setOrigin(btVector3(0.0f, 1.0f, 0.0f));
-
-    btPairCachingGhostObject* ghostObject = new btPairCachingGhostObject();
-    ghostObject->setWorldTransform(transform);
-
-    btGhostPairCallback* ghostPairCallback = new btGhostPairCallback();
-    broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(ghostPairCallback);
-
-    ghostObject->setCollisionShape(ghostShape);
-    ghostObject->setCollisionFlags(ghostObject->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
-    */
-    //------------------------------ riggid box ------------------------------
-    btCollisionShape* fallShape = new btBoxShape(btVector3(1.0, 1.0, 1.0));
-   // fallShape->setLocalScaling(btVector3(node.original_scaling.x, node.original_scaling.y, node.original_scaling.z));
-
-    /*
-    btDefaultMotionState* fallMotionState = new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(5,5,0)));
-    btVector3 fallInertia(0,0,0);
-    fallShape->calculateLocalInertia(1.0f, fallInertia);
-    */
-
-    /*
-    btRigidBody::btRigidBodyConstructionInfo fallRigidBodyCI(1.0f, fallMotionState, fallShape, fallInertia); // może być wspólne
-    btRigidBody* fallRigidBody = new btRigidBody(fallRigidBodyCI);
-    fallRigidBody->setUserPointer((void*)1);
-    */
-
-    //------------------------------ character ------------------------------
-    btTransform startTransform;
-    startTransform.setFromOpenGLMatrix((btScalar *) &node.mesh->model);
-
-   // startTransform.setIdentity();
-   // startTransform.setOrigin(btVector3(node.original_position.x, node.original_position.y, node.original_rotation.z)); 
-    //startTransform.setOrigin(btVector3(0, 5, 0)); 
-
-    btPairCachingGhostObject* actorGhost = new btPairCachingGhostObject();
-    actorGhost->setUserPointer((void*)2);
-    actorGhost->setWorldTransform(startTransform);
-
-    btGhostPairCallback* actorGhostPairCallback = new btGhostPairCallback();
-    broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(actorGhostPairCallback);
-
-    actorGhost->setCollisionShape(fallShape);
-    actorGhost->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
-
-//    Physics_CharacterController *character = new Physics_CharacterController(actorGhost, static_cast<btConvexShape*>(fallShape), 0.5f);
-
-    btKinematicCharacterController *character = new btKinematicCharacterController (actorGhost, static_cast<btConvexShape*>(fallShape), 0.5f);
-
-    //------------------------------ add actor to the world ------------------------------
-    world->addCollisionObject(actorGhost, E_Actor, E_Static | E_Riggid | E_Actor | E_Trigger);
-    world->addAction(character);
-
-    //------------------------------ add rigid to the world ------------------------------
-    // world->addRigidBody(fallRigidBody, E_Riggid, E_Static | E_Riggid | E_Actor | E_Trigger);
-
-    //------------------------------ add ghost to the world ------------------------------
-    // world->addCollisionObject(ghostObject, E_Trigger, E_Riggid | E_Actor);
-
-
-  }
-
-  for (auto &child : node.children) {
-    bullet_kinematic_character_controller_create(*child);
-  }
 }
 
 

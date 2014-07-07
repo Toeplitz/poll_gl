@@ -30,7 +30,7 @@ class Scene {
     std::vector<Node *>   animation_list_get();
     void                  animation_list_update_transforms(Node &node, Uint32 dt);
     Assets               &assets_get();
-    Node                 &load_model(const std::string &prefix, const std::string &filename, bool lefthanded);
+    Node                 &load_model(const std::string &prefix, const std::string &filename, bool draw = true);
     Node                 *node_find(Node *root_ptr, const std::string &name);
     void                  render_list_add(Node &node);
     std::vector<Node *>   render_list_get();

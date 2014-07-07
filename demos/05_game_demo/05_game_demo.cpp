@@ -69,7 +69,7 @@ int main()
   window.keyboard_pressed_callback_set(keyboard_pressed_cb);
   window.keyboard_released_callback_set(keyboard_released_cb);
 
-  Node &room = scene.load_model("data/game_assets/", "Room.dae", 0);
+  Node &room = scene.load_model("data/game_assets/", "Room.dae");
   physics.collision_node_add(room, PHYSICS_COLLISION_TRIANGLE_MESH, true, 0);
 
  // Node &box = scene.load_model("data/game_assets/", "cones.dae", 0);
@@ -94,16 +94,20 @@ int main()
   } else {
     std::cout << "Could not find node" << std::endl;
   }
-  */
 
-  Node &panda = scene.load_model("data/game_assets/characters/panda/", "Panda.dae", 0);
-  character = physics.character_controller_add(panda);
-  Node *cube = scene.node_find(&panda, "Panda");
-  if (cube) {
-    character = physics.character_controller_add(*cube);
-  } else {
-    std::cout << "Could not find node" << std::endl;
+  */
+  {
+    Node &panda = scene.load_model("data/game_assets/characters/panda/", "Panda.dae");
+    Node &panda_collision = scene.load_model("data/game_assets/characters/panda/", "Panda_convex_hull.dae", false);
+    Node *cube = scene.node_find(&panda, "Panda");
+    Node *collision = scene.node_find(&panda_collision, "Panda_convex_hull");
+    if (cube) {
+      character = physics.character_controller_add(*cube, *collision);
+    } else {
+      std::cout << "Could not find node" << std::endl;
+    }
   }
+
 
   scene.scene_graph_print();
 

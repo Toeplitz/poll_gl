@@ -30,18 +30,14 @@ int main()
 
   window.keyboard_pressed_callback_set(keyboard_pressed_cb);
 
-  Node &crate =scene.load_model("data/normal_map/", "crate.dae", 0);
-  physics.collision_node_add(crate, PHYSICS_COLLISION_CONVEX_HULL, true, 1);
+  Node &crate =scene.load_model("data/normal_map/", "crate.dae");
+  physics.collision_node_add(crate, PHYSICS_COLLISION_TRIANGLE_MESH, true, 1);
 
-  Node &box = scene.load_model("data/normal_map/", "box_simple.dae", 0);
+  Node &box = scene.load_model("data/normal_map/", "box_simple.dae");
   physics.collision_node_add(box, PHYSICS_COLLISION_CONVEX_HULL, true, 1);
 
-  Node &floor = scene.load_model("data/normal_map/", "wood_floor.dae", 0);
+  Node &floor = scene.load_model("data/normal_map/", "wood_floor.dae");
   physics.collision_node_add(floor, PHYSICS_COLLISION_CONVEX_HULL, true, 0);
-
-  Node &bob = scene.load_model("data/bob/", "Bob_with_lamp.dae", 1);
-  t.translate(bob, glm::vec3(2.5, 2.5, 4));
-  t.scale(bob, glm::vec3(0.3, 0.3, 0.3));
 
   scene.scene_graph_print();
 

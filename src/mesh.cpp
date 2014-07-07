@@ -1,3 +1,4 @@
+#include "aabb.h"
 #include "mesh.h"
 #include "utils.h"
 #include <iostream>
@@ -21,6 +22,26 @@ Mesh::~Mesh(void)
 /**************************************************/
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
+
+void Mesh::aabb_generate_bounding() 
+{
+
+  glm::vec3 minimum(std::numeric_limits<float>::max());
+  glm::vec3 maximum(std::numeric_limits<float>::min());
+  
+  for (auto &v : positions) {
+    glm::vec3 p = glm::vec3(model * glm::vec4(v, 1.0));
+ //   std::cout << glm::to_string(p) << std::endl;
+    minimum = glm::min(minimum, p);
+    maximum = glm::max(maximum, p);
+  }
+
+  std::cout << "minimum: " << minimum.x << ", " << minimum.y << ", " << minimum.z << std::endl;
+  std::cout << "maximum: " << maximum.x << ", " << maximum.y << ", " << maximum.z << std::endl;
+
+  aabb.setBounds(minimum.x, minimum.y, minimum.z,
+                 maximum.x, maximum.y, maximum.z);
+}
 
 
 void Mesh::buffer_data_get(std::vector<glm::vec4> *normals_ptr,

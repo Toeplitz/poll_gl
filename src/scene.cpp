@@ -70,16 +70,19 @@ void Scene::animation_list_update_transforms(Node &node, Uint32 dt)
 
 
 
-Node &Scene::load_model(const std::string &prefix, const std::string &filename, bool lefthanded) 
+Node &Scene::load_model(const std::string &prefix, const std::string &filename, bool draw) 
 {
   Transform transform;
 
   Model model;
-  Node *root_ptr = model.load(assets, root, prefix, filename, lefthanded);
+  Node *root_ptr = model.load(assets, root, prefix, filename);
   state_update_recursive(*root_ptr);
 
   transform.calculateGlobalTransformTopDown(root);
-  upload_queue_add(*root_ptr);
+
+  if (draw) {
+    upload_queue_add(*root_ptr);
+  }
 
   return *root_ptr;
 }
@@ -210,14 +213,15 @@ Node *Scene::node_find_recursive(Node &node, const std::string &name)
   std::cout << "Looking for node '" << name << "', found '" << node.name << "'" << std::endl;
 
   if (!node.name.compare(name)) {
-      std::cout << "Success" << std::endl;
-      return &node;
+    std::cout << "Success" << std::endl;
+    return &node;
   }
 
   for (auto &child : node.children) {
     ret = node_find_recursive(*child, name);
+    if (ret)
+      return ret;
   }
-
 
   return ret;
 }

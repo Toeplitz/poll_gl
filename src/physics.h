@@ -103,8 +103,7 @@ class Physics
     btCollisionShape             *bullet_collision_shape_convex_hull_create(Node &node);
     btCollisionShape             *bullet_collision_shape_triangle_mesh_create(Node &node);
     void                          bullet_init();
-    Physics_CharacterController  *bullet_kinematic_character_controller_create(Node &node);
-    void                          bullet_kinematic_character_controller_create2(Node &node);
+    Physics_CharacterController  *bullet_kinematic_character_controller_create(Node &node, Node &collision_node);
     int                           bullet_step(const Uint32 dt);
     void                          bullet_term();
     void                          bullet_world_add(Physics_Node &p_node);
@@ -115,7 +114,7 @@ class Physics
     ~Physics();
 
 
-    Physics_CharacterController  *character_controller_add(Node &node);
+    Physics_CharacterController  *character_controller_add(Node &node, Node &collision_node);
     void                          character_controller_remove(Physics_CharacterController *char_cont);
     
     void                          collision_mesh_add(Node &node, const std::string &prefix, const std::string &filename);
