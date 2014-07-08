@@ -77,10 +77,10 @@ class Physics_Motion_State: public btMotionState
 };
 
 
+typedef std::vector<std::unique_ptr<Physics_CharacterController>>  Physics_CharacterController_List;
+
 class Physics 
 {
-  class btBroadphaseInterface *overlapping_pair_cache;
-
   private:
     btAxisSweep3                         *sweep_bp;
 
@@ -96,6 +96,7 @@ class Physics
     int                                   debug_toggle;
     int                                   pause_toggle;
     Assets                                collision_assets;
+    Physics_CharacterController_List      characters;
 
 
     btRigidBody                  *bullet_collision_rigidbody_create(Node &node, Physics_Collision_Shape shape, float m);
@@ -114,15 +115,16 @@ class Physics
     ~Physics();
 
 
-    Physics_CharacterController  *character_controller_add(Node &node, Node &collision_node);
-    void                          character_controller_remove(Physics_CharacterController *char_cont);
+    Physics_CharacterController             *character_controller_add(Node &node, Node &collision_node);
+    void                                     character_controller_remove(Physics_CharacterController *char_cont);
+    Physics_CharacterController_List const  &character_get_all() const;
     
-    void                          collision_mesh_add(Node &node, const std::string &prefix, const std::string &filename);
-    void                          collision_node_add(Node &node, const Physics_Collision_Shape shape, bool recursive, float mass);
-    void                          collision_node_callback_set(const Node &node, const std::function<void (int)> callback);
-    void                          debug();
-    void                          init();
-    void                          pause();
-    void                          step(const Uint32 dt);
+    void                                     collision_mesh_add(Node &node, const std::string &prefix, const std::string &filename);
+    void                                     collision_node_add(Node &node, const Physics_Collision_Shape shape, bool recursive, float mass);
+    void                                     collision_node_callback_set(const Node &node, const std::function<void (int)> callback);
+    void                                     debug();
+    void                                     init();
+    void                                     pause();
+    void                                     step(const Uint32 dt);
 };
 

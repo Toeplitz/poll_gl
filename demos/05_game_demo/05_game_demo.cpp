@@ -12,13 +12,13 @@ void keyboard_pressed_cb(SDL_Keysym *keysym)
 
   switch (keysym->sym) {
     case SDLK_SPACE:
-      physics.pause();
+      character->jump();
       break;
     case SDLK_d:
       physics.debug();
       break;
-    case SDLK_j:
-      character->jump();
+    case SDLK_f:
+      physics.pause();
       break;
     case SDLK_UP:
       character->setWalkDirection(btVector3(0.0, 0.0, step));
@@ -27,10 +27,10 @@ void keyboard_pressed_cb(SDL_Keysym *keysym)
       character->setWalkDirection(btVector3(0.0, 0.0, -step));
       break;
     case SDLK_RIGHT:
-      character->setWalkDirection(btVector3(step, 0.0, 0.0));
+      character->setWalkDirection(btVector3(-step, 0.0, 0.0));
       break;
     case SDLK_LEFT:
-      character->setWalkDirection(btVector3(-step, 0.0, 0.0));
+      character->setWalkDirection(btVector3(step, 0.0, 0.0));
       break;
     default:
       break;
@@ -53,7 +53,6 @@ void keyboard_released_cb(SDL_Keysym *keysym)
       break;
     case SDLK_LEFT:
       character->setWalkDirection(btVector3(0.0, 0.0, 0));
-      character->setTurnAngle(-90);
       break;
     default:
       break;

@@ -24,7 +24,7 @@ struct FilterCallback : public btOverlapFilterCallback {
 
 Physics::Physics():
   debug_toggle(false),
-  pause_toggle(false)
+  pause_toggle(true)
 {
   bullet_init();
 }
@@ -48,6 +48,12 @@ Physics_CharacterController *Physics::character_controller_add(Node &node, Node 
   }
 
   return bullet_kinematic_character_controller_create(node, collision_node);
+}
+
+
+Physics_CharacterController_List const  &Physics::character_get_all() const
+{
+  return characters;
 }
 
 
@@ -284,32 +290,29 @@ void Physics::bullet_init()
 
 Physics_CharacterController *Physics::bullet_kinematic_character_controller_create(Node &node, Node &collision_node)
 {
-  Mesh *mesh = node.mesh;
-
-  Physics_CharacterController *character = nullptr;
+  Physics_CharacterController *character_ptr;
   btCollisionShape *fallShape = bullet_collision_shape_convex_hull_create(collision_node);
 
   btTransform startTransform;
-  startTransform.setFromOpenGLMatrix((btScalar *) &mesh->model);
+  startTransform.setFromOpenGLMatrix((btScalar *) &node.mesh->model);
 
-  btPairCachingGhostObject* actorGhost = new btPairCachingGhostObject();
-  actorGhost->setUserPointer((void*)2);
+  btPairCachingGhostObject *actorGhost = new btPairCachingGhostObject();
+  actorGhost->setUserPointer((void*) &node);
   actorGhost->setWorldTransform(startTransform);
-
-
   actorGhost->setCollisionShape(fallShape);
   actorGhost->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
-
-  //character = new Physics_CharacterController(actorGhost, static_cast<btConvexShape*>(fallShape), 0.5f);
-
-  character = new btKinematicCharacterController (actorGhost, static_cast<btConvexShape*>(fallShape), 10.5f);
-
-  //------------------------------ add actor to the world ------------------------------
   world->addCollisionObject(actorGhost, E_Actor, E_Static | E_Riggid | E_Actor | E_Trigger);
-  world->addAction(character);
+
+  std::unique_ptr<Physics_CharacterController> character(new btKinematicCharacterController(actorGhost,
+        static_cast<btConvexShape *>(fallShape), 0.5f));
+  character_ptr = character.get();
+  //character = new Physics_CharacterController(actorGhost, static_cast<btConvexShape*>(fallShape), 0.5f);
+//  character = new btKinematicCharacterController (actorGhost, static_cast<btConvexShape*>(fallShape), 10.5f);
+  characters.push_back(std::move(character));
+  world->addAction(character_ptr);
  // character->set_node(node);
 
-  return character;
+  return character_ptr;
 }
 
 
@@ -320,8 +323,19 @@ int Physics::bullet_step(const Uint32 dt)
   int max_sub_steps = 1;
   float fixed_time_step = 1.f / 60.f;
 
+
   //std::cout << "timeStep <  maxSubSteps * fixedTimeStep: " << timestep << " < " << max_sub_steps * fixed_time_step << std::endl;
   if (pause_toggle) {
+    for (auto &character : characters) {
+      btPairCachingGhostObject *ghost = character->getGhostObject();
+      Node *node = (Node *) ghost->getUserPointer();
+
+      glm::mat4 m;
+      btTransform t = ghost->getWorldTransform();
+      t.getOpenGLMatrix((btScalar *) &m);
+      node->mesh->model = m;
+
+    }
     world->stepSimulation(timestep, max_sub_steps, fixed_time_step);
   }
 

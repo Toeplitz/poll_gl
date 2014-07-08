@@ -154,7 +154,7 @@ void Model::ai_mat_copy(const aiMatrix4x4 * from, glm::mat4 & to)
 void Model::bone_map_create(Assets & assets, BoneForAssimpBone & boneForAssimpBone)
 {
   size_t boneIndex = 0;
-  auto armature = std::unique_ptr < Armature > (new Armature());
+  auto armature = std::unique_ptr<Armature> (new Armature());
 
   for (size_t i = 0; i < scene->mNumMeshes; ++i) {
     const aiMesh *mesh = scene->mMeshes[i];

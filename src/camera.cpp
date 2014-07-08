@@ -130,6 +130,7 @@ void Camera::setWayPoints(std::vector < glm::vec3 > points,
 void Camera::updateViewProjection(void) 
 {
   viewProjection = perspective * view;
+  viewProjection = ortho * view;
 }  
 
 void Camera::createOrthoProjection(float width, float height) 
