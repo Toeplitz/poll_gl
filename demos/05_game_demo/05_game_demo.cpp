@@ -1,15 +1,25 @@
 #include "fragmic.h"
+#include "physics.h"
 #include <iostream>
 
 Fragmic fragmic("Demo 4", 1280, 720);
 Physics_CharacterController *character;
-const float step = 0.25;
+
+
+static const float step = 0.25;
+static const unsigned int MOVE_FORWARD = 1;
+static const unsigned int MOVE_BACKWARD = 2;
+static const unsigned int MOVE_LEFT = 4;
+static const unsigned int MOVE_RIGHT = 8;
+static const unsigned int STRAFE_LEFT = 16;
+static const unsigned int STRAFE_RIGHT = 24; 
+
+unsigned int direction = 0;
 
 
 void keyboard_pressed_cb(SDL_Keysym *keysym)
 {
   Physics &physics = fragmic.physics_get();
-  glm::vec3 v(0.0, 0.0, 0.0);
 
   switch (keysym->sym) {
     case SDLK_SPACE:
@@ -23,48 +33,55 @@ void keyboard_pressed_cb(SDL_Keysym *keysym)
       physics.pause();
       break;
     case SDLK_UP:
-      v.z = step;
+      direction |= PHYSICS_DIRECTION_FORWARD;
       break;
     case SDLK_DOWN:
-      v.z = -step;
-      break;
-//      character->setWalkDirection(btVector3(0.0, 0.0, -step));
+      direction |= PHYSICS_DIRECTION_BACK;
       break;
     case SDLK_RIGHT:
-  //    character->setWalkDirection(btVector3(-step, 0.0, 0.0));
+      direction |= PHYSICS_DIRECTION_RIGHT;
       break;
     case SDLK_LEFT:
-   //   character->setWalkDirection(btVector3(step, 0.0, 0.0));
+      direction |= PHYSICS_DIRECTION_LEFT;
       break;
     default:
       break;
   }
 
-  character->move(v);
+  character->move(static_cast<Physics_Direction>(direction));
 }
 
 void keyboard_released_cb(SDL_Keysym *keysym)
 {
-  glm::vec3 v(0.0, 0.0, 0.0);
 
   switch (keysym->sym) {
     case SDLK_UP:
-      v.z = -step;
+      direction &= ~PHYSICS_DIRECTION_FORWARD;
       break;
     case SDLK_DOWN:
-      v.z = step;
+      direction &= ~PHYSICS_DIRECTION_BACK;
       break;
     case SDLK_RIGHT:
+      direction &= ~PHYSICS_DIRECTION_RIGHT;
       break;
     case SDLK_LEFT:
-      break;
+      direction &= ~PHYSICS_DIRECTION_LEFT;
     default:
       break;
   }
 
-  character->move(v);
+  character->move(static_cast<Physics_Direction>(direction));
+}
+
+
+void physics_update()
+{
+ // Physics &physics = fragmic.physics_get();
 
 }
+
+
+
 int main() 
 {
   Transform t;
@@ -74,6 +91,7 @@ int main()
 
   window.keyboard_pressed_callback_set(keyboard_pressed_cb);
   window.keyboard_released_callback_set(keyboard_released_cb);
+  physics.custom_step_callback_set(physics_update);
 
   Node &room = scene.load_model("data/game_assets/", "Room.dae");
   physics.collision_node_add(room, PHYSICS_COLLISION_TRIANGLE_MESH, true, 0);
@@ -92,16 +110,15 @@ int main()
 
  //Node &cylinder = scene.load_model("data/game_assets/characters/placeholder/", "cylinder.dae", 0);
  
-  /*
-  Node &box_root = scene.load_model("data/game_assets/", "box.dae", 0);
+  Node &box_root = scene.load_model("data/game_assets/", "box.dae");
   Node *cube = scene.node_find(&box_root, "Cube");
   if (cube) {
-    character = physics.character_controller_add(*cube);
+    character = physics.character_controller_add(*cube, *cube);
   } else {
     std::cout << "Could not find node" << std::endl;
   }
 
-  */
+  /*
   {
     Node &panda = scene.load_model("data/game_assets/characters/panda/", "Panda.dae");
     Node &panda_collision = scene.load_model("data/game_assets/characters/panda/", "Panda_convex_hull.dae", false);
@@ -113,6 +130,7 @@ int main()
       std::cout << "Could not find node" << std::endl;
     }
   }
+  */
 
 
   scene.scene_graph_print();

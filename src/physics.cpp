@@ -139,6 +139,9 @@ void Physics::pause()
 
 void Physics::step(const Uint32 dt)
 {
+  if (custom_step_callback)
+    custom_step_callback();
+
   bullet_step(dt);
 }
 

@@ -8,14 +8,22 @@
 #include "node.h"
 
 
+enum Physics_Direction
+{
+  PHYSICS_DIRECTION_FORWARD  = 1 << 0,
+  PHYSICS_DIRECTION_BACK = 1 << 1,
+  PHYSICS_DIRECTION_LEFT = 1 << 2,
+  PHYSICS_DIRECTION_RIGHT = 1 << 3,
+  PHYSICS_DIRECTION_STRAFE_LEFT  = 1 << 4,
+  PHYSICS_DIRECTION_STRAFE_RIGHT = 1 << 5
+};
+
 
 class Physics_CharacterController: public btKinematicCharacterController
 {
   private:
-    glm::vec3 walking_dir;
-    float rotation;
-    float max_step;
     Node *node;
+    Physics_Direction direction;
 
   public:
     using btKinematicCharacterController::btKinematicCharacterController;
@@ -26,7 +34,12 @@ class Physics_CharacterController: public btKinematicCharacterController
 
     void defaults_set();
     void node_set(Node &node);
-    void move(glm::fvec3 &v);
+    void move(Physics_Direction dir);
+    void move_x(const float x);
+    void move_z(const float z);
+    void move_halt();
+    void rotate(const float x);
+
 
 };
 

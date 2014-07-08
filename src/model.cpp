@@ -42,7 +42,7 @@ Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const s
   importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_COLORS | aiComponent_LIGHTS | aiComponent_CAMERAS);
   scene = importer.ReadFile(full_name.c_str(), aiProcess_Triangulate |
       aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_FindDegenerates |  aiProcess_JoinIdenticalVertices |
-      aiProcess_FlipUVs | aiProcess_LimitBoneWeights | aiProcess_RemoveComponent);
+      aiProcess_FlipUVs | aiProcess_LimitBoneWeights | aiProcess_RemoveComponent );
 
   if (!scene) {
     std::cout << "Error parsing '" <<  full_name.c_str() << "': " << importer.GetErrorString() << std::endl;

@@ -25,15 +25,15 @@
 
 enum EPhysicsCollisionMask {
 
-   E_Static   = 1 << 0,
-   E_Riggid   = 1 << 1,
-   E_Actor      = 1 << 2,
-   E_Trigger   = 1 << 3,
-   
-   E_StaticGroup   = E_Riggid | E_Actor,
-   E_ActorGroup   = E_Static | E_Riggid | E_Actor | E_Trigger,
-   E_RiggidGroup   = E_Static | E_Riggid | E_Actor | E_Trigger ,
-   E_TriggerGroup   = E_Riggid | E_Actor
+  E_Static   = 1 << 0,
+  E_Riggid   = 1 << 1,
+  E_Actor      = 1 << 2,
+  E_Trigger   = 1 << 3,
+
+  E_StaticGroup   = E_Riggid | E_Actor,
+  E_ActorGroup   = E_Static | E_Riggid | E_Actor | E_Trigger,
+  E_RiggidGroup   = E_Static | E_Riggid | E_Actor | E_Trigger ,
+  E_TriggerGroup   = E_Riggid | E_Actor
 };
 
 enum Physics_Collision_Shape 
@@ -44,16 +44,6 @@ enum Physics_Collision_Shape
   PHYSICS_COLLISION_TRIANGLE_MESH
 };
 
-
-enum Physics_Direction
-{
-  PHYSICS_DIRECTION_FORWARD,
-  PHYSICS_DIRECTION_BACK,
-  PHYSICS_DIRECTION_STRAFE_LEFT,
-  PHYSICS_DIRECTION_STRAFE_RIGHT,
-  PHYSICS_DIRECTION_ROTATE_LEFT,
-  PHYSICS_DIRECTION_ROTATE_RIGHT
-};
 
 
 typedef struct 
@@ -110,15 +100,23 @@ class Physics
     void                          bullet_world_add(Physics_Node &p_node);
     void                          bullet_world_delete(Physics_Node &p_node);
 
+
+    std::function <void ()> custom_step_callback;
+
   public:
     Physics();
     ~Physics();
+
+    void custom_step_callback_set(const std::function<void()> callback)
+    {
+      custom_step_callback = callback;
+    }
 
 
     Physics_CharacterController             *character_controller_add(Node &node, Node &collision_node);
     void                                     character_controller_remove(Physics_CharacterController *char_cont);
     Physics_CharacterController_List const  &character_get_all() const;
-    
+
     void                                     collision_mesh_add(Node &node, const std::string &prefix, const std::string &filename);
     void                                     collision_node_add(Node &node, const Physics_Collision_Shape shape, bool recursive, float mass);
     void                                     collision_node_callback_set(const Node &node, const std::function<void (int)> callback);
