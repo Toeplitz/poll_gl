@@ -79,7 +79,10 @@ void	Physics_Debug_Drawer::drawTriangle(const btVector3 &a, const btVector3 &b, 
 
 void	Physics_Debug_Drawer::drawContactPoint(const btVector3 &pointOnB, const btVector3 &normalOnB, btScalar distance, int lifeTime, const btVector3& color)
 {
-  std::cout << "drawContactPoint" << std::endl;
+  btVector3 to = pointOnB + normalOnB * 1;//distance;
+  const btVector3 &from = pointOnB;
+
+  drawLine(from, to, color, color);
 }
 
 

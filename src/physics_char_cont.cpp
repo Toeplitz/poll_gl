@@ -1,4 +1,5 @@
 #include "physics_char_cont.h"
+#include <btBulletDynamicsCommon.h>
 #include <LinearMath/btIDebugDraw.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <BulletCollision/CollisionShapes/btMultiSphereShape.h>
@@ -8,6 +9,74 @@
 #include <LinearMath/btDefaultMotionState.h>
 
 #include <iostream>
+
+
+Physics_CharacterController::~Physics_CharacterController()
+{
+  std::cout << "Deleting character controller" << std::endl;
+}
+
+
+void Physics_CharacterController::bullet_character_step()
+{
+  btPairCachingGhostObject *ghost = getGhostObject();
+  glm::mat4 m;
+
+  if (!node)
+    return;
+
+  ghost->getWorldTransform().getOpenGLMatrix((btScalar *) &m);
+  node->mesh->model = m;
+}
+
+
+void  Physics_CharacterController::bullet_debug_draw_contacts(btDiscreteDynamicsWorld *world, btBroadphaseInterface *broadphase)
+{
+  btManifoldArray manifoldArray;
+  btBroadphasePairArray& pairArray = m_ghostObject->getOverlappingPairCache()->getOverlappingPairArray();
+  int numPairs = pairArray.size();
+
+  for (int i = 0; i < numPairs; i++) {
+    manifoldArray.clear();
+    const btBroadphasePair& pair = pairArray[i];
+
+    btBroadphasePair *collisionPair = broadphase->getOverlappingPairCache()->findPair(pair.m_pProxy0,pair.m_pProxy1);
+    if (!collisionPair)
+      continue;
+
+    if (collisionPair->m_algorithm)
+      collisionPair->m_algorithm->getAllContactManifolds(manifoldArray);
+
+    for (int j = 0; j < manifoldArray.size(); j++) {
+      btPersistentManifold *manifold = manifoldArray[j];
+      for (int p = 0; p < manifold->getNumContacts(); p++) {
+        const btManifoldPoint&pt = manifold->getContactPoint(p);
+        btVector3 color(0, 255, 0);
+        world->getDebugDrawer()->drawContactPoint(pt.getPositionWorldOnB(),pt.m_normalWorldOnB,pt.getDistance(),pt.getLifeTime(),color);
+      }
+    }
+  }
+
+}
+
+
+void Physics_CharacterController::node_set(Node &node)
+{
+  this->node = &node;
+}
+
+
+void Physics_CharacterController::move_back()
+{
+
+
+}
+
+
+void Physics_CharacterController::move_forward()
+{
+}
+
 
 #if 0
 

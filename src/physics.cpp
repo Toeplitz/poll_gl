@@ -266,13 +266,13 @@ void Physics::bullet_init()
 
   btVector3 worldMin(-1000,-1000,-1000);
   btVector3 worldMax(1000,1000,1000);
-  sweep_bp = new btAxisSweep3(worldMin, worldMax);
-  //broadphase = new btDbvtBroadphase();
-  sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
-//  broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(actorGhostPairCallback);
+  //sweep_bp = new btAxisSweep3(worldMin, worldMax);
+  broadphase = new btDbvtBroadphase();
+  //sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+  broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 
-  //world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collision_config);
-  world = new btDiscreteDynamicsWorld(dispatcher, sweep_bp, solver, collision_config);
+  world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collision_config);
+  //world = new btDiscreteDynamicsWorld(dispatcher, sweep_bp, solver, collision_config);
   world->getDispatchInfo().m_allowedCcdPenetration=0.0001f;
 
   //broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
@@ -303,14 +303,11 @@ Physics_CharacterController *Physics::bullet_kinematic_character_controller_crea
   actorGhost->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
   world->addCollisionObject(actorGhost, E_Actor, E_Static | E_Riggid | E_Actor | E_Trigger);
 
-  std::unique_ptr<Physics_CharacterController> character(new btKinematicCharacterController(actorGhost,
-        static_cast<btConvexShape *>(fallShape), 0.5f));
+  std::unique_ptr<Physics_CharacterController> character(new Physics_CharacterController(actorGhost,static_cast<btConvexShape *>(fallShape), 0.5f));
   character_ptr = character.get();
-  //character = new Physics_CharacterController(actorGhost, static_cast<btConvexShape*>(fallShape), 0.5f);
-//  character = new btKinematicCharacterController (actorGhost, static_cast<btConvexShape*>(fallShape), 10.5f);
+  character_ptr->node_set(node);
   characters.push_back(std::move(character));
   world->addAction(character_ptr);
- // character->set_node(node);
 
   return character_ptr;
 }
@@ -327,14 +324,7 @@ int Physics::bullet_step(const Uint32 dt)
   //std::cout << "timeStep <  maxSubSteps * fixedTimeStep: " << timestep << " < " << max_sub_steps * fixed_time_step << std::endl;
   if (pause_toggle) {
     for (auto &character : characters) {
-      btPairCachingGhostObject *ghost = character->getGhostObject();
-      Node *node = (Node *) ghost->getUserPointer();
-
-      glm::mat4 m;
-      btTransform t = ghost->getWorldTransform();
-      t.getOpenGLMatrix((btScalar *) &m);
-      node->mesh->model = m;
-
+      character->bullet_character_step();
     }
     world->stepSimulation(timestep, max_sub_steps, fixed_time_step);
   }
@@ -345,6 +335,9 @@ int Physics::bullet_step(const Uint32 dt)
     debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(0, 1, 0), btVector3(0, 1, 0), btVector3(0, 1, 0));
     debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(0, 0, 1), btVector3(0, 0, 1), btVector3(0, 0, 1));
     world->debugDrawWorld();
+    for (auto &character : characters) {
+        character->bullet_debug_draw_contacts(world, broadphase);
+    }
   }
 
   return debug_toggle;

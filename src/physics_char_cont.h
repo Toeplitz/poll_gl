@@ -1,5 +1,6 @@
 #pragma once
 
+#include <btBulletDynamicsCommon.h>
 #include <LinearMath/btVector3.h>
 #include <BulletDynamics/Character/btCharacterControllerInterface.h>
 #include <BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h>
@@ -13,7 +14,27 @@ class btCollisionDispatcher;
 class btPairCachingGhostObject;
 class btConvexShape;
 
-typedef btKinematicCharacterController Physics_CharacterController; 
+//typedef btKinematicCharacterController Physics_CharacterController; 
+
+class Physics_CharacterController: public btKinematicCharacterController
+{
+  private:
+    glm::vec3 walking_dir;
+    float rotation;
+    Node *node;
+
+  public:
+    using btKinematicCharacterController::btKinematicCharacterController;
+    ~Physics_CharacterController();
+
+    void bullet_character_step();
+    void bullet_debug_draw_contacts(btDiscreteDynamicsWorld *world, btBroadphaseInterface *broadphase);
+    void node_set(Node &node);
+
+    void move_forward();
+    void move_back();
+
+};
 
 #if 0
 //---------------------------------------------------------------------------------------

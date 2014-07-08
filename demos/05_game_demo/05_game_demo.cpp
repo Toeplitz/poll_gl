@@ -12,6 +12,7 @@ void keyboard_pressed_cb(SDL_Keysym *keysym)
 
   switch (keysym->sym) {
     case SDLK_SPACE:
+      //character->setVelocityForTimeInterval(btVector3(0, -10, 0), 4);
       character->jump();
       break;
     case SDLK_d:

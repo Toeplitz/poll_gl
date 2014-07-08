@@ -58,7 +58,7 @@ void Aabb::setBounds(float minX, float minY, float minZ,
                      float maxX, float maxY, float maxZ)
 {
   center = (glm::vec3(minX, minY, minZ) + glm::vec3(maxX, maxY, maxZ)) / 2.f;
-  size = glm::vec3(maxX - minX, maxY - minY, maxZ - minZ) / 2.0f;
+  size = glm::vec3(maxX - minX, maxY - minY, maxZ - minZ);
 
   transform = glm::translate(glm::mat4(1), center) * glm::scale(glm::mat4(1), size);
 
