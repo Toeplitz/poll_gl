@@ -305,6 +305,7 @@ Physics_CharacterController *Physics::bullet_kinematic_character_controller_crea
 
   std::unique_ptr<Physics_CharacterController> character(new Physics_CharacterController(actorGhost,static_cast<btConvexShape *>(fallShape), 0.5f));
   character_ptr = character.get();
+  character_ptr->defaults_set();
   character_ptr->node_set(node);
   characters.push_back(std::move(character));
   world->addAction(character_ptr);

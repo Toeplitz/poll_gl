@@ -2,13 +2,14 @@
 #include <iostream>
 
 Fragmic fragmic("Demo 4", 1280, 720);
-  Physics_CharacterController *character;
+Physics_CharacterController *character;
+const float step = 0.25;
 
 
 void keyboard_pressed_cb(SDL_Keysym *keysym)
 {
   Physics &physics = fragmic.physics_get();
-  const float step = 0.25;
+  glm::vec3 v(0.0, 0.0, 0.0);
 
   switch (keysym->sym) {
     case SDLK_SPACE:
@@ -22,42 +23,46 @@ void keyboard_pressed_cb(SDL_Keysym *keysym)
       physics.pause();
       break;
     case SDLK_UP:
-      character->setWalkDirection(btVector3(0.0, 0.0, step));
+      v.z = step;
       break;
     case SDLK_DOWN:
-      character->setWalkDirection(btVector3(0.0, 0.0, -step));
+      v.z = -step;
+      break;
+//      character->setWalkDirection(btVector3(0.0, 0.0, -step));
       break;
     case SDLK_RIGHT:
-      character->setWalkDirection(btVector3(-step, 0.0, 0.0));
+  //    character->setWalkDirection(btVector3(-step, 0.0, 0.0));
       break;
     case SDLK_LEFT:
-      character->setWalkDirection(btVector3(step, 0.0, 0.0));
+   //   character->setWalkDirection(btVector3(step, 0.0, 0.0));
       break;
     default:
       break;
   }
 
+  character->move(v);
 }
 
 void keyboard_released_cb(SDL_Keysym *keysym)
 {
+  glm::vec3 v(0.0, 0.0, 0.0);
 
   switch (keysym->sym) {
     case SDLK_UP:
-      character->setWalkDirection(btVector3(0.0, 0.0, 0));
+      v.z = -step;
       break;
     case SDLK_DOWN:
-      character->setWalkDirection(btVector3(0.0, 0.0, 0));
+      v.z = step;
       break;
     case SDLK_RIGHT:
-      character->setWalkDirection(btVector3(0.0, 0.0, 0));
       break;
     case SDLK_LEFT:
-      character->setWalkDirection(btVector3(0.0, 0.0, 0));
       break;
     default:
       break;
   }
+
+  character->move(v);
 
 }
 int main() 
@@ -104,8 +109,6 @@ int main()
     Node *collision = scene.node_find(&panda_collision, "Panda_convex_hull");
     if (cube) {
       character = physics.character_controller_add(*cube, *collision);
-      character->setJumpSpeed(20);
-      character->setFallSpeed(10000);
     } else {
       std::cout << "Could not find node" << std::endl;
     }
