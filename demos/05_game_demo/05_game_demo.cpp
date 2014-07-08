@@ -53,6 +53,7 @@ void keyboard_released_cb(SDL_Keysym *keysym)
       break;
     case SDLK_LEFT:
       character->setWalkDirection(btVector3(0.0, 0.0, 0));
+      character->setTurnAngle(-90);
       break;
     default:
       break;
@@ -103,6 +104,8 @@ int main()
     Node *collision = scene.node_find(&panda_collision, "Panda_convex_hull");
     if (cube) {
       character = physics.character_controller_add(*cube, *collision);
+      character->setJumpSpeed(20);
+      character->setFallSpeed(10000);
     } else {
       std::cout << "Could not find node" << std::endl;
     }

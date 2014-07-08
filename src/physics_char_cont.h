@@ -3,6 +3,7 @@
 #include <LinearMath/btVector3.h>
 #include <BulletDynamics/Character/btCharacterControllerInterface.h>
 #include <BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h>
+#include <BulletDynamics/Character/btKinematicCharacterController.h>
 #include "node.h"
 
 class btCollisionShape;
@@ -12,6 +13,9 @@ class btCollisionDispatcher;
 class btPairCachingGhostObject;
 class btConvexShape;
 
+typedef btKinematicCharacterController Physics_CharacterController; 
+
+#if 0
 //---------------------------------------------------------------------------------------
 ///btKinematicCharacterController is an object that supports a sliding motion in a world.
 ///It uses a ghost object and convex sweep test to test for upcoming collisions. This is combined with discrete collision detection to recover from penetrations.
@@ -152,3 +156,4 @@ class Physics_CharacterController: public btCharacterControllerInterface
     bool onGround () const                        { return m_verticalVelocity == 0.0 && m_verticalOffset == 0.0; }
 };
 
+#endif

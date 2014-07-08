@@ -262,6 +262,8 @@ void Physics::bullet_init()
   btVector3 worldMax(1000,1000,1000);
   sweep_bp = new btAxisSweep3(worldMin, worldMax);
   //broadphase = new btDbvtBroadphase();
+  sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+//  broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(actorGhostPairCallback);
 
   //world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collision_config);
   world = new btDiscreteDynamicsWorld(dispatcher, sweep_bp, solver, collision_config);
@@ -285,35 +287,27 @@ Physics_CharacterController *Physics::bullet_kinematic_character_controller_crea
   Mesh *mesh = node.mesh;
 
   Physics_CharacterController *character = nullptr;
-  //btCollisionShape* fallShape = new btBoxShape(btVector3(1.0, 1.0, 1.0));
-  //btCollisionShape* fallShape = new btBoxShape(btVector3(aabb.size.x, aabb.size.y, aabb.size.z));
-  print_matrix(std::cout, mesh->scale_matrix, 0);
   btCollisionShape *fallShape = bullet_collision_shape_convex_hull_create(collision_node);
-//  btCollisionShape* fallShape = new btCapsuleShape(3.0, 1.0);
-//  btCollisionShape* fallShape = new btCylinderShape(btVector3(1.0, 1.0, 1.0));
 
   btTransform startTransform;
-  startTransform.setFromOpenGLMatrix((btScalar *) &node.mesh->model);
+  startTransform.setFromOpenGLMatrix((btScalar *) &mesh->model);
 
   btPairCachingGhostObject* actorGhost = new btPairCachingGhostObject();
   actorGhost->setUserPointer((void*)2);
   actorGhost->setWorldTransform(startTransform);
 
-  btGhostPairCallback* actorGhostPairCallback = new btGhostPairCallback();
-  sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(actorGhostPairCallback);
-//  broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(actorGhostPairCallback);
 
   actorGhost->setCollisionShape(fallShape);
   actorGhost->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
 
-  character = new Physics_CharacterController(actorGhost, static_cast<btConvexShape*>(fallShape), 0.5f);
+  //character = new Physics_CharacterController(actorGhost, static_cast<btConvexShape*>(fallShape), 0.5f);
 
-  //btKinematicCharacterController *character = new btKinematicCharacterController (actorGhost, static_cast<btConvexShape*>(fallShape), 0.5f);
+  character = new btKinematicCharacterController (actorGhost, static_cast<btConvexShape*>(fallShape), 10.5f);
 
   //------------------------------ add actor to the world ------------------------------
   world->addCollisionObject(actorGhost, E_Actor, E_Static | E_Riggid | E_Actor | E_Trigger);
   world->addAction(character);
-  character->set_node(node);
+ // character->set_node(node);
 
   return character;
 }

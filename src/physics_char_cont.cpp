@@ -9,6 +9,8 @@
 
 #include <iostream>
 
+#if 0
+
 //---------------------------------------------------------------------------------------
 // static helper method
 
@@ -95,7 +97,6 @@ class btKinematicClosestNotMeConvexResultCallback : public btCollisionWorld::Clo
 };
 
 
-//---------------------------------------------------------------------------------------
 /*
  * Returns the reflection direction of a ray going 'direction' hitting a surface with normal 'normal'
  *
@@ -105,7 +106,8 @@ btVector3 Physics_CharacterController::computeReflectionDirection (const btVecto
 {
   return direction - (btScalar(2.0) * direction.dot(normal)) * normal;
 }
-//---------------------------------------------------------------------------------------
+
+
 /*
  * Returns the portion of 'direction' that is parallel to 'normal'
  */
@@ -114,7 +116,8 @@ btVector3 Physics_CharacterController::parallelComponent (const btVector3& direc
   btScalar magnitude = direction.dot(normal);
   return normal * magnitude;
 }
-//---------------------------------------------------------------------------------------
+
+
 /*
  * Returns the portion of 'direction' that is perpindicular to 'normal'
  */
@@ -122,8 +125,10 @@ btVector3 Physics_CharacterController::perpindicularComponent (const btVector3& 
 {
   return direction - parallelComponent(direction, normal);
 }
-//---------------------------------------------------------------------------------------
-Physics_CharacterController::Physics_CharacterController (btPairCachingGhostObject* ghostObject,btConvexShape* convexShape,btScalar stepHeight, int upAxis)
+
+
+Physics_CharacterController::Physics_CharacterController(btPairCachingGhostObject *ghostObject, btConvexShape *convexShape, 
+    btScalar stepHeight, int upAxis)
 {
   m_upAxis = upAxis;
   m_addedMargin = 0.02f;
@@ -144,11 +149,13 @@ Physics_CharacterController::Physics_CharacterController (btPairCachingGhostObje
   m_wasJumping = false;
   setMaxSlope(btRadians(45.0f));
 }
-//---------------------------------------------------------------------------------------
+
+
 Physics_CharacterController::~Physics_CharacterController ()
 {
 }
-//---------------------------------------------------------------------------------------
+
+
 bool Physics_CharacterController::recoverFromPenetration ( btCollisionWorld* collisionWorld)
 {
 
@@ -520,15 +527,13 @@ void Physics_CharacterController::playerStep (  btCollisionWorld* collisionWorld
   btTransform xform;
   xform = m_ghostObject->getWorldTransform ();
   glm::mat4 m;
-  //  glm::mat4 m = bullet_convert_glm(t);
   xform.getOpenGLMatrix((btScalar *) &m);
-  //print_matrix(std::cout, m, 0);
   node->mesh->model = m * glm::scale(glm::mat4(1.f), node->original_scaling);
 
   //   printf("walkDirection(%f,%f,%f)\n",walkDirection[0],walkDirection[1],walkDirection[2]);
   //   printf("walkSpeed=%f\n",walkSpeed);
 
-  stepUp (collisionWorld);
+  stepUp(collisionWorld);
   if (m_useWalkDirection) {
     stepForwardAndStrafe (collisionWorld, m_walkDirection);
   } else {
@@ -553,7 +558,8 @@ void Physics_CharacterController::playerStep (  btCollisionWorld* collisionWorld
   xform.setOrigin (m_currentPosition);
   m_ghostObject->setWorldTransform (xform);
 }
-//---------------------------------------------------------------------------------------
+
+
 void Physics_CharacterController::jump ()
 {
   if (!canJump()) {
@@ -576,17 +582,19 @@ void Physics_CharacterController::jump ()
   m_rigidBody->applyCentralImpulse (up * magnitude);
 #endif
 }
-//---------------------------------------------------------------------------------------
+
+
 btVector3* Physics_CharacterController::getUpAxisDirections()
 {
   static btVector3 sUpAxisDirection[3] = { btVector3(1.0f, 0.0f, 0.0f), btVector3(0.0f, 1.0f, 0.0f), btVector3(0.0f, 0.0f, 1.0f) };
 
   return sUpAxisDirection;
 }
-//---------------------------------------------------------------------------------------
-void Physics_CharacterController::debugDraw(btIDebugDraw* debugDrawer)
-{
-  //  debugDrawer;
-}
-//---------------------------------------------------------------------------------------
 
+
+void Physics_CharacterController::debugDraw(btIDebugDraw *debug_drawer)
+{
+  debug_drawer = nullptr;
+}
+
+#endif
