@@ -269,22 +269,22 @@ void Physics::bullet_init()
 
   btVector3 worldMin(-1000,-1000,-1000);
   btVector3 worldMax(1000,1000,1000);
-  //sweep_bp = new btAxisSweep3(worldMin, worldMax);
-  broadphase = new btDbvtBroadphase();
-  //sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
-  broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+  sweep_bp = new btAxisSweep3(worldMin, worldMax);
+  //broadphase = new btDbvtBroadphase();
+  sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+ // broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 
-  world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collision_config);
-  //world = new btDiscreteDynamicsWorld(dispatcher, sweep_bp, solver, collision_config);
+  //world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collision_config);
+  world = new btDiscreteDynamicsWorld(dispatcher, sweep_bp, solver, collision_config);
   world->getDispatchInfo().m_allowedCcdPenetration=0.0001f;
 
   //broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
-  //sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+  sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 
   // broadphase filter callback
   btOverlapFilterCallback * filterCallback = new FilterCallback();
   world->getPairCache()->setOverlapFilterCallback(filterCallback);
-
+//
   world->setGravity(btVector3(0, -10, 0));
   world->setDebugDrawer(&debug_drawer);
   debug_drawer.setDebugMode(btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawAabb); 
@@ -328,8 +328,6 @@ int Physics::bullet_step(const Uint32 dt)
 
   //std::cout << "timeStep <  maxSubSteps * fixedTimeStep: " << timestep << " < " << max_sub_steps * fixed_time_step << std::endl;
   if (pause_toggle) {
-    std::cout << "Starting simulation" << std::endl;
-
     for (auto &character : characters) {
       character->bullet_character_step();
     }
@@ -343,7 +341,7 @@ int Physics::bullet_step(const Uint32 dt)
     debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(0, 0, 1), btVector3(0, 0, 1), btVector3(0, 0, 1));
     world->debugDrawWorld();
     for (auto &character : characters) {
-        character->bullet_debug_draw_contacts(world, broadphase);
+        character->bullet_debug_draw_contacts(world, sweep_bp);
     }
   }
 

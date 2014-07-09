@@ -4,16 +4,7 @@
 
 Fragmic fragmic("Demo 4", 1280, 720);
 Physics_CharacterController *character;
-Physics_CharacterController *character2;
 
-
-static const float step = 0.25;
-static const unsigned int MOVE_FORWARD = 1;
-static const unsigned int MOVE_BACKWARD = 2;
-static const unsigned int MOVE_LEFT = 4;
-static const unsigned int MOVE_RIGHT = 8;
-static const unsigned int STRAFE_LEFT = 16;
-static const unsigned int STRAFE_RIGHT = 24; 
 
 unsigned int direction = 0;
 
@@ -26,7 +17,6 @@ void keyboard_pressed_cb(SDL_Keysym *keysym)
     case SDLK_SPACE:
       //character->setVelocityForTimeInterval(btVector3(0, -10, 0), 4);
       character->jump();
-      //character2->jump();
       break;
     case SDLK_d:
       physics.debug();
@@ -46,12 +36,17 @@ void keyboard_pressed_cb(SDL_Keysym *keysym)
     case SDLK_LEFT:
       direction |= PHYSICS_DIRECTION_LEFT;
       break;
+    case SDLK_1:
+      direction |= PHYSICS_DIRECTION_STRAFE_LEFT;
+      break;
+    case SDLK_2:
+      direction |= PHYSICS_DIRECTION_STRAFE_RIGHT;
+      break;
     default:
       break;
   }
 
   character->move(static_cast<Physics_Direction>(direction));
-  //character2->move(static_cast<Physics_Direction>(direction));
 }
 
 void keyboard_released_cb(SDL_Keysym *keysym)
@@ -69,12 +64,18 @@ void keyboard_released_cb(SDL_Keysym *keysym)
       break;
     case SDLK_LEFT:
       direction &= ~PHYSICS_DIRECTION_LEFT;
+      break;
+    case SDLK_1:
+      direction &= ~PHYSICS_DIRECTION_STRAFE_LEFT;
+      break;
+    case SDLK_2:
+      direction &= ~PHYSICS_DIRECTION_STRAFE_RIGHT;
+      break;
     default:
       break;
   }
 
   character->move(static_cast<Physics_Direction>(direction));
- // character2->move(static_cast<Physics_Direction>(direction));
 }
 
 
