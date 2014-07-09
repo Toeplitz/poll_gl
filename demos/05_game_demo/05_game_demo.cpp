@@ -23,37 +23,28 @@ void joystick_axis_motion_cb(SDL_JoyAxisEvent *ev)
   switch (ev->axis) {
     case 0: // x-axisa
       joystick_x = ev->value;
-      //std::cout << "Axis 0: " <<  ev->value << std::endl;
       break;
     case 1: // y-axis
       joystick_y = ev->value;
       joystick_y = joystick_y * (-1.f);
-      //std::cout << "Axis 1: " <<  ev->value << std::endl;
       break;
     default:
       break;
   }
 
   float quadrant_compensation = 0;
-
   if (joystick_x < 0)
     quadrant_compensation = M_PI;
   if (joystick_x > 0 && joystick_y < 0)
     quadrant_compensation = 2 * M_PI;
-
-
   float r = sqrtf(powf(joystick_x, 2) + powf(joystick_y, 2)) / 32768;
   float angle = atanf((float) joystick_y / (float) joystick_x) + quadrant_compensation;
 
   if (isnan(angle))
     return;
 
-  std::cout << "Joystick (x, y) = (" << joystick_x << ", " << joystick_y << "), r: " << r << " angle: " << angle << std::endl;
-
-  //if (fabs(delta_angle) > 0.1 && fabs(delta_angle) < 0.5 && r > 0.1) {
-   // std::cout << "Setting value" << std::endl;
-   //
-   if (r > 0.05) {
+  //std::cout << "Joystick (x, y) = (" << joystick_x << ", " << joystick_y << "), r: " << r << " angle: " << angle << std::endl;
+   if (r > 0.1) {
     character->joystick_angle_set(angle);
     character->move(static_cast<Physics_Direction>(direction));
    } else {
@@ -61,9 +52,7 @@ void joystick_axis_motion_cb(SDL_JoyAxisEvent *ev)
     direction &= ~PHYSICS_DIRECTION_FORWARD;
     character->joystick_angle_set(0.f);
     character->move(static_cast<Physics_Direction>(direction));
-
    }
-  //}
 
 }
 
