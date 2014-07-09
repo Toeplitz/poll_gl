@@ -14,6 +14,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "utils.h"
 
 
 Physics_CharacterController::~Physics_CharacterController()
@@ -29,25 +30,29 @@ void Physics_CharacterController::bullet_character_step()
 
   if (!node)
     return;
+  
+  ghost->getWorldTransform().getOpenGLMatrix((btScalar *) &m);
+  node->mesh->model = m;
 
-  std::cout << "Starting simulation" << std::endl;
   btTransform xform;
 
+  /*
   glm::vec3 new_x(node->mesh->model[0]);
   glm::vec3 new_y(node->mesh->model[1]);
   glm::vec3 new_z(node->mesh->model[2]);
   std::cout << glm::to_string(new_x) << std::endl;
   std::cout << glm::to_string(new_y) << std::endl;
   std::cout << glm::to_string(new_z) << std::endl;
+*/
 
   xform = ghost->getWorldTransform();
-  btVector3 forwardDir = xform.getBasis()[0];
+  btVector3 forwardDir = xform.getBasis()[2];
   btVector3 upDir = xform.getBasis()[1];
-  btVector3 strafeDir = xform.getBasis()[2];
+  btVector3 strafeDir = xform.getBasis()[0];
+  /*
   printf("x=%f,%f,%f\n",forwardDir[0],forwardDir[1],forwardDir[2]);
   printf("y=%f,%f,%f\n",upDir[0],upDir[1],upDir[2]);
   printf("z=%f,%f,%f\n",strafeDir[0],strafeDir[1],strafeDir[2]);
-  ghost->getWorldTransform().getOpenGLMatrix((btScalar *) &m);
 
   glm::vec3 new_x2(m[0]);
   glm::vec3 new_y2(m[1]);
@@ -55,13 +60,15 @@ void Physics_CharacterController::bullet_character_step()
   std::cout << glm::to_string(new_x2) << std::endl;
   std::cout << glm::to_string(new_y2) << std::endl;
   std::cout << glm::to_string(new_z2) << std::endl;
+*/
 
   forwardDir.normalize ();
   upDir.normalize ();
   strafeDir.normalize ();
 
-  btScalar walkVelocity = btScalar(1.1) * 4.0; // 4 km/h -> 1.1 m/s
-  //btScalar walkSpeed = walkVelocity * dt;
+  //btVector3 walkDirection = btVector3(0.0, 0.0, 0.0);
+  btScalar walkVelocity = btScalar(1.1) * 3.0; // 4 km/h -> 1.1 m/s
+ // btScalar walkSpeed = walkVelocity * dt;
   btScalar walkSpeed = walkVelocity * 0.16;
 
   if (direction & PHYSICS_DIRECTION_LEFT) {
@@ -70,7 +77,8 @@ void Physics_CharacterController::bullet_character_step()
     orn *= btMatrix3x3(btQuaternion(btVector3(0, 0, 1), 0.05));
     ghost->getWorldTransform().setBasis(orn);
 */
-    node->mesh->model = glm::rotate(node->mesh->model, 0.1f, glm::vec3(0, 0, 1));
+    std::cout << "Physics move left" << std::endl;
+    node->mesh->model = glm::rotate(node->mesh->model, 0.1f, glm::vec3(0, 1, 0));
   }
 
   if (direction & PHYSICS_DIRECTION_RIGHT) {
@@ -79,33 +87,33 @@ void Physics_CharacterController::bullet_character_step()
     orn *= btMatrix3x3(btQuaternion(btVector3(0, 0, 1), -0.05));
     ghost->getWorldTransform().setBasis(orn);
     */
-    node->mesh->model = glm::rotate(node->mesh->model, -0.1f, glm::vec3(0, 0, 1));
+    std::cout << "Physics move right" << std::endl;
+    node->mesh->model = glm::rotate(node->mesh->model, -0.1f, glm::vec3(0, 1, 0));
   }
 
-  ghost->getWorldTransform().setFromOpenGLMatrix((btScalar *) &node->mesh->model);
 
-  glm::vec3 forward = glm::vec3(node->mesh->model[1]);
-  glm::vec3 v(0.0f, 0.f, 0.f);
+  glm::vec3 forward = glm::vec3(node->mesh->model[2]);
+  print_matrix(std::cout, node->transform_global, 0);
+  std::cout << glm::to_string(node->original_position) << std::endl;
+  print_matrix(std::cout, node->mesh->model, 0);
+  glm::vec3 v(0.f, 0.f, 0.f);
 
   if (direction & PHYSICS_DIRECTION_FORWARD) {
-    node->mesh->model = glm::translate(node->mesh->model, forward);
-   // v += forward;
+    v += forward;
+ //   walkDirection += forwardDir;
   }
 
   if (direction & PHYSICS_DIRECTION_BACK) {
-    //v -= forward;
+    v -= forward;
+//    walkDirection -= forwardDir;
   }
+  glm::normalize(v);
 
 
- // btVector3 walkDirection(v.x, v.y, v.z);
- // setWalkDirection(walkDirection * walkSpeed);
-  //ghost->getWorldTransform().getOpenGLMatrix((btScalar *) &m);
-  //node->mesh->model = m;
-  /*
-  node->mesh->model[0] = glm::vec4(forwardDir[0], forwardDir[1], forwardDir[2], 0.0);
-  node->mesh->model[1] = glm::vec4(upDir[0], upDir[1], upDir[2], 0.0);
-  node->mesh->model[2] = glm::vec4(strafeDir[0], strafeDir[1], strafeDir[2], 0.0);
-  */
+  btVector3 walkDirection(v.x, v.y, v.z);
+  std::cout << walkDirection.x() << ", " << walkDirection.y() << ", " << walkDirection.z() << std::endl;
+  setWalkDirection(walkDirection * walkSpeed);
+  ghost->getWorldTransform().setFromOpenGLMatrix((btScalar *) &node->mesh->model);
 }
 
 
@@ -141,6 +149,7 @@ void  Physics_CharacterController::bullet_debug_draw_contacts(btDiscreteDynamics
 
 void Physics_CharacterController::defaults_set()
 {
+  direction = PHYSICS_DIRECTION_NONE;
 }
 
 

@@ -297,6 +297,7 @@ Physics_CharacterController *Physics::bullet_kinematic_character_controller_crea
   btCollisionShape *fallShape = bullet_collision_shape_convex_hull_create(collision_node);
 
   btTransform startTransform;
+  startTransform.setIdentity();
   startTransform.setFromOpenGLMatrix((btScalar *) &node.mesh->model);
 
   btPairCachingGhostObject *actorGhost = new btPairCachingGhostObject();
@@ -306,7 +307,7 @@ Physics_CharacterController *Physics::bullet_kinematic_character_controller_crea
   actorGhost->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
   world->addCollisionObject(actorGhost, E_Actor, E_Static | E_Riggid | E_Actor | E_Trigger);
 
-  std::unique_ptr<Physics_CharacterController> character(new Physics_CharacterController(actorGhost,static_cast<btConvexShape *>(fallShape), 0.5f));
+  std::unique_ptr<Physics_CharacterController> character(new Physics_CharacterController(actorGhost,static_cast<btConvexShape *>(fallShape), 2.0f));
   character_ptr = character.get();
   character_ptr->defaults_set();
   character_ptr->node_set(node);
@@ -327,6 +328,8 @@ int Physics::bullet_step(const Uint32 dt)
 
   //std::cout << "timeStep <  maxSubSteps * fixedTimeStep: " << timestep << " < " << max_sub_steps * fixed_time_step << std::endl;
   if (pause_toggle) {
+    std::cout << "Starting simulation" << std::endl;
+
     for (auto &character : characters) {
       character->bullet_character_step();
     }

@@ -4,6 +4,7 @@
 
 Fragmic fragmic("Demo 4", 1280, 720);
 Physics_CharacterController *character;
+Physics_CharacterController *character2;
 
 
 static const float step = 0.25;
@@ -25,6 +26,7 @@ void keyboard_pressed_cb(SDL_Keysym *keysym)
     case SDLK_SPACE:
       //character->setVelocityForTimeInterval(btVector3(0, -10, 0), 4);
       character->jump();
+      //character2->jump();
       break;
     case SDLK_d:
       physics.debug();
@@ -49,6 +51,7 @@ void keyboard_pressed_cb(SDL_Keysym *keysym)
   }
 
   character->move(static_cast<Physics_Direction>(direction));
+  //character2->move(static_cast<Physics_Direction>(direction));
 }
 
 void keyboard_released_cb(SDL_Keysym *keysym)
@@ -71,6 +74,7 @@ void keyboard_released_cb(SDL_Keysym *keysym)
   }
 
   character->move(static_cast<Physics_Direction>(direction));
+ // character2->move(static_cast<Physics_Direction>(direction));
 }
 
 
@@ -110,6 +114,8 @@ int main()
 
  //Node &cylinder = scene.load_model("data/game_assets/characters/placeholder/", "cylinder.dae", 0);
  
+
+  /*
   Node &box_root = scene.load_model("data/game_assets/", "box.dae");
   Node *cube = scene.node_find(&box_root, "Cube");
   if (cube) {
@@ -117,8 +123,8 @@ int main()
   } else {
     std::cout << "Could not find node" << std::endl;
   }
+  */
 
-  /*
   {
     Node &panda = scene.load_model("data/game_assets/characters/panda/", "Panda.dae");
     Node &panda_collision = scene.load_model("data/game_assets/characters/panda/", "Panda_convex_hull.dae", false);
@@ -130,7 +136,6 @@ int main()
       std::cout << "Could not find node" << std::endl;
     }
   }
-  */
 
 
   scene.scene_graph_print();
