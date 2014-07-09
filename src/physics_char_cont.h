@@ -16,7 +16,8 @@ enum Physics_Direction
   PHYSICS_DIRECTION_RIGHT = 1 << 3,
   PHYSICS_DIRECTION_STRAFE_LEFT  = 1 << 4,
   PHYSICS_DIRECTION_STRAFE_RIGHT = 1 << 5,
-  PHYSICS_DIRECTION_NONE= 1 <<6 
+  PHYSICS_DIRECTION_ROTATE = 1 << 6,
+  PHYSICS_DIRECTION_NONE= 1 << 7 
 };
 
 
@@ -24,11 +25,20 @@ class Physics_CharacterController: public btKinematicCharacterController
 {
   private:
     Node *node;
-    Physics_Direction direction;
+    unsigned int direction;
 
   public:
+    float angle_joystick;
+    float rotation_angle;
+
     using btKinematicCharacterController::btKinematicCharacterController;
     ~Physics_CharacterController();
+
+    void joystick_angle_set(const float angle)
+    {
+      this->angle_joystick = angle;
+      
+    }
 
     void bullet_character_step();
     void bullet_debug_draw_contacts(btDiscreteDynamicsWorld *world, btBroadphaseInterface *broadphase);

@@ -38,10 +38,17 @@ void Physics_CharacterController::bullet_character_step()
   btScalar walkSpeed = walkVelocity * 0.16;
 
   if (direction & PHYSICS_DIRECTION_LEFT) {
-    node->mesh->model = glm::rotate(node->mesh->model, 0.1f, glm::vec3(0, 1, 0));
+    node->mesh->model = glm::rotate(node->mesh->model, 0.03f, glm::vec3(0, 1, 0));
+    rotation_angle += 0.03f;
   }
   if (direction & PHYSICS_DIRECTION_RIGHT) {
-    node->mesh->model = glm::rotate(node->mesh->model, -0.1f, glm::vec3(0, 1, 0));
+    node->mesh->model = glm::rotate(node->mesh->model, -0.03f, glm::vec3(0, 1, 0));
+    rotation_angle -= 0.03f;
+  }
+
+  if (direction & PHYSICS_DIRECTION_ROTATE) {
+    node->mesh->model = glm::rotate(node->mesh->model, -rotation_angle + angle_joystick, glm::vec3(0, 1, 0));
+    rotation_angle = angle_joystick;
   }
 
   glm::vec3 forward = glm::vec3(node->mesh->model[2]);
@@ -101,6 +108,7 @@ void  Physics_CharacterController::bullet_debug_draw_contacts(btDiscreteDynamics
 void Physics_CharacterController::defaults_set()
 {
   direction = PHYSICS_DIRECTION_NONE;
+  rotation_angle = (float) M_PI / 2.f;
   setJumpSpeed(15);
 }
 

@@ -20,6 +20,7 @@ Window::Window(const int &width, const int &height):
   polygon_view_toggle(false),
   glcontext()
 {
+  this->gamepad = nullptr;
   this->width = width;
   this->height = height;
 }
@@ -37,7 +38,7 @@ Window::~Window()
 
 bool Window::init(const std::string &title)
 {
-  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0) {
     std::cout << "Window error: failed to initialize SDL: " << SDL_GetError() << std::endl;
     return false;
   }
@@ -54,8 +55,18 @@ bool Window::init(const std::string &title)
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
   window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED,
-                     SDL_WINDOWPOS_CENTERED, width, height,
-                     SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+      SDL_WINDOWPOS_CENTERED, width, height,
+      SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+
+  if( SDL_NumJoysticks() < 1 ) {
+    printf( "Warning: No joysticks connected!\n" );
+  } else {
+    gamepad = SDL_JoystickOpen(0);
+    if(gamepad == NULL)
+    {
+      printf( "Warning: Unable to open game controller! SDL Error: %s\n", SDL_GetError() );
+    }
+  }
 
   gl_sdl_context = SDL_GL_CreateContext(window);
 
@@ -95,9 +106,13 @@ void Window::swap()
 
 void Window::term()
 {
+
   std::cout << "Deleting GL context" << std::endl;
   SDL_GL_DeleteContext(gl_sdl_context);
   std::cout << "Deleting uiwindow (SDL)" << std::endl;
+  if (gamepad) {
+    SDL_JoystickClose(gamepad);
+  }
   SDL_DestroyWindow(window);
   SDL_Quit();
 }
@@ -127,6 +142,14 @@ bool Window::poll_events(Camera &camera)
       case SDL_MOUSEMOTION:
         mouse_motion(&event.motion, camera);
         break;
+      case SDL_JOYAXISMOTION:
+        joystick_axis_motion(&event.jaxis);
+        break;
+      case SDL_JOYBUTTONDOWN:
+        joystick_button_pressed(&event.jbutton);
+        break;
+      case SDL_JOYBUTTONUP:
+        joystick_button_released(&event.jbutton);
         break;
       default:
         break;
@@ -163,10 +186,37 @@ void Window::check_error()
 }
 
 
+void Window::joystick_axis_motion(SDL_JoyAxisEvent *ev)
+{
+  if (custom_joystick_axis_motion_callback)
+    custom_joystick_axis_motion_callback(ev);
+
+
+}
+
+
+void Window::joystick_button_pressed(SDL_JoyButtonEvent *ev)
+{
+  if (custom_joystick_pressed_callback)
+    custom_joystick_pressed_callback(ev);
+
+}
+
+
+void Window::joystick_button_released(SDL_JoyButtonEvent *ev)
+{
+  if (custom_joystick_released_callback)
+    custom_joystick_released_callback(ev);
+
+}
+
+
 bool Window::keyboard_callback_pressed(SDL_Keysym *keysym, Camera &camera)
 {
   if (custom_keyboard_pressed_callback)
     custom_keyboard_pressed_callback(keysym);
+
+  std::cout << "Pressed event" << std::endl;
 
   switch (keysym->sym) {
     case SDLK_ESCAPE:
@@ -273,3 +323,5 @@ void Window::mouse_motion(SDL_MouseMotionEvent *ev, Camera &camera)
   last_x = ev->x;
   last_y = ev->y;
 }
+
+

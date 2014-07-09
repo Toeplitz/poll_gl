@@ -2,11 +2,90 @@
 #include "physics.h"
 #include <iostream>
 
+//Analog joystick dead zone
+const int JOYSTICK_DEAD_ZONE = 8000;
+
 Fragmic fragmic("Demo 4", 1280, 720);
 Physics_CharacterController *character;
 
 
 unsigned int direction = 0;
+
+static float angle_last = 0;
+int joystick_x = 0;
+int joystick_y = 0;
+
+void joystick_axis_motion_cb(SDL_JoyAxisEvent *ev)
+{
+  direction |= PHYSICS_DIRECTION_ROTATE;
+  direction |= PHYSICS_DIRECTION_FORWARD;
+
+  switch (ev->axis) {
+    case 0: // x-axisa
+      joystick_x = ev->value;
+      //std::cout << "Axis 0: " <<  ev->value << std::endl;
+      break;
+    case 1: // y-axis
+      joystick_y = ev->value;
+      joystick_y = joystick_y * (-1.f);
+      //std::cout << "Axis 1: " <<  ev->value << std::endl;
+      break;
+    default:
+      break;
+  }
+
+  float quadrant_compensation = 0;
+
+  if (joystick_x < 0)
+    quadrant_compensation = M_PI;
+  if (joystick_x > 0 && joystick_y < 0)
+    quadrant_compensation = 2 * M_PI;
+
+
+  float r = sqrtf(powf(joystick_x, 2) + powf(joystick_y, 2)) / 32768;
+  float angle = atanf((float) joystick_y / (float) joystick_x) + quadrant_compensation;
+
+  if (isnan(angle))
+    return;
+
+  std::cout << "Joystick (x, y) = (" << joystick_x << ", " << joystick_y << "), r: " << r << " angle: " << angle << std::endl;
+
+  //if (fabs(delta_angle) > 0.1 && fabs(delta_angle) < 0.5 && r > 0.1) {
+   // std::cout << "Setting value" << std::endl;
+   //
+   if (r > 0.05) {
+    character->joystick_angle_set(angle);
+    character->move(static_cast<Physics_Direction>(direction));
+   } else {
+    direction &= ~PHYSICS_DIRECTION_ROTATE;
+    direction &= ~PHYSICS_DIRECTION_FORWARD;
+    character->joystick_angle_set(0.f);
+    character->move(static_cast<Physics_Direction>(direction));
+
+   }
+  //}
+
+}
+
+
+void joystick_button_pressed_cb(SDL_JoyButtonEvent *ev)
+{
+  std::cout << "Button: " << ev->button << std::endl;
+
+  switch (ev->button) {
+    case 1: // B button
+      character->jump();
+      break;
+    default:
+      break;
+  }
+
+}
+
+
+void joystick_button_released_cb(SDL_JoyButtonEvent *ev)
+{
+}
 
 
 void keyboard_pressed_cb(SDL_Keysym *keysym)
@@ -94,6 +173,9 @@ int main()
   Window &window = fragmic.window_get();
   Physics &physics = fragmic.physics_get();
 
+  window.joystick_axis_motion_callback_set(joystick_axis_motion_cb);
+  window.joystick_pressed_callback_set(joystick_button_pressed_cb);
+  window.joystick_released_callback_set(joystick_button_released_cb);
   window.keyboard_pressed_callback_set(keyboard_pressed_cb);
   window.keyboard_released_callback_set(keyboard_released_cb);
   physics.custom_step_callback_set(physics_update);
