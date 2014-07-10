@@ -1,5 +1,4 @@
-#ifndef ANIMATED_H
-#define ANIMATED_H
+#pragma once
 
 #include <vector>
 #include <memory>
@@ -13,24 +12,25 @@ struct Animated {
   double minAnimTime;
   int nextKeyFrame;
   int prevKeyFrame;
-  std::vector < std::unique_ptr < KeyFrame >> keyFrames;
+  std::vector<std::unique_ptr<KeyFrame>> keyFrames;
   double animationTime;
 
   Animated();
+  ~Animated();
 
-  void addKeyFrame(glm::vec3 s, glm::quat q, glm::vec3 t, double time);
-  void deleteKeyFrames();
-  int getPrevKeyFrame(void);
-  int getNextKeyFrame(void);
-  glm::mat4 interpolateTransforms(double factor);
-  void rewindAnimation(void);
+  void       keyframe_add(glm::vec3 s, glm::quat q, glm::vec3 t, double time);
+  void       keyframe_delete_all();
+  void       keyframe_incement(int increment);
+  glm::mat4  keyframe_interpolate(double factor);
+  int        keyframe_prev_get();
+  double     keyframe_prev_time_get();
+  int        keyframe_next_get();
+  double     keyframe_next_time_get();
+  void       rewind();
+  void       step_time(double dt);
+
   bool stepAnimation(double time);
-  void incrementKeyFrame(int incr);
   double getStepFactor(double time);
   unsigned int getNumKeyFrames(void);
-  double getNextKeyFrameTime(void);
-  double getPrevKeyFrameTime(void);
-  void stepTime(double dt);
 };
 
-#endif

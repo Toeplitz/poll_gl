@@ -53,7 +53,7 @@ void Scene::animation_list_update_transforms(Node &node, Uint32 dt)
   Node *parent = node.parent;
 
   if (node.getNumKeyFrames() != 0) {
-    node.stepTime((double) dt / 1000.0);
+    node.step_time((double) dt / 1000.0);
     node.local_transform_current_set(node.localInterpolatedMatrix);
   }
 

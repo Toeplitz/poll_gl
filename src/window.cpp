@@ -58,13 +58,12 @@ bool Window::init(const std::string &title)
       SDL_WINDOWPOS_CENTERED, width, height,
       SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 
-  if( SDL_NumJoysticks() < 1 ) {
-    printf( "Warning: No joysticks connected!\n" );
+  if(SDL_NumJoysticks() < 1) {
+    std::cout << "Warning: No joysticks/gamepads connected!" << std::endl;
   } else {
     gamepad = SDL_JoystickOpen(0);
-    if(gamepad == NULL)
-    {
-      printf( "Warning: Unable to open game controller! SDL Error: %s\n", SDL_GetError() );
+    if(gamepad == NULL) {
+      std::cout << "Warning: Unable to open game controller! SDL Error: " << SDL_GetError() << std::endl;
     }
   }
 
@@ -207,7 +206,6 @@ void Window::joystick_button_released(SDL_JoyButtonEvent *ev)
 {
   if (custom_joystick_released_callback)
     custom_joystick_released_callback(ev);
-
 }
 
 
@@ -215,8 +213,6 @@ bool Window::keyboard_callback_pressed(SDL_Keysym *keysym, Camera &camera)
 {
   if (custom_keyboard_pressed_callback)
     custom_keyboard_pressed_callback(keysym);
-
-  std::cout << "Pressed event" << std::endl;
 
   switch (keysym->sym) {
     case SDLK_ESCAPE:

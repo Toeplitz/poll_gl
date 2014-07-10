@@ -543,7 +543,7 @@ void Model::key_frames_parse(void)
           std::cout << "Fragmic WARNING: different animation times exist!" << std::endl;
         }
 
-        node.addKeyFrame(s, q, t, animNode->mPositionKeys[npk].mTime);
+        node.keyframe_add(s, q, t, animNode->mPositionKeys[npk].mTime);
       }
     }
   }

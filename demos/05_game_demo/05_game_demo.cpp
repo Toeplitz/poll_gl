@@ -15,6 +15,7 @@ static float angle_last = 0;
 int joystick_x = 0;
 int joystick_y = 0;
 
+
 void joystick_axis_motion_cb(SDL_JoyAxisEvent *ev)
 {
   direction |= PHYSICS_DIRECTION_ROTATE;

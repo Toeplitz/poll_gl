@@ -24,8 +24,8 @@ class CameraPan:public Animated {
     glm::vec3 getInterpolatedTranslation(double factor) 
     {
       glm::vec3 tInterp;
-      int prevFrame = this->getPrevKeyFrame();
-      int nextFrame = this->getNextKeyFrame();
+      int prevFrame = this->keyframe_prev_get();
+      int nextFrame = this->keyframe_next_get();
       if (keyFrames[prevFrame]->t != keyFrames[nextFrame]->t) {
         tInterp =
           glm::mix(keyFrames[prevFrame]->t, keyFrames[nextFrame]->t,

@@ -90,7 +90,7 @@ void Camera::processWayPoints(double dt)
   computeDirections();
   if (!cameraPan.stepTime(dt)) {
     cameraPan.toggle = false;
-    cameraPan.deleteKeyFrames();
+    cameraPan.keyframe_delete_all();
     return;
   }
   view = glm::lookAt(cameraPan.position, target, up);
@@ -123,7 +123,7 @@ void Camera::setWayPoints(std::vector < glm::vec3 > points,
   }
 
   for (size_t i = 0; i < points.size(); i++) {
-    cameraPan.addKeyFrame(s, q, points[i], (double) time[i] / 1000.0);
+    cameraPan.keyframe_add(s, q, points[i], (double) time[i] / 1000.0);
   } 
 }  
   
