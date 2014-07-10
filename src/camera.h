@@ -26,12 +26,12 @@ class CameraPan:public Animated {
       glm::vec3 tInterp;
       int prevFrame = this->keyframe_prev_get();
       int nextFrame = this->keyframe_next_get();
-      if (keyFrames[prevFrame]->t != keyFrames[nextFrame]->t) {
+      if (keyframes[prevFrame]->t != keyframes[nextFrame]->t) {
         tInterp =
-          glm::mix(keyFrames[prevFrame]->t, keyFrames[nextFrame]->t,
+          glm::mix(keyframes[prevFrame]->t, keyframes[nextFrame]->t,
               (float) factor);
       } else {
-        tInterp = keyFrames[prevFrame]->t;
+        tInterp = keyframes[prevFrame]->t;
       }
       return tInterp;
     }
@@ -39,15 +39,15 @@ class CameraPan:public Animated {
     bool stepTime(double dt) 
     {
       
-      if (keyFrames.size() == 0)
+      if (keyframes.size() == 0)
         return false;
       
-      animationTime = animationTime + dt;
-      if (!stepAnimation(animationTime)) {
+      animation_time = animation_time + dt;
+      if (!step(animation_time)) {
         return false;
       }
 
-      double factor = getStepFactor(animationTime);
+      double factor = step_factor_get(animation_time);
       position = getInterpolatedTranslation(factor);
       return true;
     }

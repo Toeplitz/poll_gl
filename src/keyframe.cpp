@@ -5,7 +5,7 @@
 /***************** CONSTRUCTORS *******************/
 /**************************************************/
 
-KeyFrame::KeyFrame(glm::vec3 _s, glm::quat _q, glm::vec3 _t, double _time)
+Keyframe::Keyframe(glm::vec3 _s, glm::quat _q, glm::vec3 _t, double _time)
   : time(_time),
   s(_s),
   q(_q), 
@@ -14,7 +14,7 @@ KeyFrame::KeyFrame(glm::vec3 _s, glm::quat _q, glm::vec3 _t, double _time)
 }
 
 
-KeyFrame::~KeyFrame() 
+Keyframe::~Keyframe() 
 {
 
 }

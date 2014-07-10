@@ -18,11 +18,11 @@ using glm::mat4;
 
 
 Animated::Animated()
-  : maxAnimTime(0),
-  minAnimTime(0),
-  nextKeyFrame(1),
-  prevKeyFrame(0),
-  animationTime(0)
+  : animation_time_max(0),
+  animation_time_min(0),
+  keyframe_next(1),
+  keyframe_prev(0),
+  animation_time(0)
 {
 }
 
@@ -39,22 +39,22 @@ Animated::~Animated()
 
 void Animated::keyframe_add(vec3 s, quat q, vec3 t, double time)
 {
-  std::unique_ptr <KeyFrame> kf_ptr(new KeyFrame(s, q, t, time));
-  KeyFrame & kf = *kf_ptr;
-  keyFrames.push_back(std::move(kf_ptr));
+  std::unique_ptr <Keyframe> kf_ptr(new Keyframe(s, q, t, time));
+  Keyframe &kf = *kf_ptr;
+  keyframes.push_back(std::move(kf_ptr));
 
-  if (maxAnimTime < kf.time) {
-    maxAnimTime = kf.time;
+  if (animation_time_max < kf.time) {
+    animation_time_max = kf.time;
   }
-  if (minAnimTime > kf.time) {
-    minAnimTime = kf.time;
+  if (animation_time_min > kf.time) {
+    animation_time_min = kf.time;
   }
 }
 
 
 void Animated::keyframe_delete_all()
 {
-  keyFrames.clear();
+  keyframes.clear();
 }
 
 
@@ -67,32 +67,32 @@ glm::mat4 Animated::keyframe_interpolate(double factor)
   int nextFrame = keyframe_next_get();
 
   /* Scaling */
-  if (keyFrames[prevFrame]->s != keyFrames[nextFrame]->s) {
-    sInterp = mix(keyFrames[prevFrame]->s,
-        keyFrames[nextFrame]->s, (float) factor);
+  if (keyframes[prevFrame]->s != keyframes[nextFrame]->s) {
+    sInterp = mix(keyframes[prevFrame]->s,
+        keyframes[nextFrame]->s, (float) factor);
   } else {
-    sInterp = keyFrames[prevFrame]->s;
+    sInterp = keyframes[prevFrame]->s;
   }
 
   /* Translation */
-  if (keyFrames[prevFrame]->t != keyFrames[nextFrame]->t) {
-    tInterp = mix(keyFrames[prevFrame]->t,
-        keyFrames[nextFrame]->t, (float) factor);
+  if (keyframes[prevFrame]->t != keyframes[nextFrame]->t) {
+    tInterp = mix(keyframes[prevFrame]->t,
+        keyframes[nextFrame]->t, (float) factor);
   } else {
-    tInterp = keyFrames[prevFrame]->t;
+    tInterp = keyframes[prevFrame]->t;
   }
 
   /* Rotation */
-  if (keyFrames[prevFrame]->q != keyFrames[nextFrame]->q) {
-    qInterp = mixQuat(keyFrames[prevFrame]->q,
-        keyFrames[nextFrame]->q, (float) factor);
+  if (keyframes[prevFrame]->q != keyframes[nextFrame]->q) {
+    qInterp = mixQuat(keyframes[prevFrame]->q,
+        keyframes[nextFrame]->q, (float) factor);
   } else {
-    qInterp = keyFrames[prevFrame]->q;
+    qInterp = keyframes[prevFrame]->q;
   }
 
   mat4 m = glm::translate(glm::mat4(1), tInterp) *
     glm::mat4_cast(qInterp) * glm::scale(glm::mat4(1), sInterp);
-  localInterpolatedMatrix = m;
+  transform_local_interpolated = m;
 
   return m;
 }
@@ -100,42 +100,42 @@ glm::mat4 Animated::keyframe_interpolate(double factor)
 
 double Animated::keyframe_prev_time_get(void)
 {
-  if (nextKeyFrame != 0)
-    return this->keyFrames[this->prevKeyFrame]->time;
+  if (keyframe_next != 0)
+    return this->keyframes[this->keyframe_prev]->time;
 
-  return this->minAnimTime;
+  return this->animation_time_min;
 }
 
 
 double Animated::keyframe_next_time_get(void)
 {
-  assert(keyFrames.size() > 0);
+  assert(keyframes.size() > 0);
 
-  if (keyFrames[this->nextKeyFrame])
-    return keyFrames[this->nextKeyFrame]->time;
+  if (keyframes[this->keyframe_next])
+    return keyframes[this->keyframe_next]->time;
 
-  return this->maxAnimTime;
+  return this->animation_time_max;
 }
 
 
 int Animated::keyframe_next_get(void)
 {
-  return this->nextKeyFrame;
+  return keyframe_next;
 }
 
 
 int Animated::keyframe_prev_get(void)
 {
-  return this->prevKeyFrame;
+  return keyframe_prev;
 }
 
 
-unsigned int Animated::getNumKeyFrames(void)
+unsigned int Animated::keyframe_get_total_num(void)
 {
-  return keyFrames.size();
+  return keyframes.size();
 }
 
-double Animated::getStepFactor(double time)
+double Animated::step_factor_get(double time)
 {
   double factor = 1.0;
 
@@ -152,14 +152,14 @@ double Animated::getStepFactor(double time)
 
 void Animated::keyframe_incement(int increment)
 {
-  prevKeyFrame = nextKeyFrame;
-  nextKeyFrame = nextKeyFrame + increment;
+  keyframe_prev = keyframe_next;
+  keyframe_next = keyframe_next + increment;
 }
 
 
-bool Animated::stepAnimation(double time)
+bool Animated::step(double time)
 {
-  if (time >= maxAnimTime) {
+  if (time >= animation_time_max) {
     rewind();
     return false;
   }
@@ -177,19 +177,19 @@ void Animated::step_time(double dt)
   if (dt <= 0)
     return;
 
-  if (keyFrames.size() == 0)
+  if (keyframes.size() == 0)
     return;
 
-  animationTime = animationTime + dt;
-  stepAnimation(animationTime);
-  double factor = getStepFactor(animationTime);
+  animation_time = animation_time + dt;
+  step(animation_time);
+  double factor = step_factor_get(animation_time);
   keyframe_interpolate(factor);
 
 }
 
 void Animated::rewind(void)
 {
-  nextKeyFrame = 1;
-  prevKeyFrame = 0;
-  animationTime = 0;
+  keyframe_next = 1;
+  keyframe_prev = 0;
+  animation_time = 0;
 }

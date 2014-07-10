@@ -11,7 +11,6 @@ Physics_CharacterController *character;
 
 unsigned int direction = 0;
 
-static float angle_last = 0;
 int joystick_x = 0;
 int joystick_y = 0;
 
