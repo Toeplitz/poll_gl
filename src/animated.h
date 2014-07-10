@@ -27,6 +27,16 @@ struct Animated
     int keyframe_next;
     int keyframe_prev;
 
+    double        step_factor_get(double time);
+    void          keyframe_delete_all();
+    void          keyframe_incement(int increment);
+    glm::mat4     keyframe_interpolate(double factor);
+    int           keyframe_prev_get();
+    double        keyframe_prev_time_get();
+    int           keyframe_next_get();
+    double        keyframe_next_time_get();
+    void          rewind();
+
 
   public:
     double animation_time;
@@ -36,21 +46,11 @@ struct Animated
     Animated();
     ~Animated();
 
-    void          add(const std::string &name, const unsigned int keyframe_first, const unsigned int keyframe_last);
-    void          play(const std::string &name);
-
-
     void          keyframe_add(glm::vec3 s, glm::quat q, glm::vec3 t, double time);
-    void          keyframe_delete_all();
-    unsigned int  keyframe_get_total_num();
-    void          keyframe_incement(int increment);
-    glm::mat4     keyframe_interpolate(double factor);
-    int           keyframe_prev_get();
-    double        keyframe_prev_time_get();
-    int           keyframe_next_get();
-    double        keyframe_next_time_get();
-    void          rewind();
-    double        step_factor_get(double time);
+    void          keyframe_print_all();
+    void          keyframe_range_activate(const std::string &name);
+    void          keyframe_range_set(const std::string &name, const unsigned int keyframe_first, const unsigned int keyframe_last);
+    unsigned int  keyframe_total_num_get();
     void          step_time(double dt);
 };
 

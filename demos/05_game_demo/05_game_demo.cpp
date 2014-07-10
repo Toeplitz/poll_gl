@@ -194,12 +194,16 @@ int main()
   */
 
   {
-    Node &panda = scene.load_model("data/game_assets/characters/panda/", "Panda.dae");
-    Node &panda_collision = scene.load_model("data/game_assets/characters/panda/", "Panda_convex_hull.dae", false);
-    Node *cube = scene.node_find(&panda, "Panda");
-    Node *collision = scene.node_find(&panda_collision, "Panda_convex_hull");
-    if (cube) {
-      character = physics.character_controller_add(*cube, *collision);
+    Node &panda_root = scene.load_model("data/game_assets/characters/panda/", "Panda.dae");
+    Node &panda_collision_root = scene.load_model("data/game_assets/characters/panda/", "Panda_convex_hull.dae", false);
+    Node *panda = scene.node_find(&panda_root, "Panda");
+    Node *panda_collision = scene.node_find(&panda_collision_root, "Panda_convex_hull");
+    if (panda && panda_collision) {
+      character = physics.character_controller_add(*panda, *panda_collision);
+      panda->keyframe_print_all();
+      panda->keyframe_range_set("Idle", 1, 12);
+      panda->keyframe_range_set("Walk", 16, 35);
+      panda->keyframe_range_activate("Idle");
     } else {
       std::cout << "Could not find node" << std::endl;
     }

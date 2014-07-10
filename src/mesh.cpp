@@ -36,8 +36,8 @@ void Mesh::aabb_generate_bounding()
     maximum = glm::max(maximum, p);
   }
 
-  std::cout << "minimum: " << minimum.x << ", " << minimum.y << ", " << minimum.z << std::endl;
-  std::cout << "maximum: " << maximum.x << ", " << maximum.y << ", " << maximum.z << std::endl;
+ // std::cout << "minimum: " << minimum.x << ", " << minimum.y << ", " << minimum.z << std::endl;
+ // std::cout << "maximum: " << maximum.x << ", " << maximum.y << ", " << maximum.z << std::endl;
 
   aabb.setBounds(minimum.x, minimum.y, minimum.z,
                  maximum.x, maximum.y, maximum.z);

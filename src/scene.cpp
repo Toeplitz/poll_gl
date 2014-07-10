@@ -52,7 +52,7 @@ void Scene::animation_list_update_transforms(Node &node, Uint32 dt)
   glm::mat4 transform = node.transform_local_current;
   Node *parent = node.parent;
 
-  if (node.keyframe_get_total_num() != 0) {
+  if (node.keyframe_total_num_get() != 0) {
     node.step_time((double) dt / 1000.0);
     node.local_transform_current_set(node.transform_local_interpolated);
   }
@@ -125,6 +125,10 @@ void Scene::scene_graph_print_by_node(Node &node)
   }
   if (node.armature) {
     std::cout << " (armature)";
+  }
+
+  if (node.keyframe_total_num_get() > 0) {
+    std::cout << " (" << node.keyframe_total_num_get() << " keyframes)";
   }
   if (node.material) {
     std::cout << " (material)" << std::endl;
@@ -210,13 +214,9 @@ Node *Scene::upload_queue_pop()
 Node *Scene::node_find_recursive(Node &node, const std::string &name)
 {
   Node *ret = nullptr;
-  std::cout << "Looking for node '" << name << "', found '" << node.name << "'" << std::endl;
-
   if (!node.name.compare(name)) {
-    std::cout << "Success" << std::endl;
     return &node;
   }
-
   for (auto &child : node.children) {
     ret = node_find_recursive(*child, name);
     if (ret)

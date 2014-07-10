@@ -181,11 +181,8 @@ void Model::bone_map_create(Assets & assets, BoneForAssimpBone & boneForAssimpBo
     return;
   }
 
-  std::cout << "Found num bones" << armature->bones_num_get() << std::endl;
-
   Node *armatureRoot = armature->find_toplevel_node();
   if (armatureRoot) {
-//    std::cout << "Setting armature: " << armatureRoot->name << std::endl;
     armatureRoot->armature = armature.get();
   }
   armature_ptr = armature.get();
@@ -379,7 +376,7 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
   std::string node_name = std::string(node.mName.data);
   Node *mesh_node = lookupIn(node_name, nodes);
   assert(mesh_node);
-  std::cout << "Node '" << mesh_node->name << "' has " << node.mNumMeshes << " mesh(es)" << std::endl;
+  //std::cout << "Node '" << mesh_node->name << "' has " << node.mNumMeshes << " mesh(es)" << std::endl;
 
   for (unsigned int i = 0; i < node.mNumMeshes; i++) {
     unsigned int meshIndex = node.mMeshes[i];

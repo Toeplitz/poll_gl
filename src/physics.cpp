@@ -26,6 +26,12 @@ Physics::Physics():
   debug_toggle(false),
   pause_toggle(true)
 {
+  world = nullptr;
+  dispatcher = nullptr;
+  collision_config = nullptr;
+  solver = nullptr;
+  broadphase = nullptr;
+  sweep_bp = nullptr;
   bullet_init();
 }
 
@@ -93,7 +99,7 @@ void Physics::collision_node_add(Node &node, const Physics_Collision_Shape shape
   Physics_Node p_node;
 
   if (!node.mesh) {
-    std::cout << "No mesh for node: '" << node.name << "', skipping ..." << std::endl;
+    //std::cout << "No mesh for node: '" << node.name << "', skipping ..." << std::endl;
   } else {
 
     p_node.node = &node;
@@ -101,7 +107,7 @@ void Physics::collision_node_add(Node &node, const Physics_Collision_Shape shape
     p_nodes.push_back(p_node);
     bullet_world_add(p_node);
 
-    std::cout << "Added collision shape " << shape << " for node: " << node.name << std::endl;
+    //std::cout << "Added collision shape " << shape << " for node: " << node.name << std::endl;
   }
 
   if (!recursive)
@@ -116,7 +122,7 @@ void Physics::collision_node_add(Node &node, const Physics_Collision_Shape shape
 
 void Physics::collision_node_callback_set(const Node &node, const std::function<void (int)> callback)
 {
-  std::cout << "Added cb for node: " << node.name << std::endl;
+  //std::cout << "Added cb for node: " << node.name << std::endl;
   callback(1);
 }
 
@@ -215,7 +221,6 @@ btCollisionShape *Physics::bullet_collision_shape_convex_hull_create(Node &node)
   std::vector<glm::vec3> vertices = node.mesh->positions_get();
   int n = vertices.size();
 
-  std::cout << "Convex hull Num: " << vertices.size() << std::endl;
   collision_shape = new btConvexHullShape((btScalar *) vertices.data(), n, sizeof(glm::vec3));
   collision_shape->setLocalScaling(btVector3(node.original_scaling.x, node.original_scaling.y, node.original_scaling.z));
 
@@ -351,11 +356,12 @@ int Physics::bullet_step(const Uint32 dt)
 
 void Physics::bullet_term()
 {
-  delete world;
-  delete solver;
-  delete dispatcher;
-  delete collision_config;
-  delete broadphase;
+  if (world) delete world;
+  if (solver) delete solver;
+  if (dispatcher) delete dispatcher;
+  if (collision_config) delete collision_config;
+  if (broadphase) delete broadphase;
+  if (sweep_bp) delete sweep_bp;
 }
 
 

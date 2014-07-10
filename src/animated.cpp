@@ -5,12 +5,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "utils.h"
 
-using glm::vec3;
-using glm::quat;
-using glm::mix;
-using glm::normalize;
-using glm::mat4;
-
 
 /**************************************************/
 /***************** CONSTRUCTORS *******************/
@@ -37,7 +31,7 @@ Animated::~Animated()
 /**************************************************/
 
 
-void Animated::keyframe_add(vec3 s, quat q, vec3 t, double time)
+void Animated::keyframe_add(glm::vec3 s, glm::quat q, glm::vec3 t, double time)
 {
   std::unique_ptr <Keyframe> kf_ptr(new Keyframe(s, q, t, time));
   Keyframe &kf = *kf_ptr;
@@ -52,109 +46,46 @@ void Animated::keyframe_add(vec3 s, quat q, vec3 t, double time)
 }
 
 
-void Animated::keyframe_delete_all()
+void Animated::keyframe_print_all()
 {
-  keyframes.clear();
-}
-
-
-glm::mat4 Animated::keyframe_interpolate(double factor)
-{
-  vec3 tInterp, sInterp;
-  quat qInterp;
-
-  int frame_prev = keyframe_prev_get();
-  int frame_next = keyframe_next_get();
-
-  /* Scaling */
-  if (keyframes[frame_prev]->s != keyframes[frame_next]->s) {
-    sInterp = mix(keyframes[frame_prev]->s,
-        keyframes[frame_next]->s, (float) factor);
-  } else {
-    sInterp = keyframes[frame_prev]->s;
+  for (auto &kf : keyframes) {
+    std::cout << kf->time << std::endl;
   }
 
-  /* Translation */
-  if (keyframes[frame_prev]->t != keyframes[frame_next]->t) {
-    tInterp = mix(keyframes[frame_prev]->t,
-        keyframes[frame_next]->t, (float) factor);
-  } else {
-    tInterp = keyframes[frame_prev]->t;
+}
+
+void Animated::keyframe_range_activate(const std::string &name)
+{
+  if (keyframe_total_num_get() <= 0) {
+    std::cout << "Error: no keyframes exist" << std::endl;
+    return;
   }
+  current = &animations[name];
 
-  /* Rotation */
-  if (keyframes[frame_prev]->q != keyframes[frame_next]->q) {
-    qInterp = mixQuat(keyframes[frame_prev]->q,
-        keyframes[frame_next]->q, (float) factor);
-  } else {
-    qInterp = keyframes[frame_prev]->q;
-  }
+  int first = current->keyframe_first;
+  int last = current->keyframe_last;
 
-  mat4 m = glm::translate(glm::mat4(1), tInterp) *
-    glm::mat4_cast(qInterp) * glm::scale(glm::mat4(1), sInterp);
-  transform_local_interpolated = m;
+  std::cout << "Setting keyframe to active: " << current->name << std::endl;
+  std::cout << "From: " << first << " To: " << last << std::endl;
+  std::cout << "Time From: " << keyframes[first]->time << " To: " << keyframes[last]->time  << std::endl;
 
-  return m;
 }
 
 
-double Animated::keyframe_prev_time_get(void)
+void Animated::keyframe_range_set(const std::string &name, const unsigned int keyframe_first, const unsigned int keyframe_last)
 {
-  if (keyframe_next != 0)
-    return keyframes[keyframe_prev]->time;
+  Animation a;
 
-  return this->animation_time_min;
+  a.keyframe_first = keyframe_first;
+  a.keyframe_last = keyframe_last;
+  a.name = name;
+  animations[name] = a;
 }
 
 
-double Animated::keyframe_next_time_get(void)
-{
-  assert(keyframes.size() > 0);
-
-  if (keyframes[keyframe_next])
-    return keyframes[keyframe_next]->time;
-
-  return this->animation_time_max;
-}
-
-
-int Animated::keyframe_next_get(void)
-{
-  return keyframe_next;
-}
-
-
-int Animated::keyframe_prev_get(void)
-{
-  return keyframe_prev;
-}
-
-
-unsigned int Animated::keyframe_get_total_num(void)
+unsigned int Animated::keyframe_total_num_get()
 {
   return keyframes.size();
-}
-
-
-double Animated::step_factor_get(double time)
-{
-  double factor = 1.0;
-
-  double max = keyframe_next_time_get() - keyframe_prev_time_get();
-  double step = time - keyframe_prev_time_get();
-
-  if (step != max) {
-    factor = step / max;
-  }
-
-  return factor;
-}
-
-
-void Animated::keyframe_incement(int increment)
-{
-  keyframe_prev = keyframe_next;
-  keyframe_next = keyframe_next + increment;
 }
 
 
@@ -177,14 +108,116 @@ void Animated::step_time(double dt)
 
 }
 
-void Animated::rewind(void)
+
+/**************************************************/
+/***************** PRIVATE METHODS ****************/
+/**************************************************/
+
+
+void Animated::keyframe_delete_all()
+{
+  keyframes.clear();
+}
+
+
+void Animated::keyframe_incement(int increment)
+{
+  keyframe_prev = keyframe_next;
+  keyframe_next = keyframe_next + increment;
+}
+
+
+glm::mat4 Animated::keyframe_interpolate(double factor)
+{
+  glm::vec3 tInterp, sInterp;
+  glm::quat qInterp;
+
+  int frame_prev = keyframe_prev_get();
+  int frame_next = keyframe_next_get();
+
+  /* Scaling */
+  if (keyframes[frame_prev]->s != keyframes[frame_next]->s) {
+    sInterp = glm::mix(keyframes[frame_prev]->s,
+        keyframes[frame_next]->s, (float) factor);
+  } else {
+    sInterp = keyframes[frame_prev]->s;
+  }
+
+  /* Translation */
+  if (keyframes[frame_prev]->t != keyframes[frame_next]->t) {
+    tInterp = glm::mix(keyframes[frame_prev]->t,
+        keyframes[frame_next]->t, (float) factor);
+  } else {
+    tInterp = keyframes[frame_prev]->t;
+  }
+
+  /* Rotation */
+  if (keyframes[frame_prev]->q != keyframes[frame_next]->q) {
+    qInterp = mixQuat(keyframes[frame_prev]->q,
+        keyframes[frame_next]->q, (float) factor);
+  } else {
+    qInterp = keyframes[frame_prev]->q;
+  }
+
+  glm::mat4 m = glm::translate(glm::mat4(1), tInterp) *
+    glm::mat4_cast(qInterp) * glm::scale(glm::mat4(1), sInterp);
+  transform_local_interpolated = m;
+
+  return m;
+}
+
+
+double Animated::step_factor_get(double time)
+{
+  double factor = 1.0;
+
+  double max = keyframe_next_time_get() - keyframe_prev_time_get();
+  double step = time - keyframe_prev_time_get();
+
+  if (step != max) {
+    factor = step / max;
+  }
+
+  return factor;
+}
+
+
+double Animated::keyframe_prev_time_get()
+{
+  if (keyframe_next != 0)
+    return keyframes[keyframe_prev]->time;
+
+  return animation_time_min;
+}
+
+
+double Animated::keyframe_next_time_get()
+{
+  assert(keyframes.size() > 0);
+
+  if (keyframes[keyframe_next])
+    return keyframes[keyframe_next]->time;
+
+  return animation_time_max;
+}
+
+
+int Animated::keyframe_next_get()
+{
+  return keyframe_next;
+}
+
+
+int Animated::keyframe_prev_get()
+{
+  return keyframe_prev;
+}
+
+
+void Animated::rewind()
 {
   keyframe_next = 1;
   keyframe_prev = 0;
   animation_time = 0;
 }
 
-
-/**************************************************/
-/***************** PRIVATE METHODS ****************/
-/**************************************************/
