@@ -17,10 +17,10 @@
 enum CameraMove { FORWARD, BACKWARD, SIDESTEP_RIGHT, SIDESTEP_LEFT};
 
 class CameraPan:public Animated {
+/*
   public:
     bool toggle;
     glm::vec3 position;
-
     glm::vec3 getInterpolatedTranslation(double factor) 
     {
       glm::vec3 tInterp;
@@ -51,6 +51,7 @@ class CameraPan:public Animated {
       position = getInterpolatedTranslation(factor);
       return true;
     }
+    */
 };
 
 class Camera {

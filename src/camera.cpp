@@ -12,7 +12,7 @@ Camera::Camera(int width, int height)
   createOrthoProjection(width, height);
   createPerspectiveProjection(width, height);
   setStartPosition();
-  cameraPan.toggle = false;
+  //cameraPan.toggle = false;
 }   
 
 Camera::~Camera(void) 
@@ -85,16 +85,22 @@ void Camera::processWayPoints(double dt)
 {
   if (dt <= 0)
     return;
+
+  /*
   if (!cameraPan.toggle)
     return;
   computeDirections();
+
   if (!cameraPan.stepTime(dt)) {
     cameraPan.toggle = false;
     cameraPan.keyframe_delete_all();
     return;
+  
   }
-  view = glm::lookAt(cameraPan.position, target, up);
-  updateViewProjection();
+  */
+
+ // view = glm::lookAt(cameraPan.position, target, up);
+ // updateViewProjection();
 }
 
 void Camera::translate(glm::vec3 dir) 
@@ -108,6 +114,7 @@ void Camera::setWayPoints(std::vector < glm::vec3 > points,
     std::vector <Uint32> time,
     glm::vec3 _target, bool useCurPos) 
 {
+  /*
   assert(points.size() == time.size());
   cameraPan.toggle = true;
   target = _target;
@@ -125,12 +132,13 @@ void Camera::setWayPoints(std::vector < glm::vec3 > points,
   for (size_t i = 0; i < points.size(); i++) {
     cameraPan.keyframe_add(s, q, points[i], (double) time[i] / 1000.0);
   } 
+  */
 }  
   
 void Camera::updateViewProjection(void) 
 {
   viewProjection = perspective * view;
-  viewProjection = ortho * view;
+  //viewProjection = ortho * view;
 }  
 
 void Camera::createOrthoProjection(float width, float height) 

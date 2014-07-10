@@ -79,6 +79,22 @@ bool Window::init(const std::string &title)
 }
 
 
+float Window::joystick_angle_get(float x, float y, float *radius)
+{
+  float quadrant_compensation = 0;
+  if (x < 0)
+    quadrant_compensation = M_PI;
+  if (x > 0 && y < 0)
+    quadrant_compensation = 2 * M_PI;
+  float r = sqrtf(powf(x, 2) + powf(y, 2)) / 32768;
+  float angle = atanf((float) y / (float) x) + quadrant_compensation;
+
+  *radius = r;
+
+  return angle;
+}
+
+
 void Window::debug_toggle()
 {
   static int toggle = 0;

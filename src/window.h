@@ -46,12 +46,13 @@ class Window {
     Window(const int &width, const int &height);
     ~Window();
 
-    bool init(const std::string &title);
-    void debug_toggle();
-    bool poll_events(Camera &camera);
-    void swap_interval_set(const int n);
-    void swap();
-    void term();
+    bool  init(const std::string &title);
+    float joystick_angle_get(float x, float y, float *radius);
+    void  debug_toggle();
+    bool  poll_events(Camera &camera);
+    void  swap_interval_set(const int n);
+    void  swap();
+    void  term();
 
     GLcontext &glcontext_get();
 

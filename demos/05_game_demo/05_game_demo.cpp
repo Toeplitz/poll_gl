@@ -17,6 +17,9 @@ int joystick_y = 0;
 
 void joystick_axis_motion_cb(SDL_JoyAxisEvent *ev)
 {
+  Window &window = fragmic.window_get();
+  float r, angle;
+
   direction |= PHYSICS_DIRECTION_ROTATE;
   direction |= PHYSICS_DIRECTION_FORWARD;
 
@@ -32,14 +35,7 @@ void joystick_axis_motion_cb(SDL_JoyAxisEvent *ev)
       break;
   }
 
-  float quadrant_compensation = 0;
-  if (joystick_x < 0)
-    quadrant_compensation = M_PI;
-  if (joystick_x > 0 && joystick_y < 0)
-    quadrant_compensation = 2 * M_PI;
-  float r = sqrtf(powf(joystick_x, 2) + powf(joystick_y, 2)) / 32768;
-  float angle = atanf((float) joystick_y / (float) joystick_x) + quadrant_compensation;
-
+  angle = window.joystick_angle_get(joystick_x, joystick_y, &r);
   if (isnan(angle))
     return;
 
@@ -208,7 +204,6 @@ int main()
       std::cout << "Could not find node" << std::endl;
     }
   }
-
 
   scene.scene_graph_print();
 

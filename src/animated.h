@@ -27,6 +27,7 @@ struct Animated
     int keyframe_next;
     int keyframe_prev;
 
+
   public:
     double animation_time;
     glm::mat4 transform_local_interpolated;
@@ -49,7 +50,6 @@ struct Animated
     int           keyframe_next_get();
     double        keyframe_next_time_get();
     void          rewind();
-    bool          step(double time);
     double        step_factor_get(double time);
     void          step_time(double dt);
 };
