@@ -36,6 +36,7 @@ layout(std140) uniform State {
   int state_diffuse;
   int state_diffuse_normal;
   int state_diffuse_specular_normal;
+  int state_cubemap;
   int state_standard;
 };
 
@@ -177,12 +178,13 @@ void main()
     out_color = func_diffuse_texture();
   } else if (state_diffuse_specular_normal == 1) {
     out_color = func_phong_specular_normal();
+  } else if (state_cubemap == 1) {
+    out_color = texture(cube_texture, str).rgb;
   } else if (state_standard == 1) {
     out_color = func_standard();
   }
 
 
-  frag_color.rgb = texture(cube_texture, str).rgb;
- // frag_color.rgb = out_color;
+  frag_color.rgb = out_color;
   frag_color.a = 1.0;
 }

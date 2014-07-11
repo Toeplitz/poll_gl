@@ -42,7 +42,6 @@ void Material::cubemap_create(const std::string &prefix, const std::string &fron
   cubemap_ptr->left.target = GL_TEXTURE_CUBE_MAP_NEGATIVE_X;
   cubemap_ptr->right.texture.image_load(prefix + right);
   cubemap_ptr->right.target = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
-
   cubemap = std::move(cubemap_ptr);
 }
 

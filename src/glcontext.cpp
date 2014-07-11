@@ -51,13 +51,18 @@ void GLcontext::draw(Node &node)
   if (!mesh) return;
 
   // Enable/disable for skybox
-  //glDepthMask (GL_FALSE);
+  
+  if (node.state.cubemap)
+    glDepthMask (GL_FALSE);
 
   glBindVertexArray(node.gl_vao);
   GLsizei count = (GLsizei) mesh->num_indices_get();
   uniform_buffers_update_node(node);
   uniform_buffers_update_mesh(*mesh);
   glDrawElements(mesh->mode, count, GL_UNSIGNED_SHORT, 0);
+
+  if (node.state.cubemap)
+    glDepthMask(GL_TRUE);
 }
 
 
@@ -71,12 +76,19 @@ bool GLcontext::init(const int width, const int height)
   check_error();
 
   check_version(3);
-  glEnable(GL_DEPTH_TEST);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glEnable(GL_MULTISAMPLE);
-  glEnable(GL_STENCIL_TEST);
-  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+  glEnable(GL_DEPTH_TEST); // enable depth-testing
+  glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
+  glEnable(GL_CULL_FACE); // cull face
+  glCullFace(GL_BACK); // cull back face
+  glFrontFace(GL_CCW); // set counter-clock-wise vertex order to mean the front
+
+  //glEnable(GL_DEPTH_TEST);
+  //glEnable(GL_BLEND);
+  //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  //glEnable(GL_MULTISAMPLE);
+  //glEnable(GL_STENCIL_TEST);
+  //glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
   glViewport(0, 0, width, height);
 
   return true;
@@ -160,6 +172,7 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
     state.diffuse = false;
     state.diffuse_normal = false;
     state.diffuse_specular_normal = false;
+    state.cubemap = false;
     state.standard = false;
 
     bindPointIndex = UB_STATE;
@@ -178,6 +191,8 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
     glUniform1i(location, 1);
     location = glGetUniformLocation(program, "specular_texture");
     glUniform1i(location, 2);
+    location = glGetUniformLocation(program, "cube_texture");
+    glUniform1i(location, 3);
   }
 
 }
@@ -389,12 +404,12 @@ void GLcontext::vertex_buffers_create(Node &node)
       glGenTextures(1,  &material->cubemap->gl_texture);
       glActiveTexture(GL_TEXTURE3);
       glBindTexture(GL_TEXTURE_CUBE_MAP, material->cubemap->gl_texture);
-      cubemap_texture_create(material->cubemap->front, GL_TEXTURE3);
-      cubemap_texture_create(material->cubemap->back, GL_TEXTURE3);
-      cubemap_texture_create(material->cubemap->top, GL_TEXTURE3);
-      cubemap_texture_create(material->cubemap->bottom, GL_TEXTURE3);
-      cubemap_texture_create(material->cubemap->left, GL_TEXTURE3);
-      cubemap_texture_create(material->cubemap->right, GL_TEXTURE3);
+      cubemap_texture_create(material->cubemap->front);
+      cubemap_texture_create(material->cubemap->back);
+      cubemap_texture_create(material->cubemap->top);
+      cubemap_texture_create(material->cubemap->bottom);
+      cubemap_texture_create(material->cubemap->left);
+      cubemap_texture_create(material->cubemap->right);
     }
   }
 }
@@ -480,9 +495,9 @@ void GLcontext::texture_create(Texture &texture, GLenum n)
 }
 
 
-void GLcontext::cubemap_texture_create(Cubemap_Item &item, GLenum n) 
+void GLcontext::cubemap_texture_create(Cubemap_Item &item) 
 {
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+ // glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glTexImage2D(item.target, 0, GL_RGB, item.texture.image->width, item.texture.image->height,
       0, GL_RGB, GL_UNSIGNED_BYTE, item.texture.image->data);
   glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

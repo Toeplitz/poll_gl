@@ -138,10 +138,10 @@ void Scene::scene_graph_print_by_node(Node &node)
 
   }
   if (node.material) {
-  // node.material->print(node.tree_level);
+    node.material->print(node.tree_level);
   }
 
-  //node.print_state(node.tree_level);
+  node.print_state(node.tree_level);
   std::cout << std::endl;
 
   for (auto &child : node.children) {
@@ -181,6 +181,8 @@ void Scene::state_update_recursive(Node &node)
       node.state.diffuse_normal = true;
     } else if (node.material->diffuse) {
       node.state.diffuse = true;
+    } else if (node.material->cubemap) {
+      node.state.cubemap = true;
     } else {
       node.state.standard = true;
     }
@@ -200,6 +202,8 @@ void Scene::upload_queue_add(Node &node)
   } else if (node.armature) {
     animation_list_add(node);
   }
+
+  state_update_recursive(node);
 
   for (auto &child : node.children) {
     upload_queue_add(*child);

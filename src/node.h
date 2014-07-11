@@ -24,6 +24,7 @@ struct Node_State
   int diffuse;
   int diffuse_normal;
   int diffuse_specular_normal;
+  int cubemap;
   int standard;
 };
 

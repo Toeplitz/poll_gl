@@ -31,7 +31,7 @@ class GLcontext {
     bool check_version(const int &major);
     void framebuffer_create();
     void framebuffer_delete();
-    void cubemap_texture_create(Cubemap_Item &item, GLenum n);
+    void cubemap_texture_create(Cubemap_Item &item);
     void cubemap_texture_delete(Cubemap_Item &item);
     void texture_create(Texture &texture, GLenum n);
     void texture_delete(Texture &texture);

@@ -34,6 +34,7 @@ layout(std140) uniform State {
   int state_diffuse;
   int state_diffuse_normal;
   int state_diffuse_specular_normal;
+  int state_cubemap;
   int state_standard;
 };
 

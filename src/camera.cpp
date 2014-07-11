@@ -150,7 +150,7 @@ void Camera::createOrthoProjection(float width, float height)
 void Camera::createPerspectiveProjection(float width, float height) 
 {
   fov = 45.f;
-  perspective = glm::perspective(fov, width / height, 1.0f, 300.0f);
+  perspective = glm::perspective(fov, width / height, 1.0f, 200.0f);
 }
 
 

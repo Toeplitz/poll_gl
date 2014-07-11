@@ -178,9 +178,9 @@ int main()
 
   {
     Node &node = *scene.node_create("skybox");
-    node.mesh->cube_generate(20.0f);
+    node.mesh->cube_generate(40.0f);
     Material &material = *node.material;
-    material.cubemap_create("/home/ms/git/poll/data/game_assets/skybox/SkyboxSet1/DarkStormy/", "DarkStormyFront2048.png",
+    material.cubemap_create("data/game_assets/skybox/SkyboxSet1/DarkStormy/", "DarkStormyFront2048.png",
         "DarkStormyBack2048.png", "DarkStormyUp2048.png", "DarkStormyDown2048.png", "DarkStormyLeft2048.png", "DarkStormyRight2048.png");
     scene.upload_queue_add(node);
   }
@@ -199,7 +199,7 @@ int main()
   */
 
   {
-    Node &panda_root = scene.model_load("data/game_assets/characters/panda/", "Panda.dae");
+    Node &panda_root = scene.model_load("data/game_assets/characters/panda/", "PandaSingle.dae");
     Node &panda_collision_root = scene.model_load("data/game_assets/characters/panda/", "Panda_convex_hull.dae", false);
     Node *panda = scene.node_find(&panda_root, "Panda");
     Node *panda_collision = scene.node_find(&panda_collision_root, "Panda_convex_hull");
