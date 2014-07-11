@@ -52,9 +52,10 @@ void Scene::animation_list_update_transforms(Node &node, Uint32 dt)
   glm::mat4 transform = node.transform_local_current;
   Node *parent = node.parent;
 
-  if (node.keyframe_total_num_get() != 0) {
-    node.step_time((double) dt / 1000.0);
-    node.local_transform_current_set(node.transform_local_interpolated);
+  if (node.keyframe_total_num_get()) {
+    double factor = node.step_time((double) dt / 1000.0);
+    glm::mat4 m = node.keyframe_interpolate(factor);
+    node.local_transform_current_set(m);
   }
 
   if (parent) {

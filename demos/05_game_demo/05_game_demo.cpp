@@ -2,21 +2,17 @@
 #include "physics.h"
 #include <iostream>
 
-//Analog joystick dead zone
-const int JOYSTICK_DEAD_ZONE = 8000;
 
 Fragmic fragmic("Demo 4", 1280, 720);
 Physics_CharacterController *character;
-
-
 unsigned int direction = 0;
-
-int joystick_x = 0;
-int joystick_y = 0;
+Armature *armature = nullptr;
 
 
 void joystick_axis_motion_cb(SDL_JoyAxisEvent *ev)
 {
+  static int joystick_x = 0;
+  static int joystick_y = 0;
   Window &window = fragmic.window_get();
   float r, angle;
 
@@ -147,6 +143,15 @@ void physics_update()
 {
  // Physics &physics = fragmic.physics_get();
 
+  switch (direction) {
+
+    case PHYSICS_DIRECTION_FORWARD:
+      armature->keyframe_range_activate("Run");
+      break;
+    default:
+      armature->keyframe_range_activate("Bind");
+      break;
+  }
 }
 
 
@@ -199,11 +204,13 @@ int main()
     Node *panda = scene.node_find(&panda_root, "Panda");
     Node *panda_collision = scene.node_find(&panda_collision_root, "Panda_convex_hull");
     if (panda && panda_collision) {
+      armature = panda->armature;
       character = physics.character_controller_add(*panda, *panda_collision);
-      panda->keyframe_print_all();
-      panda->keyframe_range_set("Idle", 1, 12);
-      panda->keyframe_range_set("Walk", 16, 35);
-      panda->keyframe_range_activate("Idle");
+      armature->keyframe_range_set("Bind", 0, 0);
+      armature->keyframe_range_set("Idle", 1, 3);
+      armature->keyframe_range_set("Walk", 4, 10);
+      armature->keyframe_range_set("Run", 11, 18);
+     // armature->keyframe_range_activate("Idle");
     } else {
       std::cout << "Could not find node" << std::endl;
     }

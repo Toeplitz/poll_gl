@@ -3,7 +3,9 @@
 #include <memory>
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
+#include "armature.h"
 #include "utils.h"
+
 
 
 /**************************************************/
@@ -12,11 +14,13 @@
 
 
 Animated::Animated():
-  animation_time_max(0),
-  animation_time_min(0),
+  animation_time(0),
+  global_time_max(0),
+  global_time_min(0),
   keyframe_next(1),
   keyframe_prev(0),
-  animation_time(0)
+  keyframe_range_next(1),
+  keyframe_range_prev(0)
 {
 }
 
@@ -31,99 +35,38 @@ Animated::~Animated()
 /**************************************************/
 
 
+void Animated::animation_activate(const Animation &a)
+{
+  unsigned int first = a.keyframe_first;
+  unsigned int last = a.keyframe_last;
+  std::cout << "\tSetting keyframe limits for "<< std::endl;
+
+  keyframe_range_prev = first;
+  keyframe_range_next = keyframe_range_prev + 1;
+
+  animation_time_min = keyframes[first]->time;
+  animation_time_max = keyframes[last]->time;
+
+  reset();
+
+  std::cout << "time start/stop: " << keyframes[first]->time << " / " << keyframes[last]->time << std::endl;
+}
+
+
 void Animated::keyframe_add(glm::vec3 s, glm::quat q, glm::vec3 t, double time)
 {
   std::unique_ptr <Keyframe> kf_ptr(new Keyframe(s, q, t, time));
   Keyframe &kf = *kf_ptr;
   keyframes.push_back(std::move(kf_ptr));
 
-  if (animation_time_max < kf.time) {
-    animation_time_max = kf.time;
+  if (global_time_max < kf.time) {
+    global_time_max = kf.time;
+    animation_time_max = global_time_max;
   }
-  if (animation_time_min > kf.time) {
-    animation_time_min = kf.time;
+  if (global_time_min > kf.time) {
+    global_time_min = kf.time;
+    animation_time_min = global_time_min;
   }
-}
-
-
-void Animated::keyframe_print_all()
-{
-  for (auto &kf : keyframes) {
-    std::cout << kf->time << std::endl;
-  }
-
-}
-
-void Animated::keyframe_range_activate(const std::string &name)
-{
-  if (keyframe_total_num_get() <= 0) {
-    std::cout << "Error: no keyframes exist" << std::endl;
-    return;
-  }
-  current = &animations[name];
-
-  int first = current->keyframe_first;
-  int last = current->keyframe_last;
-
-  std::cout << "Setting keyframe to active: " << current->name << std::endl;
-  std::cout << "From: " << first << " To: " << last << std::endl;
-  std::cout << "Time From: " << keyframes[first]->time << " To: " << keyframes[last]->time  << std::endl;
-
-}
-
-
-void Animated::keyframe_range_set(const std::string &name, const unsigned int keyframe_first, const unsigned int keyframe_last)
-{
-  Animation a;
-
-  a.keyframe_first = keyframe_first;
-  a.keyframe_last = keyframe_last;
-  a.name = name;
-  animations[name] = a;
-}
-
-
-unsigned int Animated::keyframe_total_num_get()
-{
-  return keyframes.size();
-}
-
-
-void Animated::step_time(double dt)
-{
-  if (dt <= 0)
-    return;
-
-  if (keyframes.size() == 0)
-    return;
-
-  animation_time = animation_time + dt;
-  if (animation_time >= animation_time_max) {
-    rewind();
-  } else if (animation_time >= keyframe_next_time_get()) {
-    keyframe_incement(1);
-  }
-  double factor = step_factor_get(animation_time);
-  keyframe_interpolate(factor);
-
-}
-
-
-/**************************************************/
-/***************** PRIVATE METHODS ****************/
-/**************************************************/
-
-
-void Animated::keyframe_delete_all()
-{
-  keyframes.clear();
-}
-
-
-void Animated::keyframe_incement(int increment)
-{
-  keyframe_prev = keyframe_next;
-  keyframe_next = keyframe_next + increment;
 }
 
 
@@ -161,9 +104,61 @@ glm::mat4 Animated::keyframe_interpolate(double factor)
 
   glm::mat4 m = glm::translate(glm::mat4(1), tInterp) *
     glm::mat4_cast(qInterp) * glm::scale(glm::mat4(1), sInterp);
-  transform_local_interpolated = m;
 
   return m;
+}
+
+
+void Animated::keyframe_print_all()
+{
+  for (auto &kf : keyframes) {
+    std::cout << kf->time << std::endl;
+  }
+
+}
+
+
+unsigned int Animated::keyframe_total_num_get()
+{
+  return keyframes.size();
+}
+
+
+float Animated::step_time(const double dt)
+{
+  if (dt <= 0)
+    return -1;
+
+  if (keyframes.size() == 0)
+    return -1;
+
+  animation_time = animation_time + dt;
+  if (animation_time >= animation_time_max) {
+    reset();
+  } else if (animation_time >= keyframe_next_time_get()) {
+    keyframe_incement(1);
+  }
+  double factor = step_factor_get(animation_time);
+
+  return factor;
+}
+
+
+/**************************************************/
+/***************** PRIVATE METHODS ****************/
+/**************************************************/
+
+
+void Animated::keyframe_delete_all()
+{
+  keyframes.clear();
+}
+
+
+void Animated::keyframe_incement(int increment)
+{
+  keyframe_prev = keyframe_next;
+  keyframe_next = keyframe_next + increment;
 }
 
 
@@ -187,7 +182,7 @@ double Animated::keyframe_prev_time_get()
   if (keyframe_next != 0)
     return keyframes[keyframe_prev]->time;
 
-  return animation_time_min;
+  return global_time_min;
 }
 
 
@@ -198,7 +193,7 @@ double Animated::keyframe_next_time_get()
   if (keyframes[keyframe_next])
     return keyframes[keyframe_next]->time;
 
-  return animation_time_max;
+  return global_time_max;
 }
 
 
@@ -214,10 +209,10 @@ int Animated::keyframe_prev_get()
 }
 
 
-void Animated::rewind()
+void Animated::reset()
 {
-  keyframe_next = 1;
-  keyframe_prev = 0;
-  animation_time = 0;
+  keyframe_next = keyframe_range_next;
+  keyframe_prev = keyframe_range_prev;
+  animation_time = animation_time_min;
 }
 

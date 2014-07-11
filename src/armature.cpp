@@ -69,3 +69,42 @@ Node *Armature::find_toplevel_node()
 
   return root->parent;
 }
+
+
+void Armature::keyframe_range_activate(const std::string &name)
+{
+  Animation &a = animations[name];
+
+  int first = a.keyframe_first;
+  int last = a.keyframe_last;
+
+  std::cout << "Setting keyframe to active: " << a.name << std::endl;
+  std::cout << "From: " << first << " To: " << last << std::endl;
+  for (auto &bone_entry : bones) {
+    Bone &bone = *bone_entry;
+    std::cout << "\tNode: '" << bone.joint_node->name << "'" << std::endl;
+    bone.joint_node->animation_activate(a);
+  }
+}
+
+
+void Armature::keyframe_range_set(const std::string &name, const unsigned int keyframe_first, const unsigned int keyframe_last)
+{
+  Animation a;
+
+  a.keyframe_first = keyframe_first;
+  a.keyframe_last = keyframe_last;
+  a.name = name;
+  animations[name] = a;
+}
+
+
+
+void Armature::node_print_all()
+{
+  std::cout << "Nodes in armature: " << std::endl;
+  for (auto &bone_entry : bones) {
+    Bone &bone = *bone_entry;
+    std::cout << bone.joint_node->name << std::endl;
+  }
+}
