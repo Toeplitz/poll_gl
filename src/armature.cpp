@@ -73,7 +73,11 @@ Node *Armature::find_toplevel_node()
 
 void Armature::keyframe_range_activate(const std::string &name)
 {
+  static Animation *a_last;
+
   Animation &a = animations[name];
+  if (a_last == &a)
+    return;
 
   int first = a.keyframe_first;
   int last = a.keyframe_last;
@@ -85,6 +89,8 @@ void Armature::keyframe_range_activate(const std::string &name)
     std::cout << "\tNode: '" << bone.joint_node->name << "'" << std::endl;
     bone.joint_node->animation_activate(a);
   }
+
+  a_last = &a;
 }
 
 
