@@ -50,11 +50,14 @@ void GLcontext::draw(Node &node)
   Mesh *mesh = node.mesh;
   if (!mesh) return;
 
+  // Enable/disable for skybox
+  //glDepthMask (GL_FALSE);
+
   glBindVertexArray(node.gl_vao);
   GLsizei count = (GLsizei) mesh->num_indices_get();
   uniform_buffers_update_node(node);
   uniform_buffers_update_mesh(*mesh);
-  glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, 0);
+  glDrawElements(mesh->mode, count, GL_UNSIGNED_SHORT, 0);
 }
 
 
@@ -205,6 +208,9 @@ void GLcontext::uniform_buffers_update_camera(Camera &camera)
 
 void GLcontext::uniform_buffers_update_material(Node &node)
 {
+
+  if (!node.material) return;
+
   GLenum target = GL_UNIFORM_BUFFER;
   GLintptr offset = 0;
   glBindBuffer(target, gl_buffer_material);
@@ -254,6 +260,10 @@ void GLcontext::uniform_buffers_update_node(Node &node)
     if (material->specular) {
       glActiveTexture(GL_TEXTURE2);
       glBindTexture(GL_TEXTURE_2D, material->specular->gl_texture);
+    }
+    if (material->cubemap) {
+      glActiveTexture(GL_TEXTURE3);
+      glBindTexture(GL_TEXTURE_CUBE_MAP, material->cubemap->gl_texture);
     }
   }
 }
@@ -375,6 +385,17 @@ void GLcontext::vertex_buffers_create(Node &node)
     if (material->specular) {
       texture_create(*material->specular, GL_TEXTURE2);
     }
+    if (material->cubemap) {
+      glGenTextures(1,  &material->cubemap->gl_texture);
+      glActiveTexture(GL_TEXTURE3);
+      glBindTexture(GL_TEXTURE_CUBE_MAP, material->cubemap->gl_texture);
+      cubemap_texture_create(material->cubemap->front, GL_TEXTURE3);
+      cubemap_texture_create(material->cubemap->back, GL_TEXTURE3);
+      cubemap_texture_create(material->cubemap->top, GL_TEXTURE3);
+      cubemap_texture_create(material->cubemap->bottom, GL_TEXTURE3);
+      cubemap_texture_create(material->cubemap->left, GL_TEXTURE3);
+      cubemap_texture_create(material->cubemap->right, GL_TEXTURE3);
+    }
   }
 }
 
@@ -456,6 +477,25 @@ void GLcontext::texture_create(Texture &texture, GLenum n)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.image->width, texture.image->height,
       0, GL_RGB, GL_UNSIGNED_BYTE, texture.image->data);
+}
+
+
+void GLcontext::cubemap_texture_create(Cubemap_Item &item, GLenum n) 
+{
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  glTexImage2D(item.target, 0, GL_RGB, item.texture.image->width, item.texture.image->height,
+      0, GL_RGB, GL_UNSIGNED_BYTE, item.texture.image->data);
+  glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+  glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+}
+
+
+void GLcontext::cubemap_texture_delete(Cubemap_Item &item)
+{
+
 }
 
 

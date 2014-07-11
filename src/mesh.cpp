@@ -10,8 +10,9 @@
 
 
 Mesh::Mesh():
-  model(glm::mat4(1.0))
+  model(glm::mat4(1.f))
 {
+  mode = GL_TRIANGLES;
 }
 
 Mesh::~Mesh(void)
@@ -28,19 +29,48 @@ void Mesh::aabb_generate_bounding()
 
   glm::vec3 minimum(std::numeric_limits<float>::max());
   glm::vec3 maximum(std::numeric_limits<float>::min());
-  
+
   for (auto &v : positions) {
-    glm::vec3 p = glm::vec3(model * glm::vec4(v, 1.0));
-  //  std::cout << glm::to_string(p) << std::endl;
+    glm::vec3 p = glm::vec3(model * glm::vec4(v, 1.f));
+    //  std::cout << glm::to_string(p) << std::endl;
     minimum = glm::min(minimum, p);
     maximum = glm::max(maximum, p);
   }
 
- // std::cout << "minimum: " << minimum.x << ", " << minimum.y << ", " << minimum.z << std::endl;
- // std::cout << "maximum: " << maximum.x << ", " << maximum.y << ", " << maximum.z << std::endl;
+  // std::cout << "minimum: " << minimum.x << ", " << minimum.y << ", " << minimum.z << std::endl;
+  // std::cout << "maximum: " << maximum.x << ", " << maximum.y << ", " << maximum.z << std::endl;
 
   aabb.setBounds(minimum.x, minimum.y, minimum.z,
-                 maximum.x, maximum.y, maximum.z);
+      maximum.x, maximum.y, maximum.z);
+}
+
+
+void Mesh::cube_generate(const float &size)
+{
+  const int n_vertices = 8;
+  const int n_indices = 14;
+  static const GLfloat cube_vertices[] = {
+    -size, -size,  size,
+    size, -size,  size,
+    -size,  size,  size,
+    size,  size,  size,
+    -size, -size, -size,
+    size, -size, -size,
+    -size,  size, -size,
+    size,  size, -size,
+  };
+
+  static const GLushort cube_indices[] = {
+    0, 1, 2, 3, 7, 1, 5, 4, 7, 6, 2, 4, 0, 1
+  };
+
+  for (int i = 0; i < n_vertices * 3; i = i + 3) {
+    positions.push_back(glm::vec3(cube_vertices[i], cube_vertices[i + 1], cube_vertices[i + 2]));
+  }
+  for (int i = 0; i < n_indices; i++) {
+    indices.push_back(cube_indices[i]);
+  }
+  mode = GL_TRIANGLE_STRIP;
 }
 
 
@@ -64,7 +94,7 @@ unsigned int Mesh::num_indices_get() {
 
 
 unsigned int Mesh::num_vertices_get() {
-  return vertices.size();
+  return positions.size();
 }
 
 

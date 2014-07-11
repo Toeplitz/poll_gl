@@ -176,7 +176,14 @@ int main()
   window.keyboard_released_callback_set(keyboard_released_cb);
   physics.custom_step_callback_set(physics_update);
 
-  scene.skybox_load(20.f, "data/skybox.jpg");
+  {
+    Node &node = *scene.node_create("skybox");
+    node.mesh->cube_generate(20.0f);
+    Material &material = *node.material;
+    material.cubemap_create("/home/ms/git/poll/data/game_assets/skybox/SkyboxSet1/DarkStormy/", "DarkStormyFront2048.png",
+        "DarkStormyBack2048.png", "DarkStormyUp2048.png", "DarkStormyDown2048.png", "DarkStormyLeft2048.png", "DarkStormyRight2048.png");
+    scene.upload_queue_add(node);
+  }
 
   Node &room = scene.model_load("data/game_assets/", "Room.dae");
   physics.collision_node_add(room, PHYSICS_COLLISION_TRIANGLE_MESH, true, 0);

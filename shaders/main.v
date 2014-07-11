@@ -45,6 +45,9 @@ out vec3 light_position_eye;
 out vec3 position_eye;
 out vec3 normal_eye;
 
+// For cubemap sampling.
+out vec3 str;
+
 //vec3 light_position_world  = vec3 (-10.0, 10.0, -4.0);
 vec3 light_position_world  = vec3 (5, 22, 24.0);
 vec3 light_dir_wor = vec3 (0.0, 0.0, -1.0);
@@ -80,6 +83,7 @@ void main(void)
 
   gl_Position = proj * vec4(position_eye, 1.0);
 	st = texture_coord;
+  str = vertex_position;
 
   if (state_diffuse_specular_normal == 1 || state_diffuse_normal == 1) {
     /* HACK */

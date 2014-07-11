@@ -7,16 +7,20 @@ in vec3 light_position_eye;
 in vec3 position_eye;
 in vec3 normal_eye;
 
+// For cubemap texture sampling.
+in vec3 str;
 
 uniform sampler2D diffuse_texture;
 uniform sampler2D normal_texture;
 uniform sampler2D specular_texture;
+uniform samplerCube cube_texture;
 
 
 layout(std140) uniform GlobalMatrices {
   mat4 proj;
   mat4 view;
 };
+
 
 layout(std140) uniform Material {
   vec3 Ka;
@@ -167,7 +171,7 @@ vec3 func_standard()
 
 void main()
 {
-  vec3 out_color = vec3(0.5, 0.5, 0.5);
+  vec3 out_color = vec3(0.7, 0.7, 0.7);
 
   if (state_diffuse == 1) {
     out_color = func_diffuse_texture();
@@ -177,6 +181,8 @@ void main()
     out_color = func_standard();
   }
 
-  frag_color.rgb = out_color;
+
+  frag_color.rgb = texture(cube_texture, str).rgb;
+ // frag_color.rgb = out_color;
   frag_color.a = 1.0;
 }

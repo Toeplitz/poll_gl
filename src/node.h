@@ -55,9 +55,10 @@ class Node: public Animated {
     Node(const std::string &_name);
     ~Node();
 
-    void copy_transform_data(Node &node);
-    void child_add(std::unique_ptr<Node> &&node, int level);
-    void local_transform_current_set(const glm::mat4 &transform);
-    void local_transform_original_set(const glm::mat4 &transform);
-    void print_state(int indent_level);
+    void   copy_transform_data(Node &node);
+    void   child_add(std::unique_ptr<Node> &&node, int level);
+    void   local_transform_current_set(const glm::mat4 &transform);
+    void   local_transform_original_set(const glm::mat4 &transform);
+    void   print_state(int indent_level);
+    Mesh  *mesh_create();
 };

@@ -11,6 +11,7 @@ Material::Material()
   diffuse.reset(nullptr);
   normal.reset(nullptr);
   specular.reset(nullptr);
+  cubemap.reset(nullptr);
 }
 
 
@@ -22,6 +23,29 @@ Material::~Material()
 /**************************************************/
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
+
+
+void Material::cubemap_create(const std::string &prefix, const std::string &front, const std::string &back,
+                              const std::string &top, const std::string &bottom, 
+                              const std::string &left, const std::string &right)
+{
+  std::unique_ptr<Cubemap> cubemap_ptr(new Cubemap);
+  cubemap_ptr->front.texture.image_load(prefix + front);
+  cubemap_ptr->front.target = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
+  cubemap_ptr->back.texture.image_load(prefix + back);
+  cubemap_ptr->back.target = GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
+  cubemap_ptr->top.texture.image_load(prefix + top);
+  cubemap_ptr->top.target = GL_TEXTURE_CUBE_MAP_POSITIVE_Y; 
+  cubemap_ptr->bottom.texture.image_load(prefix + bottom);
+  cubemap_ptr->bottom.target = GL_TEXTURE_CUBE_MAP_NEGATIVE_Y;
+  cubemap_ptr->left.texture.image_load(prefix + left);
+  cubemap_ptr->left.target = GL_TEXTURE_CUBE_MAP_NEGATIVE_X;
+  cubemap_ptr->right.texture.image_load(prefix + right);
+  cubemap_ptr->right.target = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+
+  cubemap = std::move(cubemap_ptr);
+}
+
 
 void Material::print(const int indent_level)
 {

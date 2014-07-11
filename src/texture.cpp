@@ -1,15 +1,26 @@
 #include "texture.h"
 
+/**************************************************/
+/***************** CONSTRUCTORS *******************/
+/**************************************************/
+
 
 Texture::Texture()
 {
 }
 
+
 Texture::~Texture()
 {
 }
 
-bool Texture::loadImage(const std::string &filename)
+
+/**************************************************/
+/***************** PUBLIC METHODS *****************/
+/**************************************************/
+
+
+bool Texture::image_load(const std::string &filename)
 {
   std::unique_ptr <Image> image_ptr(new Image());
   image = std::move(image_ptr);

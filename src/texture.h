@@ -1,5 +1,4 @@
-#ifndef TEXTURE_H
-#define TEXTURE_H
+#pragma once
 
 #include <iostream>
 #include <memory>
@@ -9,16 +8,17 @@
 #include "image.h"
 
 class Texture {
-public:
-  std::unique_ptr <Image> image;
-  std::string filename;
-  GLuint gl_texture;
+  private:
 
-  Texture();
-  ~Texture();
-  bool loadImage(const std::string & _filename);
+  public:
+    std::unique_ptr<Image> image;
+    std::string filename;
+    GLuint gl_texture;
 
+    Texture();
+    ~Texture();
+
+    bool image_load(const std::string &filename);
 
 };
 
-#endif

@@ -78,9 +78,8 @@ Node &Scene::model_load(const std::string &prefix, const std::string &filename, 
   Model model;
   Node *root_ptr = model.load(assets, root, prefix, filename);
   state_update_recursive(*root_ptr);
-
+ 
   transform.calculateGlobalTransformTopDown(root);
-
   if (draw) {
     upload_queue_add(*root_ptr);
   }
@@ -151,16 +150,21 @@ void Scene::scene_graph_print_by_node(Node &node)
 }
 
 
-Node &Scene::skybox_load(const float size, const std::string &image)
+Node *Scene::node_create(const std::string &name)
 {
-  std::unique_ptr<Mesh> mesh_ptr(new Mesh());
-  Mesh &mesh = *mesh_ptr;
-  auto node_ptr = std::unique_ptr<Node>(new Node("skybox"));
-  Node &node = *node_ptr;
+  std::unique_ptr<Node> node(new Node(name));
+  std::unique_ptr<Mesh> mesh(new Mesh());
+  std::unique_ptr<Material> material(new Material());
 
-  root.child_add(std::move(node_ptr), root.tree_level + 1);
+  Node *node_ptr  = node.get();
+  node->mesh = mesh.get();
+  node->material = material.get();
 
-  return *node_ptr;
+  root.child_add(std::move(node), root.tree_level + 1);
+  assets.mesh_add(std::move(mesh));
+  assets.material_add(std::move(material));
+
+  return node_ptr;
 }
 
 

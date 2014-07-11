@@ -36,7 +36,7 @@ class Scene {
     std::vector<Node *>   render_list_get();
     void                  scene_graph_print();
     void                  scene_graph_print_by_node(Node &node);
-    Node                 &skybox_load(const float size, const std::string &image);
+    Node                 *node_create(const std::string &name);
     void                  state_update_recursive(Node &node);
     void                  upload_queue_add(Node &node);
     Node                 *upload_queue_pop();

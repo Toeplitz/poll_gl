@@ -74,7 +74,7 @@ void Assets::mesh_print_all()
   for (auto &mesh: meshes) {
     std::cout << "\t(" << &mesh<< ") " ;
     std::cout << "indices/vertices: " << mesh->indices.size();
-    std::cout << " / " << mesh->vertices.size() << std::endl;
+    std::cout << " / " << mesh->positions.size() << std::endl;
 
   }
 

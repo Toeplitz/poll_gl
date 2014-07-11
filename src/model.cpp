@@ -107,7 +107,7 @@ void Model::assimp_material_add_texture(Material &material, aiMaterial &assimp_m
     //std::cout << "\tTexture file: " << path.data << std::endl;
     std::unique_ptr<Texture> texturePtr(new Texture());
     Texture &texture = *texturePtr;
-    texture.loadImage(prefix + std::string(path.data));
+    texture.image_load(prefix + std::string(path.data));
 
     switch (type) {
       case MODEL_TEXTURE_DIFFUSE:
@@ -491,22 +491,16 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
         p++;
       }
 
-      m.vertices.push_back(v);
-
       assert(weightsPerVertex[iv].size() <= 3);
 
       for (unsigned int a = 0; a < weightsPerVertex[iv].size(); a++) {
         int id = weightsPerVertex[iv][a].mVertexId;
-        m.vertices[iv].bones[a] = id;
-        m.vertices[iv].weights[a] = weightsPerVertex[iv][a].mWeight;
         m.bone_indices[iv][a] = id;
         m.bone_weights[iv][a] = weightsPerVertex[iv][a].mWeight;
       }
     }
 
-
     //std::cout << "vertices / indices: " << m.vertices.size() << " / " << m.indices.size() << std::endl;
-
     mesh_ptr->scale_matrix = glm::scale(glm::mat4(1.0f), mesh_node->original_scaling);
     mesh_ptr->aabb_generate_bounding();
     mesh_node->mesh = mesh_ptr.get();
