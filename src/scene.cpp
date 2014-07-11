@@ -47,13 +47,13 @@ std::vector <Node *> Scene::animation_list_get()
 }
 
 
-void Scene::animation_list_update_transforms(Node &node, Uint32 dt)
+void Scene::animation_list_update_transforms(Node &node, const double dt)
 {
   glm::mat4 transform = node.transform_local_current;
   Node *parent = node.parent;
 
   if (node.keyframe_total_num_get()) {
-    double factor = node.step_time((double) dt / 1000.0);
+    double factor = node.step_time(dt);
     glm::mat4 m = node.keyframe_interpolate(factor);
     node.local_transform_current_set(m);
   }

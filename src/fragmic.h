@@ -18,7 +18,8 @@ class Fragmic {
     Scene scene;
     Window window;
 
-    void profile_fps(Uint32 dt);
+    const double delta_time_get();
+    void         profile_fps(const double dt);
 
   public:
     Fragmic(const std::string &title, const int &width, const int &height);

@@ -4,7 +4,7 @@
 
 
 Fragmic fragmic("Demo 4", 1280, 720);
-Physics_CharacterController *character;
+Physics_Character_Controller *character;
 unsigned int direction = 0;
 Armature *armature = nullptr;
 
@@ -35,7 +35,6 @@ void joystick_axis_motion_cb(SDL_JoyAxisEvent *ev)
   if (isnan(angle))
     return;
 
-  //std::cout << "Joystick (x, y) = (" << joystick_x << ", " << joystick_y << "), r: " << r << " angle: " << angle << std::endl;
    if (r > 0.1) {
     character->joystick_angle_set(angle);
     character->move(static_cast<Physics_Direction>(direction));
@@ -141,8 +140,30 @@ void keyboard_released_cb(SDL_Keysym *keysym)
 
 void physics_update()
 {
+  static Physics_Character_State last_state;
+  Physics_Character_State cur_state = character->state_get();
+
+  if (last_state == cur_state) return;
+
+  switch (cur_state) {
+    case CHARACTER_STATE_IDLE:
+      armature->keyframe_range_activate("idle");
+      break;
+    case CHARACTER_STATE_MOVING:
+      armature->keyframe_range_activate("run");
+      break;
+    case CHARACTER_STATE_JUMPING:
+      armature->keyframe_range_activate("jump");
+      break;
+    default:
+      break;
+  }
+  last_state = cur_state;
+
+
  // Physics &physics = fragmic.physics_get();
 
+  /*
   switch (direction) {
 
     case PHYSICS_DIRECTION_FORWARD:
@@ -152,6 +173,7 @@ void physics_update()
       armature->keyframe_range_activate("Bind");
       break;
   }
+  */
 }
 
 
@@ -206,11 +228,11 @@ int main()
     if (panda && panda_collision) {
       armature = panda->armature;
       character = physics.character_controller_add(*panda, *panda_collision);
-      armature->keyframe_range_set("Bind", 0, 0);
-      armature->keyframe_range_set("Idle", 1, 3);
-      armature->keyframe_range_set("Walk", 4, 10);
-      armature->keyframe_range_set("Run", 11, 18);
-     // armature->keyframe_range_activate("Idle");
+      armature->keyframe_range_set("bind", 0, 0);
+      armature->keyframe_range_set("idle", 1, 3);
+      armature->keyframe_range_set("walk", 4, 10);
+      armature->keyframe_range_set("run", 11, 18);
+      armature->keyframe_range_set("jump", 22, 22); // Only include 1 frame for now.
     } else {
       std::cout << "Could not find node" << std::endl;
     }

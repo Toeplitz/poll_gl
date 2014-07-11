@@ -21,35 +21,38 @@ enum Physics_Direction
 };
 
 
-class Physics_CharacterController: public btKinematicCharacterController
+enum Physics_Character_State
+{
+  CHARACTER_STATE_IDLE = 1 << 0,
+  CHARACTER_STATE_MOVING = 1 << 1,
+  CHARACTER_STATE_JUMPING = 1 << 2
+};
+
+
+class Physics_Character_Controller: public btKinematicCharacterController
 {
   private:
     Node *node;
     unsigned int direction;
+    Physics_Character_State state;
 
   public:
     float angle_joystick;
     float rotation_angle;
 
     using btKinematicCharacterController::btKinematicCharacterController;
-    ~Physics_CharacterController();
+    ~Physics_Character_Controller();
 
-    void joystick_angle_set(const float angle)
-    {
-      this->angle_joystick = angle;
-      
-    }
 
-    void bullet_character_step();
+    void bullet_character_step(const double dt);
     void bullet_debug_draw_contacts(btDiscreteDynamicsWorld *world, btBroadphaseInterface *broadphase);
 
-    void defaults_set();
-    void node_set(Node &node);
-    void move(Physics_Direction dir);
-    void move_x(const float x);
-    void move_z(const float z);
-    void move_halt();
-    void rotate(const float x);
+    void                           joystick_angle_set(const float angle);
+    void                           reset();
+    void                           node_set(Node &node);
+    void                           move(Physics_Direction dir);
+    const Physics_Character_State  state_get();
+    void                           rotate(const float x);
 
 
 };

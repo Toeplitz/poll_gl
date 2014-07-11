@@ -1,6 +1,7 @@
 #include "fragmic.h"
 #include <SDL2/SDL_timer.h> 
 #include <iostream>
+#include <chrono>
 
 /* TODO:
  * 
@@ -51,14 +52,11 @@ Fragmic::~Fragmic()
 
 void Fragmic::run()
 {
-  Uint32 lastTime = SDL_GetTicks();
   GLcontext &glcontext = window.glcontext_get();
   Assets &assets = scene.assets_get();
 
   for (;;) {
-    Uint32 timeNow = SDL_GetTicks();
-    Uint32 dt = timeNow - lastTime;
-    lastTime = timeNow;
+    double dt = delta_time_get();
     profile_fps(dt);
 
     if (!window.poll_events(camera)) {
@@ -82,12 +80,12 @@ void Fragmic::run()
     physics.step(dt);
 
     glshader.use();
-    camera.update((double) dt / 1000.0);
+    camera.update(dt);
     glcontext.uniform_buffers_update_camera(camera);
     for (auto &node: scene.render_list_get()) {
       glcontext.draw(*node);
     }
-    
+
     glcontext.check_error();
     window.swap();
   }
@@ -133,15 +131,27 @@ Window &Fragmic::window_get()
 /**************************************************/
 
 
-void Fragmic::profile_fps(Uint32 dt)
+// Return delta time in seconds.
+const double Fragmic::delta_time_get()
+{
+  static unsigned long long time_last = std::chrono::system_clock::now().time_since_epoch() /  std::chrono::microseconds(1);
+  unsigned long long time_cur = std::chrono::system_clock::now().time_since_epoch() /  std::chrono::microseconds(1);
+  double dt = (time_cur - time_last) / 1000.0 / 1000.0;
+  time_last = time_cur;
+
+  return dt;
+}
+
+
+void Fragmic::profile_fps(const double dt)
 {
   static int numFrames = 0;
-  static Uint32 t;
+  static double t;
 
   numFrames++;
-  t += dt;
+  t += dt; 
 
-  if (t >= 1000) {
+  if (t >= 1) {
     std::cout << numFrames << " frames/sec, " << 1000.0 /
       numFrames << " ms/frame" << std::endl;
     t = 0;

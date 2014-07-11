@@ -6,7 +6,6 @@
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h>
 #include <BulletCollision/CollisionDispatch/btInternalEdgeUtility.h>
-#include <SDL2/SDL_stdinc.h>            // for Uint32
 #include <functional>
 #include "assets.h"
 #include "camera.h"
@@ -67,7 +66,7 @@ class Physics_Motion_State: public btMotionState
 };
 
 
-typedef std::vector<std::unique_ptr<Physics_CharacterController>>  Physics_CharacterController_List;
+typedef std::vector<std::unique_ptr<Physics_Character_Controller>>  Physics_Character_Controller_List;
 
 class Physics 
 {
@@ -86,7 +85,7 @@ class Physics
     int                                   debug_toggle;
     int                                   pause_toggle;
     Assets                                collision_assets;
-    Physics_CharacterController_List      characters;
+    Physics_Character_Controller_List      characters;
 
 
     btRigidBody                  *bullet_collision_rigidbody_create(Node &node, Physics_Collision_Shape shape, float m);
@@ -94,8 +93,8 @@ class Physics
     btCollisionShape             *bullet_collision_shape_convex_hull_create(Node &node);
     btCollisionShape             *bullet_collision_shape_triangle_mesh_create(Node &node);
     void                          bullet_init();
-    Physics_CharacterController  *bullet_kinematic_character_controller_create(Node &node, Node &collision_node);
-    int                           bullet_step(const Uint32 dt);
+    Physics_Character_Controller  *bullet_kinematic_character_controller_create(Node &node, Node &collision_node);
+    int                           bullet_step(const double dt);
     void                          bullet_term();
     void                          bullet_world_add(Physics_Node &p_node);
     void                          bullet_world_delete(Physics_Node &p_node);
@@ -113,9 +112,9 @@ class Physics
     }
 
 
-    Physics_CharacterController             *character_controller_add(Node &node, Node &collision_node);
-    void                                     character_controller_remove(Physics_CharacterController *char_cont);
-    Physics_CharacterController_List const  &character_get_all() const;
+    Physics_Character_Controller             *character_controller_add(Node &node, Node &collision_node);
+    void                                     character_controller_remove(Physics_Character_Controller *char_cont);
+    Physics_Character_Controller_List const  &character_get_all() const;
 
     void                                     collision_mesh_add(Node &node, const std::string &prefix, const std::string &filename);
     void                                     collision_node_add(Node &node, const Physics_Collision_Shape shape, bool recursive, float mass);
@@ -123,6 +122,6 @@ class Physics
     void                                     debug();
     void                                     init();
     void                                     pause();
-    void                                     step(const Uint32 dt);
+    void                                     step(const double dt);
 };
 

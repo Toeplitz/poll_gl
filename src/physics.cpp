@@ -46,7 +46,7 @@ Physics::~Physics()
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
 
-Physics_CharacterController *Physics::character_controller_add(Node &node, Node &collision_node)
+Physics_Character_Controller *Physics::character_controller_add(Node &node, Node &collision_node)
 {
   if (!node.mesh) {
     std::cout << "Error: no mesh for character controller creation (node: '" << node.name << "')" << std::endl;
@@ -57,23 +57,23 @@ Physics_CharacterController *Physics::character_controller_add(Node &node, Node 
 }
 
 
-Physics_CharacterController_List const  &Physics::character_get_all() const
+Physics_Character_Controller_List const  &Physics::character_get_all() const
 {
   return characters;
 }
 
 
-void Physics::character_controller_remove(Physics_CharacterController *char_cont)
+void Physics::character_controller_remove(Physics_Character_Controller *char_cont)
 {
 }
 
 
-void character_controller_move(Physics_CharacterController *char_cont, Physics_Direction dir)
+void character_controller_move(Physics_Character_Controller *char_cont, Physics_Direction dir)
 {
 }
 
 
-void character_controller_jump(Physics_CharacterController *char_cont)
+void character_controller_jump(Physics_Character_Controller *char_cont)
 {
 }
 
@@ -143,7 +143,7 @@ void Physics::pause()
 }
 
 
-void Physics::step(const Uint32 dt)
+void Physics::step(const double dt)
 {
   if (custom_step_callback)
     custom_step_callback();
@@ -296,9 +296,9 @@ void Physics::bullet_init()
 }
 
 
-Physics_CharacterController *Physics::bullet_kinematic_character_controller_create(Node &node, Node &collision_node)
+Physics_Character_Controller *Physics::bullet_kinematic_character_controller_create(Node &node, Node &collision_node)
 {
-  Physics_CharacterController *character_ptr;
+  Physics_Character_Controller *character_ptr;
   btCollisionShape *fallShape = bullet_collision_shape_convex_hull_create(collision_node);
 
   btTransform startTransform;
@@ -312,10 +312,10 @@ Physics_CharacterController *Physics::bullet_kinematic_character_controller_crea
   actorGhost->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
   world->addCollisionObject(actorGhost, E_Actor, E_Static | E_Riggid | E_Actor | E_Trigger);
 
-  std::unique_ptr<Physics_CharacterController> character(new Physics_CharacterController(actorGhost,static_cast<btConvexShape *>(fallShape), 2.0f));
+  std::unique_ptr<Physics_Character_Controller> character(new Physics_Character_Controller(actorGhost,static_cast<btConvexShape *>(fallShape), 2.0f));
   character_ptr = character.get();
-  character_ptr->defaults_set();
   character_ptr->node_set(node);
+  character_ptr->reset();
   characters.push_back(std::move(character));
   world->addAction(character_ptr);
 
@@ -323,7 +323,7 @@ Physics_CharacterController *Physics::bullet_kinematic_character_controller_crea
 }
 
 
-int Physics::bullet_step(const Uint32 dt)
+int Physics::bullet_step(const double dt)
 {
   float timestep = 1.f / 60.f;
   //float timestep = (float) dt / 1000.f;
@@ -334,7 +334,7 @@ int Physics::bullet_step(const Uint32 dt)
   //std::cout << "timeStep <  maxSubSteps * fixedTimeStep: " << timestep << " < " << max_sub_steps * fixed_time_step << std::endl;
   if (pause_toggle) {
     for (auto &character : characters) {
-      character->bullet_character_step();
+      character->bullet_character_step(dt);
     }
     world->stepSimulation(timestep, max_sub_steps, fixed_time_step);
   }

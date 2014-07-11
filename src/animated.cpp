@@ -39,17 +39,12 @@ void Animated::animation_activate(const Animation &a)
 {
   unsigned int first = a.keyframe_first;
   unsigned int last = a.keyframe_last;
-  std::cout << "\tSetting keyframe limits for "<< std::endl;
 
   keyframe_range_prev = first;
   keyframe_range_next = keyframe_range_prev + 1;
-
   animation_time_min = keyframes[first]->time;
   animation_time_max = keyframes[last]->time;
-
   reset();
-
-  std::cout << "time start/stop: " << keyframes[first]->time << " / " << keyframes[last]->time << std::endl;
 }
 
 
@@ -132,6 +127,7 @@ float Animated::step_time(const double dt)
   if (keyframes.size() == 0)
     return -1;
 
+//  std::cout << dt << std::endl;
   animation_time = animation_time + dt;
   if (animation_time >= animation_time_max) {
     reset();

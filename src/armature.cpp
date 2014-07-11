@@ -75,18 +75,17 @@ void Armature::keyframe_range_activate(const std::string &name)
 {
   static Animation *a_last;
 
+  if (animations.find(name) == animations.end()) {
+    std::cout << "Error: could not find requested keyframe animation! Needs to be added?" << std::endl;
+    return;
+  }
+
   Animation &a = animations[name];
   if (a_last == &a)
     return;
 
-  int first = a.keyframe_first;
-  int last = a.keyframe_last;
-
-  std::cout << "Setting keyframe to active: " << a.name << std::endl;
-  std::cout << "From: " << first << " To: " << last << std::endl;
   for (auto &bone_entry : bones) {
     Bone &bone = *bone_entry;
-    std::cout << "\tNode: '" << bone.joint_node->name << "'" << std::endl;
     bone.joint_node->animation_activate(a);
   }
 

@@ -56,7 +56,7 @@ bool Window::init(const std::string &title)
 
   window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED,
       SDL_WINDOWPOS_CENTERED, width, height,
-      SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+      SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
 
   if(SDL_NumJoysticks() < 1) {
     std::cout << "Warning: No joysticks/gamepads connected!" << std::endl;

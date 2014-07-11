@@ -17,13 +17,13 @@
 #include "utils.h"
 
 
-Physics_CharacterController::~Physics_CharacterController()
+Physics_Character_Controller::~Physics_Character_Controller()
 {
   std::cout << "Deleting character controller" << std::endl;
 }
 
 
-void Physics_CharacterController::bullet_character_step()
+void Physics_Character_Controller::bullet_character_step(const double dt)
 {
   btPairCachingGhostObject *ghost = getGhostObject();
   glm::mat4 m;
@@ -34,16 +34,17 @@ void Physics_CharacterController::bullet_character_step()
   ghost->getWorldTransform().getOpenGLMatrix((btScalar *) &m);
   node->mesh->model = m;
 
-  btScalar walkVelocity = btScalar(1.1) * 3.0; // 4 km/h -> 1.1 m/s
-  btScalar walkSpeed = walkVelocity * 0.16;
+  btScalar walkVelocity = 15.0;
+  btScalar walkSpeed = walkVelocity * dt;
+  float rotation_speed = 3.f * (float) dt;
 
   if (direction & PHYSICS_DIRECTION_LEFT) {
-    node->mesh->model = glm::rotate(node->mesh->model, 0.03f, glm::vec3(0, 1, 0));
-    rotation_angle += 0.03f;
+    node->mesh->model = glm::rotate(node->mesh->model, rotation_speed, glm::vec3(0, 1, 0));
+    rotation_angle += rotation_speed;
   }
   if (direction & PHYSICS_DIRECTION_RIGHT) {
-    node->mesh->model = glm::rotate(node->mesh->model, -0.03f, glm::vec3(0, 1, 0));
-    rotation_angle -= 0.03f;
+    node->mesh->model = glm::rotate(node->mesh->model, -rotation_speed, glm::vec3(0, 1, 0));
+    rotation_angle -= rotation_speed;
   }
 
   if (direction & PHYSICS_DIRECTION_ROTATE) {
@@ -75,7 +76,7 @@ void Physics_CharacterController::bullet_character_step()
 }
 
 
-void  Physics_CharacterController::bullet_debug_draw_contacts(btDiscreteDynamicsWorld *world, btBroadphaseInterface *broadphase)
+void  Physics_Character_Controller::bullet_debug_draw_contacts(btDiscreteDynamicsWorld *world, btBroadphaseInterface *broadphase)
 {
   btManifoldArray manifoldArray;
   btBroadphasePairArray& pairArray = m_ghostObject->getOverlappingPairCache()->getOverlappingPairArray();
@@ -105,23 +106,43 @@ void  Physics_CharacterController::bullet_debug_draw_contacts(btDiscreteDynamics
 }
 
 
-void Physics_CharacterController::defaults_set()
+void Physics_Character_Controller::joystick_angle_set(const float angle)
 {
+  angle_joystick = angle;
+}
+
+
+void Physics_Character_Controller::reset()
+{
+  state = CHARACTER_STATE_IDLE;
   direction = PHYSICS_DIRECTION_NONE;
   rotation_angle = (float) M_PI / 2.f;
   setJumpSpeed(15);
 }
 
 
-void Physics_CharacterController::node_set(Node &node)
+void Physics_Character_Controller::node_set(Node &node)
 {
   this->node = &node;
 }
 
 
-void Physics_CharacterController::move(Physics_Direction direction)
+void Physics_Character_Controller::move(Physics_Direction direction)
 {
   this->direction = direction;
 
 }
 
+
+const Physics_Character_State  Physics_Character_Controller::state_get()
+{
+  if (!onGround()) {
+    state = CHARACTER_STATE_JUMPING;
+  } else if (!m_walkDirection.isZero()) {
+    state = CHARACTER_STATE_MOVING;
+  } else {
+    state = CHARACTER_STATE_IDLE;
+  }
+
+  return state;
+}
