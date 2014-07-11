@@ -30,12 +30,13 @@ class Scene {
     std::vector<Node *>   animation_list_get();
     void                  animation_list_update_transforms(Node &node, const double dt);
     Assets               &assets_get();
-    Node                 &load_model(const std::string &prefix, const std::string &filename, bool draw = true);
+    Node                 &model_load(const std::string &prefix, const std::string &filename, bool draw = true);
     Node                 *node_find(Node *root_ptr, const std::string &name);
     void                  render_list_add(Node &node);
     std::vector<Node *>   render_list_get();
     void                  scene_graph_print();
     void                  scene_graph_print_by_node(Node &node);
+    Node                 &skybox_load(const float size, const std::string &image);
     void                  state_update_recursive(Node &node);
     void                  upload_queue_add(Node &node);
     Node                 *upload_queue_pop();

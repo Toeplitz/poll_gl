@@ -1,11 +1,11 @@
 #version 330
 
 layout(location = 0) in vec3 vertex_position;
-layout(location = 1) in vec4 vertex_normal;
-layout(location = 2) in vec4 vtangent;
-layout(location = 3) in vec4 bitangent;
-layout(location = 4) in vec4 weights;
-layout(location = 5) in ivec4 bone_index;
+layout(location = 1) in vec3 vertex_normal;
+layout(location = 2) in vec3 vtangent;
+layout(location = 3) in vec3 bitangent;
+layout(location = 4) in vec3 weights;
+layout(location = 5) in ivec3 bone_index;
 layout(location = 6) in vec2 texture_coord;
 
 layout(std140) uniform GlobalMatrices {
@@ -75,7 +75,7 @@ void main(void)
   mat3 normal_matrix = mat3(transpose(inverse(model_view)));
 
   position_eye = vec3(model_view * vec4(vertex_position, 1.0));
-  normal_eye = normalize(vec3(normal_matrix * vec3(vertex_normal)));
+  normal_eye = normalize(vec3(normal_matrix * vertex_normal));
   light_position_eye = vec3(view * vec4(light_position_world, 1.0));
 
   gl_Position = proj * vec4(position_eye, 1.0);
@@ -88,7 +88,8 @@ void main(void)
     /* work out bi-tangent as cross product of normal and tangent. also multiply
        by the determinant, which we stored in .w to correct handedness
     */ 
-    vec3 bitangent = cross (vec3(vertex_normal), vtangent.xyz) * vtangent.w;
+    //vec3 bitangent = cross (vertex_normal, vtangent) * vtangent.w;
+    //vec3 bitangent = cross (vertex_normal, vtangent) * 1;
     
     /* transform our camera and light uniforms into local space */
     vec3 cam_pos_loc = vec3 (inverse (model) * vec4 (cam_pos_wor, 1.0));
@@ -101,15 +102,15 @@ void main(void)
     */
     // work out view direction in _tangent space_
     view_dir_tan = vec3 (
-      dot (vtangent.xyz, view_dir_loc),
+      dot (vtangent, view_dir_loc),
       dot (bitangent, view_dir_loc),
-      dot (vec3(vertex_normal), view_dir_loc)
+      dot (vertex_normal, view_dir_loc)
     );
     // work out light direction in _tangent space_
     light_dir_tan = vec3 (
-      dot (vtangent.xyz, light_dir_loc),
+      dot (vtangent, light_dir_loc),
       dot (bitangent, light_dir_loc),
-      dot (vec3(vertex_normal), light_dir_loc)
+      dot (vertex_normal, light_dir_loc)
     );
   }
 

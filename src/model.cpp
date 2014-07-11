@@ -189,6 +189,7 @@ void Model::bone_map_create(Assets & assets, BoneForAssimpBone & boneForAssimpBo
   assets.armature_add(std::move(armature));
 }
 
+
 Node *Model::node_map_create(const aiNode &node, Node *parent, int level)
 {
   glm::mat4 localTransform;
@@ -447,15 +448,23 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
       //m.model = right_handed_to_left_handed(mesh_node->transform_global);
     }
 
+    if (assimpMesh->mNumBones > 0) {
+      m.bone_indices.resize(assimpMesh->mNumVertices);
+      m.bone_weights.resize(assimpMesh->mNumVertices);
+    }
+
     for (unsigned int iv = 0; iv < assimpMesh->mNumVertices; iv++) {
       Vertex v;
       v.position.x = assimpMesh->mVertices[iv].x;
       v.position.y = assimpMesh->mVertices[iv].y;
       v.position.z = assimpMesh->mVertices[iv].z;
+      m.positions.push_back(glm::vec3(v.position.x, v.position.y, v.position.z));
+
       if (assimpMesh->HasNormals()) {
         v.normal.x = assimpMesh->mNormals[iv].x;
         v.normal.y = assimpMesh->mNormals[iv].y;
         v.normal.z = assimpMesh->mNormals[iv].z;
+        m.normals.push_back(glm::vec3(v.normal.x, v.normal.y, v.normal.z));
       }
       if (assimpMesh->HasTangentsAndBitangents()) {
         v.tangent.x = assimpMesh->mTangents[iv].x;
@@ -465,12 +474,16 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
         v.bitangent.x = assimpMesh->mBitangents[iv].x;
         v.bitangent.y = assimpMesh->mBitangents[iv].y;
         v.bitangent.z = assimpMesh->mBitangents[iv].z;
+
+        m.tangents.push_back(glm::vec3(v.tangent.x, v.tangent.y, v.tangent.z));
+        m.bitangents.push_back(glm::vec3(v.bitangent.x, v.bitangent.y, v.bitangent.z));
       }
 
       unsigned int p = 0;
       while (assimpMesh->HasTextureCoords(p)) {
         v.uv.x = assimpMesh->mTextureCoords[p][iv].x;
         v.uv.y = assimpMesh->mTextureCoords[p][iv].y;
+        m.texture_st.push_back(glm::vec2(v.uv.x, v.uv.y));
         if (p > 0) {
           std::cout << "Fragmic warning: more than one set of texture coordinates for one mesh" << std::endl;
           std::cout << "NOT CURRENTLY SUPPORTED!" << std::endl;
@@ -480,15 +493,14 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
 
       m.vertices.push_back(v);
 
-      m.positions.push_back(glm::vec3(v.position.x, v.position.y, v.position.z));
-      m.texture_st.push_back(glm::vec2(v.uv.x, v.uv.y));
-
-      assert(weightsPerVertex[iv].size() <= 4);
+      assert(weightsPerVertex[iv].size() <= 3);
 
       for (unsigned int a = 0; a < weightsPerVertex[iv].size(); a++) {
         int id = weightsPerVertex[iv][a].mVertexId;
         m.vertices[iv].bones[a] = id;
         m.vertices[iv].weights[a] = weightsPerVertex[iv][a].mWeight;
+        m.bone_indices[iv][a] = id;
+        m.bone_weights[iv][a] = weightsPerVertex[iv][a].mWeight;
       }
     }
 

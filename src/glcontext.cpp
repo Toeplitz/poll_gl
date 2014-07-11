@@ -276,74 +276,93 @@ void GLcontext::vertex_buffers_create(Node &node)
   Mesh *mesh = node.mesh;
   Material *material = node.material;
 
-  if  (mesh) {
-    std::vector<glm::vec4> normals;
-    std::vector<glm::vec4> tangents;
-    std::vector<glm::vec4> bitangents;
-    std::vector<glm::vec4> weights;
-    std::vector<glm::ivec4> bone_indices;
-    mesh->buffer_data_get(&normals, &tangents, &bitangents,
-        &weights, &bone_indices);
+  if (!mesh) return;
 
-    glGenVertexArrays(1, &node.gl_vao);
-    glBindVertexArray(node.gl_vao);
-    glGenBuffers(8, gl_vertex_buffers);
+  glGenVertexArrays(1, &node.gl_vao);
+  glBindVertexArray(node.gl_vao);
+  glGenBuffers(8, gl_vertex_buffers);
 
-    target = GL_ARRAY_BUFFER;
-    {
-      std::vector<glm::vec3> positions = mesh->positions_get();
-      index = 0;
+  target = GL_ARRAY_BUFFER;
+  {
+    std::vector<glm::vec3> positions = mesh->positions_get();
+    index = 0;
+    glBindBuffer(target, gl_vertex_buffers[index]);
+    glBufferData(target, positions.size() * sizeof(positions[0]), positions.data(), GL_STATIC_DRAW);
+    glEnableVertexAttribArray(index);
+    glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  }
+
+  {
+    std::vector<glm::vec3> normals = mesh->normals_get();
+    index = 1;
+    if (normals.size() > 0) {
       glBindBuffer(target, gl_vertex_buffers[index]);
-      glBufferData(target, positions.size() * sizeof(positions[0]), positions.data(), GL_STATIC_DRAW);
+      glBufferData(target, normals.size() * sizeof(normals[0]), normals.data(), GL_STATIC_DRAW);
       glEnableVertexAttribArray(index);
       glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0);
     }
+  }
 
-    index = 1;
-    glBindBuffer(target, gl_vertex_buffers[index]);
-    glBufferData(target, normals.size() * sizeof(normals[0]), normals.data(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(index);
-    glVertexAttribPointer(index, 4, GL_FLOAT, GL_FALSE, 0, 0);
+  {
+    std::vector<glm::vec3> tangents = mesh->tangents_get();
+    if (tangents.size() > 0) {
+      index = 2;
+      glBindBuffer(target, gl_vertex_buffers[index]);
+      glBufferData(target, tangents.size() * sizeof(tangents[0]), tangents.data(), GL_STATIC_DRAW);
+      glEnableVertexAttribArray(index);
+      glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    }
+  }
 
-    index = 2;
-    glBindBuffer(target, gl_vertex_buffers[index]);
-    glBufferData(target, tangents.size() * sizeof(tangents[0]), tangents.data(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(index);
-    glVertexAttribPointer(index, 4, GL_FLOAT, GL_FALSE, 0, 0);
+  {
+    std::vector<glm::vec3> bitangents = mesh->bitangents_get();
+    if (bitangents.size() > 0) {
+      index = 3;
+      glBindBuffer(target, gl_vertex_buffers[index]);
+      glBufferData(target, bitangents.size() * sizeof(bitangents[0]), bitangents.data(), GL_STATIC_DRAW);
+      glEnableVertexAttribArray(index);
+      glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    }
+  }
 
-    index = 3;
-    glBindBuffer(target, gl_vertex_buffers[index]);
-    glBufferData(target, bitangents.size() * sizeof(bitangents[0]), bitangents.data(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(index);
-    glVertexAttribPointer(index, 4, GL_FLOAT, GL_FALSE, 0, 0);
+  {
+    std::vector<glm::vec3> bone_weights = mesh->bone_weights_get();
+    if (bone_weights.size() > 0) {
+      index = 4;
+      glBindBuffer(target, gl_vertex_buffers[index]);
+      glBufferData(target, bone_weights.size() * sizeof(bone_weights[0]), bone_weights.data(), GL_STATIC_DRAW);
+      glEnableVertexAttribArray(index);
+      glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    }
+  }
 
-    index = 4;
-    glBindBuffer(target, gl_vertex_buffers[index]);
-    glBufferData(target, weights.size() * sizeof(weights[0]), weights.data(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(index);
-    glVertexAttribPointer(index, 4, GL_FLOAT, GL_FALSE, 0, 0);
+  {
+    std::vector<glm::ivec3> bone_indices = mesh->bone_indices_get();
+    if (bone_indices.size() > 0) {
+      index = 5;
+      glBindBuffer(target, gl_vertex_buffers[index]);
+      glBufferData(target, bone_indices.size() * sizeof(bone_indices[0]), bone_indices.data(), GL_STATIC_DRAW);
+      glEnableVertexAttribArray(index);
+      glVertexAttribIPointer(index, 3, GL_INT, 0, 0);
+    }
+  }
 
-    index = 5;
-    glBindBuffer(target, gl_vertex_buffers[index]);
-    glBufferData(target, bone_indices.size() * sizeof(bone_indices[0]), bone_indices.data(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(index);
-    glVertexAttribIPointer(index, 4, GL_INT, 0, 0);
-
-    {
-      std::vector<glm::vec2> uvs = mesh->texture_st_get();
+  {
+    std::vector<glm::vec2> uvs = mesh->texture_st_get();
+    if (uvs.size() > 0) {
       index = 6;
       glBindBuffer(target, gl_vertex_buffers[index]);
       glBufferData(target, uvs.size() * sizeof(uvs[0]), uvs.data(), GL_STATIC_DRAW);
       glEnableVertexAttribArray(index);
       glVertexAttribPointer(index, 2, GL_FLOAT, GL_FALSE, 0, 0);
     }
+  }
 
-    {
-      target = GL_ELEMENT_ARRAY_BUFFER;
-      std::vector<GLshort> indices = mesh->indices_get();
-      glBindBuffer(target, gl_vertex_buffers[7]);
-      glBufferData(target, indices.size() * sizeof(indices[0]), indices.data(), GL_STATIC_DRAW);
-    }
+  {
+    target = GL_ELEMENT_ARRAY_BUFFER;
+    std::vector<GLshort> indices = mesh->indices_get();
+    glBindBuffer(target, gl_vertex_buffers[7]);
+    glBufferData(target, indices.size() * sizeof(indices[0]), indices.data(), GL_STATIC_DRAW);
   }
 
   if (material) {

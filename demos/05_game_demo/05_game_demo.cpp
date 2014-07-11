@@ -74,7 +74,6 @@ void keyboard_pressed_cb(SDL_Keysym *keysym)
 
   switch (keysym->sym) {
     case SDLK_SPACE:
-      //character->setVelocityForTimeInterval(btVector3(0, -10, 0), 4);
       character->jump();
       break;
     case SDLK_d:
@@ -159,21 +158,6 @@ void physics_update()
       break;
   }
   last_state = cur_state;
-
-
- // Physics &physics = fragmic.physics_get();
-
-  /*
-  switch (direction) {
-
-    case PHYSICS_DIRECTION_FORWARD:
-      armature->keyframe_range_activate("Run");
-      break;
-    default:
-      armature->keyframe_range_activate("Bind");
-      break;
-  }
-  */
 }
 
 
@@ -192,26 +176,13 @@ int main()
   window.keyboard_released_callback_set(keyboard_released_cb);
   physics.custom_step_callback_set(physics_update);
 
-  Node &room = scene.load_model("data/game_assets/", "Room.dae");
+  scene.skybox_load(20.f, "data/skybox.jpg");
+
+  Node &room = scene.model_load("data/game_assets/", "Room.dae");
   physics.collision_node_add(room, PHYSICS_COLLISION_TRIANGLE_MESH, true, 0);
 
- // Node &box = scene.load_model("data/game_assets/", "cones.dae", 0);
- // physics.collision_node_add(box, PHYSICS_COLLISION_CONVEX_HULL, true, 1);
- 
-  //t.translate(panda, glm::vec3(30, 10, 0));
-//  physics.collision_mesh_add(panda, "data/game_assets/characters/panda/", "PandaColl.dae");
-
   /*
-  Node &bob = scene.load_model("data/bob/", "Bob_with_lamp.dae", 1);
-  t.translate(bob, glm::vec3(-30, 10, 0));
-  t.scale(bob, glm::vec3(3.5, 3.5, 3.5));
-*/
-
- //Node &cylinder = scene.load_model("data/game_assets/characters/placeholder/", "cylinder.dae", 0);
- 
-
-  /*
-  Node &box_root = scene.load_model("data/game_assets/", "box.dae");
+  Node &box_root = scene.model_load("data/game_assets/", "box.dae");
   Node *cube = scene.node_find(&box_root, "Cube");
   if (cube) {
     character = physics.character_controller_add(*cube, *cube);
@@ -221,8 +192,8 @@ int main()
   */
 
   {
-    Node &panda_root = scene.load_model("data/game_assets/characters/panda/", "Panda.dae");
-    Node &panda_collision_root = scene.load_model("data/game_assets/characters/panda/", "Panda_convex_hull.dae", false);
+    Node &panda_root = scene.model_load("data/game_assets/characters/panda/", "Panda.dae");
+    Node &panda_collision_root = scene.model_load("data/game_assets/characters/panda/", "Panda_convex_hull.dae", false);
     Node *panda = scene.node_find(&panda_root, "Panda");
     Node *panda_collision = scene.node_find(&panda_collision_root, "Panda_convex_hull");
     if (panda && panda_collision) {

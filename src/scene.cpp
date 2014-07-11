@@ -71,7 +71,7 @@ void Scene::animation_list_update_transforms(Node &node, const double dt)
 
 
 
-Node &Scene::load_model(const std::string &prefix, const std::string &filename, bool draw) 
+Node &Scene::model_load(const std::string &prefix, const std::string &filename, bool draw) 
 {
   Transform transform;
 
@@ -148,6 +148,19 @@ void Scene::scene_graph_print_by_node(Node &node)
   for (auto &child : node.children) {
     scene_graph_print_by_node(*child);
   }
+}
+
+
+Node &Scene::skybox_load(const float size, const std::string &image)
+{
+  std::unique_ptr<Mesh> mesh_ptr(new Mesh());
+  Mesh &mesh = *mesh_ptr;
+  auto node_ptr = std::unique_ptr<Node>(new Node("skybox"));
+  Node &node = *node_ptr;
+
+  root.child_add(std::move(node_ptr), root.tree_level + 1);
+
+  return *node_ptr;
 }
 
 

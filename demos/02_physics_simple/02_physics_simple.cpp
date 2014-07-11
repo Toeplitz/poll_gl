@@ -33,16 +33,16 @@ int main()
   Window &window = fragmic.window_get();
   window.keyboard_pressed_callback_set(keyboard_pressed_cb);
 
-  Node &box_node_rh = scene.load_model("data/", "box_translated_scaled.dae");
+  Node &box_node_rh = scene.model_load("data/", "box_translated_scaled.dae");
   physics.collision_node_add(box_node_rh, PHYSICS_COLLISION_BOX, true, 1.f);
 
-  Node &sphere_node = scene.load_model("data/", "sphere_translated_scaled.dae");
+  Node &sphere_node = scene.model_load("data/", "sphere_translated_scaled.dae");
   physics.collision_node_add(sphere_node, PHYSICS_COLLISION_SPHERE, true, 1.f);
 
-  Node &monkey_node = scene.load_model("data/", "convex_hull.dae");
+  Node &monkey_node = scene.model_load("data/", "convex_hull.dae");
   physics.collision_node_add(monkey_node, PHYSICS_COLLISION_CONVEX_HULL, true, 1.f);
 
-  Node &base_node= scene.load_model("data/", "base.dae");
+  Node &base_node= scene.model_load("data/", "base.dae");
   physics.collision_node_add(base_node, PHYSICS_COLLISION_BOX, true, 0);
 
   scene.scene_graph_print();
