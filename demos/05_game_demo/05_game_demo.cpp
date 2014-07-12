@@ -178,10 +178,12 @@ int main()
 
   {
     Node &node = *scene.node_create("skybox");
-    node.mesh->cube_generate(20.0f);
+    node.mesh->cube_generate(150.0f);
     Material &material = *node.material;
+    //material.cubemap_create("data/game_assets/skybox/SkyboxSet1/DarkStormy/", "DarkStormyFront2048.png",
+    //    "DarkStormyBack2048.png", "DarkStormyUp2048.png", "DarkStormyDown2048.png", "DarkStormyLeft2048.png", "DarkStormyRight2048.png");
     material.cubemap_create("data/game_assets/skybox/SkyboxSet1/DarkStormy/", "DarkStormyFront2048.png",
-        "DarkStormyBack2048.png", "DarkStormyUp2048.png", "DarkStormyDown2048.png", "DarkStormyLeft2048.png", "DarkStormyRight2048.png");
+        "DarkStormyBack2048.png", "bar.png", "foo.png", "DarkStormyLeft2048.png", "DarkStormyRight2048.png");
     scene.upload_queue_add(node);
   }
 

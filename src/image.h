@@ -1,5 +1,4 @@
-#ifndef IMAGE_H
-#define IMAGE_H
+#pragma once
 
 #include <iostream>
 #include <string>
@@ -16,9 +15,7 @@ public:
    Image();
   ~Image();
 
-  bool load(const std::string & fileName);
+  bool load(const std::string &filename);
 
 };
 
-
-#endif
