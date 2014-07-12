@@ -184,7 +184,6 @@ void main()
     out_color = func_standard();
   }
 
-
   frag_color.rgb = out_color;
   frag_color.a = 1.0;
 }

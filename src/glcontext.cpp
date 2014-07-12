@@ -50,19 +50,17 @@ void GLcontext::draw(Node &node)
   Mesh *mesh = node.mesh;
   if (!mesh) return;
 
-  // Enable/disable for skybox
-  
-  if (node.state.cubemap)
-    glDepthMask (GL_FALSE);
-
-  glBindVertexArray(node.gl_vao);
-  GLsizei count = (GLsizei) mesh->num_indices_get();
   uniform_buffers_update_node(node);
-  uniform_buffers_update_mesh(*mesh);
-  glDrawElements(mesh->mode, count, GL_UNSIGNED_SHORT, 0);
+  glBindVertexArray(node.gl_vao);
+  if (node.state.cubemap) { 
+    //glDepthMask (GL_FALSE);
+    glDrawArrays(mesh->mode, 0, mesh->num_vertices_get());
+    //glDepthMask(GL_TRUE);
+  } else {
+    GLsizei count = (GLsizei) mesh->num_indices_get();
+    glDrawElements(mesh->mode, count, GL_UNSIGNED_SHORT, 0);
+  }
 
-  if (node.state.cubemap)
-    glDepthMask(GL_TRUE);
 }
 
 
@@ -221,15 +219,13 @@ void GLcontext::uniform_buffers_update_camera(Camera &camera)
 }
 
 
-void GLcontext::uniform_buffers_update_material(Node &node)
+void GLcontext::uniform_buffers_update_material(Material &material)
 {
-
-  if (!node.material) return;
 
   GLenum target = GL_UNIFORM_BUFFER;
   GLintptr offset = 0;
   glBindBuffer(target, gl_buffer_material);
-  glBufferSubData(target, offset, sizeof(node.material->material_block), &node.material->material_block);
+  glBufferSubData(target, offset, sizeof(material.material_block), &material.material_block);
 }
 
 
@@ -247,21 +243,24 @@ void GLcontext::uniform_buffers_update_mesh(Mesh &mesh)
 
 void GLcontext::uniform_buffers_update_node(Node &node)
 {
-  GLenum target = GL_UNIFORM_BUFFER;
   GLintptr offset = 0;
   Armature *armature = node.armature;
   Material *material = node.material;
+  Mesh *mesh = node.mesh;
 
-  uniform_buffers_update_material(node);
   uniform_buffers_update_state(node);
+  uniform_buffers_update_mesh(*mesh);
 
   if (armature) {
+    GLenum target = GL_UNIFORM_BUFFER;
     glBindBuffer(target, gl_buffer_armature);
     glBufferSubData(target, offset, armature->skinning_matrices.size() * sizeof(armature->skinning_matrices[0]), 
         armature->skinning_matrices.data());
   }
 
   if (material) {
+    uniform_buffers_update_material(*material);
+
     glBindTexture(GL_TEXTURE_2D, 0);
 
     if (material->diffuse) {

@@ -21,7 +21,6 @@ struct Cubemap_Item
   Texture texture;
 };
 
-
 struct Cubemap
 {
   GLuint gl_texture;
