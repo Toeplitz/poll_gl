@@ -48,9 +48,9 @@ void Material::cubemap_create(const std::string &prefix, const std::string &fron
 
 void Material::color_set(const glm::vec3 ambient, const glm::vec3 diffuse, const glm::vec3 specular, const float shininess)
 {
-  material_block.Ka = ambient;
-  material_block.Kd = diffuse;
-  material_block.Ks = specular;
+  material_block.Ka = glm::vec4(ambient, 1.f);
+  material_block.Kd = glm::vec4(diffuse, 1.f);
+  material_block.Ks = glm::vec4(specular, 1.f);
   material_block.shininess = shininess;
 }
 

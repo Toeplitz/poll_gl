@@ -22,9 +22,9 @@ layout(std140) uniform Armature {
 };
 
 layout(std140) uniform Material {
-  vec3 Ka;
-  vec3 Kd;
-  vec3 Ks;
+  vec4 Ka;
+  vec4 Kd;
+  vec4 Ks;
   float shininess;
 };
 

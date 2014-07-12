@@ -150,9 +150,9 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
 
   {
     Material_Properties properties;
-    properties.Ka = glm::vec3(1.f, 0.f, 0.f);
-    properties.Kd = glm::vec3(0.f, 1.f, 0.f);
-    properties.Ks = glm::vec3(0.f, 0.f, 1.f);
+    properties.Ka = glm::vec4(1.f, 0.f, 0.f, 1.f);
+    properties.Kd = glm::vec4(0.f, 1.f, 0.f, 1.f);
+    properties.Ks = glm::vec4(0.f, 0.f, 1.f, 1.f);
     properties.shininess = 0.f;
 
     bind_index = UB_MATERIAL;
@@ -164,6 +164,7 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
     glBindBufferBase(target, bind_index, gl_buffer_material);
     //glBindBufferRange(target, bind_index, gl_buffer_material, 0, sizeof(properties));
     glBindBuffer(target, 0);
+
   }
 
   {
@@ -233,6 +234,7 @@ void GLcontext::uniform_buffers_update_material(Material &material)
   glBindBuffer(target, gl_buffer_material);
   glBufferSubData(target, offset, sizeof(material.material_block), &material.material_block);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
 }
 
 
@@ -255,7 +257,6 @@ void GLcontext::uniform_buffers_update_node(Node &node)
   Armature *armature = node.armature;
   Material *material = node.material;
   Mesh *mesh = node.mesh;
-
 
   uniform_buffers_update_state(node);
   uniform_buffers_update_mesh(*mesh);

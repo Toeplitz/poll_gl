@@ -8,9 +8,9 @@
 
 struct Material_Properties
 {
-  glm::fvec3 Ka;
-  glm::fvec3 Kd;
-  glm::fvec3 Ks;
+  glm::vec4 Ka;
+  glm::vec4 Kd;
+  glm::vec4 Ks;
   float shininess;
 };
 

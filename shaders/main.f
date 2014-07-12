@@ -31,9 +31,9 @@ layout(std140) uniform Armature {
 
 
 layout(std140) uniform Material {
-  vec3 Ka;
-  vec3 Kd;
-  vec3 Ks;
+  vec4 Ka;
+  vec4 Kd;
+  vec4 Ks;
   float shininess;
 };
 
@@ -164,17 +164,17 @@ vec3 func_toon(vec3 ambient, vec3 diffuse)
 
 vec3 func_diffuse_texture()
 {
-  //return func_ads(vec3(0, 0, 0), texture(diffuse_texture, st).rgb, vec3(1, 1, 1), 20);
-  return func_diffuse(texture(diffuse_texture, st).rgb);
+  return func_ads(vec3(0, 0, 0), texture(diffuse_texture, st).rgb, vec3(1, 1, 1), 20);
+  //return func_diffuse(texture(diffuse_texture, st).rgb);
 }
 
 
 vec3 func_standard()
 {
- //return func_phong(vec3(0,0,0), Kd, vec3(1, 0.5, 0.5), 80);
+ return func_phong(vec3(0,0,0), vec3(Kd), vec3(1, 0.5, 0.5), 80);
  //return func_ads(vec3(0,0,0), Kd, vec3(1, 0.5, 0.5), 80);
  //return func_toon(vec3(0,0,0), Kd);
- return func_diffuse(Kd);
+ //return func_diffuse(vec3(Kd));
  }
 
 
@@ -190,8 +190,6 @@ void main()
     out_color = texture(cube_texture, str).rgb;
   } else if (state_standard == 1) {
     out_color = func_standard();
-    out_color = Kd;
-    //out_color = vec3(0, 1, 0);
   }
 
   frag_color.rgb = out_color;
