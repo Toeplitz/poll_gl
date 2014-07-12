@@ -8,9 +8,9 @@
 
 struct Material_Properties
 {
-  glm::vec3 Ka;
-  glm::vec3 Kd;
-  glm::vec3 Ks;
+  glm::fvec3 Ka;
+  glm::fvec3 Kd;
+  glm::fvec3 Ks;
   float shininess;
 };
 
@@ -20,6 +20,7 @@ struct Cubemap_Item
   GLenum target;
   Texture texture;
 };
+
 
 struct Cubemap
 {
@@ -46,6 +47,7 @@ class Material
     Material();
     ~Material();
 
+    void color_set(const glm::vec3 ambient, const glm::vec3 diffuse, const glm::vec3 specular, const float shininess);
     void cubemap_create(const std::string &prefix, const std::string &front, const std::string &back,
         const std::string &top, const std::string &bottom, 
         const std::string &left, const std::string &right);

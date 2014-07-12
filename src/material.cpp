@@ -46,6 +46,15 @@ void Material::cubemap_create(const std::string &prefix, const std::string &fron
 }
 
 
+void Material::color_set(const glm::vec3 ambient, const glm::vec3 diffuse, const glm::vec3 specular, const float shininess)
+{
+  material_block.Ka = ambient;
+  material_block.Kd = diffuse;
+  material_block.Ks = specular;
+  material_block.shininess = shininess;
+}
+
+
 void Material::print(const int indent_level)
 {
   indent(std::cout, indent_level);

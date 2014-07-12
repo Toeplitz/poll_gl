@@ -1,6 +1,6 @@
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
-DIRS = src demos/01_model_loading demos/02_physics_simple demos/03_skeletal_collision demos/04_normal_mapping demos/05_game_demo
+DIRS = src demos/01_model_loading demos/02_physics_simple demos/03_cube_map demos/04_normal_mapping demos/05_game_demo
 
 all : libfragmic.so
 

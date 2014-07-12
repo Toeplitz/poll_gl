@@ -51,15 +51,18 @@ void GLcontext::draw(Node &node)
   if (!mesh) return;
 
   uniform_buffers_update_node(node);
+
+  if (node.state.cubemap) glDepthMask(GL_FALSE);
+
   glBindVertexArray(node.gl_vao);
-  if (node.state.cubemap) { 
-    //glDepthMask (GL_FALSE);
+  GLsizei count = (GLsizei) mesh->num_indices_get();
+  if (count <= 0) {
     glDrawArrays(mesh->mode, 0, mesh->num_vertices_get());
-    //glDepthMask(GL_TRUE);
   } else {
-    GLsizei count = (GLsizei) mesh->num_indices_get();
     glDrawElements(mesh->mode, count, GL_UNSIGNED_SHORT, 0);
   }
+
+  if (node.state.cubemap) glDepthMask(GL_TRUE);
 
 }
 
@@ -102,65 +105,65 @@ void GLcontext::polygon_mesh_toggle(bool tog)
 void GLcontext::uniform_buffers_create(GLshader &shader)
 {
   GLuint program = shader.program;
-  GLint uniform_block_index;
-  GLenum target;
-  GLuint bindPointIndex;
+  GLenum target = GL_UNIFORM_BUFFER;
+  GLuint block_index;
+  GLuint bind_index;
 
-  uniform_block_index = shader.get_block_index("GlobalMatrices");
-  glUniformBlockBinding(program, uniform_block_index, UB_GLOBALMATRICES);
-  uniform_block_index = shader.get_block_index("Matrices");
-  glUniformBlockBinding(program, uniform_block_index, UB_MATRICES);
-  uniform_block_index = shader.get_block_index("Armature");
-  glUniformBlockBinding(program, uniform_block_index, UB_ARMATURE);
-  uniform_block_index = shader.get_block_index("Material");
-  glUniformBlockBinding(program, uniform_block_index, UB_MATERIAL);
-  uniform_block_index = shader.get_block_index("State");
-  glUniformBlockBinding(program, uniform_block_index, UB_STATE);
-
-  target = GL_UNIFORM_BUFFER;
   {
     glm::mat4 matrix[2];
-    bindPointIndex = UB_GLOBALMATRICES;
+    bind_index = UB_GLOBALMATRICES;
+    block_index = shader.get_block_index("GlobalMatrices");
     glGenBuffers(1, &gl_buffer_globalmatrices);
     glBindBuffer(target, gl_buffer_globalmatrices);
     glBufferData(target, sizeof(matrix), &matrix, GL_STREAM_DRAW);
-    glBindBufferRange(target, bindPointIndex, gl_buffer_globalmatrices, 0, sizeof(matrix));
-    glBindBufferBase(target, bindPointIndex, gl_buffer_globalmatrices);
+    glUniformBlockBinding(program, block_index, bind_index);
+    glBindBufferBase(target, bind_index, gl_buffer_globalmatrices);
+    //glBindBufferRange(target, bind_index, gl_buffer_globalmatrices, 0, sizeof(matrix));
+    glBindBuffer(target, 0);
   }
 
   {
     glm::mat4 matrix;
-    bindPointIndex = UB_MATRICES;
+    bind_index = UB_MATRICES;
+    block_index = shader.get_block_index("Matrices");
     glGenBuffers(1, &gl_buffer_matrices);
     glBindBuffer(target, gl_buffer_matrices);
     glBufferData(target, sizeof(matrix), &matrix, GL_STREAM_DRAW);
-    glBindBufferRange(target, bindPointIndex, gl_buffer_matrices, 0, sizeof(matrix));
-    glBindBufferBase(target, bindPointIndex, gl_buffer_matrices);
+    glUniformBlockBinding(program, block_index, bind_index);
+    glBindBufferBase(target, bind_index, gl_buffer_matrices);
+    //glBindBufferRange(target, bind_index, gl_buffer_matrices, 0, sizeof(matrix));
+    glBindBuffer(target, 0);
   }
 
   {
     glm::mat4 matrix[64];
-    bindPointIndex = UB_ARMATURE;
+    bind_index = UB_ARMATURE;
+    block_index = shader.get_block_index("Armature");
     glGenBuffers(1, &gl_buffer_armature);
     glBindBuffer(target, gl_buffer_armature);
     glBufferData(target, sizeof(matrix), &matrix, GL_STREAM_DRAW);
-    glBindBufferRange(target, bindPointIndex, gl_buffer_armature, 0, sizeof(matrix));
-    glBindBufferBase(target, bindPointIndex, gl_buffer_armature);
+    glUniformBlockBinding(program, block_index, bind_index);
+    glBindBufferBase(target, bind_index, gl_buffer_armature);
+    //glBindBufferRange(target, bind_index, gl_buffer_armature, 0, sizeof(matrix));
+    glBindBuffer(target, 0);
   }
 
   {
     Material_Properties properties;
-    properties.Ka = glm::vec3(0, 0, 0);
-    properties.Kd = glm::vec3(0, 0, 0);
-    properties.Ks = glm::vec3(0, 0, 0);
-    properties.shininess = 0;
+    properties.Ka = glm::vec3(1.f, 0.f, 0.f);
+    properties.Kd = glm::vec3(0.f, 1.f, 0.f);
+    properties.Ks = glm::vec3(0.f, 0.f, 1.f);
+    properties.shininess = 0.f;
 
-    bindPointIndex = UB_MATERIAL;
+    bind_index = UB_MATERIAL;
+    block_index = shader.get_block_index("Material");
     glGenBuffers(1, &gl_buffer_material);
     glBindBuffer(target, gl_buffer_material);
-    glBufferData(target, sizeof(Material_Properties), &properties, GL_STREAM_DRAW);
-    glBindBufferRange(target, bindPointIndex, gl_buffer_material, 0, sizeof(properties));
-    glBindBufferBase(target, bindPointIndex, gl_buffer_material);
+    glBufferData(target, sizeof(properties), &properties, GL_STREAM_DRAW);
+    glUniformBlockBinding(program, block_index, bind_index);
+    glBindBufferBase(target, bind_index, gl_buffer_material);
+    //glBindBufferRange(target, bind_index, gl_buffer_material, 0, sizeof(properties));
+    glBindBuffer(target, 0);
   }
 
   {
@@ -173,13 +176,17 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
     state.cubemap = false;
     state.standard = false;
 
-    bindPointIndex = UB_STATE;
+    bind_index = UB_STATE;
+    block_index = shader.get_block_index("State");
     glGenBuffers(1, &gl_buffer_state);
     glBindBuffer(target, gl_buffer_state);
     glBufferData(target, sizeof(state), &state, GL_STREAM_DRAW);
-    glBindBufferRange(target, bindPointIndex, gl_buffer_state, 0, sizeof(state));
-    glBindBufferBase(target, bindPointIndex, gl_buffer_state);
+    glUniformBlockBinding(program, block_index, bind_index);
+    glBindBufferBase(target, bind_index, gl_buffer_state);
+    //glBindBufferRange(target, bind_index, gl_buffer_state, 0, sizeof(state));
+    glBindBuffer(target, 0);
   }
+
 
   {
     GLint location;
@@ -195,6 +202,7 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
 
 }
 
+
 void GLcontext::uniform_buffers_delete()
 {
   glDeleteBuffers(1, &gl_buffer_globalmatrices);
@@ -202,10 +210,8 @@ void GLcontext::uniform_buffers_delete()
   glDeleteBuffers(1, &gl_buffer_armature);
   glDeleteBuffers(1, &gl_buffer_material);
   glDeleteBuffers(1, &gl_buffer_state);
-
-  std::cout << "Deleting uniform buffers in glcontext" << std::endl;
-
 }
+
 
 void GLcontext::uniform_buffers_update_camera(Camera &camera)
 {
@@ -216,16 +222,17 @@ void GLcontext::uniform_buffers_update_camera(Camera &camera)
   data[1] = camera.view;
   glBindBuffer(target, gl_buffer_globalmatrices);
   glBufferSubData(target, offset, sizeof(data), &data);
+  glBindBuffer(target, 0);
 }
 
 
 void GLcontext::uniform_buffers_update_material(Material &material)
 {
-
   GLenum target = GL_UNIFORM_BUFFER;
   GLintptr offset = 0;
   glBindBuffer(target, gl_buffer_material);
   glBufferSubData(target, offset, sizeof(material.material_block), &material.material_block);
+  glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 
@@ -238,6 +245,7 @@ void GLcontext::uniform_buffers_update_mesh(Mesh &mesh)
   GLintptr offset = 0;
   glBindBuffer(target, gl_buffer_matrices);
   glBufferSubData(target, offset, sizeof(m), &m);
+  glBindBuffer(target, 0);
 }
 
 
@@ -248,6 +256,7 @@ void GLcontext::uniform_buffers_update_node(Node &node)
   Material *material = node.material;
   Mesh *mesh = node.mesh;
 
+
   uniform_buffers_update_state(node);
   uniform_buffers_update_mesh(*mesh);
 
@@ -256,7 +265,9 @@ void GLcontext::uniform_buffers_update_node(Node &node)
     glBindBuffer(target, gl_buffer_armature);
     glBufferSubData(target, offset, armature->skinning_matrices.size() * sizeof(armature->skinning_matrices[0]), 
         armature->skinning_matrices.data());
+    glBindBuffer(target, 0);
   }
+
 
   if (material) {
     uniform_buffers_update_material(*material);
@@ -289,6 +300,7 @@ void GLcontext::uniform_buffers_update_state(Node &node)
   GLintptr offset = 0;
   glBindBuffer(target, gl_buffer_state);
   glBufferSubData(target, offset, sizeof(node.state), &node.state);
+  glBindBuffer(target, 0);
 }
 
 

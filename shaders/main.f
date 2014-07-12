@@ -21,6 +21,14 @@ layout(std140) uniform GlobalMatrices {
   mat4 view;
 };
 
+layout(std140) uniform Matrices {
+  mat4 model;
+};
+
+layout(std140) uniform Armature {
+  mat4 skinning[64];
+};
+
 
 layout(std140) uniform Material {
   vec3 Ka;
@@ -182,6 +190,8 @@ void main()
     out_color = texture(cube_texture, str).rgb;
   } else if (state_standard == 1) {
     out_color = func_standard();
+    out_color = Kd;
+    //out_color = vec3(0, 1, 0);
   }
 
   frag_color.rgb = out_color;

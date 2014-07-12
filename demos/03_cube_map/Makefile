@@ -1,4 +1,4 @@
-PROJECT = 03_skeletal_collision
+PROJECT = 03_cube_map
 
 SRC := $(wildcard *.cpp)
 OBJECTS = $(SRC:.cpp=.o)

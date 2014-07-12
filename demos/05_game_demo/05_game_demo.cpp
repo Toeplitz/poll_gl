@@ -176,17 +176,6 @@ int main()
   window.keyboard_released_callback_set(keyboard_released_cb);
   physics.custom_step_callback_set(physics_update);
 
-  {
-    Node &node = *scene.node_create("skybox");
-    node.mesh->cube_generate(150.0f);
-    Material &material = *node.material;
-    //material.cubemap_create("data/game_assets/skybox/SkyboxSet1/DarkStormy/", "DarkStormyFront2048.png",
-    //    "DarkStormyBack2048.png", "DarkStormyUp2048.png", "DarkStormyDown2048.png", "DarkStormyLeft2048.png", "DarkStormyRight2048.png");
-    material.cubemap_create("data/game_assets/skybox/SkyboxSet1/DarkStormy/", "DarkStormyFront2048.png",
-        "DarkStormyBack2048.png", "bar.png", "foo.png", "DarkStormyLeft2048.png", "DarkStormyRight2048.png");
-    scene.upload_queue_add(node);
-  }
-
   Node &room = scene.model_load("data/game_assets/", "Room.dae");
   physics.collision_node_add(room, PHYSICS_COLLISION_TRIANGLE_MESH, true, 0);
 
@@ -201,7 +190,7 @@ int main()
   */
 
   {
-    Node &panda_root = scene.model_load("data/game_assets/characters/panda/", "PandaSingle.dae");
+    Node &panda_root = scene.model_load("data/game_assets/characters/panda/", "Panda.dae");
     Node &panda_collision_root = scene.model_load("data/game_assets/characters/panda/", "Panda_convex_hull.dae", false);
     Node *panda = scene.node_find(&panda_root, "Panda");
     Node *panda_collision = scene.node_find(&panda_collision_root, "Panda_convex_hull");
@@ -213,6 +202,7 @@ int main()
       armature->keyframe_range_set("walk", 4, 10);
       armature->keyframe_range_set("run", 11, 18);
       armature->keyframe_range_set("jump", 22, 22); // Only include 1 frame for now.
+      armature->keyframe_range_set("collapse", 24, 33); 
     } else {
       std::cout << "Could not find node" << std::endl;
     }

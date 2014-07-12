@@ -54,6 +54,10 @@ bool Window::init(const std::string &title)
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
+  // May enable if performance allows
+  // SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+  // SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+
   window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED,
       SDL_WINDOWPOS_CENTERED, width, height,
       SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
