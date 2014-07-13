@@ -41,7 +41,7 @@ void GLcontext::clear()
 {
   glm::vec4 color(0.5, 0.5, 0.5, 1.0);
   //  glm::vec4 color(0, 0, 0, 1.0);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glClearColor(color.x, color.y, color.z, color.a);
 }
 
@@ -66,8 +66,47 @@ void GLcontext::node_draw(Node &node)
   if (node.state.cubemap_skybox) glDepthMask(GL_TRUE);
 }
 
-void GLcontext::framebuffer_draw_texture(Scene &scene)
+
+void GLcontext::framebuffer_node_create(GLshader &shader, Node &node)
 {
+  GLuint program = shader.program;
+  GLenum target;
+  GLint index;
+  Mesh *mesh = node.mesh;
+
+  glGenVertexArrays(1, &node.gl_vao);
+  glBindVertexArray(node.gl_vao);
+  glGenBuffers(2, gl_fb_vertex_buffers);
+  
+  target = GL_ARRAY_BUFFER;
+  {
+    std::vector<glm::vec3> positions = mesh->positions_get();
+    index = 0;
+    glBindBuffer(target, gl_fb_vertex_buffers[index]);
+    glBufferData(target, positions.size() * sizeof(positions[0]), positions.data(), GL_STATIC_DRAW);
+    glEnableVertexAttribArray(index);
+    glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  }
+
+  {
+    GLint location;
+    location = glGetUniformLocation(program, "tex");
+    glUniform1i(location, 0);
+  }
+
+  fb_node = &node;
+}
+
+
+void GLcontext::framebuffer_draw_texture(Scene &scene, bool debug)
+{
+  if (!debug) 
+    glBindFramebuffer(GL_FRAMEBUFFER, gl_fb);
+  else
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  clear();
+
   for (auto &node: scene.render_list_get()) {
     node_draw(*node);
   }
@@ -77,13 +116,14 @@ void GLcontext::framebuffer_draw_texture(Scene &scene)
 
 void GLcontext::framebuffer_draw_screen()
 {
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  clear();
 
-}
+  glBindVertexArray(fb_node->gl_vao);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, gl_fb_tex);
+  glDrawArrays(GL_TRIANGLES, 0, fb_node->mesh->num_vertices_get());
 
-
-void GLcontext::framebuffer_node_set(Node &node)
-{
-  fb_node = &node;
 }
 
 
@@ -502,50 +542,38 @@ bool GLcontext::check_version(const int &major)
 
 void GLcontext::framebuffer_create(const int width, const int height)
 {
-  glGenFramebuffers (1, &fb);
+  glGenFramebuffers (1, &gl_fb);
+  std::cout << width << " / " << height << std::endl;
 
   /* create the texture that will be attached to the fb. should be the same
      dimensions as the viewport */
-  glGenTextures (1, &fb_tex);
-  glBindTexture (GL_TEXTURE_2D, fb_tex);
-  glTexImage2D (
-      GL_TEXTURE_2D,
-      0,
-      GL_RGBA,
-      width,
-      height,
-      0,
-      GL_RGBA,
-      GL_UNSIGNED_BYTE,
-      NULL
-      );
+  glGenTextures(1, &gl_fb_tex);
+  glBindTexture(GL_TEXTURE_2D, gl_fb_tex);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   /* attach the texture to the framebuffer */
-  glBindFramebuffer (GL_FRAMEBUFFER, fb);
-  glFramebufferTexture2D (
-      GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fb_tex, 0
-      );
+  glBindFramebuffer(GL_FRAMEBUFFER, gl_fb);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl_fb_tex, 0);
+
   /* create a renderbuffer which allows depth-testing in the framebuffer */
   GLuint rb = 0;
-  glGenRenderbuffers (1, &rb);
-  glBindRenderbuffer (GL_RENDERBUFFER, rb);
-  glRenderbufferStorage (
-      GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height
-      );
+  glGenRenderbuffers(1, &rb);
+  glBindRenderbuffer(GL_RENDERBUFFER, rb);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+
   /* attach renderbuffer to framebuffer */
-  glFramebufferRenderbuffer (
-      GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rb
-      );
+  glFramebufferRenderbuffer (GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rb);
   /* tell the framebuffer to expect a colour output attachment (our texture) */
   GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0 };
   glDrawBuffers (1, draw_bufs);
 
   /* validate the framebuffer - an 'incomplete' error tells us if an invalid
      image format is attached or if the glDrawBuffers information is invalid */
-  GLenum status = glCheckFramebufferStatus (GL_FRAMEBUFFER);
+  GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (GL_FRAMEBUFFER_COMPLETE != status) {
     fprintf (stderr, "ERROR: incomplete framebuffer\n");
     if (GL_FRAMEBUFFER_UNDEFINED == status) {
@@ -571,7 +599,7 @@ void GLcontext::framebuffer_create(const int width, const int height)
   }
 
   /* re-bind the default framebuffer as a safe precaution */
-  glBindFramebuffer (GL_FRAMEBUFFER, 0);
+//  glBindFramebuffer (GL_FRAMEBUFFER, 0);
 }
 
 

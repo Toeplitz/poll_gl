@@ -53,6 +53,7 @@ class Window {
     void  swap_interval_set(const int n);
     void  swap();
     void  term();
+    int   debug;
 
     GLcontext &glcontext_get();
 

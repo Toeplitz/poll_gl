@@ -76,7 +76,7 @@ void keyboard_pressed_cb(SDL_Keysym *keysym)
     case SDLK_SPACE:
       character->jump();
       break;
-    case SDLK_d:
+    case SDLK_o:
       physics.debug();
       break;
     case SDLK_f:
@@ -190,7 +190,7 @@ int main()
   */
 
   {
-    Node &panda_root = scene.model_load("data/game_assets/characters/panda/", "Panda.dae");
+    Node &panda_root = scene.model_load("data/game_assets/characters/panda/", "PandaSingle.dae");
     Node &panda_collision_root = scene.model_load("data/game_assets/characters/panda/", "Panda_convex_hull.dae", false);
     Node *panda = scene.node_find(&panda_root, "Panda");
     Node *panda_collision = scene.node_find(&panda_collision_root, "Panda_convex_hull");
@@ -208,8 +208,8 @@ int main()
     }
   }
 
-  scene.scene_graph_print();
-  scene.assets_get().print_all(scene.node_root_get());
+ // scene.scene_graph_print();
+ // scene.assets_get().print_all(scene.node_root_get());
 
   fragmic.run();
   fragmic.term();

@@ -38,11 +38,9 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
 
   // Setup quad for framebuffers.
   glshader_screen.load("shaders/post_proc.v", "shaders/post_proc.f");
-
   Node &node = *scene.node_create_mesh_only("fb_quad");
   node.mesh->quad_generate(1.f);
-  glcontext.framebuffer_node_set(node);
-  glcontext.vertex_buffers_create(node);
+  glcontext.framebuffer_node_create(glshader_screen, node);
 
 }
 
@@ -83,16 +81,17 @@ void Fragmic::run()
       scene.animation_list_update_transforms(*node, dt);
     }
 
-    glcontext.clear();
-    physics.step(dt);
 
     glshader.use();
     camera.update(dt);
     glcontext.uniform_buffers_update_camera(camera);
-    glcontext.framebuffer_draw_texture(scene);
 
-    glshader_screen.use();
-    glcontext.framebuffer_draw_screen();
+    glcontext.framebuffer_draw_texture(scene, window.debug);
+    physics.step(dt);
+    if (!window.debug) {
+      glshader_screen.use();
+      glcontext.framebuffer_draw_screen();
+    }
 
     glcontext.check_error();
     window.swap();

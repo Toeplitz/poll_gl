@@ -30,7 +30,7 @@ class Demo {
       Transform t;
       Scene &scene = fragmic.scene_get();
       Assets &assets = scene.assets_get();
-      
+
       Camera &camera = fragmic.camera_get();
       camera.translate(glm::vec3(0, 3, 0));
 
@@ -58,6 +58,16 @@ class Demo {
 
     void keyboardPressedCallback(SDL_Keysym *keysym)
     {
+      Window &window = fragmic.window_get();
+
+      switch (keysym->sym) {
+        case SDLK_d:
+          window.debug_toggle();
+          break;
+        case SDLK_l:
+          load();
+          break;
+      }
 
     }
 
