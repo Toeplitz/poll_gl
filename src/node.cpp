@@ -25,7 +25,8 @@ Node::Node(const std::string &_name):
   state.diffuse = false;
   state.diffuse_normal = false;
   state.diffuse_specular_normal = false;
-  state.cubemap= false;
+  state.cubemap_reflect = false;
+  state.cubemap_skybox = false;
   state.standard = false;
 } 
 
@@ -79,8 +80,17 @@ void Node::print_state(int indent_level)
   std::cout << "\t\tDiffuse: " << state.diffuse << std::endl;
   std::cout << "\t\tDiffuse normal: " << state.diffuse_normal << std::endl;
   std::cout << "\t\tDiffuse normal specular: " << state.diffuse_specular_normal << std::endl;
-  std::cout << "\t\tCubemap: " << state.cubemap << std::endl;
+  std::cout << "\t\tCubemap reflect: " << state.cubemap_reflect << std::endl;
+  std::cout << "\t\tCubemap skybox: " << state.cubemap_skybox << std::endl;
   std::cout << "\t\tStandard: " << state.standard << std::endl;
 
 }
 
+Material *Node::material_get()
+{
+  if (!material) {
+    std::cout << "Node: '" << name << "' does not have any material attached" << std::endl;
+  }
+
+  return material;
+}

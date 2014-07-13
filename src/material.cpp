@@ -25,11 +25,13 @@ Material::~Material()
 /**************************************************/
 
 
-void Material::cubemap_create(const std::string &prefix, const std::string &front, const std::string &back,
+void Material::cubemap_create(const Cubemap_Type type, const std::string &prefix, const std::string &front, const std::string &back,
                               const std::string &top, const std::string &bottom, 
                               const std::string &left, const std::string &right)
 {
+
   std::unique_ptr<Cubemap> cubemap_ptr(new Cubemap);
+  cubemap_ptr->type = type;
   cubemap_ptr->front.texture.image_load(prefix + front);
   cubemap_ptr->front.target = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
   cubemap_ptr->back.texture.image_load(prefix + back);

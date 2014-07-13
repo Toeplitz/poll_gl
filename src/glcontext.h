@@ -22,8 +22,8 @@ class GLcontext {
     GLuint gl_buffer_armature;
     GLuint gl_buffer_material;
     GLuint gl_buffer_state;
-
     GLuint gl_vertex_buffers[8];
+    GLuint gl_uniform_camera_pos;
 
     GLuint fbo;
     GLuint rb_depth_buffer;

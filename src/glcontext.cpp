@@ -40,6 +40,7 @@ void GLcontext::check_error()
 void GLcontext::clear()
 {
   glm::vec4 color(0.5, 0.5, 0.5, 1.0);
+//  glm::vec4 color(0, 0, 0, 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   glClearColor(color.x, color.y, color.z, color.a);
 }
@@ -52,7 +53,7 @@ void GLcontext::draw(Node &node)
 
   uniform_buffers_update_node(node);
 
-  if (node.state.cubemap) glDepthMask(GL_FALSE);
+  if (node.state.cubemap_skybox) glDepthMask(GL_FALSE);
 
   glBindVertexArray(node.gl_vao);
   GLsizei count = (GLsizei) mesh->num_indices_get();
@@ -62,7 +63,7 @@ void GLcontext::draw(Node &node)
     glDrawElements(mesh->mode, count, GL_UNSIGNED_SHORT, 0);
   }
 
-  if (node.state.cubemap) glDepthMask(GL_TRUE);
+  if (node.state.cubemap_skybox) glDepthMask(GL_TRUE);
 
 }
 
@@ -174,7 +175,8 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
     state.diffuse = false;
     state.diffuse_normal = false;
     state.diffuse_specular_normal = false;
-    state.cubemap = false;
+    state.cubemap_reflect = false;
+    state.cubemap_skybox = false;
     state.standard = false;
 
     bind_index = UB_STATE;
@@ -201,6 +203,7 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
     glUniform1i(location, 3);
   }
 
+  gl_uniform_camera_pos = glGetUniformLocation(program, "camera_position_world");
 }
 
 
@@ -224,6 +227,8 @@ void GLcontext::uniform_buffers_update_camera(Camera &camera)
   glBindBuffer(target, gl_buffer_globalmatrices);
   glBufferSubData(target, offset, sizeof(data), &data);
   glBindBuffer(target, 0);
+
+  glUniform3f(gl_uniform_camera_pos, camera.position.x, camera.position.y, camera.position.z);
 }
 
 

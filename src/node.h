@@ -24,7 +24,8 @@ struct Node_State
   int diffuse;
   int diffuse_normal;
   int diffuse_specular_normal;
-  int cubemap;
+  int cubemap_reflect;
+  int cubemap_skybox;
   int standard;
 };
 
@@ -56,10 +57,11 @@ class Node: public Animated {
     Node(const std::string &_name);
     ~Node();
 
-    void   copy_transform_data(Node &node);
-    void   child_add(std::unique_ptr<Node> &&node, int level);
-    void   local_transform_current_set(const glm::mat4 &transform);
-    void   local_transform_original_set(const glm::mat4 &transform);
-    void   print_state(int indent_level);
-    Mesh  *mesh_create();
+    void       copy_transform_data(Node &node);
+    void       child_add(std::unique_ptr<Node> &&node, int level);
+    void       local_transform_current_set(const glm::mat4 &transform);
+    void       local_transform_original_set(const glm::mat4 &transform);
+    void       print_state(int indent_level);
+    Material  *material_get();
+    Mesh      *mesh_create();
 };

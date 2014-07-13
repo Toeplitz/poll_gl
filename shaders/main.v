@@ -34,10 +34,12 @@ layout(std140) uniform State {
   int state_diffuse;
   int state_diffuse_normal;
   int state_diffuse_specular_normal;
-  int state_cubemap;
+  int state_cubemap_reflect;
+  int state_cubemap_skybox;
   int state_standard;
 };
 
+uniform vec3 camera_position_world;
 
 out vec2 st;
 out vec3 view_dir_tan;
@@ -46,7 +48,7 @@ out vec3 light_position_eye;
 out vec3 position_eye;
 out vec3 normal_eye;
 
-// For cubemap sampling.
+// Cubemap (skybox/reflection/refraction)
 out vec3 str;
 
 //vec3 light_position_world  = vec3 (-10.0, 10.0, -4.0);
@@ -79,11 +81,14 @@ void main(void)
   mat3 normal_matrix = mat3(transpose(inverse(model_view)));
 
   position_eye = vec3(model_view * vec4(vertex_position, 1.0));
-  normal_eye = normalize(vec3(normal_matrix * vertex_normal));
+  normal_eye = normalize(normal_matrix * vertex_normal);
+//  normal_eye = vec3(model_view * vec4(vertex_normal, 0.0));
   light_position_eye = vec3(view * vec4(light_position_world, 1.0));
 
   gl_Position = proj * vec4(position_eye, 1.0);
 	st = texture_coord;
+
+  // Cubemap (skybox/reflection/refraction)
   str = vertex_position;
 
   if (state_diffuse_specular_normal == 1 || state_diffuse_normal == 1) {

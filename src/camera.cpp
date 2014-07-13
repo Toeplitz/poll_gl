@@ -1,4 +1,5 @@
 #include "camera.h"
+#include "utils.h"
 
 
 using glm::vec3;
@@ -181,6 +182,8 @@ void Camera::computeDirections()
 void Camera::updateView() 
 {
   view = glm::lookAt(position, position + direction, up);
+  std::cout << " ------ " << std::endl;
+  print_matrix(std::cout, view, 0);
   updateViewProjection();
 }  
 

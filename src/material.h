@@ -14,6 +14,12 @@ struct Material_Properties
   float shininess;
 };
 
+enum Cubemap_Type
+{
+  CUBEMAP_SKYBOX,
+  CUBEMAP_REFLECTION,
+  CUBEMAP_REFRACTION
+};
 
 struct Cubemap_Item
 {
@@ -24,6 +30,7 @@ struct Cubemap_Item
 
 struct Cubemap
 {
+  Cubemap_Type type;
   GLuint gl_texture;
   Cubemap_Item front;
   Cubemap_Item back;
@@ -48,7 +55,7 @@ class Material
     ~Material();
 
     void color_set(const glm::vec3 ambient, const glm::vec3 diffuse, const glm::vec3 specular, const float shininess);
-    void cubemap_create(const std::string &prefix, const std::string &front, const std::string &back,
+    void cubemap_create(const Cubemap_Type type, const std::string &prefix, const std::string &front, const std::string &back,
         const std::string &top, const std::string &bottom, 
         const std::string &left, const std::string &right);
     void print(const int indent_level);

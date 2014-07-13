@@ -182,7 +182,17 @@ void Scene::state_update_recursive(Node &node)
     } else if (node.material->diffuse) {
       node.state.diffuse = true;
     } else if (node.material->cubemap) {
-      node.state.cubemap = true;
+      std::cout << "Updating material state" << std::endl;
+      if (node.material->cubemap->type == CUBEMAP_SKYBOX) {
+        node.state.cubemap_skybox = true;
+        std::cout << "Found skybox" << std::endl;
+      } else if (node.material->cubemap->type == CUBEMAP_REFLECTION) {
+        std::cout << "Found reflection" << std::endl;
+        node.state.cubemap_reflect = true;
+      } else {
+        std::cout << "Error: cubemap type not recognized" << std::endl;
+      }
+      node.state.standard = false;
     } else {
       node.state.standard = true;
     }
@@ -243,6 +253,10 @@ Node *Scene::node_find_recursive(Node &node, const std::string &name)
     ret = node_find_recursive(*child, name);
     if (ret)
       return ret;
+  }
+
+  if (!ret) {
+    std::cout << "Error: could not find node '" << name << "'" << std::endl;
   }
 
   return ret;

@@ -7,7 +7,7 @@ in vec3 light_position_eye;
 in vec3 position_eye;
 in vec3 normal_eye;
 
-// For cubemap texture sampling.
+// Cubemap (skybox/reflection/refraction)
 in vec3 str;
 
 uniform sampler2D diffuse_texture;
@@ -44,7 +44,8 @@ layout(std140) uniform State {
   int state_diffuse;
   int state_diffuse_normal;
   int state_diffuse_specular_normal;
-  int state_cubemap;
+  int state_cubemap_reflect;
+  int state_cubemap_skybox;
   int state_standard;
 };
 
@@ -59,6 +60,24 @@ vec3 La = vec3 (0.2, 0.2, 0.2); // grey ambient colour
 // -----------------------------------------------------------------
 // -----------------------------------------------------------------
 // -----------------------------------------------------------------
+
+
+vec3 func_cubemap_reflect()
+{
+  vec3 incident_eye = normalize(position_eye);
+  vec3 normal = normalize(normal_eye);
+  vec3 reflected = reflect(incident_eye, normal);
+
+  // convert from eye to world space
+  reflected = vec3(inverse(view) * vec4(reflected, 0.0));
+  return texture (cube_texture, reflected).rgb;
+}
+
+
+vec3 func_cubemap_skybox()
+{
+  return texture(cube_texture, str).rgb;
+}
 
 
 vec3 func_diffuse(vec3 diffuse)
@@ -164,17 +183,17 @@ vec3 func_toon(vec3 ambient, vec3 diffuse)
 
 vec3 func_diffuse_texture()
 {
-  return func_ads(vec3(0, 0, 0), texture(diffuse_texture, st).rgb, vec3(1, 1, 1), 20);
-  //return func_diffuse(texture(diffuse_texture, st).rgb);
+  //return func_ads(vec3(0, 0, 0), texture(diffuse_texture, st).rgb, vec3(1, 1, 1), 20);
+  return func_diffuse(texture(diffuse_texture, st).rgb);
 }
 
 
 vec3 func_standard()
 {
- return func_phong(vec3(0,0,0), vec3(Kd), vec3(1, 0.5, 0.5), 80);
+ //return func_phong(vec3(0,0,0), vec3(Kd), vec3(1, 0.5, 0.5), 80);
  //return func_ads(vec3(0,0,0), Kd, vec3(1, 0.5, 0.5), 80);
  //return func_toon(vec3(0,0,0), Kd);
- //return func_diffuse(vec3(Kd));
+ return func_diffuse(vec3(Kd));
  }
 
 
@@ -182,13 +201,25 @@ void main()
 {
   vec3 out_color = vec3(0.7, 0.7, 0.7);
 
-  if (state_diffuse == 1) {
+  if (state_diffuse == 1) 
+  {
     out_color = func_diffuse_texture();
-  } else if (state_diffuse_specular_normal == 1) {
+  } 
+  else if (state_diffuse_specular_normal == 1) 
+  {
     out_color = func_phong_specular_normal();
-  } else if (state_cubemap == 1) {
-    out_color = texture(cube_texture, str).rgb;
-  } else if (state_standard == 1) {
+  } 
+  else if (state_cubemap_skybox == 1) 
+  {
+    out_color = func_cubemap_skybox();
+  } 
+  else if (state_cubemap_reflect == 1) 
+  {
+  //out_color = func_diffuse(func_cubemap_reflect());
+    out_color = func_cubemap_reflect();
+  } 
+  else if (state_standard == 1) 
+  {
     out_color = func_standard();
   }
 
