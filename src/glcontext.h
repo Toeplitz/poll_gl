@@ -25,11 +25,13 @@ class GLcontext {
     GLuint gl_vertex_buffers[8];
     GLuint gl_uniform_camera_pos;
 
-    GLuint fbo;
-    GLuint rb_depth_buffer;
+    GLuint fb_tex;
+    GLuint fb;
+
+    Node *fb_node;
 
     bool check_version(const int &major);
-    void framebuffer_create();
+    void framebuffer_create(const int width, const int height);
     void framebuffer_delete();
     void texture_cubemap_create(Cubemap_Item &item);
     void texture_cubemap_delete(Cubemap &cubemap);
@@ -42,7 +44,10 @@ class GLcontext {
 
     void check_error();
     void clear();
-    void draw(Node &node);
+    void node_draw(Node &node);
+    void framebuffer_draw_texture(Scene &scene);
+    void framebuffer_draw_screen();
+    void framebuffer_node_set(Node &node);
     bool init(const int width, const int height);
     void polygon_mesh_toggle(bool tog);
     void uniform_buffers_create(GLshader &shader);

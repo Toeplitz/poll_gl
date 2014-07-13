@@ -44,5 +44,6 @@ class Mesh {
     unsigned int                    num_vertices_get();
     const std::vector<glm::vec3>   &tangents_get() const;
     const std::vector<glm::vec2>   &texture_st_get() const;
+    void                            quad_generate(const float &size);
 };
 

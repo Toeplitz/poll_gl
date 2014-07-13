@@ -40,13 +40,13 @@ void GLcontext::check_error()
 void GLcontext::clear()
 {
   glm::vec4 color(0.5, 0.5, 0.5, 1.0);
-//  glm::vec4 color(0, 0, 0, 1.0);
+  //  glm::vec4 color(0, 0, 0, 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   glClearColor(color.x, color.y, color.z, color.a);
 }
 
 
-void GLcontext::draw(Node &node)
+void GLcontext::node_draw(Node &node)
 {
   Mesh *mesh = node.mesh;
   if (!mesh) return;
@@ -64,7 +64,26 @@ void GLcontext::draw(Node &node)
   }
 
   if (node.state.cubemap_skybox) glDepthMask(GL_TRUE);
+}
 
+void GLcontext::framebuffer_draw_texture(Scene &scene)
+{
+  for (auto &node: scene.render_list_get()) {
+    node_draw(*node);
+  }
+
+}
+
+
+void GLcontext::framebuffer_draw_screen()
+{
+
+}
+
+
+void GLcontext::framebuffer_node_set(Node &node)
+{
+  fb_node = &node;
 }
 
 
@@ -84,6 +103,8 @@ bool GLcontext::init(const int width, const int height)
   glCullFace(GL_BACK); // cull back face
   glFrontFace(GL_CCW); // set counter-clock-wise vertex order to mean the front
   glViewport(0, 0, width, height);
+
+  framebuffer_create(width, height);
 
   return true;
 }
@@ -479,10 +500,78 @@ bool GLcontext::check_version(const int &major)
 }
 
 
-void GLcontext::framebuffer_create()
+void GLcontext::framebuffer_create(const int width, const int height)
 {
-  glGenFramebuffers(1, &fbo);
-  glGenRenderbuffers(1, &rb_depth_buffer);
+  glGenFramebuffers (1, &fb);
+
+  /* create the texture that will be attached to the fb. should be the same
+     dimensions as the viewport */
+  glGenTextures (1, &fb_tex);
+  glBindTexture (GL_TEXTURE_2D, fb_tex);
+  glTexImage2D (
+      GL_TEXTURE_2D,
+      0,
+      GL_RGBA,
+      width,
+      height,
+      0,
+      GL_RGBA,
+      GL_UNSIGNED_BYTE,
+      NULL
+      );
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  /* attach the texture to the framebuffer */
+  glBindFramebuffer (GL_FRAMEBUFFER, fb);
+  glFramebufferTexture2D (
+      GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fb_tex, 0
+      );
+  /* create a renderbuffer which allows depth-testing in the framebuffer */
+  GLuint rb = 0;
+  glGenRenderbuffers (1, &rb);
+  glBindRenderbuffer (GL_RENDERBUFFER, rb);
+  glRenderbufferStorage (
+      GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height
+      );
+  /* attach renderbuffer to framebuffer */
+  glFramebufferRenderbuffer (
+      GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rb
+      );
+  /* tell the framebuffer to expect a colour output attachment (our texture) */
+  GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0 };
+  glDrawBuffers (1, draw_bufs);
+
+  /* validate the framebuffer - an 'incomplete' error tells us if an invalid
+     image format is attached or if the glDrawBuffers information is invalid */
+  GLenum status = glCheckFramebufferStatus (GL_FRAMEBUFFER);
+  if (GL_FRAMEBUFFER_COMPLETE != status) {
+    fprintf (stderr, "ERROR: incomplete framebuffer\n");
+    if (GL_FRAMEBUFFER_UNDEFINED == status) {
+      fprintf (stderr, "GL_FRAMEBUFFER_UNDEFINED\n");
+    } else if (GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT == status) {
+      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT\n");
+    } else if (GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT == status) {
+      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT\n");
+    } else if (GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER == status) {
+      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER\n");
+    } else if (GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER== status) {
+      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER\n");
+    } else if (GL_FRAMEBUFFER_UNSUPPORTED == status) {
+      fprintf (stderr, "GL_FRAMEBUFFER_UNSUPPORTED\n");
+    } else if (GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE == status) {
+      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE\n");
+    } else if (GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS == status) {
+      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS\n");
+    } else {
+      fprintf (stderr, "unspecified error\n");
+    }
+    exit(-1);
+  }
+
+  /* re-bind the default framebuffer as a safe precaution */
+  glBindFramebuffer (GL_FRAMEBUFFER, 0);
 }
 
 
@@ -515,7 +604,7 @@ void GLcontext::texture_create(Texture &texture, GLenum n)
 
 void GLcontext::texture_cubemap_create(Cubemap_Item &item) 
 {
- // glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  // glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glTexImage2D(item.target, 0, GL_RGB, item.texture.image->width, item.texture.image->height,
       0, GL_RGB, GL_UNSIGNED_BYTE, item.texture.image->data);
   glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

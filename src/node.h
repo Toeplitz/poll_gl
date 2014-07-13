@@ -64,5 +64,4 @@ class Node: public Animated {
     void       print_state(int indent_level);
     void       material_set(Material *material);
     Material  *material_get();
-    Mesh      *mesh_create();
 };

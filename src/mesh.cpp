@@ -163,3 +163,32 @@ const std::vector<glm::vec3> &Mesh::bone_weights_get() const
 {
   return bone_weights;
 }
+
+
+void Mesh::quad_generate(const float &size)
+{
+  const int n_vertices = 6;
+  GLfloat quad_pos[] = {
+    -1.0, -1.0,
+     1.0, -1.0,
+     1.0,  1.0,
+     1.0,  1.0,
+    -1.0,  1.0,
+    -1.0, -1.0
+  };
+
+  GLfloat quad_st[] = {
+     0.0, 0.0,
+     1.0, 0.0,
+     1.0, 1.0,
+     1.0, 1.0,
+     0.0, 1.0,
+     0.0, 0.0
+  };
+
+  for (int i = 0; i < n_vertices * 2; i = i + 2) {
+    positions.push_back(glm::vec3(quad_pos[i], quad_pos[i + 1], 0.0) * size);
+    texture_st.push_back(glm::vec2(quad_st[i], quad_st[i]));
+  }
+
+}

@@ -15,6 +15,7 @@ class Fragmic {
     Camera camera;
     Physics physics;
     GLshader glshader;
+    GLshader glshader_screen;
     Scene scene;
     Window window;
 
