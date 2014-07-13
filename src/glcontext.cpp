@@ -76,7 +76,6 @@ bool GLcontext::init(const int width, const int height)
     return false;
   }
   check_error();
-
   check_version(3);
 
   glEnable(GL_DEPTH_TEST); // enable depth-testing
@@ -84,13 +83,6 @@ bool GLcontext::init(const int width, const int height)
   glEnable(GL_CULL_FACE); // cull face
   glCullFace(GL_BACK); // cull back face
   glFrontFace(GL_CCW); // set counter-clock-wise vertex order to mean the front
-
-  //glEnable(GL_DEPTH_TEST);
-  //glEnable(GL_BLEND);
-  //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  //glEnable(GL_MULTISAMPLE);
-  //glEnable(GL_STENCIL_TEST);
-  //glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
   glViewport(0, 0, width, height);
 
   return true;
@@ -418,15 +410,17 @@ void GLcontext::vertex_buffers_create(Node &node)
       texture_create(*material->specular, GL_TEXTURE2);
     }
     if (material->cubemap) {
-      glGenTextures(1,  &material->cubemap->gl_texture);
-      glActiveTexture(GL_TEXTURE3);
-      glBindTexture(GL_TEXTURE_CUBE_MAP, material->cubemap->gl_texture);
-      cubemap_texture_create(material->cubemap->front);
-      cubemap_texture_create(material->cubemap->back);
-      cubemap_texture_create(material->cubemap->top);
-      cubemap_texture_create(material->cubemap->bottom);
-      cubemap_texture_create(material->cubemap->left);
-      cubemap_texture_create(material->cubemap->right);
+      if (!glIsTexture(material->cubemap->gl_texture)) {
+        glGenTextures(1,  &material->cubemap->gl_texture);
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, material->cubemap->gl_texture);
+        texture_cubemap_create(material->cubemap->front);
+        texture_cubemap_create(material->cubemap->back);
+        texture_cubemap_create(material->cubemap->top);
+        texture_cubemap_create(material->cubemap->bottom);
+        texture_cubemap_create(material->cubemap->left);
+        texture_cubemap_create(material->cubemap->right);
+      }
     }
   }
 }
@@ -450,6 +444,9 @@ void GLcontext::vertex_buffers_delete(Node &node)
     }
     if (material->specular) {
       texture_delete(*material->specular);
+    }
+    if (material->cubemap) {
+      texture_cubemap_delete(*material->cubemap);
     }
   }
 
@@ -497,6 +494,10 @@ void GLcontext::framebuffer_delete()
 
 void GLcontext::texture_create(Texture &texture, GLenum n) 
 {
+  if (glIsTexture(texture.gl_texture)) {
+    return;
+  }
+
   glGenTextures(1, &texture.gl_texture);
   glActiveTexture(n);
   glBindTexture(GL_TEXTURE_2D, texture.gl_texture);
@@ -512,7 +513,7 @@ void GLcontext::texture_create(Texture &texture, GLenum n)
 }
 
 
-void GLcontext::cubemap_texture_create(Cubemap_Item &item) 
+void GLcontext::texture_cubemap_create(Cubemap_Item &item) 
 {
  // glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glTexImage2D(item.target, 0, GL_RGB, item.texture.image->width, item.texture.image->height,
@@ -525,16 +526,21 @@ void GLcontext::cubemap_texture_create(Cubemap_Item &item)
 }
 
 
-void GLcontext::cubemap_texture_delete(Cubemap_Item &item)
+void GLcontext::texture_cubemap_delete(Cubemap &cubemap)
 {
-
+  if (glIsTexture(cubemap.gl_texture)) {
+    std::cout << "Deleting opengl cubemap texture buffer" << std::endl;
+    glDeleteTextures(1, &cubemap.gl_texture);
+  }
 }
 
 
 void GLcontext::texture_delete(Texture &texture)
 {
-  std::cout << "Deleting opengl texture buffer: " << texture.filename << "'" <<  std::endl;
-  glDeleteTextures(1, &texture.gl_texture);
+  if (glIsTexture(texture.gl_texture)) {
+    std::cout << "Deleting opengl texture buffer: " << texture.filename << "'" <<  std::endl;
+    glDeleteTextures(1, &texture.gl_texture);
+  } 
 }
 
 

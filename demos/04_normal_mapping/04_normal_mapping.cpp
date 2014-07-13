@@ -39,7 +39,8 @@ int main()
   Node &floor = scene.model_load("data/normal_map/", "wood_floor.dae");
   physics.collision_node_add(floor, PHYSICS_COLLISION_CONVEX_HULL, true, 0);
 
-  scene.scene_graph_print();
+  //scene.scene_graph_print();
+  scene.assets_get().print_all(scene.node_root_get());
 
   fragmic.run();
   fragmic.term();

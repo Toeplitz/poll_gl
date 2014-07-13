@@ -55,6 +55,7 @@ class Material
     ~Material();
 
     void color_set(const glm::vec3 ambient, const glm::vec3 diffuse, const glm::vec3 specular, const float shininess);
+    void cubemap_type_set(const Cubemap_Type type);
     void cubemap_create(const Cubemap_Type type, const std::string &prefix, const std::string &front, const std::string &back,
         const std::string &top, const std::string &bottom, 
         const std::string &left, const std::string &right);

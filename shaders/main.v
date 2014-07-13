@@ -88,7 +88,7 @@ void main(void)
   gl_Position = proj * vec4(position_eye, 1.0);
 	st = texture_coord;
 
-  // Cubemap (skybox/reflection/refraction)
+  // Cubemap (skybox)
   str = vertex_position;
 
   if (state_diffuse_specular_normal == 1 || state_diffuse_normal == 1) {

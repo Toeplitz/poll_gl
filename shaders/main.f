@@ -7,7 +7,7 @@ in vec3 light_position_eye;
 in vec3 position_eye;
 in vec3 normal_eye;
 
-// Cubemap (skybox/reflection/refraction)
+// Cubemap (skybox)
 in vec3 str;
 
 uniform sampler2D diffuse_texture;

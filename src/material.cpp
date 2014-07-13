@@ -31,7 +31,6 @@ void Material::cubemap_create(const Cubemap_Type type, const std::string &prefix
 {
 
   std::unique_ptr<Cubemap> cubemap_ptr(new Cubemap);
-  cubemap_ptr->type = type;
   cubemap_ptr->front.texture.image_load(prefix + front);
   cubemap_ptr->front.target = GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
   cubemap_ptr->back.texture.image_load(prefix + back);
@@ -45,6 +44,17 @@ void Material::cubemap_create(const Cubemap_Type type, const std::string &prefix
   cubemap_ptr->right.texture.image_load(prefix + right);
   cubemap_ptr->right.target = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
   cubemap = std::move(cubemap_ptr);
+  cubemap_type_set(type);
+}
+
+
+void Material::cubemap_type_set(const Cubemap_Type type)
+{
+  if (!cubemap) {
+    std::cout << "Error: no cubemap created, cannot set type" << std::endl;
+    return;
+  }
+  cubemap->type = type;
 }
 
 
@@ -74,5 +84,6 @@ void Material::print(const int indent_level)
   std::cout << "Ka = ("<< material_block.Ka.x << ", " << material_block.Ka.y << ", " << material_block.Ka.z << ") ";
   std::cout << "Kd = ("<< material_block.Kd.x << ", " << material_block.Kd.y << ", " << material_block.Kd.z << ") ";
   std::cout << "Ks = ("<< material_block.Ks.x << ", " << material_block.Ks.y << ", " << material_block.Ks.z << ")" << std::endl;
+  std::cout << "ptr: " << this << std::endl;
 
 }

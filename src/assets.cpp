@@ -1,4 +1,5 @@
 #include "assets.h"
+#include "utils.h"
 
 
 /**************************************************/
@@ -48,14 +49,60 @@ void Assets::material_add(std::unique_ptr<Material> &&material)
 }
 
 
-void Assets::material_print_all()
+unsigned int Assets::material_node_lookup(const Material *material, const Node &node)
+{
+  unsigned int count = 0;
+
+  if (material == node.material) 
+    count++;
+
+  for (auto &child : node.children) {
+    count += material_node_lookup(material, *child);
+  }
+
+  return count;
+}
+
+
+unsigned int Assets::mesh_node_lookup(const Mesh *mesh, const Node &node)
+{
+  unsigned int count = 0;
+
+  if (mesh == node.mesh) 
+    count++;
+
+  for (auto &child : node.children) {
+    count += mesh_node_lookup(mesh, *child);
+  }
+
+  return count;
+}
+
+
+void Assets::material_print_all(const Node &node)
 {
   std::cout << "Materials: " << std::endl;
   for (auto &material: materials) {
-    auto &texture = material->diffuse;
-    std::cout << "\t(" << &material << ") ";
-    if (texture) {
-      std::cout << "diffuse texture: " << texture->filename << std::endl;
+    unsigned int count = material_node_lookup(material.get(), node);
+    auto &diffuse = material->diffuse;
+    auto &normal = material->normal;
+    auto &specular = material->specular;
+    std::cout << "\t(" << &material << ") (node count: " << count << ") ";
+    if (diffuse || normal || specular ) {
+      std::cout << "texture(s): ";;
+      
+      if (diffuse) 
+        std::cout << "diffuse: '" << basename(diffuse->filename) << "'";
+      if (normal) 
+        std::cout << " normal: '" << basename(normal->filename) << "'";
+      if (specular) 
+        std::cout << " specular: '" << basename(specular->filename) << "'";
+
+      std::cout << std::endl;
+    } else if (material->cubemap) {
+      std::cout << "cubemap:  " << material->cubemap.get() << std::endl;
+    }  else {
+      std::cout << "colors only" << std::endl;
     }
   }
 
@@ -68,25 +115,25 @@ void Assets::mesh_add(std::unique_ptr<Mesh> &&mesh)
 }
 
 
-void Assets::mesh_print_all()
+void Assets::mesh_print_all(const Node &node)
 {
   std::cout << "\nMeshes: " << std::endl;
   for (auto &mesh: meshes) {
-    std::cout << "\t(" << &mesh<< ") " ;
-    std::cout << "indices/vertices: " << mesh->indices.size();
-    std::cout << " / " << mesh->positions.size() << std::endl;
-
+    unsigned int count = mesh_node_lookup(mesh.get(), node);
+    std::cout << "\t(" << &mesh << ") (node count: " << count << ") ";
+    std::cout << "indices/vertices: " << mesh->num_indices_get();
+    std::cout << " / " << mesh->num_vertices_get() << std::endl;
   }
 
 }
 
 
-void Assets::print_all()
+void Assets::print_all(const Node &node)
 {
-  std::cout << "================= Current assets =================" << std::endl;
+  std::cout << "======== Current assets (owned by engine) ========" << std::endl;
   armature_print_all();
-  material_print_all();
-  mesh_print_all();
+  material_print_all(node);
+  mesh_print_all(node);
   std::cout << "==================================================" << std::endl;
 }
 

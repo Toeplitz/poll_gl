@@ -24,32 +24,31 @@ int main()
   }
   */
 
+  std::unique_ptr<Material> material(new Material());
+  material->cubemap_create(CUBEMAP_REFLECTION, "data/game_assets/skybox/SkyboxSet1/DarkStormy/", "DarkStormyFront2048.png",
+    "DarkStormyBack2048.png", "bar.png", "foo.png", "DarkStormyLeft2048.png", "DarkStormyRight2048.png");
+
   {
     Node &node_root = scene.model_load("data/game_assets/", "sphere.dae");
-    
-    Node &node = *scene.node_find(&node_root, "Sphere");
-    Material *material = node.material_get();
-    material->cubemap_create(CUBEMAP_REFLECTION, "data/game_assets/skybox/SkyboxSet1/DarkStormy/", "DarkStormyFront2048.png",
-        "DarkStormyBack2048.png", "bar.png", "foo.png", "DarkStormyLeft2048.png", "DarkStormyRight2048.png");
-    scene.state_update_recursive(node);
-
+    Node &sphere = *scene.node_find(&node_root, "Sphere");
     Node &cube = *scene.node_find(&node_root, "Cube");
-    material = cube.material_get();
-    material->cubemap_create(CUBEMAP_REFLECTION, "data/game_assets/skybox/SkyboxSet1/DarkStormy/", "DarkStormyFront2048.png",
-        "DarkStormyBack2048.png", "bar.png", "foo.png", "DarkStormyLeft2048.png", "DarkStormyRight2048.png");
+    cube.material_set(material.get());
+    sphere.material_set(material.get());
+    scene.state_update_recursive(sphere);
     scene.state_update_recursive(cube);
   }
 
   {
+
     Node &node = *scene.node_create("skybox");
     node.mesh->cube_generate(150.0f);
-    Material &material = *node.material;
-    material.cubemap_create(CUBEMAP_SKYBOX, "data/game_assets/skybox/SkyboxSet1/DarkStormy/", "DarkStormyFront2048.png",
+    node.material_get()->cubemap_create(CUBEMAP_SKYBOX, "data/game_assets/skybox/SkyboxSet1/DarkStormy/", "DarkStormyFront2048.png",
         "DarkStormyBack2048.png", "bar.png", "foo.png", "DarkStormyLeft2048.png", "DarkStormyRight2048.png");
     scene.upload_queue_add(node);
   }
 
   scene.scene_graph_print();
+  scene.assets_get().print_all(scene.node_root_get());
 
   fragmic.run();
   fragmic.term();

@@ -82,7 +82,7 @@ void Physics::collision_mesh_add(Node &node, const std::string &prefix, const st
 {
   Model model;
   Node *root_ptr = model.load(collision_assets, node, prefix, filename);
-  collision_assets.print_all();
+  collision_assets.print_all(*root_ptr);
   std::cout << "Root ptr collision: " << root_ptr->name << std::endl;
   for (auto &armature: collision_assets.armature_get_all()) {
     for (auto &bone: armature->bones_get_all()) {

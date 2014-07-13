@@ -1,7 +1,23 @@
 #include "utils.h"
+#include <algorithm>  
 
 using std::ios;
 
+struct MatchPathSeparator
+{
+  bool operator()( char ch ) const
+  {
+    return ch == '\\' || ch == '/';
+  }
+};
+
+std::string basename(std::string const &pathname)
+{
+  return std::string( 
+      std::find_if(pathname.rbegin(), pathname.rend(),
+        MatchPathSeparator() ).base(),
+      pathname.end() );
+}
 
 void indent(std::ostream &os,size_t indent)
 {

@@ -37,7 +37,6 @@ class Demo {
       scene.model_load("data/", "scene_textured.dae");
 
       scene.scene_graph_print();
-      assets.print_all();
 
       fragmic.run();
       fragmic.term();
@@ -55,47 +54,10 @@ class Demo {
       Node &node2 = scene.model_load("data/bob/", "Bob_with_lamp.dae");
       t.translate(node2, glm::vec3(2.5, 2.5, 0));
       scene.scene_graph_print();
-      assets.print_all();
     }
 
     void keyboardPressedCallback(SDL_Keysym *keysym)
     {
-      vector<glm::vec3> wayPoints;
-      vector<Uint32> wayPointTime;
-      float n = 90.0;
-      float maxTime = 3000; 
-
-      Camera &camera = fragmic.camera_get();
-      Window &window = fragmic.window_get();
-
-      switch (keysym->sym) {
-        case SDLK_d:
-          window.debug_toggle();
-          break;
-        case SDLK_l:
-          load();
-          break;
-        case SDLK_c:
-          wayPoints.reserve(n);
-          wayPointTime.reserve(n);
-          for (int i = 1; i <= (int) n; i++) {
-            float theta = i * 2*M_PI / n;
-            float phi = 0;
-            float time = i * maxTime / n;
-            float r = 10;
-            float x = r * sin(theta) * cos(phi);
-            float y = r * sin(theta) * sin(phi) + 5;
-            float z = r * cos(theta);
-            wayPoints.push_back(glm::vec3(x, y, z));
-            wayPointTime.push_back(time);
-          }
-
-          camera.setWayPoints(wayPoints, wayPointTime, glm::vec3(0,3,0), true);
-
-          break;
-        default:
-          break;
-      }
 
     }
 

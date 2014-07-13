@@ -62,6 +62,7 @@ class Node: public Animated {
     void       local_transform_current_set(const glm::mat4 &transform);
     void       local_transform_original_set(const glm::mat4 &transform);
     void       print_state(int indent_level);
+    void       material_set(Material *material);
     Material  *material_get();
     Mesh      *mesh_create();
 };

@@ -86,6 +86,13 @@ void Node::print_state(int indent_level)
 
 }
 
+
+void Node::material_set(Material *material)
+{
+  this->material = material;
+}
+
+
 Material *Node::material_get()
 {
   if (!material) {

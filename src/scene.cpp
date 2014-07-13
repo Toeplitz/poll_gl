@@ -70,7 +70,6 @@ void Scene::animation_list_update_transforms(Node &node, const double dt)
 }
 
 
-
 Node &Scene::model_load(const std::string &prefix, const std::string &filename, bool draw) 
 {
   Transform transform;
@@ -165,6 +164,12 @@ Node *Scene::node_create(const std::string &name)
   assets.material_add(std::move(material));
 
   return node_ptr;
+}
+
+
+Node &Scene::node_root_get()
+{
+  return root;
 }
 
 

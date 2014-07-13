@@ -12,6 +12,7 @@ Texture::Texture()
 
 Texture::~Texture()
 {
+  std::cout << "Deleting texture " << filename << std::endl;
 }
 
 

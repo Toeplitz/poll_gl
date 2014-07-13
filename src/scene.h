@@ -37,6 +37,7 @@ class Scene {
     void                  scene_graph_print();
     void                  scene_graph_print_by_node(Node &node);
     Node                 *node_create(const std::string &name);
+    Node                 &node_root_get();
     void                  state_update_recursive(Node &node);
     void                  upload_queue_add(Node &node);
     Node                 *upload_queue_pop();

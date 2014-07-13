@@ -22,11 +22,13 @@ class Assets {
     void                             armature_add(std::unique_ptr<Armature> &&armature);
     Armature_Unique_Ptr_List  const &armature_get_all() const;
     void                             armature_print_all();
+    unsigned int                     mesh_node_lookup(const Mesh *mesh, const Node &node);
     void                             material_add(std::unique_ptr<Material> &&material);
-    void                             material_print_all();
+    unsigned int                     material_node_lookup(const Material *material, const Node &node);
+    void                             material_print_all(const Node &node);
     void                             mesh_add(std::unique_ptr<Mesh> &&mesh);
-    void                             mesh_print_all();
-    void                             print_all();
+    void                             mesh_print_all(const Node &node);
+    void                             print_all(const Node &node);
 
 };
 
