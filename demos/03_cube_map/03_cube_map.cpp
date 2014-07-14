@@ -32,10 +32,13 @@ int main()
     Node &node_root = scene.model_load("data/game_assets/", "sphere.dae");
     Node &sphere = *scene.node_find(&node_root, "Sphere");
     Node &cube = *scene.node_find(&node_root, "Cube");
+    Node &suzanne= *scene.node_find(&node_root, "Suzanne");
     cube.material_set(material.get());
     sphere.material_set(material.get());
+    suzanne.material_set(material.get());
     scene.state_update_recursive(sphere);
     scene.state_update_recursive(cube);
+    scene.state_update_recursive(suzanne);
   }
 
   {
@@ -47,7 +50,7 @@ int main()
     scene.upload_queue_add(node);
   }
 
-  scene.scene_graph_print();
+  scene.scene_graph_print(true);
   scene.assets_get().print_all(scene.node_root_get());
 
   fragmic.run();

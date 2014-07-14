@@ -66,7 +66,7 @@ vec3 func_cubemap_reflect()
   vec3 reflected = reflect(incident_eye, normal);
 
   // convert from eye to world space
-  reflected = vec3(inverse(view) * vec4(reflected, 0.0));
+  reflected = vec3(inverse(view + mat4(1.0) * 0.01) * vec4(reflected, 0.0));
   return texture (cube_texture, reflected).rgb;
 }
 
@@ -212,7 +212,7 @@ void main()
   } 
   else if (state_cubemap_reflect == 1) 
   {
-  //out_color = func_diffuse(func_cubemap_reflect());
+  //  out_color = func_diffuse(func_cubemap_reflect());
     out_color = func_cubemap_reflect();
   } 
   else if (state_standard == 1) 
