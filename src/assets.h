@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "armature.h"
+#include "light.h"
 #include "material.h"
 #include "mesh.h"
 
@@ -13,6 +14,7 @@ class Assets {
   private:
     Armature_Unique_Ptr_List armatures;
     std::vector<std::unique_ptr<Material>> materials;
+    std::vector<std::unique_ptr<Light>> lights;
     std::vector<std::unique_ptr<Mesh>> meshes;
 
   public:
@@ -23,6 +25,8 @@ class Assets {
     Armature_Unique_Ptr_List  const &armature_get_all() const;
     void                             armature_print_all();
     unsigned int                     mesh_node_lookup(const Mesh *mesh, const Node &node);
+    void                             light_add(std::unique_ptr<Light> &&light);
+    void                             light_print_all(const Node &node);
     void                             material_add(std::unique_ptr<Material> &&material);
     unsigned int                     material_node_lookup(const Material *material, const Node &node);
     void                             material_print_all(const Node &node);

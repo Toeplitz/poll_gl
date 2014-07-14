@@ -1,7 +1,7 @@
 #include "model.h"
 
 template <typename Key, typename Value>
-static const Value &lookupIn(const Key &key, const std::map<Key, Value> &map);
+static const Value &lookup_node(const Key &key, const std::map<Key, Value> &map);
 
 
 /**************************************************/
@@ -71,6 +71,7 @@ Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const s
   BoneForAssimpBone boneForAssimpBone;
   bone_map_create(assets, boneForAssimpBone);
   materials_parse(assets);
+  lights_parse(assets);
 
   mesh_create_all(assets, *scene->mRootNode, boneForAssimpBone);
   key_frames_parse();
@@ -85,7 +86,7 @@ Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const s
 
 
   template <typename Key, typename Value>
-static const Value &lookupIn(const Key &key, const std::map<Key, Value> &map)
+static const Value &lookup_node(const Key &key, const std::map<Key, Value> &map)
 {
   typename std::map < Key, Value >::const_iterator iter = map.find(key);
   assert(iter != map.end());
@@ -204,6 +205,33 @@ void Model::bone_map_create(Assets & assets, BoneForAssimpBone & boneForAssimpBo
   }
   armature_ptr = armature.get();
   assets.armature_add(std::move(armature));
+}
+
+void Model::lights_parse(Assets &assets)
+{
+  std::cout << "Looing for lights in scene" << std::endl;
+  if (!scene->HasLights())
+    return;
+
+  std::cout << "Scene has " << scene->mNumLights << " lights" << std::endl;
+
+  for (unsigned int i = 0; i < scene->mNumLights; i++) {
+    aiLight &assimp_light = *scene->mLights[i];
+    std::unique_ptr<Light> light_ptr(new Light());
+    Light &light= *light_ptr;
+
+    std::cout << "Light name: " << assimp_light.mName.C_Str() << std::endl;
+    std::string key(assimp_light.mName.data);
+    Node *light_node = lookup_node(key, nodes);
+
+    std::cout << "Found node: " << light_node->name << std::endl;
+    assert(light_node);
+
+    light_node->light = light_ptr.get();
+    assets.light_add(std::move(light_ptr));
+  }
+
+
 }
 
 
@@ -392,7 +420,7 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
   }
 
   std::string node_name = std::string(node.mName.data);
-  Node *mesh_node = lookupIn(node_name, nodes);
+  Node *mesh_node = lookup_node(node_name, nodes);
   assert(mesh_node);
   //std::cout << "Node '" << mesh_node->name << "' has " << node.mNumMeshes << " mesh(es)" << std::endl;
 
@@ -435,7 +463,7 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
     for (unsigned int ib = 0; ib < assimpMesh->mNumBones; ib++) {
       const aiBone *assimpBone = assimpMesh->mBones[ib];
 
-      Bone *bone = lookupIn(assimpBone, boneForAssimpBone);
+      Bone *bone = lookup_node(assimpBone, boneForAssimpBone);
       assert(bone);
 
       for (unsigned int iw = 0; iw < assimpBone->mNumWeights; iw++) {
@@ -527,7 +555,7 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
       parent_node->child_add(std::move(sub_node), parent_node->tree_level + 1);
     }
     assets.mesh_add(std::move(mesh_ptr));
-    mesh_node = lookupIn(node_name, nodes);
+    mesh_node = lookup_node(node_name, nodes);
   }
 
 }

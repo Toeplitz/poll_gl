@@ -43,6 +43,21 @@ void Assets::armature_print_all()
 }
 
 
+void Assets::light_add(std::unique_ptr<Light> &&light) 
+{
+  lights.push_back(std::move(light));
+}
+
+
+void Assets::light_print_all(const Node &node)
+{
+  std::cout << "\nLights: " << std::endl;
+  for (auto &light: lights) {
+    std::cout << "\t(" << &light << std::endl;
+  }
+}
+
+
 void Assets::material_add(std::unique_ptr<Material> &&material) 
 {
   materials.push_back(std::move(material));
@@ -134,6 +149,7 @@ void Assets::print_all(const Node &node)
   armature_print_all();
   material_print_all(node);
   mesh_print_all(node);
+  light_print_all(node);
   std::cout << "==================================================" << std::endl;
 }
 

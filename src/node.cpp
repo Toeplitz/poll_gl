@@ -10,6 +10,7 @@
 
 Node::Node(const std::string &_name):
   armature(nullptr),
+  light(nullptr),
   material(nullptr),
   mesh(nullptr),
   parent(nullptr),

@@ -132,6 +132,9 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
   if (node.material) {
     std::cout << " (material)";
   }
+  if (node.light) {
+    std::cout << " (light)";
+  }
 
   if (!compact) {
     if (node.mesh) {

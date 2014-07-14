@@ -53,6 +53,7 @@ class Model {
 
     void   ai_mat_copy(const aiMatrix4x4 *from, glm::mat4 &to);
     void   bone_map_create(Assets &assets, BoneForAssimpBone &boneForAssimpBone);
+    void   lights_parse(Assets &assets);
     void   materials_parse(Assets &assets);
     void   mesh_create_all(Assets &assets, const aiNode &node, const BoneForAssimpBone &boneForAssimpBone);
     void   mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpBone &boneForAssimpBone);
