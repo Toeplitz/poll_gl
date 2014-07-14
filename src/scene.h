@@ -30,12 +30,13 @@ class Scene {
     std::vector<Node *>   animation_list_get();
     void                  animation_list_update_transforms(Node &node, const double dt);
     Assets               &assets_get();
-    Node                 &model_load(const std::string &prefix, const std::string &filename, bool draw = true);
+    Node                 &model_load(const std::string &prefix, const std::string &filename, 
+                                     const unsigned int options = MODEL_IMPORT_DEFAULT);
     Node                 *node_find(Node *root_ptr, const std::string &name);
     void                  render_list_add(Node &node);
     std::vector<Node *>   render_list_get();
-    void                  scene_graph_print();
-    void                  scene_graph_print_by_node(Node &node);
+    void                  scene_graph_print(const bool compact = false);
+    void                  scene_graph_print_by_node(Node &node, const bool compact = false);
     Node                 *node_create(const std::string &name);
     Node                 *node_create_mesh_only(const std::string &name);
     Node                 &node_root_get();

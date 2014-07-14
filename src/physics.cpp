@@ -81,7 +81,7 @@ void character_controller_jump(Physics_Character_Controller *char_cont)
 void Physics::collision_mesh_add(Node &node, const std::string &prefix, const std::string &filename)
 {
   Model model;
-  Node *root_ptr = model.load(collision_assets, node, prefix, filename);
+  Node *root_ptr = model.load(collision_assets, node, prefix, filename, MODEL_IMPORT_DEFAULT);
   collision_assets.print_all(*root_ptr);
   std::cout << "Root ptr collision: " << root_ptr->name << std::endl;
   for (auto &armature: collision_assets.armature_get_all()) {

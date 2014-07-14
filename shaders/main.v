@@ -28,7 +28,7 @@ layout(std140) uniform Material {
   float shininess;
 };
 
-layout(std140) uniform State {
+layout(std140) uniform Node_State {
   int state_animated;
   int state_debug;
   int state_diffuse;

@@ -176,7 +176,7 @@ int main()
   window.keyboard_released_callback_set(keyboard_released_cb);
   physics.custom_step_callback_set(physics_update);
 
-  Node &room = scene.model_load("data/game_assets/", "Room.dae");
+  Node &room = scene.model_load("data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_LIGHTS);
   physics.collision_node_add(room, PHYSICS_COLLISION_TRIANGLE_MESH, true, 0);
 
   /*
@@ -190,8 +190,10 @@ int main()
   */
 
   {
-    Node &panda_root = scene.model_load("data/game_assets/characters/panda/", "PandaSingle.dae");
-    Node &panda_collision_root = scene.model_load("data/game_assets/characters/panda/", "Panda_convex_hull.dae", false);
+    Node &panda_root = scene.model_load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
+
+    Node &panda_collision_root = scene.model_load("data/game_assets/characters/panda/", 
+        "Panda_convex_hull.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
     Node *panda = scene.node_find(&panda_root, "Panda");
     Node *panda_collision = scene.node_find(&panda_collision_root, "Panda_convex_hull");
     if (panda && panda_collision) {
@@ -208,8 +210,8 @@ int main()
     }
   }
 
- // scene.scene_graph_print();
- // scene.assets_get().print_all(scene.node_root_get());
+  scene.scene_graph_print(true);
+  scene.assets_get().print_all(scene.node_root_get());
 
   fragmic.run();
   fragmic.term();

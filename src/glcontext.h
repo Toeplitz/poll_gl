@@ -27,13 +27,11 @@ class GLcontext {
 
     GLuint gl_fb_tex;
     GLuint gl_fb;
-    GLuint gl_fb_vertex_buffers[2];
+    GLuint gl_fb_vertex_buffers[1];
 
     Node *fb_node;
 
     bool check_version(const int &major);
-    void framebuffer_create(const int width, const int height);
-    void framebuffer_delete();
     void texture_cubemap_create(Cubemap_Item &item);
     void texture_cubemap_delete(Cubemap &cubemap);
     void texture_create(Texture &texture, GLenum n);
@@ -46,9 +44,11 @@ class GLcontext {
     void check_error();
     void clear();
     void node_draw(Node &node);
+    void framebuffer_create(const int width, const int height);
     void framebuffer_node_create(GLshader &shader, Node &node);
     void framebuffer_draw_texture(Scene &scene, bool debug);
     void framebuffer_draw_screen();
+    void framebuffer_delete();
     bool init(const int width, const int height);
     void polygon_mesh_toggle(bool tog);
     void uniform_buffers_create(GLshader &shader);

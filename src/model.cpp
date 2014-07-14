@@ -26,23 +26,40 @@ Model::~Model()
 /**************************************************/
 
 
-Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const std::string &filename)
+Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const std::string &filename, const unsigned int options)
 {
+  unsigned int pflags;
+  unsigned int remove_flags;
   Transform t;
   std::string full_name = prefix + "/" + filename;
   this->prefix = prefix;
+
 
   if (!file_exists(full_name)) {
     std::cout << "Model file '" << full_name << "' does not exist. Exiting ..." << std::endl;
     exit(-1);
   }
 
+  pflags = aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | 
+           aiProcess_FindDegenerates | aiProcess_JoinIdenticalVertices | aiProcess_FlipUVs | 
+           aiProcess_LimitBoneWeights | aiProcess_RemoveComponent | aiProcess_FixInfacingNormals;
+  
+  remove_flags = aiComponent_COLORS | aiComponent_LIGHTS | aiComponent_CAMERAS;
+
+  if (options & MODEL_IMPORT_OPTIMIZED) {
+    pflags |= aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes | aiProcess_RemoveComponent | aiProcess_FindInstances;
+  }
+
+  if (options & MODEL_IMPORT_LIGHTS) {
+    remove_flags = aiComponent_COLORS | aiComponent_CAMERAS;
+  }
+
   Assimp::Importer importer;
   importer.SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 3);
-  importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_COLORS | aiComponent_LIGHTS | aiComponent_CAMERAS);
-  scene = importer.ReadFile(full_name.c_str(), aiProcess_Triangulate |
-      aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_FindDegenerates |  aiProcess_JoinIdenticalVertices |
-      aiProcess_FlipUVs | aiProcess_LimitBoneWeights | aiProcess_RemoveComponent );
+  importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, remove_flags);
+  scene = importer.ReadFile(full_name.c_str(), pflags);
+      
+     
 
   if (!scene) {
     std::cout << "Error parsing '" <<  full_name.c_str() << "': " << importer.GetErrorString() << std::endl;
@@ -282,9 +299,9 @@ void Model::materials_parse(Assets &assets)
           << color.g << "," << color.b
           << "," << color.a << ")" <<std::endl;
           */
-        material.material_block.Ka.x = color.r;
-        material.material_block.Ka.y = color.g;
-        material.material_block.Ka.z = color.b;
+        material.properties.Ka.x = color.r;
+        material.properties.Ka.y = color.g;
+        material.properties.Ka.z = color.b;
       }
 
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_DIFFUSE, &color);
@@ -294,9 +311,9 @@ void Model::materials_parse(Assets &assets)
           << color.g << "," << color.b
           << "," << color.a << ")" << std::endl;
           */
-        material.material_block.Kd.x = color.r;
-        material.material_block.Kd.y = color.g;
-        material.material_block.Kd.z = color.b;
+        material.properties.Kd.x = color.r;
+        material.properties.Kd.y = color.g;
+        material.properties.Kd.z = color.b;
       }
 
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_SPECULAR, &color);
@@ -306,9 +323,9 @@ void Model::materials_parse(Assets &assets)
           << color.g << "," << color.b
           << "," << color.a << ")" << std::endl;
           */
-        material.material_block.Ks.x = color.r;
-        material.material_block.Ks.y = color.g;
-        material.material_block.Ks.z = color.b;
+        material.properties.Ks.x = color.r;
+        material.properties.Ks.y = color.g;
+        material.properties.Ks.z = color.b;
       }
 
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_COLOR_EMISSIVE, &color);
@@ -336,7 +353,7 @@ void Model::materials_parse(Assets &assets)
           << color.g << "," << color.b
           << "," << color.a << ")" <<std::endl;
           */
-        material.material_block.shininess = color.r;
+        material.properties.shininess = color.r;
       }
 
       ret = aiGetMaterialColor(&assimpMaterial, AI_MATKEY_SHININESS_STRENGTH, &color);

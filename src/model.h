@@ -29,6 +29,15 @@ enum Model_Texture_Type
 };
 
 
+enum Model_Import_Options
+{
+  MODEL_IMPORT_OPTIMIZED = 1 << 0,
+  MODEL_IMPORT_LIGHTS = 1 << 1,
+  MODEL_IMPORT_NO_DRAW = 1 << 2,
+  MODEL_IMPORT_DEFAULT = 1 << 3
+};
+
+
 class Model {
   private:
     typedef std::map <const aiBone *, Bone *> BoneForAssimpBone;
@@ -54,5 +63,5 @@ class Model {
     Model();
     ~Model();
 
-    Node *load(Assets &assets, Node &root, const std::string &prefix, const std::string &filename);
+    Node *load(Assets &assets, Node &root, const std::string &prefix, const std::string &filename, const unsigned int options); 
 };

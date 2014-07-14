@@ -70,16 +70,16 @@ void Scene::animation_list_update_transforms(Node &node, const double dt)
 }
 
 
-Node &Scene::model_load(const std::string &prefix, const std::string &filename, bool draw) 
+Node &Scene::model_load(const std::string &prefix, const std::string &filename, const unsigned int options) 
 {
   Transform transform;
 
   Model model;
-  Node *root_ptr = model.load(assets, root, prefix, filename);
+  Node *root_ptr = model.load(assets, root, prefix, filename, options);
   state_update_recursive(*root_ptr);
  
   transform.calculateGlobalTransformTopDown(root);
-  if (draw) {
+  if (!(options & MODEL_IMPORT_NO_DRAW)) {
     upload_queue_add(*root_ptr);
   }
 
@@ -108,13 +108,13 @@ std::vector <Node *> Scene::render_list_get()
 }
 
 
-void Scene::scene_graph_print() 
+void Scene::scene_graph_print(bool compact) 
 {
-  scene_graph_print_by_node(root);
+  scene_graph_print_by_node(root, compact);
 }
 
 
-void Scene::scene_graph_print_by_node(Node &node)
+void Scene::scene_graph_print_by_node(Node &node, bool compact)
 {
   indent(std::cout, node.tree_level);
   std::cout << node.tree_level << ": '" << node.name << "' " << &node << "";
@@ -130,21 +130,24 @@ void Scene::scene_graph_print_by_node(Node &node)
     std::cout << " (" << node.keyframe_total_num_get() << " keyframes)";
   }
   if (node.material) {
-    std::cout << " (material)" << std::endl;
-  }
-  if (node.mesh) {
-    node.mesh->print(node.tree_level);
-
-  }
-  if (node.material) {
-    node.material->print(node.tree_level);
+    std::cout << " (material)";
   }
 
-  node.print_state(node.tree_level);
+  if (!compact) {
+    if (node.mesh) {
+      node.mesh->print(node.tree_level);
+
+    }
+    if (node.material) {
+      node.material->print(node.tree_level);
+    }
+
+    node.print_state(node.tree_level);
+  }
   std::cout << std::endl;
 
   for (auto &child : node.children) {
-    scene_graph_print_by_node(*child);
+    scene_graph_print_by_node(*child, compact);
   }
 }
 
@@ -273,10 +276,6 @@ Node *Scene::node_find_recursive(Node &node, const std::string &name)
     ret = node_find_recursive(*child, name);
     if (ret)
       return ret;
-  }
-
-  if (!ret) {
-    std::cout << "Error: could not find node '" << name << "'" << std::endl;
   }
 
   return ret;

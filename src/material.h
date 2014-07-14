@@ -6,6 +6,7 @@
 #include <memory>
 #include "texture.h"
 
+
 struct Material_Properties
 {
   glm::vec4 Ka;
@@ -14,12 +15,14 @@ struct Material_Properties
   float shininess;
 };
 
+
 enum Cubemap_Type
 {
   CUBEMAP_SKYBOX,
   CUBEMAP_REFLECTION,
   CUBEMAP_REFRACTION
 };
+
 
 struct Cubemap_Item
 {
@@ -49,7 +52,7 @@ class Material
     std::unique_ptr<Texture> specular;
     std::unique_ptr<Cubemap> cubemap;
 
-    Material_Properties material_block;
+    Material_Properties properties;
 
     Material();
     ~Material();

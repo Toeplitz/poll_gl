@@ -29,14 +29,9 @@ class Demo {
     {
       Transform t;
       Scene &scene = fragmic.scene_get();
-      Assets &assets = scene.assets_get();
 
-      Camera &camera = fragmic.camera_get();
-      camera.translate(glm::vec3(0, 3, 0));
-
-      scene.model_load("data/", "scene_textured.dae");
-
-      scene.scene_graph_print();
+      scene.model_load("data/", "scene_textured.dae", MODEL_IMPORT_OPTIMIZED);
+      scene.scene_graph_print(true);
 
       fragmic.run();
       fragmic.term();
@@ -46,14 +41,13 @@ class Demo {
     {
       Transform t;
       Scene &scene = fragmic.scene_get();
-      Assets &assets = scene.assets_get();
 
-      Node &node = scene.model_load("data/zombie/", "new_thin_zombie.dae");
+      Node &node = scene.model_load("data/zombie/", "new_thin_zombie.dae", MODEL_IMPORT_OPTIMIZED);
       t.translate(node, glm::vec3(-2.5, 2.5, 0));
 
-      Node &node2 = scene.model_load("data/bob/", "Bob_with_lamp.dae");
+      Node &node2 = scene.model_load("data/bob/", "Bob_with_lamp.dae", MODEL_IMPORT_OPTIMIZED);
       t.translate(node2, glm::vec3(2.5, 2.5, 0));
-      scene.scene_graph_print();
+      scene.scene_graph_print(true);
     }
 
     void keyboardPressedCallback(SDL_Keysym *keysym)

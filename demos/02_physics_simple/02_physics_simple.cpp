@@ -17,7 +17,7 @@ void keyboard_pressed_cb(SDL_Keysym *keysym)
     case SDLK_SPACE:
       physics.pause();
       break;
-    case SDLK_d:
+    case SDLK_o:
       physics.debug();
       break;
     default:
@@ -33,19 +33,19 @@ int main()
   Window &window = fragmic.window_get();
   window.keyboard_pressed_callback_set(keyboard_pressed_cb);
 
-  Node &box_node_rh = scene.model_load("data/", "box_translated_scaled.dae");
+  Node &box_node_rh = scene.model_load("data/", "box_translated_scaled.dae", MODEL_IMPORT_OPTIMIZED);
   physics.collision_node_add(box_node_rh, PHYSICS_COLLISION_BOX, true, 1.f);
 
-  Node &sphere_node = scene.model_load("data/", "sphere_translated_scaled.dae");
+  Node &sphere_node = scene.model_load("data/", "sphere_translated_scaled.dae", MODEL_IMPORT_OPTIMIZED);
   physics.collision_node_add(sphere_node, PHYSICS_COLLISION_SPHERE, true, 1.f);
 
-  Node &monkey_node = scene.model_load("data/", "convex_hull.dae");
+  Node &monkey_node = scene.model_load("data/", "convex_hull.dae", MODEL_IMPORT_OPTIMIZED);
   physics.collision_node_add(monkey_node, PHYSICS_COLLISION_CONVEX_HULL, true, 1.f);
 
-  Node &base_node= scene.model_load("data/", "base.dae");
+  Node &base_node = scene.model_load("data/", "base.dae", MODEL_IMPORT_OPTIMIZED);
   physics.collision_node_add(base_node, PHYSICS_COLLISION_BOX, true, 0);
 
-  scene.scene_graph_print();
+  scene.scene_graph_print(true);
 
   fragmic.run();
   fragmic.term();

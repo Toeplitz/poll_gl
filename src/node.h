@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "animated.h"
+#include "light.h"
 #include "material.h"
 #include "mesh.h"
 
@@ -39,6 +40,7 @@ class Node: public Animated {
   public:
     GLuint        gl_vao;
     Armature     *armature;
+    Light        *light;
     Material     *material;
     Mesh         *mesh;
     Node         *parent;

@@ -60,10 +60,10 @@ void Material::cubemap_type_set(const Cubemap_Type type)
 
 void Material::color_set(const glm::vec3 ambient, const glm::vec3 diffuse, const glm::vec3 specular, const float shininess)
 {
-  material_block.Ka = glm::vec4(ambient, 1.f);
-  material_block.Kd = glm::vec4(diffuse, 1.f);
-  material_block.Ks = glm::vec4(specular, 1.f);
-  material_block.shininess = shininess;
+  properties.Ka = glm::vec4(ambient, 1.f);
+  properties.Kd = glm::vec4(diffuse, 1.f);
+  properties.Ks = glm::vec4(specular, 1.f);
+  properties.shininess = shininess;
 }
 
 
@@ -80,10 +80,10 @@ void Material::print(const int indent_level)
     std::cout << "\tspecular texture '" << specular->filename << "'" << std::endl;
   }
 
-  std::cout << "\tshininess = " << material_block.shininess << " ";
-  std::cout << "Ka = ("<< material_block.Ka.x << ", " << material_block.Ka.y << ", " << material_block.Ka.z << ") ";
-  std::cout << "Kd = ("<< material_block.Kd.x << ", " << material_block.Kd.y << ", " << material_block.Kd.z << ") ";
-  std::cout << "Ks = ("<< material_block.Ks.x << ", " << material_block.Ks.y << ", " << material_block.Ks.z << ")" << std::endl;
+  std::cout << "\tshininess = " << properties.shininess << " ";
+  std::cout << "Ka = ("<< properties.Ka.x << ", " << properties.Ka.y << ", " << properties.Ka.z << ") ";
+  std::cout << "Kd = ("<< properties.Kd.x << ", " << properties.Kd.y << ", " << properties.Kd.z << ") ";
+  std::cout << "Ks = ("<< properties.Ks.x << ", " << properties.Ks.y << ", " << properties.Ks.z << ")" << std::endl;
   std::cout << "ptr: " << this << std::endl;
 
 }
