@@ -28,10 +28,13 @@ class Demo {
     void run()
     {
       Transform t;
+      Physics &physics = fragmic.physics_get();
       Scene &scene = fragmic.scene_get();
 
-      scene.model_load("data/", "scene_textured.dae", MODEL_IMPORT_OPTIMIZED);
-      scene.scene_graph_print(true);
+      Node &node = scene.model_load("data/game_assets/", "box.dae", MODEL_IMPORT_OPTIMIZED);
+      physics.collision_node_add(node, PHYSICS_COLLISION_BOX, true, 1.f);
+      physics.pause();
+      scene.scene_graph_print(false);
 
       fragmic.run();
       fragmic.term();
@@ -47,25 +50,22 @@ class Demo {
 
       Node &node2 = scene.model_load("data/bob/", "Bob_with_lamp.dae", MODEL_IMPORT_OPTIMIZED);
       t.translate(node2, glm::vec3(2.5, 2.5, 0));
-      scene.scene_graph_print(true);
+      scene.scene_graph_print(false);
     }
 
     void keyboardPressedCallback(SDL_Keysym *keysym)
     {
-      Window &window = fragmic.window_get();
+      Physics &physics = fragmic.physics_get();
 
       switch (keysym->sym) {
-        case SDLK_d:
-          window.debug_toggle();
-          break;
         case SDLK_l:
           load();
           break;
+        case SDLK_o:
+          physics.debug();
+          break;
       }
-
     }
-
-
 
 };
 

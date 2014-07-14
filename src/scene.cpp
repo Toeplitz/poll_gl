@@ -146,6 +146,8 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
     }
 
     node.print_state(node.tree_level);
+    //print_matrix(std::cout, node.transform_global, 0);
+    //print_matrix(std::cout, node.transform_local_original, 0);
   }
   std::cout << std::endl;
 

@@ -17,11 +17,15 @@ struct Light_Properties
 class Light
 {
   private:
+    Light_Properties properties;
 
   public:
     Light();
     ~Light();
 
+    const Light_Properties &properties_get() const;
+    void                    properties_set(const glm::vec3 ambient, 
+                                           const glm::vec3 diffuse, const glm::vec3 specular);
     void create();
 
 };

@@ -15,7 +15,6 @@ uniform sampler2D normal_texture;
 uniform sampler2D specular_texture;
 uniform samplerCube cube_texture;
 
-
 layout(std140) uniform GlobalMatrices {
   mat4 proj;
   mat4 view;
@@ -29,14 +28,12 @@ layout(std140) uniform Armature {
   mat4 skinning[64];
 };
 
-
 layout(std140) uniform Material {
   vec4 Ka;
   vec4 Kd;
   vec4 Ks;
   float shininess;
 };
-
 
 layout(std140) uniform Node_State {
   int state_animated;

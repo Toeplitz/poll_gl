@@ -1,4 +1,5 @@
 #include "model.h"
+#include <glm/gtx/string_cast.hpp>
 
 template <typename Key, typename Value>
 static const Value &lookup_node(const Key &key, const std::map<Key, Value> &map);
@@ -148,7 +149,7 @@ void Model::assimp_material_add_texture(Material &material, aiMaterial &assimp_m
 }
 
 
-void Model::ai_mat_copy(const aiMatrix4x4 * from, glm::mat4 & to)
+void Model::ai_mat_copy(const aiMatrix4x4 *from, glm::mat4 &to)
 {
   to[0][0] = from->a1;
   to[1][0] = from->a2;
@@ -209,28 +210,51 @@ void Model::bone_map_create(Assets & assets, BoneForAssimpBone & boneForAssimpBo
 
 void Model::lights_parse(Assets &assets)
 {
-  std::cout << "Looing for lights in scene" << std::endl;
   if (!scene->HasLights())
     return;
-
-  std::cout << "Scene has " << scene->mNumLights << " lights" << std::endl;
 
   for (unsigned int i = 0; i < scene->mNumLights; i++) {
     aiLight &assimp_light = *scene->mLights[i];
     std::unique_ptr<Light> light_ptr(new Light());
     Light &light= *light_ptr;
 
-    std::cout << "Light name: " << assimp_light.mName.C_Str() << std::endl;
     std::string key(assimp_light.mName.data);
     Node *light_node = lookup_node(key, nodes);
-
-    std::cout << "Found node: " << light_node->name << std::endl;
     assert(light_node);
+
+    {
+      float r = assimp_light.mColorAmbient.r;
+      float g = assimp_light.mColorAmbient.g;
+      float b = assimp_light.mColorAmbient.b;
+      glm::vec3 ambient(r, g, b);
+
+      r = assimp_light.mColorDiffuse.r;
+      g = assimp_light.mColorDiffuse.g;
+      b = assimp_light.mColorDiffuse.b;
+      glm::vec3 diffuse(r, g, b);
+
+      r = assimp_light.mColorSpecular.r;
+      g = assimp_light.mColorSpecular.g;
+      b = assimp_light.mColorSpecular.b;
+      glm::vec3 specular(r, g, b);
+
+      light.properties_set(ambient, diffuse, specular);
+    }
+
+    float x = assimp_light.mPosition.x;
+    float y = assimp_light.mPosition.y;
+    float z = assimp_light.mPosition.z;
+
+    glm::vec3 light_position(x, y, z);
+    //print_matrix(std::cout, glm::transpose(light_node->transform_global), 0);
+    //print_matrix(std::cout, light_node->transform_local_current, 0);
+    
+    std::cout << glm::to_string(light_position) << std::endl;
+    std::cout << glm::to_string(light_node->original_position) << std::endl;
 
     light_node->light = light_ptr.get();
     assets.light_add(std::move(light_ptr));
   }
-
 
 }
 
@@ -246,12 +270,10 @@ Node *Model::node_map_create(const aiNode &node, Node *parent, int level)
   aiVector3t<float> position;
 
   node.mTransformation.Decompose(scaling, rotation, position);
-  /*
      std::cout << "Report for: " << node.mName.C_Str() << std::endl;
      std::cout << "Scaling: " << scaling.x << ", " << scaling.y << ", " << scaling.z << std::endl;
      std::cout << "Position: " << position.x << ", " << position.y << ", " << position.z << std::endl;
      std::cout << "Rotation quaternion: " << rotation.x << ", " << rotation.y << ", " << rotation.z << ", " << rotation.w << std::endl;
-     */
 
   glm::vec3 scale_vec(scaling.x, scaling.y, scaling.z);
   glm::vec3 position_vec(position.x, position.y, -position.z);
@@ -277,6 +299,8 @@ Node *Model::node_map_create(const aiNode &node, Node *parent, int level)
   //  localTransform = translate_matrix * rotation_matrix * scale_matrix;
   internalNode->local_transform_original_set(localTransform);
   internalNode->local_transform_current_set(localTransform);
+  //print_matrix(std::cout, nodePtr->transform_local_current, 0);
+  //print_matrix(std::cout, nodePtr->transform_global, 0);
 
   for (size_t i = 0; i < node.mNumChildren; i++) {
     node_map_create(*node.mChildren[i], internalNode.get(), level + 1);

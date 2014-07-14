@@ -32,7 +32,7 @@ void Mesh::aabb_generate_bounding()
 
   for (auto &v : positions) {
     glm::vec3 p = glm::vec3(model * glm::vec4(v, 1.f));
-    //  std::cout << glm::to_string(p) << std::endl;
+    std::cout << glm::to_string(p) << std::endl;
     minimum = glm::min(minimum, p);
     maximum = glm::max(maximum, p);
   }
