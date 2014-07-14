@@ -180,10 +180,10 @@ vec3 func_toon(vec3 ambient, vec3 diffuse)
 
 vec3 func_diffuse_texture()
 {
-  return func_ads(vec3(0, 0, 0), texture(diffuse_texture, st).rgb, vec3(1, 0.5, 0.5), 80);
+  //return func_ads(vec3(0, 0, 0), texture(diffuse_texture, st).rgb, vec3(1, 0.5, 0.5), 80);
   //return func_phong(vec3(0,0,0), texture(diffuse_texture, st).rgb, vec3(1, 0.5, 0.5), 50);
   //return func_toon(vec3(0,0,0), texture(diffuse_texture, st).rgb);
-  //return func_diffuse(texture(diffuse_texture, st).rgb);
+  return func_diffuse(texture(diffuse_texture, st).rgb);
 }
 
 
