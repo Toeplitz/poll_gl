@@ -151,7 +151,7 @@ void Camera::createOrthoProjection(float width, float height)
 void Camera::createPerspectiveProjection(float width, float height) 
 {
   fov = 45.f;
-  perspective = glm::perspective(fov, width / height, 1.0f, 500.0f);
+  perspective = glm::perspective(fov, width / height, 1.0f, 2500.0f);
 }
 
 
@@ -160,6 +160,7 @@ void Camera::setStartPosition(void)
   horizontalAngle = 3.14;
   verticalAngle = 0; 
   speed = 0.5f;
+  speed = 10.5f;
   mouseSpeed = 0.0005f;
   position = vec3(0, 5, 16);
   target = vec3(0, 0, 0);

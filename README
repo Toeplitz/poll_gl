@@ -1,8 +1,15 @@
 
-Axis convention from blender:
 
-opengl = blender 
+Rendering objectives:
 
-x  = x
-y  = -z
-z = y
+
+
+Lighting:
+- Multiple lights, standard
+- Deferred shading
+  - Displays different textures with keyboard 1, 2, 3 ... for QC.
+- SSOA
+
+
+Shadows:
+

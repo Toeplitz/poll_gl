@@ -26,9 +26,9 @@ void GLshader::compile()
 {
   GLint link_ok = GL_FALSE;
 
-  if ((vs = this->create_shader(vertexShaderFile, GL_VERTEX_SHADER)) == 0)
+  if ((vs = create_shader(vertexShaderFile, GL_VERTEX_SHADER)) == 0)
     return;
-  if ((fs = this->create_shader(fragmentShaderFile, GL_FRAGMENT_SHADER)) == 0)
+  if ((fs = create_shader(fragmentShaderFile, GL_FRAGMENT_SHADER)) == 0)
     return;
 
   program = glCreateProgram();
@@ -45,12 +45,12 @@ void GLshader::compile()
 }
 
 
-GLuint GLshader::create_shader(std::string fileName, GLenum type)
+GLuint GLshader::create_shader(std::string filename, GLenum type)
 {
-  const GLchar *source = file_read(fileName.c_str());
+  const GLchar *source = file_read(filename.c_str());
 
   if (source == NULL) {
-    fprintf(stderr, "Error opening %s: ", fileName.c_str());
+    fprintf(stderr, "Error opening %s: ", filename.c_str());
     perror("");
     return 0;
   }
@@ -83,7 +83,7 @@ GLuint GLshader::create_shader(std::string fileName, GLenum type)
   glGetShaderiv(shaderObject, GL_COMPILE_STATUS, &compile_ok);
 
   if (compile_ok == GL_FALSE) {
-    std::cout << "Fragmic ERROR: could not compile shader: " << fileName << std::endl;
+    std::cout << "Fragmic ERROR: could not compile shader: " << filename << std::endl;
     print_log(shaderObject);
     glDeleteShader(shaderObject);
     exit(-1);
@@ -180,7 +180,7 @@ void GLshader::validate(void)
 /**************************************************/
 
 
-void GLshader::load(const std::string &vertex, const std::string &fragment)
+void GLshader::load(const std::string &vertex, const std::string &fragment, const std::string &geometry)
 {
   vertexShaderFile = vertex;
   fragmentShaderFile = fragment;
@@ -192,6 +192,13 @@ void GLshader::load(const std::string &vertex, const std::string &fragment)
   if (!file_exists(fragment)) {
     std::cout << "GLSL (fragment shader) file '" << fragment << "' does not exist. Exiting ..." << std::endl;
     exit(-1);
+  }
+
+  if (!geometry.empty()) {
+    if (!file_exists(geometry)) {
+      std::cout << "GLSL (geometry shader) file '" << geometry << "' does not exist. Exiting ..." << std::endl;
+      exit(-1);
+    }
   }
 
   compile();

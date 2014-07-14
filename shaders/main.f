@@ -163,7 +163,7 @@ vec3 func_phong_specular_normal()
 vec3 func_toon(vec3 ambient, vec3 diffuse)
 {
   vec3 Ia = vec3 (0.5, 0.5, 0.5);
-  int levels = 3;
+  int levels = 5;
   float scale_factor = 1;
 
   vec3 s = normalize(light_position_eye - position_eye);
@@ -180,17 +180,19 @@ vec3 func_toon(vec3 ambient, vec3 diffuse)
 
 vec3 func_diffuse_texture()
 {
-  //return func_ads(vec3(0, 0, 0), texture(diffuse_texture, st).rgb, vec3(1, 1, 1), 20);
-  return func_diffuse(texture(diffuse_texture, st).rgb);
+  return func_ads(vec3(0, 0, 0), texture(diffuse_texture, st).rgb, vec3(1, 0.5, 0.5), 80);
+  //return func_phong(vec3(0,0,0), texture(diffuse_texture, st).rgb, vec3(1, 0.5, 0.5), 50);
+  //return func_toon(vec3(0,0,0), texture(diffuse_texture, st).rgb);
+  //return func_diffuse(texture(diffuse_texture, st).rgb);
 }
 
 
 vec3 func_standard()
 {
  //return func_phong(vec3(0,0,0), vec3(Kd), vec3(1, 0.5, 0.5), 80);
- //return func_ads(vec3(0,0,0), Kd, vec3(1, 0.5, 0.5), 80);
+ return func_ads(vec3(0,0,0), vec3(Kd), vec3(1, 0.5, 0.5), 80);
  //return func_toon(vec3(0,0,0), Kd);
- return func_diffuse(vec3(Kd));
+ //return func_diffuse(vec3(Kd));
  }
 
 

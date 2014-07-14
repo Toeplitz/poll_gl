@@ -81,8 +81,8 @@ void main(void)
   mat3 normal_matrix = mat3(transpose(inverse(model_view)));
 
   position_eye = vec3(model_view * vec4(vertex_position, 1.0));
-  normal_eye = normalize(normal_matrix * vertex_normal);
-//  normal_eye = vec3(model_view * vec4(vertex_normal, 0.0));
+ // normal_eye = normalize(normal_matrix * vertex_normal);
+  normal_eye = vec3(model_view * vec4(vertex_normal, 0.0));
   light_position_eye = vec3(view * vec4(light_position_world, 1.0));
 
   gl_Position = proj * vec4(position_eye, 1.0);
@@ -93,7 +93,7 @@ void main(void)
 
   if (state_diffuse_specular_normal == 1 || state_diffuse_normal == 1) {
     /* HACK */
-    vec3 cam_pos_wor = (inverse (view) * vec4 (0.0, 0.0, 0.0, 1.0)).xyz;
+    vec3 cam_pos_wor = (inverse(view) * vec4 (0.0, 0.0, 0.0, 1.0)).xyz;
     
     /* work out bi-tangent as cross product of normal and tangent. also multiply
        by the determinant, which we stored in .w to correct handedness
@@ -102,8 +102,8 @@ void main(void)
     //vec3 bitangent = cross (vertex_normal, vtangent) * 1;
     
     /* transform our camera and light uniforms into local space */
-    vec3 cam_pos_loc = vec3 (inverse (model) * vec4 (cam_pos_wor, 1.0));
-    vec3 light_dir_loc = vec3 (inverse (model) * vec4 (light_dir_wor, 0.0));
+    vec3 cam_pos_loc = vec3(inverse(model)  * vec4 (cam_pos_wor, 1.0));
+    vec3 light_dir_loc = vec3(inverse(model) * vec4 (light_dir_wor, 0.0));
     // ...and work out view _direction_ in local space
     vec3 view_dir_loc = normalize (cam_pos_loc - vertex_position);
     

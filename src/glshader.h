@@ -1,5 +1,4 @@
-#ifndef GLSHADER_H
-#define GLSHADER_H
+#pragma once
 
 #include <iostream>
 #include <string>
@@ -34,7 +33,7 @@ class GLshader {
     GLshader();
     ~GLshader(void);
 
-    void load(const std::string &vertex, const std::string &fragment);
+    void load(const std::string &vertex, const std::string &fragment, const std::string &geometry = "");
     int  get_block_index(std::string blockName);
     void print_block_names();
     void term();
@@ -42,4 +41,3 @@ class GLshader {
 };
 
 
-#endif

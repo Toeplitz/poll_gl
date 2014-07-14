@@ -4,9 +4,29 @@
 Fragmic fragmic("Demo 2", 1280, 720);
 
 
+void keyboard_pressed_cb(SDL_Keysym *keysym)
+{
+  Physics &physics = fragmic.physics_get();
+
+  switch (keysym->sym) {
+    case SDLK_SPACE:
+      physics.pause();
+      break;
+    case SDLK_o:
+      physics.debug();
+      break;
+    default:
+      break;
+  }
+}
+
+
 int main() 
 {
   Scene &scene = fragmic.scene_get();
+  Physics &physics = fragmic.physics_get();
+  Window &window = fragmic.window_get();
+  window.keyboard_pressed_callback_set(keyboard_pressed_cb);
 
   /*
   {
@@ -24,6 +44,9 @@ int main()
   }
   */
 
+  Node &base_node = scene.model_load("data/", "base.dae", MODEL_IMPORT_OPTIMIZED);
+  physics.collision_node_add(base_node, PHYSICS_COLLISION_BOX, true, 0);
+
   std::unique_ptr<Material> material(new Material());
   material->cubemap_create(CUBEMAP_REFLECTION, "data/game_assets/skybox/SkyboxSet1/DarkStormy/", "DarkStormyFront2048.png",
     "DarkStormyBack2048.png", "bar.png", "foo.png", "DarkStormyLeft2048.png", "DarkStormyRight2048.png");
@@ -39,7 +62,9 @@ int main()
     scene.state_update_recursive(sphere);
     scene.state_update_recursive(cube);
     scene.state_update_recursive(suzanne);
+    physics.collision_node_add(node_root, PHYSICS_COLLISION_CONVEX_HULL, true, 1.f);
   }
+  physics.pause();
 
   {
 
