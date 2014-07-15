@@ -50,6 +50,7 @@ class Material
     std::unique_ptr<Texture> diffuse;
     std::unique_ptr<Texture> normal;
     std::unique_ptr<Texture> height;
+    std::unique_ptr<Texture> alpha;
     std::unique_ptr<Texture> specular;
     std::unique_ptr<Cubemap> cubemap;
 

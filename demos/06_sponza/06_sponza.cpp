@@ -20,11 +20,11 @@ int main()
   Window &window = fragmic.window_get();
   window.keyboard_pressed_callback_set(keyboard_pressed_cb);
 
-  scene.model_load("data/crytek-sponza/", "sponza_with_spec.obj", MODEL_IMPORT_OPTIMIZED);
+  scene.model_load("data/crytek-sponza/", "sponza_with_spec.obj");
  // scene.model_load("data/crytek-sponza/", "banner.obj", MODEL_IMPORT_OPTIMIZED);
 
-  //scene.scene_graph_print(false);
-  scene.assets_get().print_all(scene.node_root_get());
+  scene.scene_graph_print(false);
+ // scene.assets_get().print_all(scene.node_root_get());
 
 
   fragmic.run();

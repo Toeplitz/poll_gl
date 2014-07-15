@@ -80,6 +80,9 @@ void Material::print(const int indent_level)
   if (height) {
     std::cout << "\theight texture '" << height->filename << "'" << std::endl;
   }
+  if (alpha) {
+    std::cout << "\talpha texture '" << alpha->filename << "'" << std::endl;
+  }
   if (specular) {
     std::cout << "\tspecular texture '" << specular->filename << "'" << std::endl;
   }
