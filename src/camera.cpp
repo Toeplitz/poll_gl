@@ -160,7 +160,7 @@ void Camera::setStartPosition(void)
   horizontalAngle = 3.14;
   verticalAngle = 0; 
   speed = 0.5f;
-  speed = 10.5f;
+ // speed = 10.5f;
   mouseSpeed = 0.0005f;
   position = vec3(0, 5, 16);
   target = vec3(0, 0, 0);

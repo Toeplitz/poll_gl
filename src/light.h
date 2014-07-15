@@ -21,7 +21,7 @@ struct Light_Properties
   glm::vec4 specular;
   glm::vec4 direction;
   glm::vec4 position;
-  unsigned int type;
+  int type;
 };
 
 

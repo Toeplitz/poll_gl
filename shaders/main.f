@@ -1,4 +1,5 @@
 #version 330
+#define MAX_LIGHTS 8
 
 in vec2 st;
 in vec3 view_dir_tan;
@@ -46,15 +47,19 @@ layout(std140) uniform Node_State {
   int state_standard;
 };
 
-
-layout(std140) uniform Light
+layout(std140) struct Light 
 {
   vec4 light_ambient;
   vec4 light_diffuse;
   vec4 light_specular;
   vec4 light_direction;
-  vec4 light_position;
-  int light_type;
+  vec4 light_light_position;
+  int  light_type;
+};
+
+layout(std140) uniform Lights
+{
+  Light light[MAX_LIGHTS];
 };
 
 
@@ -107,6 +112,12 @@ vec3 func_ads(vec3 ambient, vec3 diffuse, vec3 specular, float shine) {
     vec3 r = reflect(-s, n);
 
     return intensity * (ambient + diffuse * max(dot(s, n), 0.0) + specular * pow(max(dot(r,v), 0.0), shine));
+}
+
+
+vec3 func_directional_phong()
+{
+  return vec3(light[1].light_ambient);
 }
 
 
@@ -234,5 +245,6 @@ void main()
   }
 
   frag_color.rgb = out_color;
+  frag_color.rgb = func_directional_phong();
   frag_color.a = 1.0;
 }

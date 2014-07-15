@@ -45,15 +45,28 @@ void Assets::armature_print_all()
 
 void Assets::light_add(std::unique_ptr<Light> &&light) 
 {
+  light_properties.push_back(light->properties_get());
   lights.push_back(std::move(light));
 }
+
+
+std::vector<Light_Properties> const &Assets::light_properties_get_all() const
+{
+  return light_properties;
+} 
+
+
+Light_Unique_Ptr_List const &Assets::light_get_all() const
+{
+  return lights;
+} 
 
 
 void Assets::light_print_all(const Node &node)
 {
   std::cout << "\nLights: " << std::endl;
   for (auto &light: lights) {
-    std::cout << "\t(" << &light << std::endl;
+    std::cout << "\t(" << &light << ")" << std::endl;
   }
 }
 

@@ -310,17 +310,17 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
   }
 
   {
-    Light_Properties properies;
+    Light_Properties properties[8];
 
     bind_index = UB_LIGHT;
-    block_index = shader.get_block_index("Light");
+    block_index = shader.get_block_index("Lights");
     glGenBuffers(1, &gl_buffer_light);
     glBindBuffer(target, gl_buffer_light);
-    glBufferData(target, sizeof(properies), &properies, GL_STREAM_DRAW);
+    glBufferData(target, sizeof(properties), &properties, GL_STREAM_DRAW);
     glUniformBlockBinding(program, block_index, bind_index);
     glBindBufferBase(target, bind_index, gl_buffer_light);
-    //glBindBufferRange(target, bind_index, gl_buffer_state, 0, sizeof(state));
     glBindBuffer(target, 0);
+    
   }
 
   {
@@ -364,13 +364,14 @@ void GLcontext::uniform_buffers_update_camera(Camera &camera)
 }
 
 
-void GLcontext::uniform_buffers_update_light(Light &light)
+void GLcontext::uniform_buffers_update_light(const std::vector<Light_Properties> &light_properties)
 {
   GLenum target = GL_UNIFORM_BUFFER;
-  Light_Properties properties = light.properties_get();
   GLintptr offset = 0;
+  std::cout << glm::to_string(light_properties[0].ambient) << std::endl;
+  std::cout << glm::to_string(light_properties[1].ambient) << std::endl;
   glBindBuffer(target, gl_buffer_light);
-  glBufferSubData(target, offset, sizeof(properties), &properties);
+  glBufferSubData(target, offset, sizeof(light_properties[0]) * light_properties.size(), light_properties.data());
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
@@ -405,7 +406,6 @@ void GLcontext::uniform_buffers_update_node(Node &node)
   Armature *armature = node.armature;
   Material *material = node.material;
   Mesh *mesh = node.mesh;
-  Light *light = node.light;
 
   uniform_buffers_update_state(node);
 
@@ -419,10 +419,6 @@ void GLcontext::uniform_buffers_update_node(Node &node)
     glBufferSubData(target, offset, armature->skinning_matrices.size() * sizeof(armature->skinning_matrices[0]), 
         armature->skinning_matrices.data());
     glBindBuffer(target, 0);
-  }
-
-  if (light) {
-    uniform_buffers_update_light(*light);
   }
 
   if (material) {

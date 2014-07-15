@@ -32,6 +32,7 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   }
 
   glshader.load("shaders/main.v", "shaders/main.f");
+  glshader.print_block_names();
   glcontext.uniform_buffers_create(glshader);
 
   glshader_screen.load("shaders/post_proc.v", "shaders/post_proc.f");
@@ -82,6 +83,8 @@ void Fragmic::run()
 
 
     glshader.use();
+    std::vector<Light_Properties> light_properties = assets.light_properties_get_all();
+    glcontext.uniform_buffers_update_light(light_properties);
     camera.update(dt);
     glcontext.uniform_buffers_update_camera(camera);
 
