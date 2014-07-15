@@ -1,6 +1,7 @@
 #include "glcontext.h"
 #include "material.h"
 #include "node.h"
+#include <glm/gtx/string_cast.hpp>
 
 
 /**************************************************/
@@ -49,9 +50,10 @@ void GLcontext::clear()
 void GLcontext::node_draw(Node &node)
 {
   Mesh *mesh = node.mesh;
-  if (!mesh) return;
 
   uniform_buffers_update_node(node);
+
+  if (!mesh) return;
 
   if (node.state.cubemap_skybox) glDepthMask(GL_FALSE);
 
@@ -307,6 +309,19 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
     glBindBuffer(target, 0);
   }
 
+  {
+    Light_Properties properies;
+
+    bind_index = UB_LIGHT;
+    block_index = shader.get_block_index("Light");
+    glGenBuffers(1, &gl_buffer_light);
+    glBindBuffer(target, gl_buffer_light);
+    glBufferData(target, sizeof(properies), &properies, GL_STREAM_DRAW);
+    glUniformBlockBinding(program, block_index, bind_index);
+    glBindBufferBase(target, bind_index, gl_buffer_light);
+    //glBindBufferRange(target, bind_index, gl_buffer_state, 0, sizeof(state));
+    glBindBuffer(target, 0);
+  }
 
   {
     GLint location;
@@ -349,6 +364,17 @@ void GLcontext::uniform_buffers_update_camera(Camera &camera)
 }
 
 
+void GLcontext::uniform_buffers_update_light(Light &light)
+{
+  GLenum target = GL_UNIFORM_BUFFER;
+  Light_Properties properties = light.properties_get();
+  GLintptr offset = 0;
+  glBindBuffer(target, gl_buffer_light);
+  glBufferSubData(target, offset, sizeof(properties), &properties);
+  glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+
 void GLcontext::uniform_buffers_update_material(Material &material)
 {
   GLenum target = GL_UNIFORM_BUFFER;
@@ -379,9 +405,13 @@ void GLcontext::uniform_buffers_update_node(Node &node)
   Armature *armature = node.armature;
   Material *material = node.material;
   Mesh *mesh = node.mesh;
+  Light *light = node.light;
 
   uniform_buffers_update_state(node);
-  uniform_buffers_update_mesh(*mesh);
+
+  if (mesh) {
+    uniform_buffers_update_mesh(*mesh);
+  }
 
   if (armature) {
     GLenum target = GL_UNIFORM_BUFFER;
@@ -391,6 +421,9 @@ void GLcontext::uniform_buffers_update_node(Node &node)
     glBindBuffer(target, 0);
   }
 
+  if (light) {
+    uniform_buffers_update_light(*light);
+  }
 
   if (material) {
     uniform_buffers_update_material(*material);

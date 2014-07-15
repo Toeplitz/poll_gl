@@ -47,6 +47,17 @@ layout(std140) uniform Node_State {
 };
 
 
+layout(std140) uniform Light
+{
+  vec4 light_ambient;
+  vec4 light_diffuse;
+  vec4 light_specular;
+  vec4 light_direction;
+  vec4 light_position;
+  int light_type;
+};
+
+
 out vec4 frag_color;
 
 vec3 Ls = vec3 (1.0, 1.0, 1.0); // white specular colour

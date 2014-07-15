@@ -22,6 +22,7 @@ class GLcontext {
     GLuint gl_buffer_armature;
     GLuint gl_buffer_material;
     GLuint gl_buffer_state;
+    GLuint gl_buffer_light;
     GLuint gl_vertex_buffers[8];
     GLuint gl_uniform_camera_pos;
 
@@ -54,6 +55,7 @@ class GLcontext {
     void uniform_buffers_create(GLshader &shader);
     void uniform_buffers_delete();
     void uniform_buffers_update_camera(Camera &camera);
+    void uniform_buffers_update_light(Light &light);
     void uniform_buffers_update_material(Material &material);
     void uniform_buffers_update_mesh(Mesh &mesh);
     void uniform_buffers_update_node(Node &node);

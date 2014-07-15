@@ -39,6 +39,16 @@ layout(std140) uniform Node_State {
   int state_standard;
 };
 
+layout(std140) uniform Light
+{
+  vec4 light_ambient;
+  vec4 light_diffuse;
+  vec4 light_specular;
+  vec4 light_direction;
+  vec4 light_position;
+  int light_type;
+};
+
 uniform vec3 camera_position_world;
 
 out vec2 st;

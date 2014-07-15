@@ -45,9 +45,9 @@ Node::~Node()
 void Node::copy_transform_data(Node &node)
 {
   Transform t;
-  this->original_rotation = node.original_rotation;
-  this->original_scaling = node.original_scaling;
-  this->original_position = node.original_position;
+  original_rotation = node.original_rotation;
+  original_scaling = node.original_scaling;
+  original_position = node.original_position;
   t.calculateGlobalTransformTopDown(node);
 }
 
@@ -84,7 +84,6 @@ void Node::print_state(int indent_level)
   std::cout << "\t\tCubemap reflect: " << state.cubemap_reflect << std::endl;
   std::cout << "\t\tCubemap skybox: " << state.cubemap_skybox << std::endl;
   std::cout << "\t\tStandard: " << state.standard << std::endl;
-
 }
 
 

@@ -120,9 +120,6 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
   indent(std::cout, node.tree_level);
   std::cout << node.tree_level << ": '" << node.name << "' " << &node << "";
 
-  std::cout << std::endl;
-  std::cout << glm::to_string(node.original_position) << std::endl;
-
   if (node.mesh) {
     std::cout << " (mesh)";
   }
@@ -242,7 +239,7 @@ void Scene::state_update_recursive(Node &node)
 
 void Scene::upload_queue_add(Node &node) 
 {
-  if (node.mesh) {
+  if (node.mesh || node.light) {
     upload_queue.push_back(&node);
     render_list_add(node);
   } else if (node.armature) {

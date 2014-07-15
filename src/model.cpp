@@ -261,6 +261,7 @@ void Model::lights_parse(Assets &assets)
       std::cout << glm::to_string(light_position) << std::endl;
       light.properties_position_set(light_position);
     }
+
     {
       float x = assimp_light.mDirection.x;
       float y = assimp_light.mDirection.y;
@@ -283,6 +284,7 @@ void Model::lights_parse(Assets &assets)
         light.properties_type_set(LIGHT_UNDEFINED);
         break;
     }
+
 
 
     light_node->light = light_ptr.get();
