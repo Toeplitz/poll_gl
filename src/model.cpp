@@ -253,16 +253,37 @@ void Model::lights_parse(Assets &assets)
       light.properties_set(ambient, diffuse, specular);
     }
 
-    float x = assimp_light.mPosition.x;
-    float y = assimp_light.mPosition.y;
-    float z = assimp_light.mPosition.z;
+    {
+      float x = assimp_light.mPosition.x;
+      float y = assimp_light.mPosition.y;
+      float z = assimp_light.mPosition.z;
+      glm::vec3 light_position(x, y, z);
+      std::cout << glm::to_string(light_position) << std::endl;
+      light.properties_position_set(light_position);
+    }
+    {
+      float x = assimp_light.mDirection.x;
+      float y = assimp_light.mDirection.y;
+      float z = assimp_light.mDirection.z;
+      glm::vec3 light_direction(x, y, z);
+      light.properties_direction_set(light_direction);
+    }
 
-    glm::vec3 light_position(x, y, z);
-    //print_matrix(std::cout, glm::transpose(light_node->transform_global), 0);
-    //print_matrix(std::cout, light_node->transform_local_current, 0);
-    
-    std::cout << glm::to_string(light_position) << std::endl;
-    std::cout << glm::to_string(light_node->original_position) << std::endl;
+    switch (assimp_light.mType) {
+      case aiLightSource_DIRECTIONAL:
+        light.properties_type_set(LIGHT_DIRECTIONAL);
+        break;
+      case aiLightSource_POINT:
+        light.properties_type_set(LIGHT_POINT);
+        break;
+      case aiLightSource_SPOT:
+        light.properties_type_set(LIGHT_SPOT);
+        break;
+      default:
+        light.properties_type_set(LIGHT_UNDEFINED);
+        break;
+    }
+
 
     light_node->light = light_ptr.get();
     assets.light_add(std::move(light_ptr));

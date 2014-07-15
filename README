@@ -1,12 +1,25 @@
+Resources:
+http://dhpoware.com/demos/index.html
 
 
 Rendering objectives:
 
 
+Relieff techniques:
+- Use gimp plugin to create normal and hightmaps
+- Normal mapping (cookbook, anton, dhpoware)
+- Parallax mapping (dhpoware)
+- Alpha map (cookbook, anton)
+
 
 Lighting:
-- Multiple lights, standard
-- Deferred shading
+- Point light (cookbook, anton, dhpoware)
+- Directional light (cookbook, anton, dhpoware)
+- Spot light (cookbook, anton, dhpoware)
+
+- Multiple lights, standard (cookbook)
+
+- Deferred shading (anton)
   - Displays different textures with keyboard 1, 2, 3 ... for QC.
 - SSOA
 

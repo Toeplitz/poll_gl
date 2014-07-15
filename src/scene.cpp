@@ -1,6 +1,7 @@
 #include "scene.h"
 #include "transform.h"
 #include "utils.h"
+#include <glm/gtx/string_cast.hpp>
 
 
 /**************************************************/
@@ -119,6 +120,9 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
   indent(std::cout, node.tree_level);
   std::cout << node.tree_level << ": '" << node.name << "' " << &node << "";
 
+  std::cout << std::endl;
+  std::cout << glm::to_string(node.original_position) << std::endl;
+
   if (node.mesh) {
     std::cout << " (mesh)";
   }
@@ -145,7 +149,11 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
       node.material->print(node.tree_level);
     }
 
-    node.print_state(node.tree_level);
+    if (node.light) {
+      node.light->print(node.tree_level);
+    }
+
+    //node.print_state(node.tree_level);
     //print_matrix(std::cout, node.transform_global, 0);
     //print_matrix(std::cout, node.transform_local_original, 0);
   }

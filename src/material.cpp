@@ -71,6 +71,7 @@ void Material::color_set(const glm::vec3 ambient, const glm::vec3 diffuse, const
 void Material::print(const int indent_level)
 {
   indent(std::cout, indent_level);
+  std::cout << "Material details: " << std::endl;
   if (diffuse) {
     std::cout << "\tdiffuse texture '" << diffuse->filename << "'" << std::endl;
   }
@@ -91,6 +92,4 @@ void Material::print(const int indent_level)
   std::cout << "Ka = ("<< properties.Ka.x << ", " << properties.Ka.y << ", " << properties.Ka.z << ") ";
   std::cout << "Kd = ("<< properties.Kd.x << ", " << properties.Kd.y << ", " << properties.Kd.z << ") ";
   std::cout << "Ks = ("<< properties.Ks.x << ", " << properties.Ks.y << ", " << properties.Ks.z << ")" << std::endl;
-  std::cout << "ptr: " << this << std::endl;
-
 }
