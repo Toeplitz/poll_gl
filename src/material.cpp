@@ -10,6 +10,7 @@ Material::Material()
 {
   diffuse.reset(nullptr);
   normal.reset(nullptr);
+  height.reset(nullptr);
   specular.reset(nullptr);
   cubemap.reset(nullptr);
 }
@@ -75,6 +76,9 @@ void Material::print(const int indent_level)
   }
   if (normal) {
     std::cout << "\tnormal texture '" << normal->filename << "'" << std::endl;
+  }
+  if (height) {
+    std::cout << "\theight texture '" << height->filename << "'" << std::endl;
   }
   if (specular) {
     std::cout << "\tspecular texture '" << specular->filename << "'" << std::endl;
