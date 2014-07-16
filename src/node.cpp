@@ -101,3 +101,22 @@ Material *Node::material_get()
 
   return material;
 }
+
+
+Light *Node::light_get()
+{
+  if (!light) {
+    std::cout << "Node: '" << name << "' does not have any light attached" << std::endl;
+  }
+
+  return light;
+}
+
+
+void Node::light_set(Light *light)
+{
+  if (mesh) {
+    light->properties_position_set(glm::vec3(mesh->model * glm::vec4(original_position, 1.0)));
+  }
+  this->light = light;
+}

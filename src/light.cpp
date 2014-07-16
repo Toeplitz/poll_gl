@@ -7,6 +7,7 @@
 Light::Light()
 {
   properties.type = LIGHT_UNDEFINED;
+  bias = glm::vec3(0.f, 0.f, 0.f);
 }
 
 
@@ -58,6 +59,11 @@ const Light_Properties &Light::properties_get() const
 }
 
 
+Light_Properties *Light::properties_ptr_get()
+{
+  return &properties;
+}
+
 void Light::properties_set(const glm::vec3 ambient, const glm::vec3 diffuse, const glm::vec3 specular) 
 {
   properties.ambient = glm::vec4(ambient, 0);
@@ -72,9 +78,15 @@ void Light::properties_direction_set(const glm::vec3 &direction)
 }
 
 
+void Light::bias_set(const glm::vec3 &bias)
+{
+  this->bias = bias;
+}
+
+
 void Light::properties_position_set(const glm::vec3 &position)
 {
-  properties.position = glm::vec4(position, 0);
+  properties.position = glm::vec4(position + bias, 1.0);
 }
 
 

@@ -45,12 +45,12 @@ void Assets::armature_print_all()
 
 void Assets::light_add(std::unique_ptr<Light> &&light) 
 {
-  light_properties.push_back(light->properties_get());
+  light_properties.push_back(light->properties_ptr_get());
   lights.push_back(std::move(light));
 }
 
 
-std::vector<Light_Properties> const &Assets::light_properties_get_all() const
+std::vector<Light_Properties *> const &Assets::light_properties_get_all() const
 {
   return light_properties;
 } 

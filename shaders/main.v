@@ -44,9 +44,9 @@ uniform vec3 camera_position_world;
 out vec2 st;
 out vec3 view_dir_tan;
 out vec3 light_dir_tan;
-out vec3 light_position_eye;
 out vec3 position_eye;
 out vec3 normal_eye;
+out mat4 model_world;
 
 // Cubemap (skybox/reflection/refraction)
 out vec3 str;
@@ -81,12 +81,14 @@ void main(void)
   mat3 normal_matrix = mat3(transpose(inverse(model_view)));
 
   position_eye = vec3(model_view * vec4(vertex_position, 1.0));
- // normal_eye = normalize(normal_matrix * vertex_normal);
-  normal_eye = vec3(model_view * vec4(vertex_normal, 0.0));
-  light_position_eye = vec3(view * vec4(light_position_world, 1.0));
+  //normal_eye = normalize(normal_matrix * vertex_normal);
+  normal_eye = vec3 (view * m * vec4 (vertex_normal, 0.0));
+
+ // normal_eye = vec3(model_view * vec4(vertex_normal, 0.0));
 
   gl_Position = proj * vec4(position_eye, 1.0);
 	st = texture_coord;
+  model_world = model;
 
   // Cubemap (skybox)
   str = vertex_position;

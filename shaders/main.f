@@ -1,12 +1,16 @@
 #version 330
 #define MAX_LIGHTS 8
+#define LIGHT_UNDEFINED 0
+#define LIGHT_DIRECTIONAL 1
+#define LIGHT_SPOT 2
+#define LIGHT_POINT 3
 
 in vec2 st;
 in vec3 view_dir_tan;
 in vec3 light_dir_tan;
-in vec3 light_position_eye;
 in vec3 position_eye;
 in vec3 normal_eye;
+in mat4 model_world;
 
 // Cubemap (skybox)
 in vec3 str;
@@ -47,19 +51,20 @@ layout(std140) uniform Node_State {
   int state_standard;
 };
 
-layout(std140) struct Light 
+struct Light 
 {
-  vec4 light_ambient;
-  vec4 light_diffuse;
-  vec4 light_specular;
-  vec4 light_direction;
-  vec4 light_light_position;
-  int  light_type;
+  vec4 ambient;
+  vec4 diffuse;
+  vec4 specular;
+  vec4 direction;
+  vec4 position;
+  int type;
 };
 
 layout(std140) uniform Lights
 {
-  Light light[MAX_LIGHTS];
+  int num_lights;
+  Light lights[MAX_LIGHTS];
 };
 
 
@@ -93,64 +98,68 @@ vec3 func_cubemap_skybox()
 }
 
 
-vec3 func_diffuse(vec3 diffuse)
+vec3 func_light_directional(Light light)
 {
-  vec3 Ia = vec3 (1, 1, 1);
+  vec3 light_direction_wor = normalize(vec3(light.direction));
+  //vec3 light_direction_wor = normalize(vec3(0, 1, 0));
+  vec3 light_direction_eye = (view * vec4(light_direction_wor, 0.0)).xyz;
+  vec3 direction_to_light_eye = -light_direction_eye;
 
-  vec3 s = normalize(vec3(light_position_eye) - position_eye);
-  float sDotN = max(dot(s, normal_eye), 0.0);
-  return Ia * diffuse * sDotN;
+  return direction_to_light_eye;
 }
 
-
-vec3 func_ads(vec3 ambient, vec3 diffuse, vec3 specular, float shine) {
-    vec3 intensity = vec3(1.0, 1.0, 1.0);
-
-    vec3 n = normalize(normal_eye);
-    vec3 s = normalize(vec3(light_position_eye) - position_eye);
-    vec3 v = normalize(vec3(-position_eye));
-    vec3 r = reflect(-s, n);
-
-    return intensity * (ambient + diffuse * max(dot(s, n), 0.0) + specular * pow(max(dot(r,v), 0.0), shine));
-}
-
-
-vec3 func_directional_phong()
+vec3 func_light_point(Light light)
 {
-  return vec3(light[1].light_ambient);
-}
-
-
-vec3 func_phong(vec3 ambient, vec3 diffuse, vec3 specular, float shine)
-{
-  // ambient intensity
-  vec3 Ia = La * ambient;
-
-  // diffuse intensity
-  // raise light position to eye space
+  vec3 light_position_eye = vec3(view * light.position);
   vec3 distance_to_light_eye = light_position_eye - position_eye;
   vec3 direction_to_light_eye = normalize(distance_to_light_eye);
-  float dot_prod = dot(direction_to_light_eye, normal_eye);
-  dot_prod = max(dot_prod, 0.0);
-  vec3 Id = Ld * diffuse * dot_prod; // final diffuse intensity
 
-  // specular intensity
-  vec3 surface_to_viewer_eye = normalize (-position_eye);
+  return direction_to_light_eye;
+}
 
-  //vec3 reflection_eye = reflect (-direction_to_light_eye, normal_eye);
-  //float dot_prod_specular = dot (reflection_eye, surface_to_viewer_eye);
-  //dot_prod_specular = max (dot_prod_specular, 0.0);
-  //float specular_factor = pow (dot_prod_specular, shine);
 
-  // blinn
-  vec3 half_way_eye = normalize (surface_to_viewer_eye + direction_to_light_eye);
-  float dot_prod_specular = max (dot (half_way_eye, normal_eye), 0.0);
-  float specular_factor = pow (dot_prod_specular, shine);
+vec3 func_light_apply_all()
+{
+  // Fully reflect ambient light
+  vec3 Ka_default = vec3(1, 1, 1);
+  vec3 Kd_default = vec3(0, 0, 0);
 
-  vec3 Is = Ls * specular * specular_factor; // final specular intensity
+  const float ambient_scale = 0.1;
+  const float diffuse_scale = 1;
 
-  // final colour
-  return Is + Id + Ia;
+  if (state_diffuse == 1) { 
+    Kd_default = texture(diffuse_texture, st).rgb; 
+  } else {
+    Kd_default = vec3(Kd);
+  }
+
+
+  vec3 ret = vec3(0, 0, 0);
+  for (int i = 0; i < num_lights; i++) {
+    Light light = lights[i];
+    vec3 direction_to_light_eye = vec3(0, 0, 0);
+
+    if (light.type == LIGHT_DIRECTIONAL) {
+      direction_to_light_eye = func_light_directional(light);
+    } else if (light.type == LIGHT_POINT) {
+      direction_to_light_eye = func_light_point(light);
+    }
+
+    // Ambient intensity
+    vec3 Ia = vec3(light.ambient * ambient_scale) * Ka_default;
+
+    // Diffuse intensity
+    float dot_prod = dot(direction_to_light_eye, normal_eye);
+    dot_prod = max(dot_prod, 0.0);
+    vec3 Id = vec3(light.diffuse * diffuse_scale) * Kd_default * dot_prod; 
+
+    // Specular intensity
+    vec3 Is = vec3(0, 0, 0);
+
+    ret += vec3(Ia + Id + Is);
+  }
+
+  return ret;
 }
 
 
@@ -182,20 +191,6 @@ vec3 func_phong_specular_normal()
 }
 
 
-vec3 func_toon(vec3 ambient, vec3 diffuse)
-{
-  vec3 Ia = vec3 (0.5, 0.5, 0.5);
-  int levels = 5;
-  float scale_factor = 1;
-
-  vec3 s = normalize(light_position_eye - position_eye);
-  float cosine = max(0.0, dot(s, normal_eye));
-  vec3 d = diffuse * floor(cosine * levels) * scale_factor;
-
-  return Ia * (ambient + d);
-}
-
-
 // -----------------------------------------------------------------
 // -----------------------------------------------------------------
 // -----------------------------------------------------------------
@@ -205,17 +200,19 @@ vec3 func_diffuse_texture()
   //return func_ads(vec3(0, 0, 0), texture(diffuse_texture, st).rgb, vec3(1, 0.5, 0.5), 80);
   //return func_phong(vec3(0,0,0), texture(diffuse_texture, st).rgb, vec3(1, 0.5, 0.5), 50);
   //return func_toon(vec3(0,0,0), texture(diffuse_texture, st).rgb);
-  return func_diffuse(texture(diffuse_texture, st).rgb);
+  //return func_diffuse(texture(diffuse_texture, st).rgb);
+  return vec3(0.7, 0.7, 0.7);
 }
 
 
 vec3 func_standard()
 {
  //return func_phong(vec3(0,0,0), vec3(Kd), vec3(1, 0.5, 0.5), 80);
- return func_ads(vec3(0,0,0), vec3(Kd), vec3(1, 0.5, 0.5), 80);
+ //return func_ads(vec3(0,0,0), vec3(Kd), vec3(1, 0.5, 0.5), 80);
  //return func_toon(vec3(0,0,0), Kd);
  //return func_diffuse(vec3(Kd));
- }
+  return vec3(0.7, 0.7, 0.7);
+}
 
 
 void main()
@@ -224,7 +221,7 @@ void main()
 
   if (state_diffuse == 1) 
   {
-    out_color = func_diffuse_texture();
+   // out_color = func_diffuse_texture();
   } 
   else if (state_diffuse_specular_normal == 1) 
   {
@@ -241,10 +238,10 @@ void main()
   } 
   else if (state_standard == 1) 
   {
-    out_color = func_standard();
+  //  out_color = func_standard();
   }
 
   frag_color.rgb = out_color;
-  frag_color.rgb = func_directional_phong();
+  frag_color.rgb = func_light_apply_all();
   frag_color.a = 1.0;
 }

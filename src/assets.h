@@ -18,8 +18,8 @@ class Assets {
     std::vector<std::unique_ptr<Light>> lights;
     std::vector<std::unique_ptr<Mesh>> meshes;
 
-    // Copy of light properties for fast submission to gpu.
-    std::vector<Light_Properties> light_properties;
+    // Pointers for light properties for fast submission to gpu.
+    std::vector<Light_Properties *> light_properties;
 
   public:
     Assets();
@@ -30,7 +30,7 @@ class Assets {
     void                                  armature_print_all();
     unsigned int                          mesh_node_lookup(const Mesh *mesh, const Node &node);
     void                                  light_add(std::unique_ptr<Light> &&light);
-    std::vector<Light_Properties>  const &light_properties_get_all() const;
+    std::vector<Light_Properties *>  const &light_properties_get_all() const;
     Light_Unique_Ptr_List          const &light_get_all() const;
     void                                  light_print_all(const Node &node);
     void                                  material_add(std::unique_ptr<Material> &&material);

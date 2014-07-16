@@ -83,8 +83,17 @@ void Fragmic::run()
 
 
     glshader.use();
-    std::vector<Light_Properties> light_properties = assets.light_properties_get_all();
-    glcontext.uniform_buffers_update_light(light_properties);
+
+
+    //const std::vector<Light_Properties *> &light_properties = assets.light_properties_get_all();
+    //glcontext.uniform_buffers_update_light(light_properties);
+    
+    unsigned int index = 0;
+    glcontext.uniform_buffers_update_light_num(assets.light_get_all().size());
+    for (auto &light: assets.light_get_all()) {
+      glcontext.uniform_buffers_update_light2(*light, index);
+      index++;
+    }
     camera.update(dt);
     glcontext.uniform_buffers_update_camera(camera);
 

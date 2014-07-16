@@ -61,6 +61,8 @@ class Node: public Animated {
 
     void       copy_transform_data(Node &node);
     void       child_add(std::unique_ptr<Node> &&node, int level);
+    Light     *light_get();
+    void       light_set(Light *light);
     void       local_transform_current_set(const glm::mat4 &transform);
     void       local_transform_original_set(const glm::mat4 &transform);
     void       print_state(int indent_level);

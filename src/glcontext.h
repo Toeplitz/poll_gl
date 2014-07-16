@@ -55,7 +55,9 @@ class GLcontext {
     void uniform_buffers_create(GLshader &shader);
     void uniform_buffers_delete();
     void uniform_buffers_update_camera(Camera &camera);
-    void uniform_buffers_update_light(const std::vector<Light_Properties> &light_properties);
+    void uniform_buffers_update_light_num(const unsigned int num_lights);
+    void uniform_buffers_update_light2(const Light &light, const unsigned int index);
+    void uniform_buffers_update_light(const std::vector<Light_Properties *> &light_properties);
     void uniform_buffers_update_material(Material &material);
     void uniform_buffers_update_mesh(Mesh &mesh);
     void uniform_buffers_update_node(Node &node);

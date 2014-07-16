@@ -8,6 +8,9 @@ Physics_Character_Controller *character;
 unsigned int direction = 0;
 Armature *armature = nullptr;
 
+Node *panda;
+Node *room;
+
 
 void joystick_axis_motion_cb(SDL_JoyAxisEvent *ev)
 {
@@ -71,6 +74,7 @@ void joystick_button_released_cb(SDL_JoyButtonEvent *ev)
 void keyboard_pressed_cb(SDL_Keysym *keysym)
 {
   Physics &physics = fragmic.physics_get();
+  Scene &scene = fragmic.scene_get();
 
   switch (keysym->sym) {
     case SDLK_SPACE:
@@ -81,6 +85,16 @@ void keyboard_pressed_cb(SDL_Keysym *keysym)
       break;
     case SDLK_f:
       physics.pause();
+      break;
+    case SDLK_l:
+      {
+        Node *panda_light = scene.node_find(room, "Panda_Light");
+        Light *light = panda_light->light_get();
+        light->bias_set(glm::vec3(0, 4, 0));
+        panda->light_set(light);
+        panda_light->light_set(nullptr);
+        scene.scene_graph_print(false);
+      }
       break;
     case SDLK_UP:
       direction |= PHYSICS_DIRECTION_FORWARD;
@@ -176,8 +190,8 @@ int main()
   window.keyboard_released_callback_set(keyboard_released_cb);
   physics.custom_step_callback_set(physics_update);
 
-  Node &room = scene.model_load("data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_LIGHTS);
-  physics.collision_node_add(room, PHYSICS_COLLISION_TRIANGLE_MESH, true, 0);
+  room = &scene.model_load("data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_LIGHTS);
+  physics.collision_node_add(*room, PHYSICS_COLLISION_TRIANGLE_MESH, true, 0);
 
   /*
   Node &box_root = scene.model_load("data/game_assets/", "box.dae");
@@ -194,7 +208,7 @@ int main()
 
     Node &panda_collision_root = scene.model_load("data/game_assets/characters/panda/", 
         "Panda_convex_hull.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
-    Node *panda = scene.node_find(&panda_root, "Panda");
+    panda = scene.node_find(&panda_root, "Panda");
     Node *panda_collision = scene.node_find(&panda_collision_root, "Panda_convex_hull");
     if (panda && panda_collision) {
       armature = panda->armature;
@@ -208,6 +222,7 @@ int main()
     } else {
       std::cout << "Could not find node" << std::endl;
     }
+
   }
 
   scene.scene_graph_print(false);
