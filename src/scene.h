@@ -36,6 +36,7 @@ class Scene {
     void                        scene_graph_print_by_node(Node &node, const bool compact = false);
     Node                       *node_create(const std::string &name);
     Node                       *node_create_mesh_only(const std::string &name);
+    Node                       &node_root_get();
     void                        state_update_recursive(Node &node);
     void                        upload_queue_add(Node &node);
     Node                       *upload_queue_pop();
@@ -44,6 +45,5 @@ class Scene {
           Assets               &assets_get();
     const std::vector<Node *>  &animation_list_get() const;
     const std::vector<Node *>  &render_list_get() const;
-    const Node                 &node_root_get() const;
 };
 

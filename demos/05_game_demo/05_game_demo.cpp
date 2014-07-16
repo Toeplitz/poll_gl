@@ -178,7 +178,6 @@ void physics_update()
 
 int main() 
 {
-  Transform t;
   Scene &scene = fragmic.scene_get();
   Window &window = fragmic.window_get();
   Physics &physics = fragmic.physics_get();

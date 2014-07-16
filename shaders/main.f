@@ -120,9 +120,7 @@ vec3 func_light_point(Light light)
 
 vec3 func_light_apply_all(vec3 material_diffuse)
 {
-  vec3 Ka_default = vec3(1, 1, 1);
-  const float ambient_scale = 0.2;
-  const float diffuse_scale = 1;
+  vec3 Ka_default = vec3(0, 0, 0);
 
   vec3 ret = vec3(0, 0, 0);
   for (int i = 0; i < num_lights; i++) {
@@ -136,12 +134,12 @@ vec3 func_light_apply_all(vec3 material_diffuse)
     }
 
     // Ambient intensity
-    vec3 Ia = vec3(light.ambient * ambient_scale) * Ka_default;
+    vec3 Ia = vec3(light.ambient) * Ka_default;
 
     // Diffuse intensity
     float dot_prod = dot(direction_to_light_eye, normal_eye);
     dot_prod = max(dot_prod, 0.0);
-    vec3 Id = vec3(light.diffuse * diffuse_scale) * material_diffuse * dot_prod; 
+    vec3 Id = vec3(light.diffuse) * material_diffuse * dot_prod; 
 
     // Specular intensity
     vec3 Is = vec3(0, 0, 0);
@@ -215,7 +213,7 @@ void main()
   } 
   else if (state_diffuse_specular_normal == 1) 
   {
-    out_color = func_phong_specular_normal();
+    out_color = func_light_apply_all(texture(diffuse_texture, st).rgb);
   } 
   else if (state_cubemap_skybox == 1) 
   {

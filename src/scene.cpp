@@ -1,5 +1,4 @@
 #include "scene.h"
-#include "transform.h"
 #include "utils.h"
 #include <glm/gtx/string_cast.hpp>
 
@@ -73,13 +72,12 @@ void Scene::animation_list_update_transforms(Node &node, const double dt)
 
 Node &Scene::model_load(const std::string &prefix, const std::string &filename, const unsigned int options) 
 {
-  Transform transform;
-
   Model model;
+  std::cout << prefix + filename << std::endl;
   Node *root_ptr = model.load(assets, root, prefix, filename, options);
   state_update_recursive(*root_ptr);
  
-  transform.calculateGlobalTransformTopDown(root);
+  root_ptr->transform_update_global_recursive(root);
   if (!(options & MODEL_IMPORT_NO_DRAW)) {
     upload_queue_add(*root_ptr);
   }
@@ -186,7 +184,7 @@ Node *Scene::node_create_mesh_only(const std::string &name)
 }
 
 
-const Node &Scene::node_root_get() const
+Node &Scene::node_root_get() 
 {
   return root;
 }

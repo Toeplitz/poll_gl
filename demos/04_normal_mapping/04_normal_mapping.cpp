@@ -23,7 +23,6 @@ void keyboard_pressed_cb(SDL_Keysym *keysym)
 
 int main() 
 {
-  Transform t;
   Scene &scene = fragmic.scene_get();
   Window &window = fragmic.window_get();
   Physics &physics = fragmic.physics_get();

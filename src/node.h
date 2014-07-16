@@ -69,10 +69,14 @@ class Node: public Animated {
     void       local_transform_current_set(const glm::mat4 &transform);
     void       local_transform_original_set(const glm::mat4 &transform);
     void       print_state(int indent_level);
-    Mesh      *mesh_create(Assets &assets);
-    Mesh      *mesh_get();
-    void       mesh_set(Mesh *mesh);
     Material  *material_create(Assets &assets);
     Material  *material_get();
     void       material_set(Material *material);
+    Mesh      *mesh_create(Assets &assets);
+    Mesh      *mesh_get();
+    void       mesh_set(Mesh *mesh);
+    void       rotate(const float angle, const glm::vec3 &v);
+    void       scale(const glm::vec3 &v);
+    void       translate(const glm::vec3 &v);
+    void       transform_update_global_recursive(Node &node);
 };

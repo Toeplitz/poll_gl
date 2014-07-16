@@ -31,7 +31,6 @@ Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const s
 {
   unsigned int pflags;
   unsigned int remove_flags;
-  Transform t;
   std::string full_name = prefix + "/" + filename;
   this->prefix = prefix;
 
@@ -59,8 +58,6 @@ Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const s
   importer.SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 3);
   importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, remove_flags);
   scene = importer.ReadFile(full_name.c_str(), pflags);
-      
-     
 
   if (!scene) {
     std::cout << "Error parsing '" <<  full_name.c_str() << "': " << importer.GetErrorString() << std::endl;
@@ -68,7 +65,7 @@ Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const s
   }
 
   Node *rootPtr = node_map_create(*scene->mRootNode, &root, root.tree_level);
-  t.calculateGlobalTransformTopDown(*rootPtr);
+  rootPtr->transform_update_global_recursive(*rootPtr);
   BoneForAssimpBone boneForAssimpBone;
   bone_map_create(assets, boneForAssimpBone);
   materials_parse(assets);
