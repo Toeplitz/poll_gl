@@ -40,7 +40,9 @@ int main()
   physics.collision_node_add(floor, PHYSICS_COLLISION_CONVEX_HULL, true, 0);
 
   scene.scene_graph_print(true);
-  scene.assets_get().print_all(scene.node_root_get());
+  const Assets &assets = scene.assets_get();
+  const Node &root = scene.node_root_get();
+  assets.print_all(root);
 
   fragmic.run();
   fragmic.term();

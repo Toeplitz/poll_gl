@@ -59,11 +59,6 @@ const Light_Properties &Light::properties_get() const
 }
 
 
-Light_Properties *Light::properties_ptr_get()
-{
-  return &properties;
-}
-
 void Light::properties_set(const glm::vec3 ambient, const glm::vec3 diffuse, const glm::vec3 specular) 
 {
   properties.ambient = glm::vec4(ambient, 0);

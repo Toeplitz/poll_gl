@@ -371,17 +371,15 @@ void GLcontext::uniform_buffers_update_light_num(const unsigned int num_lights)
   GLintptr offset = 0;
   glBindBuffer(target, gl_buffer_light);
   offset = 0;
-  std::cout << "Num lights: " << num_lights << std::endl;
   glBufferSubData(target, offset, sizeof(int), &num_lights);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 
-void GLcontext::uniform_buffers_update_light2(const Light &light, const unsigned int index)
+void GLcontext::uniform_buffers_update_light(const Light &light, const unsigned int index)
 {
   const Light_Properties &properties = light.properties_get();
 
-  std::cout << glm::to_string(properties.position) << std::endl;
   GLenum target = GL_UNIFORM_BUFFER;
   GLintptr offset = 0;
   glBindBuffer(target, gl_buffer_light);
@@ -391,23 +389,7 @@ void GLcontext::uniform_buffers_update_light2(const Light &light, const unsigned
 }
 
 
-void GLcontext::uniform_buffers_update_light(const std::vector<Light_Properties *> &light_properties)
-{
-  unsigned int n = light_properties.size();
-  GLenum target = GL_UNIFORM_BUFFER;
-  GLintptr offset = 0;
-  std::cout << glm::to_string(light_properties[0]->position) << std::endl;
-  std::cout << glm::to_string(light_properties[1]->position) << std::endl;
-  std::cout << "Num lights: " << light_properties.size() << std::endl;
-  glBindBuffer(target, gl_buffer_light);
-  glBufferSubData(target, offset, sizeof(int), &n);
-  offset = sizeof(int) * 4;
-  glBufferSubData(target, offset, sizeof(light_properties[0]) * n, light_properties.data());
-  glBindBuffer(GL_UNIFORM_BUFFER, 0);
-}
-
-
-void GLcontext::uniform_buffers_update_material(Material &material)
+void GLcontext::uniform_buffers_update_material(const Material &material)
 {
   GLenum target = GL_UNIFORM_BUFFER;
   GLintptr offset = 0;

@@ -25,7 +25,7 @@ Scene::~Scene()
 /**************************************************/
 
 
-Assets &Scene::assets_get()
+const Assets &Scene::assets_get() const
 {
   return assets;
 }
@@ -42,7 +42,7 @@ void Scene::animation_list_add(Node &node)
 }
 
 
-std::vector <Node *> Scene::animation_list_get() 
+const std::vector <Node *> &Scene::animation_list_get() const
 {
   return animation_list;
 }
@@ -103,7 +103,7 @@ void Scene::render_list_add(Node &node)
 }
 
 
-std::vector <Node *> Scene::render_list_get() 
+const std::vector<Node *> &Scene::render_list_get() const
 {
   return render_list;
 }
@@ -195,7 +195,7 @@ Node *Scene::node_create_mesh_only(const std::string &name)
 }
 
 
-Node &Scene::node_root_get()
+const Node &Scene::node_root_get() const
 {
   return root;
 }

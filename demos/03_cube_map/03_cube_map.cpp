@@ -76,7 +76,6 @@ int main()
   }
 
   scene.scene_graph_print(true);
-  scene.assets_get().print_all(scene.node_root_get());
 
   fragmic.run();
   fragmic.term();

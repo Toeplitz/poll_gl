@@ -31,7 +31,7 @@ Armature_Unique_Ptr_List const &Assets::armature_get_all() const
 } 
 
 
-void Assets::armature_print_all()
+void Assets::armature_print_all() const
 {
   std::cout << "Armatures: " << std::endl;
   for (auto &armature: armatures) {
@@ -45,15 +45,8 @@ void Assets::armature_print_all()
 
 void Assets::light_add(std::unique_ptr<Light> &&light) 
 {
-  light_properties.push_back(light->properties_ptr_get());
   lights.push_back(std::move(light));
 }
-
-
-std::vector<Light_Properties *> const &Assets::light_properties_get_all() const
-{
-  return light_properties;
-} 
 
 
 Light_Unique_Ptr_List const &Assets::light_get_all() const
@@ -62,12 +55,23 @@ Light_Unique_Ptr_List const &Assets::light_get_all() const
 } 
 
 
-void Assets::light_print_all(const Node &node)
+void Assets::light_print_all(const Node &node) const
 {
   std::cout << "\nLights: " << std::endl;
   for (auto &light: lights) {
     std::cout << "\t(" << &light << ")" << std::endl;
   }
+}
+
+
+void Assets::print_all(const Node &node) const
+{
+  std::cout << "======== Current assets (owned by engine) ========" << std::endl;
+  armature_print_all();
+  material_print_all(node);
+  mesh_print_all(node);
+  light_print_all(node);
+  std::cout << "==================================================" << std::endl;
 }
 
 
@@ -77,37 +81,7 @@ void Assets::material_add(std::unique_ptr<Material> &&material)
 }
 
 
-unsigned int Assets::material_node_lookup(const Material *material, const Node &node)
-{
-  unsigned int count = 0;
-
-  if (material == node.material) 
-    count++;
-
-  for (auto &child : node.children) {
-    count += material_node_lookup(material, *child);
-  }
-
-  return count;
-}
-
-
-unsigned int Assets::mesh_node_lookup(const Mesh *mesh, const Node &node)
-{
-  unsigned int count = 0;
-
-  if (mesh == node.mesh) 
-    count++;
-
-  for (auto &child : node.children) {
-    count += mesh_node_lookup(mesh, *child);
-  }
-
-  return count;
-}
-
-
-void Assets::material_print_all(const Node &node)
+void Assets::material_print_all(const Node &node) const
 {
   std::cout << "Materials: " << std::endl;
   for (auto &material: materials) {
@@ -133,7 +107,21 @@ void Assets::material_print_all(const Node &node)
       std::cout << "colors only" << std::endl;
     }
   }
+}
 
+
+unsigned int Assets::material_node_lookup(const Material *material, const Node &node) const
+{
+  unsigned int count = 0;
+
+  if (material == node.material) 
+    count++;
+
+  for (auto &child : node.children) {
+    count += material_node_lookup(material, *child);
+  }
+
+  return count;
 }
 
 
@@ -143,7 +131,22 @@ void Assets::mesh_add(std::unique_ptr<Mesh> &&mesh)
 }
 
 
-void Assets::mesh_print_all(const Node &node)
+unsigned int Assets::mesh_node_lookup(const Mesh *mesh, const Node &node) const
+{
+  unsigned int count = 0;
+
+  if (mesh == node.mesh) 
+    count++;
+
+  for (auto &child : node.children) {
+    count += mesh_node_lookup(mesh, *child);
+  }
+
+  return count;
+}
+
+
+void Assets::mesh_print_all(const Node &node) const
 {
   std::cout << "\nMeshes: " << std::endl;
   for (auto &mesh: meshes) {
@@ -156,13 +159,4 @@ void Assets::mesh_print_all(const Node &node)
 }
 
 
-void Assets::print_all(const Node &node)
-{
-  std::cout << "======== Current assets (owned by engine) ========" << std::endl;
-  armature_print_all();
-  material_print_all(node);
-  mesh_print_all(node);
-  light_print_all(node);
-  std::cout << "==================================================" << std::endl;
-}
 

@@ -58,7 +58,7 @@ Fragmic::~Fragmic()
 void Fragmic::run()
 {
   GLcontext &glcontext = window.glcontext_get();
-  Assets &assets = scene.assets_get();
+  const Assets &assets = scene.assets_get();
 
   for (;;) {
     double dt = delta_time_get();
@@ -69,35 +69,40 @@ void Fragmic::run()
       return;
     }
 
+    /* Upload new nodes */
     Node *upload_node = scene.upload_queue_pop();
     while (upload_node) {
       glcontext.vertex_buffers_create(*upload_node);
       upload_node = scene.upload_queue_pop();
     }
-    for (auto &armature: assets.armature_get_all()) {
+
+    /* Update animations */
+    auto &armatures = assets.armature_get_all();
+    for (auto &armature: armatures) {
       armature->bones_update_skinningmatrices();
     }
-    for (auto &node: scene.animation_list_get()) {
+    auto &animated_nodes = scene.animation_list_get();
+    for (auto &node: animated_nodes) {
       scene.animation_list_update_transforms(*node, dt);
     }
 
-
-    glshader.use();
-
-
-    //const std::vector<Light_Properties *> &light_properties = assets.light_properties_get_all();
-    //glcontext.uniform_buffers_update_light(light_properties);
-    
+    /* Update lights */
     unsigned int index = 0;
-    glcontext.uniform_buffers_update_light_num(assets.light_get_all().size());
-    for (auto &light: assets.light_get_all()) {
-      glcontext.uniform_buffers_update_light2(*light, index);
-      index++;
+    auto &lights = assets.light_get_all();
+    glcontext.uniform_buffers_update_light_num(lights.size());
+    for (auto &light: lights) {
+      glcontext.uniform_buffers_update_light(*light, index++);
     }
+
+    /* Update camera */
     camera.update(dt);
     glcontext.uniform_buffers_update_camera(camera);
 
+    /* Draw scene */
+    glshader.use();
     glcontext.framebuffer_draw_texture(scene, window.debug);
+
+    /* Step physics simulation */
     physics.step(dt);
     if (!window.debug) {
       glshader_screen.use();

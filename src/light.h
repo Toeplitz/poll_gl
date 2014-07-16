@@ -39,7 +39,6 @@ class Light
     void                    bias_set(const glm::vec3 &bias);
     void                    print(const int indent_level);
     const Light_Properties &properties_get() const;
-    Light_Properties       *properties_ptr_get();
     void                    properties_set(const glm::vec3 ambient, 
                                            const glm::vec3 diffuse, const glm::vec3 specular);
     void                    properties_direction_set(const glm::vec3 &direction);
