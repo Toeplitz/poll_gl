@@ -101,7 +101,7 @@ vec3 func_cubemap_skybox()
 vec3 func_light_directional(Light light)
 {
   vec3 light_direction_wor = normalize(vec3(light.direction));
-  //vec3 light_direction_wor = normalize(vec3(0, 1, 0));
+//  vec3 light_direction_wor = normalize(vec3(0, -1, 0));
   vec3 light_direction_eye = (view * vec4(light_direction_wor, 0.0)).xyz;
   vec3 direction_to_light_eye = -light_direction_eye;
 
@@ -118,21 +118,11 @@ vec3 func_light_point(Light light)
 }
 
 
-vec3 func_light_apply_all()
+vec3 func_light_apply_all(vec3 material_diffuse)
 {
-  // Fully reflect ambient light
   vec3 Ka_default = vec3(1, 1, 1);
-  vec3 Kd_default = vec3(0, 0, 0);
-
-  const float ambient_scale = 0.1;
+  const float ambient_scale = 0.2;
   const float diffuse_scale = 1;
-
-  if (state_diffuse == 1) { 
-    Kd_default = texture(diffuse_texture, st).rgb; 
-  } else {
-    Kd_default = vec3(Kd);
-  }
-
 
   vec3 ret = vec3(0, 0, 0);
   for (int i = 0; i < num_lights; i++) {
@@ -151,7 +141,7 @@ vec3 func_light_apply_all()
     // Diffuse intensity
     float dot_prod = dot(direction_to_light_eye, normal_eye);
     dot_prod = max(dot_prod, 0.0);
-    vec3 Id = vec3(light.diffuse * diffuse_scale) * Kd_default * dot_prod; 
+    vec3 Id = vec3(light.diffuse * diffuse_scale) * material_diffuse * dot_prod; 
 
     // Specular intensity
     vec3 Is = vec3(0, 0, 0);
@@ -221,7 +211,7 @@ void main()
 
   if (state_diffuse == 1) 
   {
-   // out_color = func_diffuse_texture();
+    out_color = func_light_apply_all(texture(diffuse_texture, st).rgb);
   } 
   else if (state_diffuse_specular_normal == 1) 
   {
@@ -233,15 +223,13 @@ void main()
   } 
   else if (state_cubemap_reflect == 1) 
   {
-  //  out_color = func_diffuse(func_cubemap_reflect());
-    out_color = func_cubemap_reflect();
+    out_color = func_light_apply_all(func_cubemap_reflect());
   } 
   else if (state_standard == 1) 
   {
-  //  out_color = func_standard();
+    out_color = func_light_apply_all(vec3(Kd));
   }
 
   frag_color.rgb = out_color;
-  frag_color.rgb = func_light_apply_all();
   frag_color.a = 1.0;
 }

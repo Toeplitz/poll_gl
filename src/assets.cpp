@@ -1,5 +1,6 @@
 #include "assets.h"
 #include "utils.h"
+#include <memory>
 
 
 /**************************************************/
@@ -7,17 +8,20 @@
 /**************************************************/
 
 
-Assets::Assets() {
+Assets::Assets() 
+{
 } 
 
 
-Assets::~Assets() {
+Assets::~Assets() 
+{
 }
 
 
 /**************************************************/
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
+
 
 void Assets::armature_add(std::unique_ptr<Armature> &&armature) 
 {
@@ -157,6 +161,5 @@ void Assets::mesh_print_all(const Node &node) const
   }
 
 }
-
 
 

@@ -15,6 +15,7 @@
 
 
 class Armature;
+class Assets;
 class Node;
 
 
@@ -59,13 +60,19 @@ class Node: public Animated {
     Node(const std::string &_name);
     ~Node();
 
+    void       armature_set(Armature *armature);
     void       copy_transform_data(Node &node);
     void       child_add(std::unique_ptr<Node> &&node, int level);
+    Light     *light_create(Assets &assets);
     Light     *light_get();
     void       light_set(Light *light);
     void       local_transform_current_set(const glm::mat4 &transform);
     void       local_transform_original_set(const glm::mat4 &transform);
     void       print_state(int indent_level);
-    void       material_set(Material *material);
+    Mesh      *mesh_create(Assets &assets);
+    Mesh      *mesh_get();
+    void       mesh_set(Mesh *mesh);
+    Material  *material_create(Assets &assets);
     Material  *material_get();
+    void       material_set(Material *material);
 };

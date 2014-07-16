@@ -41,7 +41,7 @@ class Scene {
     Node                       *upload_queue_pop();
 
     /* get methods */
-    const Assets               &assets_get() const;
+          Assets               &assets_get();
     const std::vector<Node *>  &animation_list_get() const;
     const std::vector<Node *>  &render_list_get() const;
     const Node                 &node_root_get() const;

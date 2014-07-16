@@ -227,13 +227,11 @@ void Model::lights_parse(Assets &assets)
 
   for (unsigned int i = 0; i < scene->mNumLights; i++) {
     aiLight &assimp_light = *scene->mLights[i];
-    std::unique_ptr<Light> light_ptr(new Light());
-    Light &light= *light_ptr;
-
     std::string key(assimp_light.mName.data);
     Node *light_node = lookup_node(key, nodes);
     assert(light_node);
 
+    Light &light = *light_node->light_create(assets);
     {
       float r = assimp_light.mColorAmbient.r;
       float g = assimp_light.mColorAmbient.g;
@@ -286,9 +284,6 @@ void Model::lights_parse(Assets &assets)
         break;
     }
 
-
-    light_node->light_set(light_ptr.get());
-    assets.light_add(std::move(light_ptr));
   }
 
 }
@@ -488,6 +483,7 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
   for (unsigned int i = 0; i < node.mNumMeshes; i++) {
     unsigned int meshIndex = node.mMeshes[i];
     aiMesh *assimpMesh = scene->mMeshes[meshIndex];
+
     std::unique_ptr<Mesh> mesh_ptr(new Mesh());
     Mesh &m = *mesh_ptr;
     std::string key(node.mName.data);
@@ -502,7 +498,7 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
     mesh_node->material = materials[assimpMesh->mMaterialIndex];
     //std::cout << "Node: " << mesh_node->name << " has material " << mesh_node->material << " and num faces/vertices: " << assimpMesh->mNumFaces << "/" << assimpMesh->mNumVertices << std::endl;
 
-    mesh_ptr->num_faces = assimpMesh->mNumFaces;
+    m.num_faces = assimpMesh->mNumFaces;
     for (unsigned int ii = 0; ii < assimpMesh->mNumFaces; ii++) {
       const aiFace &face = assimpMesh->mFaces[ii];
 
@@ -607,10 +603,10 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
     }
 
     //std::cout << "vertices / indices: " << m.vertices.size() << " / " << m.indices.size() << std::endl;
-    mesh_ptr->scale_matrix = glm::scale(glm::mat4(1.0f), mesh_node->original_scaling);
-    mesh_ptr->aabb_generate_bounding();
+    m.scale_matrix = glm::scale(glm::mat4(1.0f), mesh_node->original_scaling);
+    m.aabb_generate_bounding();
     mesh_node->mesh = mesh_ptr.get();
-    mesh_node->armature = armature_ptr;
+    mesh_node->armature_set(armature_ptr);
     if (node.mNumMeshes > 1) {
       mesh_node->copy_transform_data(*parent_node);
       parent_node->child_add(std::move(sub_node), parent_node->tree_level + 1);

@@ -380,6 +380,8 @@ void GLcontext::uniform_buffers_update_light(const Light &light, const unsigned 
 {
   const Light_Properties &properties = light.properties_get();
 
+  std::cout << "Buffer update: " << glm::to_string(properties.position) << std::endl;
+
   GLenum target = GL_UNIFORM_BUFFER;
   GLintptr offset = 0;
   glBindBuffer(target, gl_buffer_light);
@@ -424,6 +426,7 @@ void GLcontext::uniform_buffers_update_node(Node &node)
 
   if (mesh) {
     if (node.light) {
+      std::cout << glm::to_string(glm::vec3(mesh->model * glm::vec4(node.original_position, 1.f))) << std::endl; 
       node.light->properties_position_set(glm::vec3(mesh->model * glm::vec4(node.original_position, 1.f)));
     }
     uniform_buffers_update_mesh(*mesh);

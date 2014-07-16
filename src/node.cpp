@@ -1,3 +1,4 @@
+#include "assets.h"
 #include "node.h"
 #include "utils.h"
 #include "transform.h"
@@ -40,6 +41,12 @@ Node::~Node()
 /**************************************************/
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
+
+
+void Node::armature_set(Armature *armature)
+{
+  this->armature = armature;
+}
 
 
 void Node::copy_transform_data(Node &node)
@@ -86,10 +93,39 @@ void Node::print_state(int indent_level)
   std::cout << "\t\tStandard: " << state.standard << std::endl;
 }
 
-
-void Node::material_set(Material *material)
+Mesh *Node::mesh_create(Assets &assets)
 {
-  this->material = material;
+  std::unique_ptr<Mesh> mesh(new Mesh());
+  Mesh *mesh_ptr = mesh.get();
+  mesh_set(mesh_ptr);
+  assets.mesh_add(std::move(mesh));
+  return mesh_ptr;
+}
+
+
+Mesh *Node::mesh_get()
+{
+  if (!mesh) {
+    std::cout << "Node: '" << name << "' does not have any mesh attached" << std::endl;
+  }
+
+  return mesh;
+}
+
+
+void Node::mesh_set(Mesh *mesh)
+{
+  this->mesh = mesh;
+}
+
+
+Material *Node::material_create(Assets &assets)
+{
+  std::unique_ptr<Material> material(new Material());
+  Material *material_ptr = material.get();
+  material_set(material_ptr);
+  assets.material_add(std::move(material));
+  return material_ptr;
 }
 
 
@@ -100,6 +136,22 @@ Material *Node::material_get()
   }
 
   return material;
+}
+
+
+void Node::material_set(Material *material)
+{
+  this->material = material;
+}
+
+
+Light *Node::light_create(Assets &assets)
+{
+  std::unique_ptr<Light> light(new Light());
+  Light *light_ptr = light.get();
+  light_set(light_ptr);
+  assets.light_add(std::move(light));
+  return light_ptr;
 }
 
 
