@@ -125,7 +125,7 @@ vec3 func_light_point(Light light)
 
 vec3 func_light_apply_all(vec3 material_diffuse)
 {
-  vec3 d_Ks = vec3 (.3, .3, .3); // fully reflect specular light
+  vec3 d_Ks = vec3 (.1, .1, .1); // fully reflect specular light
   vec3 d_Ka = vec3 (.2, .2, .2); // fully reflect ambient light
 
   vec3 d_Ls = vec3 (1.0, 1.0, 1.0); // white specular colour
@@ -134,16 +134,32 @@ vec3 func_light_apply_all(vec3 material_diffuse)
 
 
   float specular_exponent = 60.0;
+  float spot_exponent = 50;
+  float spot_cutoff = 90.0;
+  vec3 spot_direction = vec3(view * vec4(0, -1, 0, 0));
 
   vec3 ret = vec3(0, 0, 0);
   for (int i = 0; i < num_lights; i++) {
+    float spot_factor = 1.0;
     Light light = lights[i];
     vec3 direction_to_light_eye = vec3(0, 0, 0);
+  //  vec3 spot_direction = vec3(light.direction);
 
     if (light.type == LIGHT_DIRECTIONAL) {
       direction_to_light_eye = func_light_directional(light);
     } else if (light.type == LIGHT_POINT) {
       direction_to_light_eye = func_light_point(light);
+    } if (light.type == LIGHT_SPOT) {
+      direction_to_light_eye = func_light_point(light);
+      vec3 s = normalize(vec3(view * light.position) - position_eye);
+      float angle = acos(dot(-s, spot_direction));
+      float cutoff = radians(clamp(spot_cutoff, 0.0, 90.0));
+
+      if (angle < cutoff) {
+        spot_factor = pow(dot(-s, spot_direction), spot_exponent);
+      } else {
+        spot_factor = 0.0;
+      }
     }
 
     // Ambient intensity
@@ -153,6 +169,7 @@ vec3 func_light_apply_all(vec3 material_diffuse)
     float dot_prod = dot(direction_to_light_eye, normalize(normal_eye));
     dot_prod = max(dot_prod, 0.0);
     vec3 Id = d_Ld * material_diffuse * dot_prod; 
+    Id *= spot_factor;
 
     // Specular intensity
     vec3 surface_to_viewer_eye = normalize (-position_eye);
@@ -163,8 +180,10 @@ vec3 func_light_apply_all(vec3 material_diffuse)
     float specular_factor = pow(dot_prod_specular, specular_exponent);
 
     vec3 Is = d_Ls * d_Ks * specular_factor; // final specular intensity
+    Is *= spot_factor;
 
     ret += vec3(Ia + Id + Is);
+    //ret += vec3(spot_factor, spot_factor, spot_factor);
   }
 
   return ret;

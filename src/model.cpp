@@ -253,8 +253,6 @@ void Model::lights_parse(Assets &assets)
       float y = assimp_light.mPosition.y;
       float z = assimp_light.mPosition.z;
       glm::vec3 light_position(x, y, z);
-      std::cout << glm::to_string(light_position) << std::endl;
-      //light.properties_position_set(glm::vec3(light_node->transform_global * glm::vec4(light_node->original_position, 1)));
       light.properties_position_set(light_node->original_position);
     }
 
@@ -263,7 +261,8 @@ void Model::lights_parse(Assets &assets)
       float y = assimp_light.mDirection.y;
       float z = assimp_light.mDirection.z;
       glm::vec3 light_direction(x, y, z);
-      light.properties_direction_set(glm::vec3(light_node->transform_global * glm::vec4(light_direction, 0)));
+      //light.properties_direction_set(glm::vec3(light_node->transform_global * glm::vec4(light_direction, 0)));
+      light.properties_direction_set(glm::vec3(0, -1, 0));
     }
 
     switch (assimp_light.mType) {

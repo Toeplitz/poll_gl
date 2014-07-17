@@ -183,16 +183,22 @@ void Node::rotate(const float angle, const glm::vec3 &v)
 void Node::scale(const glm::vec3 &v)
 {
   glm::mat4 m = glm::scale(glm::mat4(1.f), v);
-  transform_local_current = transform_local_current * m;
-  transform_update_global_recursive(*this);
+  //transform_local_current = transform_local_current * m;
+  transform_global = transform_global * m;
+
+  if (mesh) {
+    mesh->model = transform_global;
+  }
+
+ // transform_update_global_recursive(*this);
 }
 
 
 void Node::translate(const glm::vec3 &v)
 {
   glm::mat4 m = glm::translate(glm::mat4(1.f), v);
-  transform_local_current = transform_local_current * m;
-  transform_update_global_recursive(*this);
+  transform_global = transform_global * m;
+  //transform_update_global_recursive(*this);
 }
 
 

@@ -88,9 +88,9 @@ void keyboard_pressed_cb(SDL_Keysym *keysym)
       break;
     case SDLK_l:
       {
-        Node *panda_light = scene.node_find(room, "Panda_Light");
+        Node *panda_light = scene.node_find(room, "Spot_Light");
         Light *light = panda_light->light_get();
-        light->bias_set(glm::vec3(0, 4, 0));
+        light->bias_set(glm::vec3(0, 20, 0));
         panda->light_set(light);
         panda_light->light_set(nullptr);
         scene.scene_graph_print(false);
