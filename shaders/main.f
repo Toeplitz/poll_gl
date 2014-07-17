@@ -12,6 +12,11 @@ in vec3 position_eye;
 in vec3 normal_eye;
 in mat4 model_world;
 
+in mat4 model_view;
+in mat3 normal_matrix;
+in vec3 position;
+in vec3 normal;
+
 // Cubemap (skybox)
 in vec3 str;
 
@@ -120,7 +125,15 @@ vec3 func_light_point(Light light)
 
 vec3 func_light_apply_all(vec3 material_diffuse)
 {
-  vec3 Ka_default = vec3(0, 0, 0);
+  vec3 d_Ks = vec3 (.3, .3, .3); // fully reflect specular light
+  vec3 d_Ka = vec3 (.2, .2, .2); // fully reflect ambient light
+
+  vec3 d_Ls = vec3 (1.0, 1.0, 1.0); // white specular colour
+  vec3 d_Ld = vec3 (0.7, 0.7, 0.7); // dull white diffuse light colour
+  vec3 d_La = vec3 (0.2, 0.2, 0.2); // grey ambient colour
+
+
+  float specular_exponent = 60.0;
 
   vec3 ret = vec3(0, 0, 0);
   for (int i = 0; i < num_lights; i++) {
@@ -134,15 +147,22 @@ vec3 func_light_apply_all(vec3 material_diffuse)
     }
 
     // Ambient intensity
-    vec3 Ia = vec3(light.ambient) * Ka_default;
+    vec3 Ia = d_La * d_Ka;
 
     // Diffuse intensity
-    float dot_prod = dot(direction_to_light_eye, normal_eye);
+    float dot_prod = dot(direction_to_light_eye, normalize(normal_eye));
     dot_prod = max(dot_prod, 0.0);
-    vec3 Id = vec3(light.diffuse) * material_diffuse * dot_prod; 
+    vec3 Id = d_Ld * material_diffuse * dot_prod; 
 
     // Specular intensity
-    vec3 Is = vec3(0, 0, 0);
+    vec3 surface_to_viewer_eye = normalize (-position_eye);
+
+    // blinn
+    vec3 half_way_eye = normalize(surface_to_viewer_eye + direction_to_light_eye);
+    float dot_prod_specular = max(dot (half_way_eye, normalize(normal_eye)), 0.0);
+    float specular_factor = pow(dot_prod_specular, specular_exponent);
+
+    vec3 Is = d_Ls * d_Ks * specular_factor; // final specular intensity
 
     ret += vec3(Ia + Id + Is);
   }

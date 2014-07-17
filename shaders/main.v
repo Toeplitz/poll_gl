@@ -47,6 +47,10 @@ out vec3 light_dir_tan;
 out vec3 position_eye;
 out vec3 normal_eye;
 out mat4 model_world;
+out vec3 position;
+out vec3 normal;
+out mat4 model_view;
+out mat3 normal_matrix;
 
 // Cubemap (skybox/reflection/refraction)
 out vec3 str;
@@ -77,12 +81,15 @@ void main(void)
   if (state_animated == 1) {
     m = model * animation_matrix_get();
   }
-  mat4 model_view = view * m;
-  mat3 normal_matrix = mat3(transpose(inverse(model_view)));
+  model_view = view * m;
+  normal_matrix = mat3(transpose(inverse(model_view)));
+
+  position = vertex_position;
+  normal = vertex_normal;
 
   position_eye = vec3(model_view * vec4(vertex_position, 1.0));
   //normal_eye = normalize(normal_matrix * vertex_normal);
-  normal_eye = vec3 (view * m * vec4 (vertex_normal, 0.0));
+  normal_eye = (vec3(view * m * vec4 (vertex_normal, 0.0)));
 
  // normal_eye = vec3(model_view * vec4(vertex_normal, 0.0));
 
