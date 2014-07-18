@@ -93,3 +93,4 @@ void Light::properties_type_set(const unsigned int type)
 {
   properties.type = type;
 }
+

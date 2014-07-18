@@ -70,7 +70,7 @@ Light *Node::light_create(Assets &assets)
   std::unique_ptr<Light> light(new Light());
   Light *light_ptr = light.get();
   light_set(light_ptr);
-  assets.light_add(std::move(light));
+  assets.light_active_add(std::move(light));
   return light_ptr;
 }
 

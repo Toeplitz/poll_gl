@@ -88,7 +88,7 @@ void Fragmic::run()
 
     /* Update lights */
     unsigned int index = 0;
-    auto &lights = assets.light_get_all();
+    auto &lights = assets.light_active_get();
     glcontext.uniform_buffers_update_light_num(lights.size());
     for (auto &light: lights) {
       glcontext.uniform_buffers_update_light(*light, index++);

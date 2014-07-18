@@ -11,10 +11,12 @@ typedef std::vector<std::unique_ptr<Armature>> Armature_Unique_Ptr_List;
 typedef std::vector<std::unique_ptr<Light>> Light_Unique_Ptr_List;
 
 class Assets {
+
   private:
     Armature_Unique_Ptr_List armatures;
+    std::vector<std::unique_ptr<Light>> active_lights;
+    std::vector<std::unique_ptr<Light>> inactive_lights;
     std::vector<std::unique_ptr<Material>> materials;
-    std::vector<std::unique_ptr<Light>> lights;
     std::vector<std::unique_ptr<Mesh>> meshes;
 
   public:
@@ -24,8 +26,12 @@ class Assets {
     void                                  armature_add(std::unique_ptr<Armature> &&armature);
     Armature_Unique_Ptr_List       const &armature_get_all() const;
     void                                  armature_print_all() const;
-    void                                  light_add(std::unique_ptr<Light> &&light); 
-    Light_Unique_Ptr_List          const &light_get_all() const;
+    void                                  light_activate(Light *light);
+    void                                  light_active_add(std::unique_ptr<Light> &&light); 
+    Light_Unique_Ptr_List          const &light_active_get() const;
+    void                                  light_deactivate(Light *light);
+    void                                  light_inactive_add(std::unique_ptr<Light> &&light);
+    bool                                  light_is_active(Light *light);
     void                                  light_print_all(const Node &node) const;
     void                                  print_all(const Node &node) const;
     void                                  material_add(std::unique_ptr<Material> &&material);
@@ -34,5 +40,6 @@ class Assets {
     void                                  mesh_add(std::unique_ptr<Mesh> &&mesh);
     unsigned int                          mesh_node_lookup(const Mesh *mesh, const Node &node) const;
     void                                  mesh_print_all(const Node &node) const;
+
 };
 

@@ -1,6 +1,7 @@
 #include "assets.h"
 #include "utils.h"
 #include <memory>
+#include <algorithm> 
 
 
 /**************************************************/
@@ -47,23 +48,78 @@ void Assets::armature_print_all() const
 }
 
 
-void Assets::light_add(std::unique_ptr<Light> &&light) 
+void Assets::light_activate(Light *light)
 {
-  lights.push_back(std::move(light));
+  std::vector<std::unique_ptr<Light>>::iterator found;
+
+  for (auto it = inactive_lights.begin(); it != inactive_lights.end(); ++it) {
+    if (it->get() == light) {
+      active_lights.push_back(std::move(*it));
+      found = it;
+    }
+  }
+  inactive_lights.erase(found);
 }
 
 
-Light_Unique_Ptr_List const &Assets::light_get_all() const
+void Assets::light_active_add(std::unique_ptr<Light> &&light) 
 {
-  return lights;
+  active_lights.push_back(std::move(light));
+}
+
+
+Light_Unique_Ptr_List const &Assets::light_active_get() const
+{
+  return active_lights;
 } 
+
+
+void Assets::light_inactive_add(std::unique_ptr<Light> &&light) 
+{
+  inactive_lights.push_back(std::move(light));
+}
+
+
+bool Assets::light_is_active(Light *light)
+{
+  for (std::vector<std::unique_ptr<Light>>::iterator it = active_lights.begin();
+      it != active_lights.end(); ++it) {
+    if (it->get() == light) {
+      return true;
+    }
+  }
+  return false;
+}
+
+
+void Assets::light_deactivate(Light *light)
+{
+  std::vector<std::unique_ptr<Light>>::iterator found;
+
+  for (std::vector<std::unique_ptr<Light>>::iterator it = active_lights.begin();
+      it != active_lights.end(); ++it) {
+    if (it->get() == light) {
+      inactive_lights.push_back(std::move(*it));
+      found = it;
+      break;
+    } 
+  }
+  active_lights.erase(found);
+}
+
 
 
 void Assets::light_print_all(const Node &node) const
 {
   std::cout << "\nLights: " << std::endl;
-  for (auto &light: lights) {
-    std::cout << "\t(" << &light << ")" << std::endl;
+
+  std::cout << "\tactive: " << std::endl;
+  for (auto &light: active_lights) {
+    std::cout << "\t(" << light.get() << ")" << std::endl;
+  }
+  std::cout << "\tinactive: " << std::endl;
+  for (auto &light: inactive_lights) {
+    std::cout << "\t(" << light.get() << ")" << std::endl;
   }
 }
 
@@ -96,7 +152,7 @@ void Assets::material_print_all(const Node &node) const
     std::cout << "\t(" << &material << ") (node count: " << count << ") ";
     if (diffuse || normal || specular ) {
       std::cout << "texture(s): ";;
-      
+
       if (diffuse) 
         std::cout << "diffuse: '" << basename(diffuse->filename) << "'";
       if (normal) 

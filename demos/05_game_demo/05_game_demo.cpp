@@ -12,6 +12,24 @@ Node *panda;
 Node *room;
 
 
+Light *light_directional;
+Light *light_point;
+Light *light_spot;
+
+
+void light_toggle(Light *light)
+{
+  Scene &scene = fragmic.scene_get();
+  Assets &assets = scene.assets_get();
+
+  int r = assets.light_is_active(light);
+  if (r) {
+    assets.light_deactivate(light);
+  } else {
+    assets.light_activate(light);
+  }
+}
+
 void joystick_axis_motion_cb(SDL_JoyAxisEvent *ev)
 {
   static int joystick_x = 0;
@@ -38,15 +56,15 @@ void joystick_axis_motion_cb(SDL_JoyAxisEvent *ev)
   if (isnan(angle))
     return;
 
-   if (r > 0.1) {
+  if (r > 0.1) {
     character->joystick_angle_set(angle);
     character->move(static_cast<Physics_Direction>(direction));
-   } else {
+  } else {
     direction &= ~PHYSICS_DIRECTION_ROTATE;
     direction &= ~PHYSICS_DIRECTION_FORWARD;
     character->joystick_angle_set(0.f);
     character->move(static_cast<Physics_Direction>(direction));
-   }
+  }
 
 }
 
@@ -75,6 +93,7 @@ void keyboard_pressed_cb(SDL_Keysym *keysym)
 {
   Physics &physics = fragmic.physics_get();
   Scene &scene = fragmic.scene_get();
+  Assets &assets = scene.assets_get();
 
   switch (keysym->sym) {
     case SDLK_SPACE:
@@ -88,12 +107,6 @@ void keyboard_pressed_cb(SDL_Keysym *keysym)
       break;
     case SDLK_l:
       {
-        Node *panda_light = scene.node_find(room, "Spot_Light");
-        Light *light = panda_light->light_get();
-        light->bias_set(glm::vec3(0, 20, 0));
-        panda->light_set(light);
-        panda_light->light_set(nullptr);
-        scene.scene_graph_print(false);
       }
       break;
     case SDLK_UP:
@@ -113,6 +126,15 @@ void keyboard_pressed_cb(SDL_Keysym *keysym)
       break;
     case SDLK_2:
       direction |= PHYSICS_DIRECTION_STRAFE_RIGHT;
+      break;
+    case SDLK_9:
+      light_toggle(light_directional);
+      break;
+    case SDLK_8:
+      light_toggle(light_point);
+      break;
+    case SDLK_7:
+      light_toggle(light_spot);
       break;
     default:
       break;
@@ -179,6 +201,7 @@ void physics_update()
 int main() 
 {
   Scene &scene = fragmic.scene_get();
+  Assets &assets = scene.assets_get();
   Window &window = fragmic.window_get();
   Physics &physics = fragmic.physics_get();
 
@@ -189,22 +212,14 @@ int main()
   window.keyboard_released_callback_set(keyboard_released_cb);
   physics.custom_step_callback_set(physics_update);
 
+  /* Setup room */
   room = &scene.model_load("data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_LIGHTS);
   physics.collision_node_add(*room, PHYSICS_COLLISION_TRIANGLE_MESH, true, 0);
 
-  /*
-  Node &box_root = scene.model_load("data/game_assets/", "box.dae");
-  Node *cube = scene.node_find(&box_root, "Cube");
-  if (cube) {
-    character = physics.character_controller_add(*cube, *cube);
-  } else {
-    std::cout << "Could not find node" << std::endl;
-  }
-  */
 
+  /* Setup panda character */
   {
     Node &panda_root = scene.model_load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
-
     Node &panda_collision_root = scene.model_load("data/game_assets/characters/panda/", 
         "Panda_convex_hull.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
     panda = scene.node_find(&panda_root, "Panda");
@@ -221,7 +236,25 @@ int main()
     } else {
       std::cout << "Could not find node" << std::endl;
     }
+  }
 
+
+  /* Setup lights */
+  {
+    Node *light_node = scene.node_create("Light_Directional");
+    light_directional = light_node->light_create(assets);
+    light_directional->properties_type_set(LIGHT_DIRECTIONAL);
+    light_directional->properties_direction_set(glm::vec3(0, -1, 0));
+    light_directional->properties_set(glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.5, 0.5, 0.5), glm::vec3(1.0, 1.0, 1.0));
+
+    Node *panda_light = scene.node_find(room, "Spot_Light");
+    light_spot = panda_light->light_get();
+    light_spot->bias_set(glm::vec3(0, 20, 0));
+    panda->light_set(light_spot);
+    panda_light->light_set(nullptr);
+
+    Node *node = scene.node_find(room, "Point_Light");
+    light_point = node->light_get();
   }
 
   scene.scene_graph_print(false);
