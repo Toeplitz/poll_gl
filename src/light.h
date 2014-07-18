@@ -10,7 +10,8 @@ enum Light_Type
   LIGHT_UNDEFINED = 0,
   LIGHT_DIRECTIONAL = 1,
   LIGHT_SPOT = 2,
-  LIGHT_POINT = 3
+  LIGHT_POINT = 3,
+  LIGHT_SPHERE = 4
 };
 
 
@@ -44,6 +45,4 @@ class Light
     void                    properties_direction_set(const glm::vec3 &direction);
     void                    properties_position_set(const glm::vec3 &position);
     void                    properties_type_set(const unsigned int type);
-    void create();
-
 };

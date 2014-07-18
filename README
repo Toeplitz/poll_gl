@@ -13,12 +13,6 @@ Relieff techniques:
 
 
 Lighting:
-- Point light (cookbook, anton, dhpoware)
-- Directional light (cookbook, anton, dhpoware)
-- Spot light (cookbook, anton, dhpoware)
-
-- Multiple lights, standard (cookbook)
-
 - Deferred shading (anton)
   - Displays different textures with keyboard 1, 2, 3 ... for QC.
 - SSOA
