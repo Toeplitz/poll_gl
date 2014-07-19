@@ -76,6 +76,26 @@ Node &Scene::model_load(const std::string &prefix, const std::string &filename, 
   std::cout << prefix + filename << std::endl;
   Node *root_ptr = model.load(assets, root, prefix, filename, options);
   state_update_recursive(*root_ptr);
+
+  float matrix[16] = {
+    1,  0,  0,  0,
+    0,  0,  -1,  0,
+    0, 1,  0,  0,
+    0,  0,  0,  1 
+  };
+
+  //glm::mat4 root_transform = glm::make_mat4(matrix);
+
+  //root_ptr->local_transform_current_set(root_transform);
+
+  std::cout << "Matrices for node: " << root_ptr->name << std::endl;
+
+    std::cout << "local_transform_original: " << std::endl;
+    print_matrix(std::cout, root_ptr->transform_local_original, 0);
+    std::cout << "local_transform_current: " << std::endl;
+    print_matrix(std::cout, root_ptr->transform_local_current, 0);
+    std::cout << "global_transform: " << std::endl;
+    print_matrix(std::cout, root_ptr->transform_global, 0);
  
   root_ptr->transform_update_global_recursive(root);
   if (!(options & MODEL_IMPORT_NO_DRAW)) {
@@ -136,8 +156,19 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
   }
 
   if (!compact) {
+    /*
+    std::cout << "local_transform_original: " << std::endl;
+    print_matrix(std::cout, node.transform_local_original, 0);
+    std::cout << "local_transform_current: " << std::endl;
+    print_matrix(std::cout, node.transform_local_current, 0);
+    std::cout << "global_transform: " << std::endl;
+    print_matrix(std::cout, node.transform_global, 0);
+    */
+
     if (node.mesh) {
       node.mesh->print(node.tree_level);
+      std::cout << "model: " << std::endl;
+      print_matrix(std::cout, node.mesh->model, 0);
 
     }
     if (node.material) {

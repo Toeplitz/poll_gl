@@ -136,12 +136,13 @@ vec3 func_light_apply_all(vec3 material_diffuse)
   float specular_exponent = 60.0;
   float spot_exponent = 50;
   float spot_cutoff = 90.0;
-  vec3 spot_direction = vec3(view * vec4(0, -1, 0, 0));
+  //vec3 spot_direction = vec3(view * vec4(0, -1, 0, 0));
 
   vec3 ret = vec3(0, 0, 0);
   for (int i = 0; i < num_lights; i++) {
     float spot_factor = 1.0;
     Light light = lights[i];
+    vec3 spot_direction = vec3(view * light.direction);
     vec3 direction_to_light_eye = vec3(0, 0, 0);
   //  vec3 spot_direction = vec3(light.direction);
 

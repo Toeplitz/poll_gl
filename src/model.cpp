@@ -86,7 +86,7 @@ Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const s
   template <typename Key, typename Value>
 static const Value &lookup_node(const Key &key, const std::map<Key, Value> &map)
 {
-  typename std::map < Key, Value >::const_iterator iter = map.find(key);
+  typename std::map<Key, Value>::const_iterator iter = map.find(key);
   assert(iter != map.end());
   return iter->second;
 }
@@ -296,11 +296,12 @@ Node *Model::node_map_create(const aiNode &node, Node *parent, int level)
   aiVector3t<float> position;
 
   node.mTransformation.Decompose(scaling, rotation, position);
+  /*
      std::cout << "Report for: " << node.mName.C_Str() << std::endl;
      std::cout << "Scaling: " << scaling.x << ", " << scaling.y << ", " << scaling.z << std::endl;
      std::cout << "Position: " << position.x << ", " << position.y << ", " << position.z << std::endl;
      std::cout << "Rotation quaternion: " << rotation.x << ", " << rotation.y << ", " << rotation.z << ", " << rotation.w << std::endl;
-
+*/
   glm::vec3 scale_vec(scaling.x, scaling.y, scaling.z);
   glm::vec3 position_vec(position.x, position.y, -position.z);
   glm::quat rotation_quat(rotation.x, rotation.y, -rotation.z, rotation.w);
