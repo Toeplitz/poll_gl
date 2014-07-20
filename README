@@ -22,3 +22,6 @@ Lighting:
 Shadows:
 - Baked shadow maps for static scenes
 - Standard dynamic soft shadow implementation.
+
+Optimization:
+- Frustnum culling  

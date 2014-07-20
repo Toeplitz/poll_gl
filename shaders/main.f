@@ -10,7 +10,6 @@ in vec3 view_dir_tan;
 in vec3 light_dir_tan;
 in vec3 position_eye;
 in vec3 normal_eye;
-in mat4 model_world;
 
 in mat4 model_view;
 in mat3 normal_matrix;

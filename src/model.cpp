@@ -321,11 +321,11 @@ Node *Model::node_map_create(const aiNode &node, Node *parent, int level)
 
   nodes[key] = internalNode.get();
   ai_mat_copy(&node.mTransformation, localTransform);
-  //internalNode->local_transform_original_set(right_handed_to_left_handed(localTransform));
-  //internalNode->local_transform_current_set(right_handed_to_left_handed(localTransform));
+  //internalNode->transform_local_original_set(right_handed_to_left_handed(localTransform));
+  //internalNode->transform_local_current_set(right_handed_to_left_handed(localTransform));
   //  localTransform = translate_matrix * rotation_matrix * scale_matrix;
-  internalNode->local_transform_original_set(localTransform);
-  internalNode->local_transform_current_set(localTransform);
+  internalNode->transform_local_original_set(localTransform);
+  internalNode->transform_local_current_set(localTransform);
   //print_matrix(std::cout, nodePtr->transform_local_current, 0);
   //print_matrix(std::cout, nodePtr->transform_global, 0);
 

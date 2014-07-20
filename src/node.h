@@ -39,7 +39,6 @@ class Node: public Animated {
   private:
 
   public:
-    GLuint        gl_vao;
     Armature     *armature;
     Light        *light;
     Material     *material;
@@ -57,7 +56,7 @@ class Node: public Animated {
     int           tree_level;
     Node_State    state;
 
-    Node(const std::string &_name);
+    Node(const std::string &node_name);
     ~Node();
 
     void       armature_set(Armature *armature);
@@ -66,8 +65,6 @@ class Node: public Animated {
     Light     *light_create(Assets &assets);
     Light     *light_get();
     void       light_set(Light *light);
-    void       local_transform_current_set(const glm::mat4 &transform);
-    void       local_transform_original_set(const glm::mat4 &transform);
     void       print_state(int indent_level);
     Material  *material_create(Assets &assets);
     Material  *material_get();
@@ -78,5 +75,7 @@ class Node: public Animated {
     void       rotate(const float angle, const glm::vec3 &v);
     void       scale(const glm::vec3 &v);
     void       translate(const glm::vec3 &v);
+    void       transform_local_current_set(const glm::mat4 &transform);
+    void       transform_local_original_set(const glm::mat4 &transform);
     void       transform_update_global_recursive(Node &node);
 };

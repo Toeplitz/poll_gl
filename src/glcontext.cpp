@@ -57,7 +57,7 @@ void GLcontext::node_draw(Node &node)
 
   if (node.state.cubemap_skybox) glDepthMask(GL_FALSE);
 
-  glBindVertexArray(node.gl_vao);
+  glBindVertexArray(mesh->gl_vao);
   GLsizei count = (GLsizei) mesh->num_indices_get();
   if (count <= 0) {
     glDrawArrays(mesh->mode, 0, mesh->num_vertices_get());
@@ -66,6 +66,35 @@ void GLcontext::node_draw(Node &node)
   }
 
   if (node.state.cubemap_skybox) glDepthMask(GL_TRUE);
+}
+
+
+void GLcontext::framebuffer_check_status() 
+{
+  GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+  if (GL_FRAMEBUFFER_COMPLETE != status) {
+    fprintf (stderr, "ERROR: incomplete framebuffer\n");
+    if (GL_FRAMEBUFFER_UNDEFINED == status) {
+      fprintf (stderr, "GL_FRAMEBUFFER_UNDEFINED\n");
+    } else if (GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT == status) {
+      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT\n");
+    } else if (GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT == status) {
+      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT\n");
+    } else if (GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER == status) {
+      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER\n");
+    } else if (GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER== status) {
+      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER\n");
+    } else if (GL_FRAMEBUFFER_UNSUPPORTED == status) {
+      fprintf (stderr, "GL_FRAMEBUFFER_UNSUPPORTED\n");
+    } else if (GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE == status) {
+      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE\n");
+    } else if (GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS == status) {
+      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS\n");
+    } else {
+      fprintf (stderr, "unspecified error\n");
+    }
+    exit(-1);
+  }
 }
 
 
@@ -99,35 +128,12 @@ void GLcontext::framebuffer_create(const int width, const int height)
   GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0 };
   glDrawBuffers (1, draw_bufs);
 
-  GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-  if (GL_FRAMEBUFFER_COMPLETE != status) {
-    fprintf (stderr, "ERROR: incomplete framebuffer\n");
-    if (GL_FRAMEBUFFER_UNDEFINED == status) {
-      fprintf (stderr, "GL_FRAMEBUFFER_UNDEFINED\n");
-    } else if (GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT == status) {
-      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT\n");
-    } else if (GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT == status) {
-      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT\n");
-    } else if (GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER == status) {
-      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER\n");
-    } else if (GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER== status) {
-      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER\n");
-    } else if (GL_FRAMEBUFFER_UNSUPPORTED == status) {
-      fprintf (stderr, "GL_FRAMEBUFFER_UNSUPPORTED\n");
-    } else if (GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE == status) {
-      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE\n");
-    } else if (GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS == status) {
-      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS\n");
-    } else {
-      fprintf (stderr, "unspecified error\n");
-    }
-
-    exit(-1);
-  }
+  framebuffer_check_status();
 
   /* re-bind the default framebuffer as a safe precaution */
   glBindFramebuffer (GL_FRAMEBUFFER, 0);
 }
+
 
 
 void GLcontext::framebuffer_delete()
@@ -135,6 +141,101 @@ void GLcontext::framebuffer_delete()
 
 }
 
+
+void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const int width, const int height)
+{
+  glGenTextures(1, &gl_g_fb_position);
+  glBindTexture(GL_TEXTURE_2D, gl_g_fb_position);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  
+  glGenTextures(1, &gl_g_fb_normal);
+  glBindTexture(GL_TEXTURE_2D, gl_g_fb_normal);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+  glGenFramebuffers (1, &gl_g_fb);
+  glBindFramebuffer(GL_FRAMEBUFFER, gl_g_fb);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl_g_fb_position, 0);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gl_g_fb_normal, 0);
+
+  GLuint rb = 0;
+  glGenRenderbuffers(1, &rb);
+  glBindRenderbuffer(GL_RENDERBUFFER, rb);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rb);
+
+  GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+  glDrawBuffers (2, draw_bufs);
+
+  framebuffer_check_status();
+
+  glBindFramebuffer (GL_FRAMEBUFFER, 0);
+
+  {
+    glshader_deferred_second.use();
+
+    GLuint program = glshader_deferred_second.program;
+    GLuint location = glGetUniformLocation(program, "position_tex");
+    glUniform1i(location, 0);
+    location = glGetUniformLocation(program, "normal_tex");
+    glUniform1i(location, 1);
+  }
+}
+
+
+void GLcontext::framebuffer_g_draw_first_pass(Scene &scene, GLshader &shader)
+{
+  glBindFramebuffer(GL_FRAMEBUFFER, gl_g_fb);
+  clear();
+  
+  glDisable(GL_BLEND);
+  glEnable(GL_DEPTH_TEST);
+  glDepthMask(GL_TRUE);
+
+  shader.use();
+
+  for (auto &node: scene.render_list_get()) {
+    node_draw(*node);
+  }
+
+}
+
+
+void GLcontext::framebuffer_g_draw_second_pass(GLshader &shader)
+{
+  Mesh *mesh = fb_node->mesh;
+
+  glBindFramebuffer (GL_FRAMEBUFFER, 0);
+  
+//  glClearColor (0.2, 0.2, 0.2, 1.0f);
+//  glClear (GL_COLOR_BUFFER_BIT);
+  clear();
+
+  /*
+  glEnable(GL_BLEND); 
+  glBlendEquation(GL_FUNC_ADD);
+  glBlendFunc(GL_ONE, GL_ONE); 
+  glDisable(GL_DEPTH_TEST);
+  glDepthMask(GL_FALSE);
+  */
+
+  shader.use();
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, gl_g_fb_position);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, gl_g_fb_normal);
+
+  glBindVertexArray(mesh->gl_vao);
+  glDrawArrays(GL_TRIANGLES, 0, fb_node->mesh->num_vertices_get());
+}
 
 
 void GLcontext::framebuffer_node_create(GLshader &shader, Node &node)
@@ -144,8 +245,8 @@ void GLcontext::framebuffer_node_create(GLshader &shader, Node &node)
   GLint index;
   Mesh *mesh = node.mesh;
 
-  glGenVertexArrays(1, &node.gl_vao);
-  glBindVertexArray(node.gl_vao);
+  glGenVertexArrays(1, &mesh->gl_vao);
+  glBindVertexArray(mesh->gl_vao);
   glGenBuffers(1, gl_fb_vertex_buffers);
   
   target = GL_ARRAY_BUFFER;
@@ -185,10 +286,13 @@ void GLcontext::framebuffer_draw_texture(Scene &scene, bool debug)
 
 void GLcontext::framebuffer_draw_screen()
 {
+
+  Mesh *mesh = fb_node->mesh;
+
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   clear();
 
-  glBindVertexArray(fb_node->gl_vao);
+  glBindVertexArray(mesh->gl_vao);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, gl_fb_tex);
   glDrawArrays(GL_TRIANGLES, 0, fb_node->mesh->num_vertices_get());
@@ -228,6 +332,8 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
   GLenum target = GL_UNIFORM_BUFFER;
   GLuint block_index;
   GLuint bind_index;
+
+  shader.use();
 
   {
     glm::mat4 matrix[2];
@@ -284,7 +390,6 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
     glBindBufferBase(target, bind_index, gl_buffer_material);
     //glBindBufferRange(target, bind_index, gl_buffer_material, 0, sizeof(properties));
     glBindBuffer(target, 0);
-
   }
 
   {
@@ -482,8 +587,8 @@ void GLcontext::vertex_buffers_create(Node &node)
 
   if (!mesh) return;
 
-  glGenVertexArrays(1, &node.gl_vao);
-  glBindVertexArray(node.gl_vao);
+  glGenVertexArrays(1, &mesh->gl_vao);
+  glBindVertexArray(mesh->gl_vao);
   glGenBuffers(8, gl_vertex_buffers);
 
   target = GL_ARRAY_BUFFER;
@@ -603,7 +708,7 @@ void GLcontext::vertex_buffers_delete(Node &node)
 
   if (mesh) {
     glDeleteBuffers(8, gl_vertex_buffers);
-    glDeleteVertexArrays(1, &node.gl_vao);
+    glDeleteVertexArrays(1, &mesh->gl_vao);
   }
   if (material) {
     if (material->diffuse) {

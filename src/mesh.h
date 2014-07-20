@@ -13,6 +13,7 @@ class Mesh {
 
   public:
     GLenum mode;
+    GLuint gl_vao;
 
     Aabb aabb;
     std::vector<GLshort> indices;

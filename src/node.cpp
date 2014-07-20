@@ -8,13 +8,13 @@
 /**************************************************/
 
 
-Node::Node(const std::string &_name):
+Node::Node(const std::string &node_name):
   armature(nullptr),
   light(nullptr),
   material(nullptr),
   mesh(nullptr),
   parent(nullptr),
-  name(_name),
+  name(node_name),
   transform_global(1),
   transform_local_current(1),
   transform_local_original(1), 
@@ -91,17 +91,6 @@ void Node::light_set(Light *light)
     light->properties_position_set(glm::vec3(mesh->model * glm::vec4(original_position, 1.0)));
   }
   this->light = light;
-}
-
-void Node::local_transform_current_set(const glm::mat4 &transform) 
-{
-  transform_local_current = transform;
-}
-
-
-void Node::local_transform_original_set(const glm::mat4 &transform) 
-{
-  transform_local_original = transform;
 }
 
 
@@ -193,6 +182,18 @@ void Node::translate(const glm::vec3 &v)
   glm::mat4 m = glm::translate(glm::mat4(1.f), v);
   transform_local_current = transform_local_current * m;
   transform_update_global_recursive(*this);
+}
+
+
+void Node::transform_local_current_set(const glm::mat4 &transform) 
+{
+  transform_local_current = transform;
+}
+
+
+void Node::transform_local_original_set(const glm::mat4 &transform) 
+{
+  transform_local_original = transform;
 }
 
 

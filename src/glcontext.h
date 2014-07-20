@@ -26,9 +26,13 @@ class GLcontext {
     GLuint gl_vertex_buffers[8];
     GLuint gl_uniform_camera_pos;
 
-    GLuint gl_fb_tex;
     GLuint gl_fb;
+    GLuint gl_fb_tex;
     GLuint gl_fb_vertex_buffers[1];
+
+    GLuint gl_g_fb;
+    GLuint gl_g_fb_position;
+    GLuint gl_g_fb_normal;
 
     Node *fb_node;
 
@@ -45,11 +49,15 @@ class GLcontext {
     void check_error();
     void clear();
     void node_draw(Node &node);
+    void framebuffer_check_status();
     void framebuffer_create(const int width, const int height);
-    void framebuffer_node_create(GLshader &shader, Node &node);
+    void framebuffer_delete();
     void framebuffer_draw_texture(Scene &scene, bool debug);
     void framebuffer_draw_screen();
-    void framebuffer_delete();
+    void framebuffer_g_create(GLshader &glshader_deferred_second, const int width, const int height);
+    void framebuffer_g_draw_first_pass(Scene &scene, GLshader &shader);
+    void framebuffer_g_draw_second_pass(GLshader &shader);
+    void framebuffer_node_create(GLshader &shader, Node &node);
     bool init(const int width, const int height);
     void polygon_mesh_toggle(bool tog);
     void uniform_buffers_create(GLshader &shader);

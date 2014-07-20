@@ -55,7 +55,7 @@ void Scene::animation_list_update_transforms(Node &node, const double dt)
   if (node.keyframe_total_num_get()) {
     double factor = node.step_time(dt);
     glm::mat4 m = node.keyframe_interpolate(factor);
-    node.local_transform_current_set(m);
+    node.transform_local_current_set(m);
   }
 
   if (parent) {
@@ -77,26 +77,17 @@ Node &Scene::model_load(const std::string &prefix, const std::string &filename, 
   Node *root_ptr = model.load(assets, root, prefix, filename, options);
   state_update_recursive(*root_ptr);
 
-  float matrix[16] = {
-    1,  0,  0,  0,
-    0,  0,  -1,  0,
-    0, 1,  0,  0,
-    0,  0,  0,  1 
-  };
 
-  //glm::mat4 root_transform = glm::make_mat4(matrix);
-
-  //root_ptr->local_transform_current_set(root_transform);
-
+  /*
   std::cout << "Matrices for node: " << root_ptr->name << std::endl;
+  std::cout << "local_transform_original: " << std::endl;
+  print_matrix(std::cout, root_ptr->transform_local_original, 0);
+  std::cout << "local_transform_current: " << std::endl;
+  print_matrix(std::cout, root_ptr->transform_local_current, 0);
+  std::cout << "global_transform: " << std::endl;
+  print_matrix(std::cout, root_ptr->transform_global, 0);
+  */
 
-    std::cout << "local_transform_original: " << std::endl;
-    print_matrix(std::cout, root_ptr->transform_local_original, 0);
-    std::cout << "local_transform_current: " << std::endl;
-    print_matrix(std::cout, root_ptr->transform_local_current, 0);
-    std::cout << "global_transform: " << std::endl;
-    print_matrix(std::cout, root_ptr->transform_global, 0);
- 
   root_ptr->transform_update_global_recursive(root);
   if (!(options & MODEL_IMPORT_NO_DRAW)) {
     upload_queue_add(*root_ptr);

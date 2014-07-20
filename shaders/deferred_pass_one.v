@@ -21,13 +21,6 @@ layout(std140) uniform Armature {
   mat4 skinning[64];
 };
 
-layout(std140) uniform Material {
-  vec4 Ka;
-  vec4 Kd;
-  vec4 Ks;
-  float shininess;
-};
-
 layout(std140) uniform Node_State {
   int state_animated;
   int state_debug;
@@ -39,21 +32,9 @@ layout(std140) uniform Node_State {
   int state_standard;
 };
 
-uniform vec3 camera_position_world;
 
-out vec2 st;
-out vec3 view_dir_tan;
-out vec3 light_dir_tan;
 out vec3 position_eye;
 out vec3 normal_eye;
-out mat4 model_world;
-out vec3 position;
-out vec3 normal;
-out mat4 model_view;
-out mat3 normal_matrix;
-
-// Cubemap (skybox/reflection/refraction)
-out vec3 str;
 
 
 mat4 func_animation_matrix_get()
@@ -74,20 +55,15 @@ mat4 func_animation_matrix_get()
 void main(void) 
 {
   mat4 m = model;
-
   if (state_animated == 1) {
     m = model * func_animation_matrix_get();
   }
-  model_view = view * m;
-  normal_matrix = mat3(transpose(inverse(model_view)));
- 
+  
+  mat4 model_view = view * m;
+  mat3 normal_matrix = mat3(transpose(inverse(model_view)));
 
   // Out variables
-  position = vertex_position;
-  normal = vertex_normal;
   position_eye = vec3(model_view * vec4(vertex_position, 1.0));
   normal_eye = normalize(normal_matrix * vertex_normal);
-	st = texture_coord;
-  str = vertex_position;
   gl_Position = proj * vec4(position_eye, 1.0);
 }

@@ -15,11 +15,15 @@ class Fragmic {
     Camera camera;
     Physics physics;
     GLshader glshader;
+    GLshader glshader_deferred_first;
+    GLshader glshader_deferred_second;
     GLshader glshader_screen;
     Scene scene;
     Window window;
 
     const double delta_time_get();
+    void         draw_g_buffer();
+    void         draw_standard_post_proc(double dt);
     void         profile_fps(const double dt);
 
   public:

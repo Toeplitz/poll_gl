@@ -3,13 +3,6 @@
 #include <iostream>
 #include <chrono>
 
-/* TODO:
- * 
- * For optimization:
- * - Remove if statements in glshader, espacially for weights.
- * - Frustnum culling
- *   - Calculate AABB, minimum/maximum vertex approach.
- */
 
 /**************************************************/
 /***************** CONSTRUCTORS *******************/
@@ -20,6 +13,8 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   camera(width, height), 
   physics(),
   glshader(), 
+  glshader_deferred_first(), 
+  glshader_deferred_second(), 
   scene(), 
   window(width, height)
 {
@@ -32,14 +27,17 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   }
 
   glshader.load("shaders/main.v", "shaders/main.f");
-  glshader.print_block_names();
   glcontext.uniform_buffers_create(glshader);
 
+  glshader_deferred_first.load("shaders/deferred_pass_one.v", "shaders/deferred_pass_one.f");
+  glshader_deferred_second.load("shaders/deferred_pass_two.v", "shaders/deferred_pass_two.f");
   glshader_screen.load("shaders/post_proc.v", "shaders/post_proc.f");
   Node &node = *scene.node_create_mesh_only("fb_quad");
   node.mesh->quad_generate(1.f);
   glcontext.framebuffer_create(window.width, window.height);
   glcontext.framebuffer_node_create(glshader_screen, node);
+
+  glcontext.framebuffer_g_create(glshader_deferred_second, window.width, window.height);
 
   physics.init();
 }
@@ -47,6 +45,32 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
 
 Fragmic::~Fragmic() 
 {
+}
+
+
+void Fragmic::draw_g_buffer()
+{
+  GLcontext &glcontext = window.glcontext_get();
+
+  glcontext.framebuffer_g_draw_first_pass(scene, glshader_deferred_first);
+  glcontext.framebuffer_g_draw_second_pass(glshader_deferred_second);
+}
+
+
+void Fragmic::draw_standard_post_proc(double dt)
+{
+  GLcontext &glcontext = window.glcontext_get();
+  glshader.use();
+  glcontext.framebuffer_draw_texture(scene, window.debug);
+
+  /* Step physics simulation */
+  physics.step(dt);
+
+  if (!window.debug) {
+    glshader_screen.use();
+    glcontext.framebuffer_draw_screen();
+  }
+
 }
 
 
@@ -62,7 +86,7 @@ void Fragmic::run()
 
   for (;;) {
     double dt = delta_time_get();
- //   profile_fps(dt);
+    //   profile_fps(dt);
 
     if (!window.poll_events(camera)) {
       std::cout << "Fragmic exiting..." << std::endl;
@@ -99,15 +123,8 @@ void Fragmic::run()
     glcontext.uniform_buffers_update_camera(camera);
 
     /* Draw scene */
-    glshader.use();
-    glcontext.framebuffer_draw_texture(scene, window.debug);
-
-    /* Step physics simulation */
-    physics.step(dt);
-    if (!window.debug) {
-      glshader_screen.use();
-      glcontext.framebuffer_draw_screen();
-    }
+//    draw_standard_post_proc(dt);
+    draw_g_buffer();
 
     glcontext.check_error();
     window.swap();
