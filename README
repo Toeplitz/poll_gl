@@ -13,10 +13,12 @@ Relieff techniques:
 
 
 Lighting:
+- Baked light maps for static scenes
 - Deferred shading (anton)
   - Displays different textures with keyboard 1, 2, 3 ... for QC.
 - SSOA
 
 
 Shadows:
-
+- Baked shadow maps for static scenes
+- Standard dynamic soft shadow implementation.
