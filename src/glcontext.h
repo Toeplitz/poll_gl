@@ -31,8 +31,9 @@ class GLcontext {
     GLuint gl_fb_vertex_buffers[1];
 
     GLuint gl_g_fb;
-    GLuint gl_g_fb_position;
-    GLuint gl_g_fb_normal;
+    GLuint gl_g_rb_depth;
+    GLuint gl_g_fb_tex_position;
+    GLuint gl_g_fb_tex_normal;
 
     Node *fb_node;
 

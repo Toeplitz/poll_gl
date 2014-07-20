@@ -144,40 +144,59 @@ void GLcontext::framebuffer_delete()
 
 void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const int width, const int height)
 {
-  glGenTextures(1, &gl_g_fb_position);
-  glBindTexture(GL_TEXTURE_2D, gl_g_fb_position);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glGenFramebuffers (1, &gl_g_fb);
+  glBindFramebuffer(GL_FRAMEBUFFER, gl_g_fb);
+
+  glGenRenderbuffers(1, &gl_g_rb_depth);
+  glBindRenderbuffer(GL_RENDERBUFFER, gl_g_rb_depth);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+
+  glActiveTexture(GL_TEXTURE0);
+  glGenTextures(1, &gl_g_fb_tex_position);
+  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_position);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   
-  glGenTextures(1, &gl_g_fb_normal);
-  glBindTexture(GL_TEXTURE_2D, gl_g_fb_normal);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glActiveTexture(GL_TEXTURE1);
+  glGenTextures(1, &gl_g_fb_tex_normal);
+  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_normal);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-  glGenFramebuffers (1, &gl_g_fb);
-  glBindFramebuffer(GL_FRAMEBUFFER, gl_g_fb);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl_g_fb_position, 0);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gl_g_fb_normal, 0);
+/*
+  GLuint depth_tex;
+  glGenTextures(1, &depth_tex);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, depth_tex);
+  glTexImage2D(
+    GL_TEXTURE_2D,
+    0,
+    GL_DEPTH_COMPONENT32F,
+    width,
+    height,
+    0,
+    GL_DEPTH_COMPONENT,
+    GL_UNSIGNED_BYTE,
+    NULL
+  );
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_tex, 0);
+*/
 
-  GLuint rb = 0;
-  glGenRenderbuffers(1, &rb);
-  glBindRenderbuffer(GL_RENDERBUFFER, rb);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, gl_g_rb_depth);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl_g_fb_tex_position, 0);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gl_g_fb_tex_normal, 0);
 
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rb);
 
   GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
   glDrawBuffers (2, draw_bufs);
 
   framebuffer_check_status();
-
-  glBindFramebuffer (GL_FRAMEBUFFER, 0);
 
   {
     glshader_deferred_second.use();
@@ -188,20 +207,18 @@ void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const i
     location = glGetUniformLocation(program, "normal_tex");
     glUniform1i(location, 1);
   }
+
+  glBindFramebuffer (GL_FRAMEBUFFER, 0);
 }
 
 
 void GLcontext::framebuffer_g_draw_first_pass(Scene &scene, GLshader &shader)
 {
   glBindFramebuffer(GL_FRAMEBUFFER, gl_g_fb);
-  clear();
-  
-  glDisable(GL_BLEND);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+ 
   glEnable(GL_DEPTH_TEST);
-  glDepthMask(GL_TRUE);
-
   shader.use();
-
   for (auto &node: scene.render_list_get()) {
     node_draw(*node);
   }
@@ -213,25 +230,15 @@ void GLcontext::framebuffer_g_draw_second_pass(GLshader &shader)
 {
   Mesh *mesh = fb_node->mesh;
 
-  glBindFramebuffer (GL_FRAMEBUFFER, 0);
-  
-//  glClearColor (0.2, 0.2, 0.2, 1.0f);
-//  glClear (GL_COLOR_BUFFER_BIT);
-  clear();
-
-  /*
-  glEnable(GL_BLEND); 
-  glBlendEquation(GL_FUNC_ADD);
-  glBlendFunc(GL_ONE, GL_ONE); 
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glClear(GL_COLOR_BUFFER_BIT);
   glDisable(GL_DEPTH_TEST);
-  glDepthMask(GL_FALSE);
-  */
 
   shader.use();
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, gl_g_fb_position);
+  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_position);
   glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, gl_g_fb_normal);
+  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_normal);
 
   glBindVertexArray(mesh->gl_vao);
   glDrawArrays(GL_TRIANGLES, 0, fb_node->mesh->num_vertices_get());

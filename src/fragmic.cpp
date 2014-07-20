@@ -52,7 +52,9 @@ void Fragmic::draw_g_buffer()
 {
   GLcontext &glcontext = window.glcontext_get();
 
+  glshader_deferred_first.use();
   glcontext.framebuffer_g_draw_first_pass(scene, glshader_deferred_first);
+  glshader_deferred_second.use();
   glcontext.framebuffer_g_draw_second_pass(glshader_deferred_second);
 }
 
