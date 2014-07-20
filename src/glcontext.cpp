@@ -144,6 +144,7 @@ void GLcontext::framebuffer_delete()
 
 void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const int width, const int height)
 {
+  glBindTexture(GL_TEXTURE_2D, 0);
   glGenFramebuffers (1, &gl_g_fb);
   glBindFramebuffer(GL_FRAMEBUFFER, gl_g_fb);
 
@@ -154,14 +155,14 @@ void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const i
   glActiveTexture(GL_TEXTURE0);
   glGenTextures(1, &gl_g_fb_tex_position);
   glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_position);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   
   glActiveTexture(GL_TEXTURE1);
   glGenTextures(1, &gl_g_fb_tex_normal);
   glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_normal);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -214,6 +215,7 @@ void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const i
 
 void GLcontext::framebuffer_g_draw_first_pass(Scene &scene, GLshader &shader)
 {
+  glBindTexture(GL_TEXTURE_2D, 0);
   glBindFramebuffer(GL_FRAMEBUFFER, gl_g_fb);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
  
@@ -230,6 +232,7 @@ void GLcontext::framebuffer_g_draw_second_pass(GLshader &shader)
 {
   Mesh *mesh = fb_node->mesh;
 
+  glBindTexture(GL_TEXTURE_2D, 0);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glClear(GL_COLOR_BUFFER_BIT);
   glDisable(GL_DEPTH_TEST);

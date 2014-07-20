@@ -63,7 +63,9 @@ void main(void)
   mat3 normal_matrix = mat3(transpose(inverse(model_view)));
 
   // Out variables
-  position_eye = (model_view * vec4(vertex_position, 1.0)).xyz;
-  normal_eye = normal_matrix * vertex_normal;
+  //position_eye = (model_view * vec4(vertex_position, 1.0)).xyz;
+  position_eye = vec3(1, 0, 0);
+  //normal_eye = normal_matrix * vertex_normal;
+  normal_eye = vec3(0, 0, 1);
   gl_Position = proj * vec4(position_eye, 1.0);
 }
