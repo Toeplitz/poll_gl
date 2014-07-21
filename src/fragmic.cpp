@@ -125,8 +125,8 @@ void Fragmic::run()
     glcontext.uniform_buffers_update_camera(camera);
 
     /* Draw scene */
-//    draw_standard_post_proc(dt);
-    draw_g_buffer();
+    draw_standard_post_proc(dt);
+ //   draw_g_buffer();
 
     glcontext.check_error();
     window.swap();

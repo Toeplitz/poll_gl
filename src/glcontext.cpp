@@ -442,13 +442,13 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
   {
     GLint location;
     location = glGetUniformLocation(program, "diffuse_texture");
-    glUniform1i(location, 0);
+    GL_ASSERT(glUniform1i(location, 0));
     location = glGetUniformLocation(program, "normal_texture");
-    glUniform1i(location, 1);
+    GL_ASSERT(glUniform1i(location, 1));
     location = glGetUniformLocation(program, "specular_texture");
-    glUniform1i(location, 2);
+    GL_ASSERT(glUniform1i(location, 2));
     location = glGetUniformLocation(program, "cube_texture");
-    glUniform1i(location, 3);
+    GL_ASSERT(glUniform1i(location, 3));
   }
 
   gl_uniform_camera_pos = glGetUniformLocation(program, "camera_position_world");
@@ -555,7 +555,7 @@ void GLcontext::uniform_buffers_update_node(Node &node)
   if (material) {
     uniform_buffers_update_material(*material);
 
-    glBindTexture(GL_TEXTURE_2D, 0);
+    GL_ASSERT(glBindTexture(GL_TEXTURE_2D, 0));
 
     if (material->diffuse) {
       glActiveTexture(GL_TEXTURE0);
@@ -605,7 +605,7 @@ void GLcontext::vertex_buffers_create(Node &node)
   {
     std::vector<glm::vec3> positions = mesh->positions_get();
     index = 0;
-    glBindBuffer(target, gl_vertex_buffers[index]);
+    GL_ASSERT(glBindBuffer(target, gl_vertex_buffers[index]));
     glBufferData(target, positions.size() * sizeof(positions[0]), positions.data(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(index);
     glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -696,9 +696,9 @@ void GLcontext::vertex_buffers_create(Node &node)
     }
     if (material->cubemap) {
       if (!glIsTexture(material->cubemap->gl_texture)) {
-        glGenTextures(1,  &material->cubemap->gl_texture);
-        glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, material->cubemap->gl_texture);
+        GL_ASSERT(glGenTextures(1,  &material->cubemap->gl_texture));
+        GL_ASSERT(glActiveTexture(GL_TEXTURE3));
+        GL_ASSERT(glBindTexture(GL_TEXTURE_CUBE_MAP, material->cubemap->gl_texture));
         texture_cubemap_create(material->cubemap->front);
         texture_cubemap_create(material->cubemap->back);
         texture_cubemap_create(material->cubemap->top);
@@ -717,8 +717,8 @@ void GLcontext::vertex_buffers_delete(Node &node)
   Material *material = node.material;
 
   if (mesh) {
-    glDeleteBuffers(8, gl_vertex_buffers);
-    glDeleteVertexArrays(1, &mesh->gl_vao);
+    GL_ASSERT(glDeleteBuffers(8, gl_vertex_buffers));
+    GL_ASSERT(glDeleteVertexArrays(1, &mesh->gl_vao));
   }
   if (material) {
     if (material->diffuse) {

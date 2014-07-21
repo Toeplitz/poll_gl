@@ -13,6 +13,9 @@ Material::Material()
   height.reset(nullptr);
   specular.reset(nullptr);
   cubemap.reset(nullptr);
+
+  glm::vec3 zero(0, 0, 0);
+  color_set(zero, zero, zero, 0);
 }
 
 

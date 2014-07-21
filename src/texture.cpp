@@ -7,6 +7,7 @@
 
 Texture::Texture()
 {
+  gl_texture = 0;
 }
 
 
