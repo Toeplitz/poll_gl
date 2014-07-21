@@ -14,6 +14,7 @@ class Assets {
 
   private:
     Armature_Unique_Ptr_List armatures;
+    std::vector<std::unique_ptr<Camera_Proto>> cameras;
     std::vector<std::unique_ptr<Light>> active_lights;
     std::vector<std::unique_ptr<Light>> inactive_lights;
     std::vector<std::unique_ptr<Material>> materials;
@@ -26,6 +27,8 @@ class Assets {
     void                                  armature_add(std::unique_ptr<Armature> &&armature);
     Armature_Unique_Ptr_List       const &armature_get_all() const;
     void                                  armature_print_all() const;
+    void                                  camera_add(std::unique_ptr<Camera_Proto> &&camera);
+    void                                  camera_print_all(const Node &node) const;
     void                                  light_activate(Light *light);
     void                                  light_active_add(std::unique_ptr<Light> &&light); 
     Light_Unique_Ptr_List          const &light_active_get() const;

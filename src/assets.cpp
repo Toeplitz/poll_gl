@@ -48,6 +48,23 @@ void Assets::armature_print_all() const
 }
 
 
+void Assets::camera_add(std::unique_ptr<Camera_Proto> &&camera)
+{
+  cameras.push_back(std::move(camera));
+}
+
+
+void Assets::camera_print_all(const Node &node) const
+{
+  std::cout << "\nCameras: " << std::endl;
+
+  for (auto &camera: cameras) {
+    std::cout << "\t(" << camera.get() << ")" << std::endl;
+  }
+}
+
+
+
 void Assets::light_activate(Light *light)
 {
   std::vector<std::unique_ptr<Light>>::iterator found;
@@ -128,9 +145,10 @@ void Assets::print_all(const Node &node) const
 {
   std::cout << "======== Current assets (owned by engine) ========" << std::endl;
   armature_print_all();
+  camera_print_all(node);
+  light_print_all(node);
   material_print_all(node);
   mesh_print_all(node);
-  light_print_all(node);
   std::cout << "==================================================" << std::endl;
 }
 

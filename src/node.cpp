@@ -10,6 +10,7 @@
 
 Node::Node(const std::string &node_name):
   armature(nullptr),
+  camera(nullptr),
   light(nullptr),
   material(nullptr),
   mesh(nullptr),
@@ -45,6 +46,28 @@ Node::~Node()
 void Node::armature_set(Armature *armature)
 {
   this->armature = armature;
+}
+
+
+Camera_Proto *Node::camera_create(Assets &assets)
+{
+  std::unique_ptr<Camera_Proto> camera(new Camera_Proto());
+  Camera_Proto *camera_ptr = camera.get();
+  camera_set(camera_ptr);
+  assets.camera_add(std::move(camera));
+  return camera_ptr;
+}
+
+
+Camera_Proto *Node::camera_get()
+{
+  return camera;
+}
+
+
+void Node::camera_set(Camera_Proto *camera)
+{
+  this->camera = camera;
 }
 
 

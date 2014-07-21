@@ -11,6 +11,10 @@ Scene::Scene():
   assets(), 
   root(std::string("Fragmic")) 
 {
+
+  Node *cam_node = node_create("Camera");
+  cam_node->camera_create(assets);
+  node_camera_set(cam_node);
 }
 
 
@@ -67,6 +71,21 @@ void Scene::animation_list_update_transforms(Node &node, const double dt)
   for (auto &child : node.children) {
     animation_list_update_transforms(*child, dt);
   }
+}
+
+
+Camera_Proto *Scene::camera_get() 
+{
+  if (!node_cur_camera) {
+    std::cout << "Error: no active camera node defined." << std::endl;
+    return nullptr;
+  }
+  if (!node_cur_camera->camera_get()) {
+    std::cout << "Error: the activa camera node has no camera defined." << std::endl;
+    return nullptr;
+  }
+
+  return node_cur_camera->camera_get();
 }
 
 
@@ -129,21 +148,23 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
   indent(std::cout, node.tree_level);
   std::cout << node.tree_level << ": '" << node.name << "' " << &node << "";
 
-  if (node.mesh) {
-    std::cout << " (mesh)";
-  }
   if (node.armature) {
     std::cout << " (armature)";
   }
-
+  if (node.camera) {
+    std::cout << " (camera)";
+  }
+  if (node.light) {
+    std::cout << " (light)";
+  }
   if (node.keyframe_total_num_get() > 0) {
     std::cout << " (" << node.keyframe_total_num_get() << " keyframes)";
   }
   if (node.material) {
     std::cout << " (material)";
   }
-  if (node.light) {
-    std::cout << " (light)";
+  if (node.mesh) {
+    std::cout << " (mesh)";
   }
 
   if (!compact) {
@@ -209,6 +230,18 @@ Node *Scene::node_create_mesh_only(const std::string &name)
 Node &Scene::node_root_get() 
 {
   return root;
+}
+
+
+Node *Scene::node_camera_get()
+{
+  return node_cur_camera;
+}
+
+
+void  Scene::node_camera_set(Node *camera_node)
+{
+  this->node_cur_camera = camera_node;
 }
 
 
