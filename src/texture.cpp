@@ -24,12 +24,12 @@ Texture::~Texture()
 
 bool Texture::image_load(const std::string &filename)
 {
-  std::unique_ptr <Image> image_ptr(new Image());
+  std::unique_ptr<Image> image_ptr(new Image());
   image = std::move(image_ptr);
   this->filename = filename;
 
   if (!image->load(filename)) {
-    std::cout << "Error: coult not load image" << std::endl;
+    std::cout << "Error: could not load image: '" << filename << "'" << std::endl;
     return false;
   }
 

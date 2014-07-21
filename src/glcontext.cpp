@@ -26,15 +26,10 @@ GLcontext::~GLcontext()
 
 void GLcontext::check_error()
 {
-  try {
-    GLenum gl_error = glGetError();
-    if (GL_NO_ERROR != gl_error) {
-      std::cout << std::string("OpenGL error: ") << reinterpret_cast<const char *>(gluErrorString(gl_error)) << std::endl;   
-    }
-  } catch(std::exception & e) {
-    std::cerr << e.what() << std::endl;
+  GLenum gl_error = glGetError();
+  if (GL_NO_ERROR != gl_error) {
+    std::cout << "OpenGL error: " << gluErrorString(gl_error) << std::endl;   
   }
-
 }
 
 
@@ -144,27 +139,27 @@ void GLcontext::framebuffer_delete()
 
 void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const int width, const int height)
 {
-  glBindTexture(GL_TEXTURE_2D, 0);
-  glGenFramebuffers (1, &gl_g_fb);
-  glBindFramebuffer(GL_FRAMEBUFFER, gl_g_fb);
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, 0));
+  GL_ASSERT(glGenFramebuffers (1, &gl_g_fb));
+  GL_ASSERT(glBindFramebuffer(GL_FRAMEBUFFER, gl_g_fb));
 
-  glGenRenderbuffers(1, &gl_g_rb_depth);
-  glBindRenderbuffer(GL_RENDERBUFFER, gl_g_rb_depth);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+  GL_ASSERT(glGenRenderbuffers(1, &gl_g_rb_depth));
+  GL_ASSERT(glBindRenderbuffer(GL_RENDERBUFFER, gl_g_rb_depth));
+  GL_ASSERT(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height));
 
-  glActiveTexture(GL_TEXTURE0);
-  glGenTextures(1, &gl_g_fb_tex_position);
-  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_position);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  GL_ASSERT(glActiveTexture(GL_TEXTURE0));
+  GL_ASSERT(glGenTextures(1, &gl_g_fb_tex_position));
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_position));
+  GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, width, height, 0, GL_RG, GL_UNSIGNED_BYTE, NULL));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
   
-  glActiveTexture(GL_TEXTURE1);
-  glGenTextures(1, &gl_g_fb_tex_normal);
-  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_normal);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  GL_ASSERT(glActiveTexture(GL_TEXTURE1));
+  GL_ASSERT(glGenTextures(1, &gl_g_fb_tex_normal));
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_normal));
+  GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, width, height, 0, GL_RG, GL_UNSIGNED_BYTE, NULL));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 
 /*
   GLuint depth_tex;
