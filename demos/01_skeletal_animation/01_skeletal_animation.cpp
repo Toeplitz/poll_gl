@@ -64,7 +64,7 @@ int main()
 
 
   Node &plane = scene.model_load("data/game_assets/", "Room_no_slope.dae", MODEL_IMPORT_OPTIMIZED);
-  physics.collision_node_add(plane, PHYSICS_COLLISION_CONVEX_HULL, true, 1.f);
+  physics.collision_shape_add(plane, PHYSICS_COLLISION_CONVEX_HULL, true, 1.f);
   physics.pause();
 
   Node &bob= scene.model_load("data/bob/", "Bob_with_lamp.dae", MODEL_IMPORT_OPTIMIZED);

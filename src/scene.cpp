@@ -151,10 +151,10 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
   if (node.armature) {
     std::cout << " (armature)";
   }
-  if (node.camera) {
+  if (node.camera_get()) {
     std::cout << " (camera)";
   }
-  if (node.light) {
+  if (node.light_get()) {
     std::cout << " (light)";
   }
   if (node.keyframe_total_num_get() > 0) {
@@ -187,8 +187,8 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
       node.material->print(node.tree_level);
     }
 
-    if (node.light) {
-      node.light->print(node.tree_level);
+    if (node.light_get()) {
+      node.light_get()->print(node.tree_level);
     }
 
     //node.print_state(node.tree_level);
@@ -283,7 +283,7 @@ void Scene::state_update_recursive(Node &node)
 
 void Scene::upload_queue_add(Node &node) 
 {
-  if (node.mesh || node.light) {
+  if (node.mesh || node.light_get()) {
     upload_queue.push_back(&node);
     render_list_add(node);
   } else if (node.armature) {

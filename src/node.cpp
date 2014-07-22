@@ -9,9 +9,10 @@
 
 
 Node::Node(const std::string &node_name):
-  armature(nullptr),
   camera(nullptr),
   light(nullptr),
+  rigidbody(nullptr),
+  armature(nullptr),
   material(nullptr),
   mesh(nullptr),
   parent(nullptr),
@@ -100,10 +101,6 @@ Light *Node::light_create(Assets &assets)
 
 Light *Node::light_get()
 {
-  if (!light) {
-    std::cout << "Node: '" << name << "' does not have any light attached" << std::endl;
-  }
-
   return light;
 }
 
@@ -129,6 +126,28 @@ void Node::print_state(int indent_level)
   std::cout << "\t\tCubemap reflect: " << state.cubemap_reflect << std::endl;
   std::cout << "\t\tCubemap skybox: " << state.cubemap_skybox << std::endl;
   std::cout << "\t\tStandard: " << state.standard << std::endl;
+}
+
+
+Physics_Rigidbody  *Node::physics_rigidbody_create(Assets &assets)
+{
+  std::unique_ptr<Physics_Rigidbody> rigidbody(new Physics_Rigidbody());
+  Physics_Rigidbody *rigidbody_ptr = rigidbody.get();
+  physics_rigidbody_set(rigidbody_ptr);
+  assets.physics_rigidbody_add(std::move(rigidbody));
+  return rigidbody_ptr;
+}
+
+
+Physics_Rigidbody  *Node::physics_rigidbody_get()
+{
+  return rigidbody;
+}
+
+
+void Node::physics_rigidbody_set(Physics_Rigidbody *rigidbody)
+{
+  this->rigidbody = rigidbody;
 }
 
 

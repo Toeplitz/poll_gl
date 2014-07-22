@@ -45,7 +45,7 @@ int main()
   point_light3->properties_type_set(LIGHT_POINT);
   point_light3->properties_set(glm::vec3(0.2, 0.2, 0.2), glm::vec3(1.0, 1.0, 1.0), glm::vec3(1.0, 1.0, 1.0));
   point_light3->bias_set(glm::vec3(0, 1.2, 0));
-  physics.collision_node_add(box_node_rh, PHYSICS_COLLISION_BOX, true, 1.f);
+  physics.collision_shape_add(box_node_rh, PHYSICS_COLLISION_BOX, true, 1.f);
 
   Node &sphere_node = scene.model_load("data/", "sphere_translated_scaled.dae", MODEL_IMPORT_OPTIMIZED);
   Light *point_light = sphere_node.light_create(assets);
@@ -53,17 +53,17 @@ int main()
   point_light->properties_set(glm::vec3(0.2, 0.2, 0.2), glm::vec3(1.0, 1.0, 1.0), glm::vec3(1.0, 1.0, 1.0));
   point_light->bias_set(glm::vec3(0, 1.2, 0));
 
-  physics.collision_node_add(sphere_node, PHYSICS_COLLISION_SPHERE, true, 1.f);
+  physics.collision_shape_add(sphere_node, PHYSICS_COLLISION_SPHERE, true, 1.f);
 
   Node &monkey_node = scene.model_load("data/", "convex_hull.dae", MODEL_IMPORT_OPTIMIZED);
   Light *point_light2 = monkey_node.light_create(assets);
   point_light2->properties_type_set(LIGHT_POINT);
   point_light2->properties_set(glm::vec3(0.2, 0.2, 0.2), glm::vec3(1.0, 1.0, 1.0), glm::vec3(1.0, 1.0, 1.0));
   point_light2->bias_set(glm::vec3(0, 1.2, 0));
-  physics.collision_node_add(monkey_node, PHYSICS_COLLISION_CONVEX_HULL, true, 1.f);
+  physics.collision_shape_add(monkey_node, PHYSICS_COLLISION_CONVEX_HULL, true, 1.f);
 
   Node &base_node = scene.model_load("data/", "base.dae", MODEL_IMPORT_OPTIMIZED);
-  physics.collision_node_add(base_node, PHYSICS_COLLISION_BOX, true, 0);
+  physics.collision_shape_add(base_node, PHYSICS_COLLISION_BOX, true, 0);
 
   physics.pause();
   scene.scene_graph_print(true);

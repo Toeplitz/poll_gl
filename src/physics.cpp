@@ -94,7 +94,7 @@ void Physics::collision_mesh_add(Node &node, const std::string &prefix, const st
 }
 
 
-void Physics::collision_node_add(Node &node, const Physics_Collision_Shape shape, bool recursive, float mass)
+void Physics::collision_shape_add(Node &node, const Physics_Collision_Shape shape, bool recursive, float mass)
 {
   Physics_Node p_node;
 
@@ -114,7 +114,7 @@ void Physics::collision_node_add(Node &node, const Physics_Collision_Shape shape
     return;
 
   for (auto &child : node.children) {
-    collision_node_add(*child, shape, recursive, mass);
+    collision_shape_add(*child, shape, recursive, mass);
   }
 
 }

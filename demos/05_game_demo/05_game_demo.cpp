@@ -215,7 +215,7 @@ int main()
   /* Setup room */
   room = &scene.model_load("data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_LIGHTS);
   room->translate(glm::vec3(0, 0, 0));
-  physics.collision_node_add(*room, PHYSICS_COLLISION_TRIANGLE_MESH, true, 0);
+  physics.collision_shape_add(*room, PHYSICS_COLLISION_TRIANGLE_MESH, true, 0);
 
 
   /* Setup panda character */

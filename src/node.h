@@ -11,12 +11,14 @@
 #include "animated.h"
 #include "camera_proto.h"
 #include "light.h"
+#include "physics_rigidbody.h"
 #include "material.h"
 #include "mesh.h"
 
 
 class Armature;
 class Assets;
+class Physics_Rigidbody;
 class Node;
 
 
@@ -38,49 +40,53 @@ typedef std::vector<std::unique_ptr<Node>> Node_List;
 
 class Node: public Animated {
   private:
+    Camera_Proto       *camera;
+    Light              *light;
+    Physics_Rigidbody  *rigidbody;
 
   public:
-    Armature     *armature;
-    Camera_Proto *camera;
-    Light        *light;
-    Material     *material;
-    Mesh         *mesh;
-    Node         *parent;
-    std::string   name;
-    glm::mat4     transform_global;
-    glm::mat4     transform_local_current;
-    glm::mat4     transform_local_original;
+    Armature           *armature;
+    Material           *material;
+    Mesh               *mesh;
+    Node               *parent;
+    std::string         name;
+    glm::mat4           transform_global;
+    glm::mat4           transform_local_current;
+    glm::mat4           transform_local_original;
 
-    glm::vec3     original_scaling;
-    glm::vec3     original_position;
-    glm::quat     original_rotation;
-    Node_List     children;
-    int           tree_level;
-    Node_State    state;
+    glm::vec3           original_scaling;
+    glm::vec3           original_position;
+    glm::quat           original_rotation;
+    Node_List           children;
+    int                 tree_level;
+    Node_State          state;
 
     Node(const std::string &node_name);
     ~Node();
 
-    void       armature_set(Armature *armature);
-    Camera_Proto *camera_create(Assets &assets);
-    Camera_Proto *camera_get();
-    void          camera_set(Camera_Proto *camera);
-    void       copy_transform_data(Node &node);
-    void       child_add(std::unique_ptr<Node> &&node, int level);
-    Light     *light_create(Assets &assets);
-    Light     *light_get();
-    void       light_set(Light *light);
-    void       print_state(int indent_level);
-    Material  *material_create(Assets &assets);
-    Material  *material_get();
-    void       material_set(Material *material);
-    Mesh      *mesh_create(Assets &assets);
-    Mesh      *mesh_get();
-    void       mesh_set(Mesh *mesh);
-    void       rotate(const float angle, const glm::vec3 &v);
-    void       scale(const glm::vec3 &v);
-    void       translate(const glm::vec3 &v);
-    void       transform_local_current_set(const glm::mat4 &transform);
-    void       transform_local_original_set(const glm::mat4 &transform);
-    void       transform_update_global_recursive(Node &node);
+    void                armature_set(Armature *armature);
+    Camera_Proto       *camera_create(Assets &assets);
+    Camera_Proto       *camera_get();
+    void                camera_set(Camera_Proto *camera);
+    void                copy_transform_data(Node &node);
+    void                child_add(std::unique_ptr<Node> &&node, int level);
+    Light              *light_create(Assets &assets);
+    Light              *light_get();
+    void                light_set(Light *light);
+    void                print_state(int indent_level);
+    Physics_Rigidbody  *physics_rigidbody_create(Assets &assets);
+    Physics_Rigidbody  *physics_rigidbody_get();
+    void                physics_rigidbody_set(Physics_Rigidbody *rigidbody);
+    Material           *material_create(Assets &assets);
+    Material           *material_get();
+    void                material_set(Material *material);
+    Mesh               *mesh_create(Assets &assets);
+    Mesh               *mesh_get();
+    void                mesh_set(Mesh *mesh);
+    void                rotate(const float angle, const glm::vec3 &v);
+    void                scale(const glm::vec3 &v);
+    void                translate(const glm::vec3 &v);
+    void                transform_local_current_set(const glm::mat4 &transform);
+    void                transform_local_original_set(const glm::mat4 &transform);
+    void                transform_update_global_recursive(Node &node);
 };

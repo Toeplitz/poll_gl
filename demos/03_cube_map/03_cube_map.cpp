@@ -52,7 +52,7 @@ int main()
   light->properties_set(glm::vec3(0.2, 0.2, 0.2), glm::vec3(1, 1, 1), glm::vec3(1.0, 1.0, 1.0));
   
   Node &base_node = scene.model_load("data/", "base.dae", MODEL_IMPORT_OPTIMIZED);
-  physics.collision_node_add(base_node, PHYSICS_COLLISION_BOX, true, 0);
+  physics.collision_shape_add(base_node, PHYSICS_COLLISION_BOX, true, 0);
 
   std::unique_ptr<Material> material(new Material());
   material->cubemap_create(CUBEMAP_REFLECTION, "data/game_assets/skybox/SkyboxSet1/DarkStormy/", "DarkStormyFront2048.png",
@@ -69,7 +69,7 @@ int main()
     scene.state_update_recursive(sphere);
     scene.state_update_recursive(cube);
     scene.state_update_recursive(suzanne);
-    physics.collision_node_add(node_root, PHYSICS_COLLISION_CONVEX_HULL, true, 1.f);
+    physics.collision_shape_add(node_root, PHYSICS_COLLISION_CONVEX_HULL, true, 1.f);
     Light *point_light = cube.light_create(assets);
     point_light->properties_type_set(LIGHT_POINT);
     point_light->properties_set(glm::vec3(0.2, 0.2, 0.2), glm::vec3(1.0, 1.0, 1.0), glm::vec3(1.0, 1.0, 1.0));

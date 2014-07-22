@@ -532,9 +532,9 @@ void GLcontext::uniform_buffers_update_node(Node &node)
   uniform_buffers_update_state(node);
 
   if (mesh) {
-    if (node.light) {
+    if (node.light_get()) {
      // std::cout << "Light position: " << glm::to_string(glm::vec3(mesh->model * glm::vec4(node.original_position, 1.f))) << std::endl; 
-      node.light->properties_position_set(glm::vec3(mesh->model * glm::vec4(node.original_position, 1.f)));
+      node.light_get()->properties_position_set(glm::vec3(mesh->model * glm::vec4(node.original_position, 1.f)));
     }
     uniform_buffers_update_mesh(*mesh);
   }

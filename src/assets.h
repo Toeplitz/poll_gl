@@ -4,6 +4,7 @@
 
 #include "armature.h"
 #include "light.h"
+#include "physics_rigidbody.h"
 #include "material.h"
 #include "mesh.h"
 
@@ -17,6 +18,7 @@ class Assets {
     std::vector<std::unique_ptr<Camera_Proto>> cameras;
     std::vector<std::unique_ptr<Light>> active_lights;
     std::vector<std::unique_ptr<Light>> inactive_lights;
+    std::vector<std::unique_ptr<Physics_Rigidbody>> rigidbodies;
     std::vector<std::unique_ptr<Material>> materials;
     std::vector<std::unique_ptr<Mesh>> meshes;
 
@@ -37,6 +39,7 @@ class Assets {
     bool                                  light_is_active(Light *light);
     void                                  light_print_all(const Node &node) const;
     void                                  print_all(const Node &node) const;
+    void                                  physics_rigidbody_add(std::unique_ptr<Physics_Rigidbody> &&rigidbody);
     void                                  material_add(std::unique_ptr<Material> &&material);
     unsigned int                          material_node_lookup(const Material *material, const Node &node) const;
     void                                  material_print_all(const Node &node) const;

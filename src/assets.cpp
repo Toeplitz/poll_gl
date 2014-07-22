@@ -188,6 +188,12 @@ void Assets::material_print_all(const Node &node) const
 }
 
 
+void Assets::physics_rigidbody_add(std::unique_ptr<Physics_Rigidbody> &&rigidbody)
+{
+  rigidbodies.push_back(std::move(rigidbody));
+}
+
+
 unsigned int Assets::material_node_lookup(const Material *material, const Node &node) const
 {
   unsigned int count = 0;
