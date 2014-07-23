@@ -445,8 +445,6 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
     location = glGetUniformLocation(program, "cube_texture");
     GL_ASSERT(glUniform1i(location, 3));
   }
-
-  gl_uniform_camera_pos = glGetUniformLocation(program, "camera_position_world");
 }
 
 
@@ -470,8 +468,6 @@ void GLcontext::uniform_buffers_update_camera(Camera &camera)
   glBindBuffer(target, gl_buffer_globalmatrices);
   glBufferSubData(target, offset, sizeof(data), &data);
   glBindBuffer(target, 0);
-
-  glUniform3f(gl_uniform_camera_pos, camera.position.x, camera.position.y, camera.position.z);
 }
 
 

@@ -24,7 +24,6 @@ class GLcontext {
     GLuint gl_buffer_state;
     GLuint gl_buffer_light;
     GLuint gl_vertex_buffers[8];
-    GLuint gl_uniform_camera_pos;
 
     GLuint gl_fb;
     GLuint gl_fb_tex;

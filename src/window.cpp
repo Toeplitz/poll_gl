@@ -240,16 +240,16 @@ bool Window::keyboard_callback_pressed(SDL_Keysym *keysym, Camera &camera)
       return false;
       break;
     case SDLK_w:
-      camera.addMove(FORWARD);
+      camera.move_add(FORWARD);
       break;
     case SDLK_q:
-      camera.addMove(SIDESTEP_LEFT);
+      camera.move_add(SIDESTEP_LEFT);
       break;
     case SDLK_s:
-      camera.addMove(BACKWARD);
+      camera.move_add(BACKWARD);
       break;
     case SDLK_e:
-      camera.addMove(SIDESTEP_RIGHT);
+      camera.move_add(SIDESTEP_RIGHT);
       break;
     case SDLK_m:
       mouse_cursor_toggle();
@@ -277,16 +277,16 @@ void Window::keyboard_callback_released(SDL_Keysym *keysym, Camera &camera)
 
   switch (keysym->sym) {
     case SDLK_w:
-      camera.deleteMove(FORWARD);
+      camera.move_delete(FORWARD);
       break;
     case SDLK_q:
-      camera.deleteMove(SIDESTEP_LEFT);
+      camera.move_delete(SIDESTEP_LEFT);
       break;
     case SDLK_s:
-      camera.deleteMove(BACKWARD);
+      camera.move_delete(BACKWARD);
       break;
     case SDLK_e:
-      camera.deleteMove(SIDESTEP_RIGHT);
+      camera.move_delete(SIDESTEP_RIGHT);
       break;
     default:
       break;
@@ -299,7 +299,7 @@ void Window::mouse_button_down(SDL_MouseButtonEvent *ev, Camera &camera)
 {
   if (ev->button != 3 || !mouse_view_toggle)
     return;
-  camera.addMove(FORWARD);
+  camera.move_add(FORWARD);
 }
 
 
@@ -307,7 +307,7 @@ void Window::mouse_button_up(SDL_MouseButtonEvent *ev, Camera &camera)
 {
   if (ev->button != 3 || !mouse_view_toggle)
     return;
-  camera.deleteMove(FORWARD);
+  camera.move_delete(FORWARD);
 }
 
 
@@ -334,7 +334,7 @@ void Window::mouse_motion(SDL_MouseMotionEvent *ev, Camera &camera)
   if (!last_y)
     last_y = ev->y;
 
-  camera.mouseViewUpdate(ev->x, ev->y, width, height);
+  camera.mouse_update(ev->x, ev->y, width, height);
   SDL_WarpMouseInWindow(window, width / 2, height / 2);
 
   last_x = ev->x;

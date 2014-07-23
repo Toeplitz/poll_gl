@@ -39,7 +39,6 @@ layout(std140) uniform Node_State {
   int state_standard;
 };
 
-uniform vec3 camera_position_world;
 
 out vec2 st;
 out vec3 view_dir_tan;
