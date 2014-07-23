@@ -5,33 +5,25 @@
 #include <SDL2/SDL_video.h>             // for SDL_GLContext, SDL_Window
 #include <string>                       // for string
 #include <functional>
-#include "camera.h"
 #include "glcontext.h"
 
 
 using namespace std::placeholders;
 
-
 class Window {
   private:
-    bool           mouse_view_toggle;
     bool           polygon_view_toggle;
     SDL_Window    *window;
     SDL_Joystick  *gamepad;
     SDL_GLContext  gl_sdl_context;
     GLcontext      glcontext;
 
-
     void check_error();
     void joystick_axis_motion(SDL_JoyAxisEvent *ev);
     void joystick_button_pressed(SDL_JoyButtonEvent *ev);
     void joystick_button_released(SDL_JoyButtonEvent *ev);
-    bool keyboard_callback_pressed(SDL_Keysym *keysym, Camera &camera);
-    void keyboard_callback_released(SDL_Keysym *keysym, Camera &camera);
-    void mouse_button_down(SDL_MouseButtonEvent *ev, Camera &camera);
-    void mouse_button_up(SDL_MouseButtonEvent *ev, Camera &camera);
-    void mouse_cursor_toggle();
-    void mouse_motion(SDL_MouseMotionEvent *ev, Camera &camera);
+    bool keyboard_callback_pressed(SDL_Keysym *keysym);
+    void keyboard_callback_released(SDL_Keysym *keysy);
 
     std::function <void (SDL_JoyAxisEvent *)> custom_joystick_axis_motion_callback;
     std::function <void (SDL_JoyButtonEvent *)> custom_joystick_pressed_callback;
@@ -39,6 +31,8 @@ class Window {
 
     std::function <void (SDL_Keysym *)> custom_keyboard_pressed_callback;
     std::function <void (SDL_Keysym *)> custom_keyboard_released_callback;
+
+    std::function <void (SDL_Event *)> custom_event_callback;
   public:
     int  width;
     int  height;
@@ -49,7 +43,9 @@ class Window {
     bool  init(const std::string &title);
     float joystick_angle_get(float x, float y, float *radius);
     void  debug_toggle();
-    bool  poll_events(Camera &camera);
+    bool  poll_events();
+    void  mouse_cursor_center();
+    void  mouse_cursor_toggle();
     void  swap_interval_set(const int n);
     void  swap();
     void  term();
@@ -63,10 +59,12 @@ class Window {
         custom_joystick_axis_motion_callback = callback;
       }
 
+
       void joystick_pressed_callback_set(const std::function<void (SDL_JoyButtonEvent *)> callback)
       {
         custom_joystick_pressed_callback = callback;
       }
+
 
       void joystick_released_callback_set(const std::function<void (SDL_JoyButtonEvent *)> callback)
       {
@@ -80,14 +78,22 @@ class Window {
         custom_keyboard_pressed_callback = std::bind(method, client, _1);
       }
 
+
       void keyboard_pressed_callback_set(const std::function<void (SDL_Keysym *)> callback)
       {
         custom_keyboard_pressed_callback = callback;
       }
 
+
       void keyboard_released_callback_set(const std::function<void (SDL_Keysym *)> callback)
       {
         custom_keyboard_released_callback = callback;
+      }
+
+
+      void event_callback_set(const std::function<void (SDL_Event *)> callback)
+      {
+        custom_event_callback = callback;
       }
 };
 

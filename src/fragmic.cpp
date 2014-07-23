@@ -10,7 +10,6 @@
 
 
 Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
-  camera(width, height), 
   physics(),
   glshader(), 
   glshader_deferred_first(), 
@@ -25,6 +24,11 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   if (!glcontext.init(window.width, window.height)) {
     exit(-1);
   }
+
+  Node *cam_node = scene.node_create("Camera");
+  cam_node->camera_create(scene.assets_get());
+  cam_node->camera_get()->transform_perspective_create(window.width, window.height);
+  scene.node_camera_set(cam_node);
 
   glshader.load("shaders/main.v", "shaders/main.f");
   glcontext.uniform_buffers_create(glshader);
@@ -90,7 +94,7 @@ void Fragmic::run()
     double dt = delta_time_get();
     //   profile_fps(dt);
 
-    if (!window.poll_events(camera)) {
+    if (!window.poll_events()) {
       std::cout << "Fragmic exiting..." << std::endl;
       return;
     }
@@ -121,7 +125,8 @@ void Fragmic::run()
     }
 
     /* Update camera */
-    camera.update(dt);
+    Camera &camera = *scene.camera_get();
+    camera.update();
     glcontext.uniform_buffers_update_camera(camera);
 
     /* Draw scene */
@@ -146,11 +151,6 @@ void Fragmic::term()
 }
 
 
-Camera &Fragmic::camera_get() 
-{
-  return camera;
-}
-
 Physics &Fragmic::physics_get() 
 {
   return physics;
@@ -174,7 +174,7 @@ Window &Fragmic::window_get()
 
 
 // Return delta time in seconds.
-const double Fragmic::delta_time_get()
+double Fragmic::delta_time_get()
 {
   static unsigned long long time_last = std::chrono::system_clock::now().time_since_epoch() /  std::chrono::microseconds(1);
   unsigned long long time_cur = std::chrono::system_clock::now().time_since_epoch() /  std::chrono::microseconds(1);

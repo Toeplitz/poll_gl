@@ -12,9 +12,6 @@ Scene::Scene():
   root(std::string("Fragmic")) 
 {
 
-  Node *cam_node = node_create("Camera");
-  cam_node->camera_create(assets);
-  node_camera_set(cam_node);
 }
 
 
@@ -74,7 +71,7 @@ void Scene::animation_list_update_transforms(Node &node, const double dt)
 }
 
 
-Camera_Proto *Scene::camera_get() 
+Camera *Scene::camera_get() 
 {
   if (!node_cur_camera) {
     std::cout << "Error: no active camera node defined." << std::endl;

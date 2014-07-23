@@ -12,7 +12,6 @@
 
 class Fragmic {
   private:
-    Camera camera;
     Physics physics;
     GLshader glshader;
     GLshader glshader_deferred_first;
@@ -21,7 +20,7 @@ class Fragmic {
     Scene scene;
     Window window;
 
-    const double delta_time_get();
+    double       delta_time_get();
     void         draw_g_buffer();
     void         draw_standard_post_proc(double dt);
     void         profile_fps(const double dt);
@@ -32,7 +31,6 @@ class Fragmic {
 
     void     run();
     void     term();
-    Camera  &camera_get();
     Physics &physics_get();
     Scene   &scene_get();
     Window  &window_get();

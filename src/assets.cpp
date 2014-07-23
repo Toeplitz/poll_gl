@@ -48,7 +48,7 @@ void Assets::armature_print_all() const
 }
 
 
-void Assets::camera_add(std::unique_ptr<Camera_Proto> &&camera)
+void Assets::camera_add(std::unique_ptr<Camera> &&camera)
 {
   cameras.push_back(std::move(camera));
 }

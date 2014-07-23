@@ -30,7 +30,7 @@ class Scene {
 
     void                        animation_list_add(Node &node);
     void                        animation_list_update_transforms(Node &node, const double dt);
-    Camera_Proto               *camera_get();
+    Camera                     *camera_get();
     Node                       &model_load(const std::string &prefix, const std::string &filename, 
                                            const unsigned int options = MODEL_IMPORT_DEFAULT);
     Node                       *node_find(Node *root_ptr, const std::string &name);

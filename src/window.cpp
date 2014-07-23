@@ -6,7 +6,6 @@
 #include <exception>                    // for exception
 #include <iostream>                     // for operator<<, basic_ostream, etc
 #include <stdexcept>                    // for runtime_error
-#include "camera.h"                     
 #include "glcontext.h"                  
 
 
@@ -16,7 +15,6 @@
 
 
 Window::Window(const int &width, const int &height): 
-  mouse_view_toggle(false),
   polygon_view_toggle(false),
   glcontext()
 {
@@ -126,10 +124,7 @@ void Window::swap()
 
 void Window::term()
 {
-
-  std::cout << "Deleting GL context" << std::endl;
   SDL_GL_DeleteContext(gl_sdl_context);
-  std::cout << "Deleting uiwindow (SDL)" << std::endl;
   if (gamepad) {
     SDL_JoystickClose(gamepad);
   }
@@ -138,30 +133,25 @@ void Window::term()
 }
 
 
-bool Window::poll_events(Camera &camera)
+bool Window::poll_events()
 {
   SDL_Event event;
 
   check_error();
+
   while (SDL_PollEvent(&event)) {
+    if (custom_event_callback)
+      custom_event_callback(&event);
+
     switch (event.type) {
       case SDL_QUIT:
         return false;
         break;
       case SDL_KEYUP:
-        keyboard_callback_released(&event.key.keysym, camera);
+        keyboard_callback_released(&event.key.keysym);
         break;
       case SDL_KEYDOWN:
-        return keyboard_callback_pressed(&event.key.keysym, camera);
-      case SDL_MOUSEBUTTONDOWN:
-        mouse_button_down(&event.button, camera);
-        break;
-      case SDL_MOUSEBUTTONUP:
-        mouse_button_up(&event.button, camera);
-        break;
-      case SDL_MOUSEMOTION:
-        mouse_motion(&event.motion, camera);
-        break;
+        return keyboard_callback_pressed(&event.key.keysym);
       case SDL_JOYAXISMOTION:
         joystick_axis_motion(&event.jaxis);
         break;
@@ -210,8 +200,6 @@ void Window::joystick_axis_motion(SDL_JoyAxisEvent *ev)
 {
   if (custom_joystick_axis_motion_callback)
     custom_joystick_axis_motion_callback(ev);
-
-
 }
 
 
@@ -219,7 +207,6 @@ void Window::joystick_button_pressed(SDL_JoyButtonEvent *ev)
 {
   if (custom_joystick_pressed_callback)
     custom_joystick_pressed_callback(ev);
-
 }
 
 
@@ -230,7 +217,7 @@ void Window::joystick_button_released(SDL_JoyButtonEvent *ev)
 }
 
 
-bool Window::keyboard_callback_pressed(SDL_Keysym *keysym, Camera &camera)
+bool Window::keyboard_callback_pressed(SDL_Keysym *keysym)
 {
   if (custom_keyboard_pressed_callback)
     custom_keyboard_pressed_callback(keysym);
@@ -238,22 +225,6 @@ bool Window::keyboard_callback_pressed(SDL_Keysym *keysym, Camera &camera)
   switch (keysym->sym) {
     case SDLK_ESCAPE:
       return false;
-      break;
-    case SDLK_w:
-      camera.move_add(FORWARD);
-      break;
-    case SDLK_q:
-      camera.move_add(SIDESTEP_LEFT);
-      break;
-    case SDLK_s:
-      camera.move_add(BACKWARD);
-      break;
-    case SDLK_e:
-      camera.move_add(SIDESTEP_RIGHT);
-      break;
-    case SDLK_m:
-      mouse_cursor_toggle();
-      mouse_view_toggle = !mouse_view_toggle;
       break;
     case SDLK_p:
       glcontext.polygon_mesh_toggle(polygon_view_toggle);
@@ -270,24 +241,12 @@ bool Window::keyboard_callback_pressed(SDL_Keysym *keysym, Camera &camera)
 }
 
 
-void Window::keyboard_callback_released(SDL_Keysym *keysym, Camera &camera)
+void Window::keyboard_callback_released(SDL_Keysym *keysym)
 {
   if (custom_keyboard_released_callback)
     custom_keyboard_released_callback(keysym);
 
   switch (keysym->sym) {
-    case SDLK_w:
-      camera.move_delete(FORWARD);
-      break;
-    case SDLK_q:
-      camera.move_delete(SIDESTEP_LEFT);
-      break;
-    case SDLK_s:
-      camera.move_delete(BACKWARD);
-      break;
-    case SDLK_e:
-      camera.move_delete(SIDESTEP_RIGHT);
-      break;
     default:
       break;
   }
@@ -295,19 +254,9 @@ void Window::keyboard_callback_released(SDL_Keysym *keysym, Camera &camera)
 }
 
 
-void Window::mouse_button_down(SDL_MouseButtonEvent *ev, Camera &camera)
+void Window::mouse_cursor_center()
 {
-  if (ev->button != 3 || !mouse_view_toggle)
-    return;
-  camera.move_add(FORWARD);
-}
-
-
-void Window::mouse_button_up(SDL_MouseButtonEvent *ev, Camera &camera)
-{
-  if (ev->button != 3 || !mouse_view_toggle)
-    return;
-  camera.move_delete(FORWARD);
+  SDL_WarpMouseInWindow(window, width / 2, height / 2);
 }
 
 
@@ -320,25 +269,4 @@ void Window::mouse_cursor_toggle()
     SDL_ShowCursor(0);
   flagMouseCursor = !flagMouseCursor;
 }
-
-
-void Window::mouse_motion(SDL_MouseMotionEvent *ev, Camera &camera)
-{
-  static int last_x, last_y;
-
-  if (!mouse_view_toggle)
-    return;
-
-  if (!last_x)
-    last_x = ev->x;
-  if (!last_y)
-    last_y = ev->y;
-
-  camera.mouse_update(ev->x, ev->y, width, height);
-  SDL_WarpMouseInWindow(window, width / 2, height / 2);
-
-  last_x = ev->x;
-  last_y = ev->y;
-}
-
 

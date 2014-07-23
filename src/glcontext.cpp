@@ -463,8 +463,8 @@ void GLcontext::uniform_buffers_update_camera(Camera &camera)
   GLenum target = GL_UNIFORM_BUFFER;
   GLintptr offset = 0;
   glm::mat4 data[2];
-  data[0] = camera.perspective;
-  data[1] = camera.view;
+  data[0] = camera.transform_perspective_get();
+  data[1] = camera.transform_view_get();
   glBindBuffer(target, gl_buffer_globalmatrices);
   glBufferSubData(target, offset, sizeof(data), &data);
   glBindBuffer(target, 0);

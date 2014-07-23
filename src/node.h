@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "animated.h"
-#include "camera_proto.h"
+#include "camera.h"
 #include "light.h"
 #include "physics_rigidbody.h"
 #include "material.h"
@@ -39,8 +39,9 @@ typedef std::vector<std::unique_ptr<Node>> Node_List;
 
 
 class Node: public Animated {
+
   private:
-    Camera_Proto       *camera;
+    Camera             *camera;
     Light              *light;
     Physics_Rigidbody  *rigidbody;
 
@@ -65,9 +66,9 @@ class Node: public Animated {
     ~Node();
 
     void                armature_set(Armature *armature);
-    Camera_Proto       *camera_create(Assets &assets);
-    Camera_Proto       *camera_get();
-    void                camera_set(Camera_Proto *camera);
+    Camera             *camera_create(Assets &assets);
+    Camera             *camera_get();
+    void                camera_set(Camera *camera);
     void                copy_transform_data(Node &node);
     void                child_add(std::unique_ptr<Node> &&node, int level);
     Light              *light_create(Assets &assets);

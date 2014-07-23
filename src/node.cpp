@@ -50,23 +50,23 @@ void Node::armature_set(Armature *armature)
 }
 
 
-Camera_Proto *Node::camera_create(Assets &assets)
+Camera *Node::camera_create(Assets &assets)
 {
-  std::unique_ptr<Camera_Proto> camera(new Camera_Proto());
-  Camera_Proto *camera_ptr = camera.get();
+  std::unique_ptr<Camera> camera(new Camera());
+  Camera *camera_ptr = camera.get();
   camera_set(camera_ptr);
   assets.camera_add(std::move(camera));
   return camera_ptr;
 }
 
 
-Camera_Proto *Node::camera_get()
+Camera *Node::camera_get()
 {
   return camera;
 }
 
 
-void Node::camera_set(Camera_Proto *camera)
+void Node::camera_set(Camera *camera)
 {
   this->camera = camera;
 }
