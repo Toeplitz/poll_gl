@@ -44,7 +44,7 @@ static void fpcamera_defaults_set()
   target = glm::vec3(0, 0, 0);
   up = glm::vec3(0, 1, 0);
   fpcamera_directions_calc();
-  camera->transform_view_update(position, direction);
+  camera->transform_view_create(position, direction);
 }
 
 
@@ -155,7 +155,7 @@ static void fpcamera_mouse_update(int x, int y, int width, int height)
   vertical_angle += mouse_speed * float(height / 2 - y);
 
   fpcamera_directions_calc();
-  camera->transform_view_update(position, direction);
+  camera->transform_view_create(position, direction);
 }
 
 
@@ -186,7 +186,7 @@ static void fpcamera_moves_process()
     }
   }
 
-  camera->transform_view_update(position, direction);
+  camera->transform_view_create(position, direction);
 }
 
 

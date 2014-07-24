@@ -30,6 +30,6 @@ class Camera
     void        transform_perspective_create(const int width, const int height);
     glm::mat4  &transform_perspective_get();
     glm::mat4  &transform_view_get();
-    void        transform_view_update(const glm::vec3 position, const glm::vec3 direction);
+    void        transform_view_create(const glm::vec3 position, const glm::vec3 direction);
     void        update();
 };

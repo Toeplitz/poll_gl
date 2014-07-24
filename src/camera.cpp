@@ -22,9 +22,10 @@ Camera::~Camera()
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
 
+
 void Camera::transform_perspective_create(const int width, const int height)
 {
-  perspective = glm::perspective(fov, (float) width / height, 1.0f, 500.0f);
+  perspective = glm::perspective(fov, (float) width / (float) height, 1.0f, 500.0f);
 }
 
 
@@ -34,7 +35,7 @@ glm::mat4 &Camera::transform_perspective_get()
 }
 
 
-void Camera::transform_view_update(const glm::vec3 position, const glm::vec3 direction) 
+void Camera::transform_view_create(const glm::vec3 position, const glm::vec3 direction) 
 {
   view = glm::lookAt(position, position + direction, up);
 }
