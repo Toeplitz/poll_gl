@@ -209,21 +209,6 @@ Node *Scene::node_create(const std::string &name)
 }
 
 
-Node *Scene::node_create_mesh_only(const std::string &name)
-{
-  std::unique_ptr<Node> node(new Node(name));
-  std::unique_ptr<Mesh> mesh(new Mesh());
-
-  Node *node_ptr  = node.get();
-  node->mesh = mesh.get();
-
-  root.child_add(std::move(node), root.tree_level + 1);
-  assets.mesh_add(std::move(mesh));
-
-  return node_ptr;
-}
-
-
 Node &Scene::node_root_get() 
 {
   return root;

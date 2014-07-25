@@ -38,7 +38,6 @@ class Scene {
     void                        scene_graph_print(const bool compact = false);
     void                        scene_graph_print_by_node(Node &node, const bool compact = false);
     Node                       *node_create(const std::string &name);
-    Node                       *node_create_mesh_only(const std::string &name);
     Node                       &node_root_get();
     Node                       *node_camera_get();
     void                        node_camera_set(Node *camera_node);

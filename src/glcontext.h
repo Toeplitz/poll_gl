@@ -27,14 +27,17 @@ class GLcontext {
 
     GLuint gl_fb;
     GLuint gl_fb_tex;
+    GLuint gl_fb_p;
     GLuint gl_fb_vertex_buffers[1];
 
     GLuint gl_g_fb;
     GLuint gl_g_rb_depth;
     GLuint gl_g_fb_tex_position;
     GLuint gl_g_fb_tex_normal;
+    GLuint gl_g_fb_vertex_buffers[1];
 
     Node *fb_node;
+    Node *fb_g_node;
 
     bool check_version(const int &major);
     void texture_cubemap_create(Cubemap_Item &item);
@@ -57,6 +60,7 @@ class GLcontext {
     void framebuffer_g_create(GLshader &glshader_deferred_second, const int width, const int height);
     void framebuffer_g_draw_first_pass(Scene &scene, GLshader &shader);
     void framebuffer_g_draw_second_pass(GLshader &shader);
+    void framebuffer_g_node_create(GLshader &shader, Node &node);
     void framebuffer_node_create(GLshader &shader, Node &node);
     bool init(const int width, const int height);
     void polygon_mesh_toggle(bool tog);
