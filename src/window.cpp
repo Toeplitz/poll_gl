@@ -219,8 +219,9 @@ void Window::joystick_button_released(SDL_JoyButtonEvent *ev)
 
 bool Window::keyboard_callback_pressed(SDL_Keysym *keysym)
 {
-  if (custom_keyboard_pressed_callback)
-    custom_keyboard_pressed_callback(keysym);
+  for (auto &func: custom_keyboard_pressed_callback_list) {
+    func(keysym);
+  }
 
   switch (keysym->sym) {
     case SDLK_ESCAPE:
@@ -243,12 +244,8 @@ bool Window::keyboard_callback_pressed(SDL_Keysym *keysym)
 
 void Window::keyboard_callback_released(SDL_Keysym *keysym)
 {
-  if (custom_keyboard_released_callback)
-    custom_keyboard_released_callback(keysym);
-
-  switch (keysym->sym) {
-    default:
-      break;
+  for (auto &func: custom_keyboard_released_callback_list) {
+    func(keysym);
   }
 
 }

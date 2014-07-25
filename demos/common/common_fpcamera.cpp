@@ -1,37 +1,36 @@
-#include "common_fpcamera.h"
+#include "common.h"
 #include "fragmic.h"
 
 enum Camera_Move { FORWARD, BACKWARD, SIDESTEP_RIGHT, SIDESTEP_LEFT};
 
-
-Fragmic *f;
-Node *n;
-Camera *camera;
-
-float horizontal_angle;
-float vertical_angle;
-float speed;
-float mouse_speed;
-
+static Node *n;
+static Camera *camera;
+static float horizontal_angle;
+static float vertical_angle;
+static float speed;
+static float mouse_speed;
 static std::vector<Camera_Move> move_queue;
-
-glm::vec3 up;
-glm::vec3 direction;
-glm::vec3 right;
-glm::vec3 position;
-glm::vec3 target;
-bool mouse_view_toggle;
+static glm::vec3 up;
+static glm::vec3 direction;
+static glm::vec3 right;
+static glm::vec3 position;
+static glm::vec3 target;
+static bool mouse_view_toggle;
 
 
 static void common_fpcamera_defaults_set();
+static void common_fpcamera_directions_calc();
+static void common_fpcamera_event_cb(SDL_Event *event);
+static void common_fpcamera_keyboard_pressed_cb(SDL_Keysym *keysym);
+static void common_fpcamera_keyboard_released_cb(SDL_Keysym *keysym);
 static void common_fpcamera_move_add(Camera_Move move);
 static void common_fpcamera_move_delete(Camera_Move move);
 static void common_fpcamera_mouse_update(int x, int y, int width, int height);
 static void common_fpcamera_moves_process();
-static void common_fpcamera_directions_calc();
 static void common_fpcamera_mouse_button_down(SDL_MouseButtonEvent *ev);
 static void common_fpcamera_mouse_button_up(SDL_MouseButtonEvent *ev);
 static void common_fpcamera_mouse_motion(SDL_MouseMotionEvent *ev);
+static void common_fpcamera_update_cb();
 
 
 static void common_fpcamera_defaults_set()
@@ -48,18 +47,38 @@ static void common_fpcamera_defaults_set()
 }
 
 
+static void common_fpcamera_directions_calc() 
+{
+  direction = glm::vec3(cosf(vertical_angle) * sinf(horizontal_angle), 
+      sinf(vertical_angle),
+      cosf(vertical_angle) * cosf(horizontal_angle));
+  right = glm::vec3(sinf(horizontal_angle - 3.14f / 2.0f),
+      0, cosf(horizontal_angle - 3.14f / 2.0f) );
+  up = glm::cross(right, direction);
+}  
+
+
+static void common_fpcamera_event_cb(SDL_Event *event)
+{
+  switch (event->type) {
+    case SDL_MOUSEBUTTONDOWN:
+      common_fpcamera_mouse_button_down(&event->button);
+      break;
+    case SDL_MOUSEBUTTONUP:
+      common_fpcamera_mouse_button_up(&event->button);
+      break;
+    case SDL_MOUSEMOTION:
+      common_fpcamera_mouse_motion(&event->motion);
+      break;
+  }
+}
+
+
 static void common_fpcamera_keyboard_pressed_cb(SDL_Keysym *keysym)
 {
-  Physics &physics = f->physics_get();
   Window &window = f->window_get();
 
   switch (keysym->sym) {
-    case SDLK_SPACE:
-      physics.pause();
-      break;
-    case SDLK_o:
-      physics.debug();
-      break;
     case SDLK_w:
       common_fpcamera_move_add(FORWARD);
       break;
@@ -100,23 +119,6 @@ static void common_fpcamera_keyboard_released_cb(SDL_Keysym *keysym)
     default:
       break;
   }
-}
-
-
-static void common_fpcamera_event_cb(SDL_Event *event)
-{
-  switch (event->type) {
-    case SDL_MOUSEBUTTONDOWN:
-      common_fpcamera_mouse_button_down(&event->button);
-      break;
-    case SDL_MOUSEBUTTONUP:
-      common_fpcamera_mouse_button_up(&event->button);
-      break;
-    case SDL_MOUSEMOTION:
-      common_fpcamera_mouse_motion(&event->motion);
-      break;
-  }
-
 }
 
 
@@ -206,17 +208,6 @@ static void common_fpcamera_mouse_button_up(SDL_MouseButtonEvent *ev)
 }
 
 
-static void common_fpcamera_directions_calc() 
-{
-  direction = glm::vec3(cosf(vertical_angle) * sinf(horizontal_angle), 
-      sinf(vertical_angle),
-      cosf(vertical_angle) * cosf(horizontal_angle));
-  right = glm::vec3(sinf(horizontal_angle - 3.14f / 2.0f),
-      0, cosf(horizontal_angle - 3.14f / 2.0f) );
-  up = glm::cross(right, direction);
-}  
-
-
 static void common_fpcamera_mouse_motion(SDL_MouseMotionEvent *ev)
 {
   static int last_x, last_y;
@@ -238,16 +229,15 @@ static void common_fpcamera_mouse_motion(SDL_MouseMotionEvent *ev)
 }
 
 
-void common_fpcamera_update_cb()
+static void common_fpcamera_update_cb()
 {
   common_fpcamera_moves_process();
 }
 
 
-void common_fpcamera_use(Fragmic &fragmic, Node *node)
+void common_fpcamera_use(Node *node)
 {
-  Window &window = fragmic.window_get();
-  f = &fragmic;
+  Window &window = f->window_get();
   n = node;
   camera = n->camera_get();
 
@@ -260,5 +250,4 @@ void common_fpcamera_use(Fragmic &fragmic, Node *node)
   window.keyboard_pressed_callback_set(common_fpcamera_keyboard_pressed_cb);
   window.keyboard_released_callback_set(common_fpcamera_keyboard_released_cb);
   window.event_callback_set(common_fpcamera_event_cb);
-
 }

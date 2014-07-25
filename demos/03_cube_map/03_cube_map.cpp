@@ -1,24 +1,8 @@
 #include "fragmic.h"
+#include "common.h"
 #include <iostream>
 
 Fragmic fragmic("Demo 2", 1280, 720);
-
-
-void keyboard_pressed_cb(SDL_Keysym *keysym)
-{
-  Physics &physics = fragmic.physics_get();
-
-  switch (keysym->sym) {
-    case SDLK_SPACE:
-      physics.pause();
-      break;
-    case SDLK_o:
-      physics.debug();
-      break;
-    default:
-      break;
-  }
-}
 
 
 int main() 
@@ -26,8 +10,13 @@ int main()
   Scene &scene = fragmic.scene_get();
   Assets &assets = scene.assets_get();
   Physics &physics = fragmic.physics_get();
-  Window &window = fragmic.window_get();
-  window.keyboard_pressed_callback_set(keyboard_pressed_cb);
+
+  {
+    Node *camera_node = scene.node_camera_get();
+    common_init(fragmic);
+    common_fpcamera_use(camera_node);
+    common_debug_use();
+  }
 
   /*
   {

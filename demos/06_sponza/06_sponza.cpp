@@ -1,25 +1,21 @@
 #include "fragmic.h"
+#include "common.h"
 #include <iostream>
 
 Fragmic fragmic("Demo 2", 1280, 720);
 
 
-void keyboard_pressed_cb(SDL_Keysym *keysym)
-{
-
-  switch (keysym->sym) {
-    default:
-      break;
-  }
-
-}
-
 int main() 
 {
   Scene &scene = fragmic.scene_get();
   Assets &assets = scene.assets_get();
-  Window &window = fragmic.window_get();
-  window.keyboard_pressed_callback_set(keyboard_pressed_cb);
+
+  {
+    Node *camera_node = scene.node_camera_get();
+    common_init(fragmic);
+    common_fpcamera_use(camera_node);
+    common_debug_use();
+  }
 
   {
     Node *light_node = scene.node_create("Light");
@@ -37,8 +33,8 @@ int main()
   }
 
   Node &root = scene.node_root_get();
-  Node &sponza = scene.model_load("data/crytek-sponza/", "sponza_with_spec.obj");
-  root.scale(glm::vec3(0.1, 0.1, 0.1));
+  Node &sponza = scene.model_load("data/crytek-sponza/", "sponza_with_spec.obj", MODEL_IMPORT_OPTIMIZED);
+  root.scale(glm::vec3(0.01, 0.01, 0.01));
   // scene.model_load("data/crytek-sponza/", "banner.obj", MODEL_IMPORT_OPTIMIZED);
 
   scene.scene_graph_print(false);

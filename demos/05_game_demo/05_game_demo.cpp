@@ -1,4 +1,5 @@
 #include "fragmic.h"
+#include "common.h"
 #include "physics.h"
 #include <iostream>
 
@@ -17,7 +18,7 @@ Light *light_point;
 Light *light_spot;
 
 
-void light_toggle(Light *light)
+static void light_toggle(Light *light)
 {
   Scene &scene = fragmic.scene_get();
   Assets &assets = scene.assets_get();
@@ -30,7 +31,9 @@ void light_toggle(Light *light)
   }
 }
 
-void joystick_axis_motion_cb(SDL_JoyAxisEvent *ev)
+
+
+static void joystick_axis_motion_cb(SDL_JoyAxisEvent *ev)
 {
   static int joystick_x = 0;
   static int joystick_y = 0;
@@ -69,7 +72,7 @@ void joystick_axis_motion_cb(SDL_JoyAxisEvent *ev)
 }
 
 
-void joystick_button_pressed_cb(SDL_JoyButtonEvent *ev)
+static void joystick_button_pressed_cb(SDL_JoyButtonEvent *ev)
 {
   std::cout << "Button: " << ev->button << std::endl;
 
@@ -84,30 +87,16 @@ void joystick_button_pressed_cb(SDL_JoyButtonEvent *ev)
 }
 
 
-void joystick_button_released_cb(SDL_JoyButtonEvent *ev)
+static void joystick_button_released_cb(SDL_JoyButtonEvent *ev)
 {
 }
 
 
-void keyboard_pressed_cb(SDL_Keysym *keysym)
+static void keyboard_pressed_cb(SDL_Keysym *keysym)
 {
-  Physics &physics = fragmic.physics_get();
-  Scene &scene = fragmic.scene_get();
-  Assets &assets = scene.assets_get();
-
   switch (keysym->sym) {
     case SDLK_SPACE:
       character->jump();
-      break;
-    case SDLK_o:
-      physics.debug();
-      break;
-    case SDLK_f:
-      physics.pause();
-      break;
-    case SDLK_l:
-      {
-      }
       break;
     case SDLK_UP:
       direction |= PHYSICS_DIRECTION_FORWARD;
@@ -143,9 +132,9 @@ void keyboard_pressed_cb(SDL_Keysym *keysym)
   character->move(static_cast<Physics_Direction>(direction));
 }
 
-void keyboard_released_cb(SDL_Keysym *keysym)
-{
 
+static void keyboard_released_cb(SDL_Keysym *keysym)
+{
   switch (keysym->sym) {
     case SDLK_UP:
       direction &= ~PHYSICS_DIRECTION_FORWARD;
@@ -173,7 +162,7 @@ void keyboard_released_cb(SDL_Keysym *keysym)
 }
 
 
-void physics_update()
+static void physics_update()
 {
   static Physics_Character_State last_state;
   Physics_Character_State cur_state = character->state_get();
@@ -211,6 +200,13 @@ int main()
   window.keyboard_pressed_callback_set(keyboard_pressed_cb);
   window.keyboard_released_callback_set(keyboard_released_cb);
   physics.custom_step_callback_set(physics_update);
+
+  {
+    Node *camera_node = scene.node_camera_get();
+    common_init(fragmic);
+    common_fpcamera_use(camera_node);
+    common_debug_use();
+  }
 
   /* Setup room */
   room = &scene.model_load("data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_LIGHTS);
