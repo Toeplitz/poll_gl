@@ -1,5 +1,5 @@
 #include "fragmic.h"
-#include "fpcamera.h"
+#include "common_fpcamera.h"
 #include <iostream>
 
 Fragmic fragmic("Skeletal demo", 1280, 720);
@@ -13,7 +13,7 @@ int main()
 
   {
     Node *camera_node = scene.node_camera_get();
-    fpcamera_use(fragmic, camera_node);
+    common_fpcamera_use(fragmic, camera_node);
   }
 
 
@@ -55,7 +55,7 @@ int main()
   physics.collision_shape_add(plane, PHYSICS_COLLISION_CONVEX_HULL, true, 1.f);
   physics.pause();
 
-  Node &bob= scene.model_load("data/bob/", "Bob_with_lamp.dae", MODEL_IMPORT_OPTIMIZED);
+  Node &bob= scene.model_load("data/bob/", "Bob_with_lamp.fbx", MODEL_IMPORT_OPTIMIZED);
   bob.scale(glm::vec3(25, 25, 25));
   bob.translate(glm::vec3(0, -1.25, 0));
   scene.scene_graph_print(true);

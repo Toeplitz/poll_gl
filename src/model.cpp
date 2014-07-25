@@ -17,7 +17,6 @@ Model::Model(): armature_ptr(nullptr)
 
 Model::~Model()
 {
-  //std::cout << "Deleting model object" << std::endl;
 }
 
 

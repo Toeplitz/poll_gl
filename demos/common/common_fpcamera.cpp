@@ -1,4 +1,4 @@
-#include "fpcamera.h"
+#include "common_fpcamera.h"
 #include "fragmic.h"
 
 enum Camera_Move { FORWARD, BACKWARD, SIDESTEP_RIGHT, SIDESTEP_LEFT};
@@ -23,18 +23,18 @@ glm::vec3 target;
 bool mouse_view_toggle;
 
 
-static void fpcamera_defaults_set();
-static void fpcamera_move_add(Camera_Move move);
-static void fpcamera_move_delete(Camera_Move move);
-static void fpcamera_mouse_update(int x, int y, int width, int height);
-static void fpcamera_moves_process();
-static void fpcamera_directions_calc();
-static void fpcamera_mouse_button_down(SDL_MouseButtonEvent *ev);
-static void fpcamera_mouse_button_up(SDL_MouseButtonEvent *ev);
-static void fpcamera_mouse_motion(SDL_MouseMotionEvent *ev);
+static void common_fpcamera_defaults_set();
+static void common_fpcamera_move_add(Camera_Move move);
+static void common_fpcamera_move_delete(Camera_Move move);
+static void common_fpcamera_mouse_update(int x, int y, int width, int height);
+static void common_fpcamera_moves_process();
+static void common_fpcamera_directions_calc();
+static void common_fpcamera_mouse_button_down(SDL_MouseButtonEvent *ev);
+static void common_fpcamera_mouse_button_up(SDL_MouseButtonEvent *ev);
+static void common_fpcamera_mouse_motion(SDL_MouseMotionEvent *ev);
 
 
-static void fpcamera_defaults_set()
+static void common_fpcamera_defaults_set()
 {
   horizontal_angle = 3.14;
   vertical_angle = 0; 
@@ -43,12 +43,12 @@ static void fpcamera_defaults_set()
   position = glm::vec3(0, 5, 16);
   target = glm::vec3(0, 0, 0);
   up = glm::vec3(0, 1, 0);
-  fpcamera_directions_calc();
+  common_fpcamera_directions_calc();
   camera->transform_view_create(position, direction);
 }
 
 
-static void fpcamera_keyboard_pressed_cb(SDL_Keysym *keysym)
+static void common_fpcamera_keyboard_pressed_cb(SDL_Keysym *keysym)
 {
   Physics &physics = f->physics_get();
   Window &window = f->window_get();
@@ -61,16 +61,16 @@ static void fpcamera_keyboard_pressed_cb(SDL_Keysym *keysym)
       physics.debug();
       break;
     case SDLK_w:
-      fpcamera_move_add(FORWARD);
+      common_fpcamera_move_add(FORWARD);
       break;
     case SDLK_q:
-      fpcamera_move_add(SIDESTEP_LEFT);
+      common_fpcamera_move_add(SIDESTEP_LEFT);
       break;
     case SDLK_s:
-      fpcamera_move_add(BACKWARD);
+      common_fpcamera_move_add(BACKWARD);
       break;
     case SDLK_e:
-      fpcamera_move_add(SIDESTEP_RIGHT);
+      common_fpcamera_move_add(SIDESTEP_RIGHT);
       break;
     case SDLK_m:
       window.mouse_cursor_toggle();
@@ -82,20 +82,20 @@ static void fpcamera_keyboard_pressed_cb(SDL_Keysym *keysym)
 }
 
 
-static void fpcamera_keyboard_released_cb(SDL_Keysym *keysym)
+static void common_fpcamera_keyboard_released_cb(SDL_Keysym *keysym)
 {
   switch (keysym->sym) {
     case SDLK_w:
-      fpcamera_move_delete(FORWARD);
+      common_fpcamera_move_delete(FORWARD);
       break;
     case SDLK_q:
-      fpcamera_move_delete(SIDESTEP_LEFT);
+      common_fpcamera_move_delete(SIDESTEP_LEFT);
       break;
     case SDLK_s:
-      fpcamera_move_delete(BACKWARD);
+      common_fpcamera_move_delete(BACKWARD);
       break;
     case SDLK_e:
-      fpcamera_move_delete(SIDESTEP_RIGHT);
+      common_fpcamera_move_delete(SIDESTEP_RIGHT);
       break;
     default:
       break;
@@ -103,24 +103,24 @@ static void fpcamera_keyboard_released_cb(SDL_Keysym *keysym)
 }
 
 
-static void fpcamera_event_cb(SDL_Event *event)
+static void common_fpcamera_event_cb(SDL_Event *event)
 {
   switch (event->type) {
     case SDL_MOUSEBUTTONDOWN:
-      fpcamera_mouse_button_down(&event->button);
+      common_fpcamera_mouse_button_down(&event->button);
       break;
     case SDL_MOUSEBUTTONUP:
-      fpcamera_mouse_button_up(&event->button);
+      common_fpcamera_mouse_button_up(&event->button);
       break;
     case SDL_MOUSEMOTION:
-      fpcamera_mouse_motion(&event->motion);
+      common_fpcamera_mouse_motion(&event->motion);
       break;
   }
 
 }
 
 
-static void fpcamera_move_add(Camera_Move move) 
+static void common_fpcamera_move_add(Camera_Move move) 
 {
   int n = move_queue.size();
   for (int i = 0; i < n; i++) {
@@ -128,11 +128,11 @@ static void fpcamera_move_add(Camera_Move move)
       return;
   }
   move_queue.push_back(move);
-  fpcamera_moves_process();
+  common_fpcamera_moves_process();
 }
 
 
-static void fpcamera_move_delete(Camera_Move move) 
+static void common_fpcamera_move_delete(Camera_Move move) 
 {
   int unique_hit = -1;
   int n = move_queue.size();
@@ -145,26 +145,26 @@ static void fpcamera_move_delete(Camera_Move move)
   if (unique_hit >= 0)
    move_queue.erase(move_queue.begin() + unique_hit);
 
-  fpcamera_moves_process();
+  common_fpcamera_moves_process();
 }
 
 
-static void fpcamera_mouse_update(int x, int y, int width, int height) 
+static void common_fpcamera_mouse_update(int x, int y, int width, int height) 
 {
   horizontal_angle += mouse_speed * float(width / 2 - x);
   vertical_angle += mouse_speed * float(height / 2 - y);
 
-  fpcamera_directions_calc();
+  common_fpcamera_directions_calc();
   camera->transform_view_create(position, direction);
 }
 
 
-static void fpcamera_moves_process() 
+static void common_fpcamera_moves_process() 
 {
   int n = move_queue.size();
   if (n == 0) return;
 
-  fpcamera_directions_calc();
+  common_fpcamera_directions_calc();
 
   for (int i = 0; i < n; i++) {
     switch (move_queue[i]) {
@@ -190,23 +190,23 @@ static void fpcamera_moves_process()
 }
 
 
-static void fpcamera_mouse_button_down(SDL_MouseButtonEvent *ev)
+static void common_fpcamera_mouse_button_down(SDL_MouseButtonEvent *ev)
 {
   if (ev->button != 3 || !mouse_view_toggle)
     return;
-  fpcamera_move_add(FORWARD);
+  common_fpcamera_move_add(FORWARD);
 }
 
 
-static void fpcamera_mouse_button_up(SDL_MouseButtonEvent *ev)
+static void common_fpcamera_mouse_button_up(SDL_MouseButtonEvent *ev)
 {
   if (ev->button != 3 || !mouse_view_toggle)
     return;
-  fpcamera_move_delete(FORWARD);
+  common_fpcamera_move_delete(FORWARD);
 }
 
 
-static void fpcamera_directions_calc() 
+static void common_fpcamera_directions_calc() 
 {
   direction = glm::vec3(cosf(vertical_angle) * sinf(horizontal_angle), 
       sinf(vertical_angle),
@@ -217,7 +217,7 @@ static void fpcamera_directions_calc()
 }  
 
 
-static void fpcamera_mouse_motion(SDL_MouseMotionEvent *ev)
+static void common_fpcamera_mouse_motion(SDL_MouseMotionEvent *ev)
 {
   static int last_x, last_y;
   Window &window = f->window_get();
@@ -230,7 +230,7 @@ static void fpcamera_mouse_motion(SDL_MouseMotionEvent *ev)
   if (!last_y)
     last_y = ev->y;
 
-  fpcamera_mouse_update(ev->x, ev->y, window.width, window.height);
+  common_fpcamera_mouse_update(ev->x, ev->y, window.width, window.height);
   window.mouse_cursor_center();
 
   last_x = ev->x;
@@ -238,13 +238,13 @@ static void fpcamera_mouse_motion(SDL_MouseMotionEvent *ev)
 }
 
 
-void fpcamera_update_cb()
+void common_fpcamera_update_cb()
 {
-  fpcamera_moves_process();
+  common_fpcamera_moves_process();
 }
 
 
-void fpcamera_use(Fragmic &fragmic, Node *node)
+void common_fpcamera_use(Fragmic &fragmic, Node *node)
 {
   Window &window = fragmic.window_get();
   f = &fragmic;
@@ -255,10 +255,10 @@ void fpcamera_use(Fragmic &fragmic, Node *node)
     std::cout << "Error: no camera attached to this node" << std::endl;
   }
 
-  fpcamera_defaults_set();
-  camera->update_callback_set(fpcamera_update_cb);
-  window.keyboard_pressed_callback_set(fpcamera_keyboard_pressed_cb);
-  window.keyboard_released_callback_set(fpcamera_keyboard_released_cb);
-  window.event_callback_set(fpcamera_event_cb);
+  common_fpcamera_defaults_set();
+  camera->update_callback_set(common_fpcamera_update_cb);
+  window.keyboard_pressed_callback_set(common_fpcamera_keyboard_pressed_cb);
+  window.keyboard_released_callback_set(common_fpcamera_keyboard_released_cb);
+  window.event_callback_set(common_fpcamera_event_cb);
 
 }

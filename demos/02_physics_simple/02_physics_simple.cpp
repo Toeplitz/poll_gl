@@ -1,5 +1,5 @@
 #include "fragmic.h"
-#include "fpcamera.h"
+#include "common_fpcamera.h"
 #include <iostream>
 
 Fragmic fragmic("Demo 2", 1280, 720);
@@ -13,7 +13,7 @@ int main()
 
   {
     Node *camera_node = scene.node_camera_get();
-    fpcamera_use(fragmic, camera_node);
+    common_fpcamera_use(fragmic, camera_node);
   }
 
 
