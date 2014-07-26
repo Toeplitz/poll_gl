@@ -42,25 +42,72 @@ void GLcontext::clear()
 }
 
 
-void GLcontext::node_draw(Node &node)
+bool GLcontext::init(const int width, const int height)
+{
+  glewExperimental= GL_TRUE;
+  if (glewInit() != GLEW_OK) {
+    std::cout << "GLcontext ERROR: failed to initalize GLEW" << std::endl;
+    return false;
+  }
+  check_error();
+  check_version(3);
+
+  glEnable(GL_DEPTH_TEST); // enable depth-testing
+  glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
+  glEnable(GL_CULL_FACE); // cull face
+  glCullFace(GL_BACK); // cull back face
+  glFrontFace(GL_CCW); // set counter-clock-wise vertex order to mean the front
+  glViewport(0, 0, width, height);
+
+  return true;
+}
+
+
+void GLcontext::draw_node(Node &node)
 {
   Mesh *mesh = node.mesh;
 
-  uniform_buffers_update_node(node);
+  if (!mesh) {
+    std::cout << "No mesh attached to node: '" << node.name << std::endl;
+    return;
+  }
 
-  if (!mesh) return;
+  {
+    uniform_buffers_update_state(node);
+    uniform_buffers_update_mesh(*mesh);
+  }
+
+  { 
+    Material *material = node.material_get();
+    if (material) uniform_buffers_update_material(*material);
+  }
+
+  /* FIXME: hacky ... */
+  if (mesh) {
+    if (node.light_get()) {
+      // std::cout << "Light position: " << glm::to_string(glm::vec3(mesh->model * glm::vec4(node.original_position, 1.f))) << std::endl; 
+      node.light_get()->properties_position_set(glm::vec3(mesh->model * glm::vec4(node.original_position, 1.f)));
+    }
+  }
 
   if (node.state.cubemap_skybox) glDepthMask(GL_FALSE);
 
-  glBindVertexArray(mesh->gl_vao);
-  GLsizei count = (GLsizei) mesh->num_indices_get();
-  if (count <= 0) {
-    glDrawArrays(mesh->mode, 0, mesh->num_vertices_get());
-  } else {
-    glDrawElements(mesh->mode, count, GL_UNSIGNED_SHORT, 0);
-  }
+  draw_mesh(*mesh);
 
   if (node.state.cubemap_skybox) glDepthMask(GL_TRUE);
+}
+
+
+void GLcontext::draw_mesh(Mesh &mesh)
+{
+  glBindVertexArray(mesh.gl_vao);
+  GLsizei count = (GLsizei) mesh.num_indices_get();
+  if (count <= 0) {
+    glDrawArrays(mesh.mode, 0, mesh.num_vertices_get());
+  } else {
+    glDrawElements(mesh.mode, count, GL_UNSIGNED_SHORT, 0);
+  }
+
 }
 
 
@@ -172,13 +219,13 @@ void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const i
 
   /* create a renderbuffer which allows depth-testing in the framebuffer */
   /*
-  GLuint rb = 0;
-  glGenRenderbuffers(1, &rb);
-  glBindRenderbuffer(GL_RENDERBUFFER, rb);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
-*/
+     GLuint rb = 0;
+     glGenRenderbuffers(1, &rb);
+     glBindRenderbuffer(GL_RENDERBUFFER, rb);
+     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+     */
   /* attach renderbuffer to framebuffer */
- // glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rb);
+  // glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rb);
   /* tell the framebuffer to expect a colour output attachment (our texture) */
   GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
   glDrawBuffers(2, draw_bufs);
@@ -189,16 +236,16 @@ void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const i
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_depth);
   glTexImage2D(
-    GL_TEXTURE_2D,
-    0,
-    GL_DEPTH_COMPONENT32F,
-    width,
-    height,
-    0,
-    GL_DEPTH_COMPONENT,
-    GL_UNSIGNED_BYTE,
-    NULL
-  );
+      GL_TEXTURE_2D,
+      0,
+      GL_DEPTH_COMPONENT32F,
+      width,
+      height,
+      0,
+      GL_DEPTH_COMPONENT,
+      GL_UNSIGNED_BYTE,
+      NULL
+      );
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -214,22 +261,38 @@ void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const i
 void GLcontext::framebuffer_g_draw_first_pass(Scene &scene, GLshader &shader)
 {
   glBindFramebuffer(GL_FRAMEBUFFER, gl_g_fb);
+  GL_ASSERT(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
+  GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-  clear();
-  for (auto &node: scene.render_list_get()) {
-    node_draw(*node);
+  GL_ASSERT(glDisable(GL_BLEND));
+  GL_ASSERT(glEnable(GL_DEPTH_TEST));
+  GL_ASSERT(glDepthMask(GL_TRUE));
+
+  shader.use();
+  for (auto &node: scene.mesh_nodes_get()) {
+    draw_node(*node);
   }
 
 }
 
 
-void GLcontext::framebuffer_g_draw_second_pass(GLshader &shader)
+void GLcontext::framebuffer_g_draw_second_pass(const Scene &scene, GLshader &shader)
 {
   Mesh *mesh = fb_g_node->mesh;
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  clear();
 
+  GL_ASSERT(glClearColor(0.2, 0.2, 0.2, 1.0f));
+  GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT));
+  //GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT));
+
+  //   GL_ASSERT(glEnable(GL_BLEND)); // --- could reject background frags!
+  //   GL_ASSERT(glBlendEquation(GL_FUNC_ADD));
+  //   GL_ASSERT(glBlendFunc(GL_ONE, GL_ONE)); // addition each time
+  //GL_ASSERT(glDisable(GL_DEPTH_TEST));
+  //GL_ASSERT(glDepthMask(GL_FALSE));
+
+  shader.use();
   glBindVertexArray(mesh->gl_vao);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_position);
@@ -237,6 +300,19 @@ void GLcontext::framebuffer_g_draw_second_pass(GLshader &shader)
   glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_normal);
   glActiveTexture(GL_TEXTURE2);
   glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_depth);
+
+ // for (auto &light: lights) {
+    /*
+    glBindVertexArray(mesh->gl_vao);
+    GLsizei count = (GLsizei) mesh->num_indices_get();
+    if (count <= 0) {
+      glDrawArrays(mesh->mode, 0, mesh->num_vertices_get());
+    } else {
+      glDrawElements(mesh->mode, count, GL_UNSIGNED_SHORT, 0);
+    }
+  */
+
+ // }
   glDrawArrays(GL_TRIANGLES, 0, fb_g_node->mesh->num_vertices_get());
 }
 
@@ -251,7 +327,7 @@ void GLcontext::framebuffer_g_node_create(GLshader &shader, Node &node)
   glGenVertexArrays(1, &mesh->gl_vao);
   glBindVertexArray(mesh->gl_vao);
   glGenBuffers(1, gl_g_fb_vertex_buffers);
-  
+
   target = GL_ARRAY_BUFFER;
   {
     std::vector<glm::vec3> positions = mesh->positions_get();
@@ -286,7 +362,7 @@ void GLcontext::framebuffer_node_create(GLshader &shader, Node &node)
   glGenVertexArrays(1, &mesh->gl_vao);
   glBindVertexArray(mesh->gl_vao);
   glGenBuffers(1, gl_fb_vertex_buffers);
-  
+
   target = GL_ARRAY_BUFFER;
   {
     std::vector<glm::vec3> positions = mesh->positions_get();
@@ -319,8 +395,8 @@ void GLcontext::framebuffer_draw_texture(Scene &scene, bool debug)
   }
 
   clear();
-  for (auto &node: scene.render_list_get()) {
-    node_draw(*node);
+  for (auto &node: scene.mesh_nodes_get()) {
+    draw_node(*node);
   }
 }
 
@@ -339,27 +415,6 @@ void GLcontext::framebuffer_draw_screen()
   glActiveTexture(GL_TEXTURE1);
   glBindTexture(GL_TEXTURE_2D, gl_fb_p);
   glDrawArrays(GL_TRIANGLES, 0, fb_node->mesh->num_vertices_get());
-}
-
-
-bool GLcontext::init(const int width, const int height)
-{
-  glewExperimental= GL_TRUE;
-  if (glewInit() != GLEW_OK) {
-    std::cout << "GLcontext ERROR: failed to initalize GLEW" << std::endl;
-    return false;
-  }
-  check_error();
-  check_version(3);
-
-  glEnable(GL_DEPTH_TEST); // enable depth-testing
-  glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
-  glEnable(GL_CULL_FACE); // cull face
-  glCullFace(GL_BACK); // cull back face
-  glFrontFace(GL_CCW); // set counter-clock-wise vertex order to mean the front
-  glViewport(0, 0, width, height);
-
-  return true;
 }
 
 
@@ -469,7 +524,7 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
     //glBindBufferRange(target, bind_index, gl_buffer_light, 0, sizeof(properties));
     glBindBufferBase(target, bind_index, gl_buffer_light);
     glBindBuffer(target, 0);
-    
+
   }
 
   {
@@ -493,6 +548,16 @@ void GLcontext::uniform_buffers_delete()
   glDeleteBuffers(1, &gl_buffer_armature);
   glDeleteBuffers(1, &gl_buffer_material);
   glDeleteBuffers(1, &gl_buffer_state);
+}
+
+
+void GLcontext::uniform_buffers_update_armature(const Armature &armature)
+{
+  GLenum target = GL_UNIFORM_BUFFER;
+  glBindBuffer(target, gl_buffer_armature);
+  glBufferSubData(target, 0, armature.skinning_matrices.size() * sizeof(armature.skinning_matrices[0]), 
+      armature.skinning_matrices.data());
+  glBindBuffer(target, 0);
 }
 
 
@@ -539,6 +604,25 @@ void GLcontext::uniform_buffers_update_material(const Material &material)
   GLintptr offset = 0;
   glBindBuffer(target, gl_buffer_material);
   glBufferSubData(target, offset, sizeof(material.properties), &material.properties);
+  
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, 0));
+
+  if (material.diffuse) {
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, material.diffuse->gl_texture);
+  }
+  if (material.normal) {
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, material.normal->gl_texture);
+  }
+  if (material.specular) {
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, material.specular->gl_texture);
+  }
+  if (material.cubemap) {
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, material.cubemap->gl_texture);
+  }
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 }
@@ -554,56 +638,6 @@ void GLcontext::uniform_buffers_update_mesh(Mesh &mesh)
   glBindBuffer(target, gl_buffer_matrices);
   glBufferSubData(target, offset, sizeof(m), &m);
   glBindBuffer(target, 0);
-}
-
-
-void GLcontext::uniform_buffers_update_node(Node &node)
-{
-  GLintptr offset = 0;
-  Armature *armature = node.armature;
-  Material *material = node.material;
-  Mesh *mesh = node.mesh;
-
-  uniform_buffers_update_state(node);
-
-  if (mesh) {
-    if (node.light_get()) {
-     // std::cout << "Light position: " << glm::to_string(glm::vec3(mesh->model * glm::vec4(node.original_position, 1.f))) << std::endl; 
-      node.light_get()->properties_position_set(glm::vec3(mesh->model * glm::vec4(node.original_position, 1.f)));
-    }
-    uniform_buffers_update_mesh(*mesh);
-  }
-
-  if (armature) {
-    GLenum target = GL_UNIFORM_BUFFER;
-    glBindBuffer(target, gl_buffer_armature);
-    glBufferSubData(target, offset, armature->skinning_matrices.size() * sizeof(armature->skinning_matrices[0]), 
-        armature->skinning_matrices.data());
-    glBindBuffer(target, 0);
-  }
-
-  if (material) {
-    uniform_buffers_update_material(*material);
-
-    GL_ASSERT(glBindTexture(GL_TEXTURE_2D, 0));
-
-    if (material->diffuse) {
-      glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, material->diffuse->gl_texture);
-    }
-    if (material->normal) {
-      glActiveTexture(GL_TEXTURE1);
-      glBindTexture(GL_TEXTURE_2D, material->normal->gl_texture);
-    }
-    if (material->specular) {
-      glActiveTexture(GL_TEXTURE2);
-      glBindTexture(GL_TEXTURE_2D, material->specular->gl_texture);
-    }
-    if (material->cubemap) {
-      glActiveTexture(GL_TEXTURE3);
-      glBindTexture(GL_TEXTURE_CUBE_MAP, material->cubemap->gl_texture);
-    }
-  }
 }
 
 

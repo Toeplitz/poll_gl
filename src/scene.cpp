@@ -31,24 +31,24 @@ Assets &Scene::assets_get()
 }
 
 
-void Scene::animation_list_add(Node &node) 
+void Scene::animated_nodes_add(Node &node) 
 {
-  bool r = (std::find(animation_list.begin(), animation_list.end(), &node) != animation_list.end());
+  bool r = (std::find(animated_nodes.begin(), animated_nodes.end(), &node) != animated_nodes.end());
   if (r) {
     std::cout << "Node is already in transform queue." << std::endl;
     return;
   }
-  animation_list.push_back(&node);
+  animated_nodes.push_back(&node);
 }
 
 
-const std::vector <Node *> &Scene::animation_list_get() const
+const std::vector <Node *> &Scene::animated_nodes_get() const
 {
-  return animation_list;
+  return animated_nodes;
 }
 
 
-void Scene::animation_list_update_transforms(Node &node, const double dt)
+void Scene::animated_nodes_update_transforms(Node &node, const double dt)
 {
   glm::mat4 transform = node.transform_local_current;
   Node *parent = node.parent;
@@ -66,7 +66,7 @@ void Scene::animation_list_update_transforms(Node &node, const double dt)
   }
 
   for (auto &child : node.children) {
-    animation_list_update_transforms(*child, dt);
+    animated_nodes_update_transforms(*child, dt);
   }
 }
 
@@ -83,6 +83,30 @@ Camera *Scene::camera_get()
   }
 
   return node_cur_camera->camera_get();
+}
+
+
+void Scene::light_nodes_add(Node &node) 
+{
+  light_nodes.push_back(&node);
+}
+
+
+const std::vector<Node *> &Scene::light_nodes_get() const
+{
+  return light_nodes;
+}
+
+
+void Scene::mesh_nodes_add(Node &node) 
+{
+  mesh_nodes.push_back(&node);
+}
+
+
+const std::vector<Node *> &Scene::mesh_nodes_get() const
+{
+  return mesh_nodes;
 }
 
 
@@ -119,18 +143,6 @@ Node *Scene::node_find(Node *root_ptr, const std::string &name)
     return node_find_recursive(*root_ptr, name);
   
   return node_find_recursive(root, name);
-}
-
-
-void Scene::render_list_add(Node &node) 
-{
-  render_list.push_back(&node);
-}
-
-
-const std::vector<Node *> &Scene::render_list_get() const
-{
-  return render_list;
 }
 
 
@@ -265,13 +277,19 @@ void Scene::state_update_recursive(Node &node)
 
 void Scene::upload_queue_add(Node &node) 
 {
-  if (node.mesh || node.light_get()) {
-    upload_queue.push_back(&node);
-    render_list_add(node);
-  } else if (node.armature) {
-    animation_list_add(node);
+  if (node.armature) {
+    animated_nodes_add(node);
   }
 
+  if (node.light_get()) {
+    light_nodes_add(node);
+  }
+
+  if (node.mesh) {
+    upload_queue.push_back(&node);
+    mesh_nodes_add(node);
+  } 
+  
   state_update_recursive(node);
 
   for (auto &child : node.children) {

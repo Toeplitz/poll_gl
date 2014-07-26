@@ -30,18 +30,18 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   cam_node->camera_get()->transform_perspective_create(window.width, window.height);
   scene.node_camera_set(cam_node);
 
-  /*
+  // STANDARD FORWARD
   glshader.load("shaders/main.v", "shaders/main.f");
   glcontext.uniform_buffers_create(glshader);
   glshader_screen.load("shaders/post_proc.v", "shaders/post_proc.f");
-
   Node &node = *scene.node_create("fb_quad");
   node.mesh_create(scene.assets_get());
   node.mesh->quad_generate(1.f);
   glcontext.framebuffer_create(window.width, window.height);
   glcontext.framebuffer_node_create(glshader_screen, node);
-*/
 
+  /*
+  // DEFERRED SHADING
   glshader_deferred_first.load("shaders/deferred_pass_one.v", "shaders/deferred_pass_one.f");
   glcontext.uniform_buffers_create(glshader_deferred_first);
   glshader_deferred_second.load("shaders/deferred_pass_two.v", "shaders/deferred_pass_two.f");
@@ -50,6 +50,7 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   node_g.mesh->quad_generate(1.f);
   glcontext.framebuffer_g_create(glshader_deferred_second, window.width, window.height);
   glcontext.framebuffer_g_node_create(glshader_deferred_second, node_g);
+*/
 
   physics.init();
 }
@@ -60,18 +61,19 @@ Fragmic::~Fragmic()
 }
 
 
-void Fragmic::draw_g_buffer()
+void Fragmic::draw_g_buffer(const double dt)
 {
   GLcontext &glcontext = window.glcontext_get();
 
-  glshader_deferred_first.use();
   glcontext.framebuffer_g_draw_first_pass(scene, glshader_deferred_first);
-  glshader_deferred_second.use();
-  glcontext.framebuffer_g_draw_second_pass(glshader_deferred_second);
+  glcontext.framebuffer_g_draw_second_pass(scene, glshader_deferred_second);
+
+  /* Step physics simulation */
+  physics.step(dt);
 }
 
 
-void Fragmic::draw_standard_post_proc(double dt)
+void Fragmic::draw_standard_post_proc(const double dt)
 {
   GLcontext &glcontext = window.glcontext_get();
   glshader.use();
@@ -115,13 +117,14 @@ void Fragmic::run()
     }
 
     /* Update animations */
+    auto &animated_nodes = scene.animated_nodes_get();
+    for (auto &node: animated_nodes) {
+      scene.animated_nodes_update_transforms(*node, dt);
+    }
     auto &armatures = assets.armature_get_all();
     for (auto &armature: armatures) {
       armature->bones_update_skinningmatrices();
-    }
-    auto &animated_nodes = scene.animation_list_get();
-    for (auto &node: animated_nodes) {
-      scene.animation_list_update_transforms(*node, dt);
+      glcontext.uniform_buffers_update_armature(*armature);
     }
 
     /* Update lights */
@@ -138,8 +141,8 @@ void Fragmic::run()
     glcontext.uniform_buffers_update_camera(camera);
 
     /* Draw scene */
- //   draw_standard_post_proc(dt);
-    draw_g_buffer();
+    draw_standard_post_proc(dt);
+ //   draw_g_buffer(dt);
 
     glcontext.check_error();
     window.swap();
@@ -151,7 +154,7 @@ void Fragmic::term()
 {
   GLcontext &glcontext = window.glcontext_get();
   glcontext.uniform_buffers_delete();
-  for (auto &node: scene.render_list_get()) {
+  for (auto &node: scene.mesh_nodes_get()) {
     glcontext.vertex_buffers_delete(*node);
   }
   glshader.term();

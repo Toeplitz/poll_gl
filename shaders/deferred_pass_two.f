@@ -31,10 +31,10 @@ void main ()
   vec4 n_texel = texture2D(normal_tex, st);
   vec4 d_texel = texture2D(depth_tex, st);
 
-//  frag_color.rgb =  n_texel.rgb;
+  frag_color.rgb =  n_texel.rgb;
 //  frag_color.rgb =  d_texel.rgb;
 //    frag_color.rgb =  p_texel.rgb;
-  frag_color.rgb =  func_positon_from_depth();
+//  frag_color.rgb =  p_texel.rgb - func_positon_from_depth();
   //frag_color.rgb = normalize(n_texel.rgb);
   frag_color.a = 1.0;
 }

@@ -98,8 +98,11 @@ void Physics::collision_shape_add(Node &node, const Physics_Collision_Shape shap
 {
   Physics_Node p_node;
 
+
   if (!node.mesh) {
-    //std::cout << "No mesh for node: '" << node.name << "', skipping ..." << std::endl;
+    std::cout << "No mesh for node: '" << node.name << "', skipping ..." << std::endl;
+  } else if (node.light_get()) {
+    std::cout << "Light node: '" << node.name << "', skipping ..." << std::endl;
   } else {
 
     p_node.node = &node;

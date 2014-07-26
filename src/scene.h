@@ -13,8 +13,9 @@ typedef std::vector<Node *> Node_Ptr_List;
 class Scene {
 
   private:
-    Node_Ptr_List render_list;
-    Node_Ptr_List animation_list;
+    Node_Ptr_List animated_nodes;
+    Node_Ptr_List light_nodes;
+    Node_Ptr_List mesh_nodes;
     Node_Ptr_List upload_queue;
 
     Node *node_cur_camera;
@@ -28,13 +29,18 @@ class Scene {
     Scene();
     ~Scene();
 
-    void                        animation_list_add(Node &node);
-    void                        animation_list_update_transforms(Node &node, const double dt);
+    Assets                     &assets_get();
+    void                        animated_nodes_add(Node &node);
+    const std::vector<Node *>  &animated_nodes_get() const;
+    void                        animated_nodes_update_transforms(Node &node, const double dt);
     Camera                     *camera_get();
+    void                        light_nodes_add(Node &node);
+    const std::vector<Node *>  &light_nodes_get() const;
+    void                        mesh_nodes_add(Node &node);
+    const std::vector<Node *>  &mesh_nodes_get() const;
     Node                       &model_load(const std::string &prefix, const std::string &filename, 
                                            const unsigned int options = MODEL_IMPORT_DEFAULT);
     Node                       *node_find(Node *root_ptr, const std::string &name);
-    void                        render_list_add(Node &node);
     void                        scene_graph_print(const bool compact = false);
     void                        scene_graph_print_by_node(Node &node, const bool compact = false);
     Node                       *node_create(const std::string &name);
@@ -44,10 +50,5 @@ class Scene {
     void                        state_update_recursive(Node &node);
     void                        upload_queue_add(Node &node);
     Node                       *upload_queue_pop();
-
-    /* get methods */
-          Assets               &assets_get();
-    const std::vector<Node *>  &animation_list_get() const;
-    const std::vector<Node *>  &render_list_get() const;
 };
 

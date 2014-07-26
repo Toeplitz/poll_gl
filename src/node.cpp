@@ -95,6 +95,11 @@ Light *Node::light_create(Assets &assets)
   Light *light_ptr = light.get();
   light_set(light_ptr);
   assets.light_active_add(std::move(light));
+
+  Mesh *mesh_ptr = mesh_create(assets);
+  mesh_ptr->cube_generate(5.f);
+  mesh_set(mesh_ptr);
+  
   return light_ptr;
 }
 
@@ -107,7 +112,7 @@ Light *Node::light_get()
 
 void Node::light_set(Light *light)
 {
-  if (mesh) {
+  if (light && mesh) {
     light->properties_position_set(glm::vec3(mesh->model * glm::vec4(original_position, 1.0)));
   }
   this->light = light;
@@ -163,10 +168,6 @@ Material *Node::material_create(Assets &assets)
 
 Material *Node::material_get()
 {
-  if (!material) {
-    std::cout << "Node: '" << name << "' does not have any material attached" << std::endl;
-  }
-
   return material;
 }
 
