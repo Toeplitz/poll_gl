@@ -10,6 +10,7 @@ layout(location = 6) in vec2 texture_coord;
 
 layout(std140) uniform GlobalMatrices {
   mat4 proj;
+  mat4 inv_proj;
   mat4 view;
 };
 

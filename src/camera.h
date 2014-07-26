@@ -13,6 +13,7 @@ class Camera
     float fov;
     glm::vec3 up;
     glm::mat4 perspective;
+    glm::mat4 inv_perspective;
     glm::mat4 view;
 
     std::function<void ()> update_callback;
@@ -29,6 +30,7 @@ class Camera
 
     void        transform_perspective_create(const int width, const int height);
     glm::mat4  &transform_perspective_get();
+    glm::mat4  &transform_perspective_inverse_get();
     glm::mat4  &transform_view_get();
     void        transform_view_create(const glm::vec3 position, const glm::vec3 direction);
     void        update();

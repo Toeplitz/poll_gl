@@ -171,26 +171,23 @@ void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const i
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gl_g_fb_tex_normal, 0);
 
   /* create a renderbuffer which allows depth-testing in the framebuffer */
+  /*
   GLuint rb = 0;
   glGenRenderbuffers(1, &rb);
   glBindRenderbuffer(GL_RENDERBUFFER, rb);
   glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
-
+*/
   /* attach renderbuffer to framebuffer */
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rb);
+ // glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rb);
   /* tell the framebuffer to expect a colour output attachment (our texture) */
   GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
   glDrawBuffers(2, draw_bufs);
 
   framebuffer_check_status();
 
-  /* re-bind the default framebuffer as a safe precaution */
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-/*
-  GLuint depth_tex;
-  glGenTextures(1, &depth_tex);
+  glGenTextures(1, &gl_g_fb_tex_depth);
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, depth_tex);
+  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_depth);
   glTexImage2D(
     GL_TEXTURE_2D,
     0,
@@ -206,8 +203,10 @@ void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const i
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_tex, 0);
-*/
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, gl_g_fb_tex_depth, 0);
+
+  /* re-bind the default framebuffer as a safe precaution */
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 }
 
@@ -236,6 +235,8 @@ void GLcontext::framebuffer_g_draw_second_pass(GLshader &shader)
   glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_position);
   glActiveTexture(GL_TEXTURE1);
   glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_normal);
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_depth);
   glDrawArrays(GL_TRIANGLES, 0, fb_g_node->mesh->num_vertices_get());
 }
 
@@ -267,6 +268,8 @@ void GLcontext::framebuffer_g_node_create(GLshader &shader, Node &node)
     GL_ASSERT(glUniform1i(location, 0));
     location = glGetUniformLocation(program, "normal_tex");
     GL_ASSERT(glUniform1i(location, 1));
+    location = glGetUniformLocation(program, "depth_tex");
+    GL_ASSERT(glUniform1i(location, 2));
   }
 
   fb_g_node = &node;
@@ -376,7 +379,7 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
   shader.use();
 
   {
-    glm::mat4 matrix[2];
+    glm::mat4 matrix[3];
     bind_index = UB_GLOBALMATRICES;
     block_index = shader.get_block_index("GlobalMatrices");
     glGenBuffers(1, &gl_buffer_globalmatrices);
@@ -497,9 +500,10 @@ void GLcontext::uniform_buffers_update_camera(Camera &camera)
 {
   GLenum target = GL_UNIFORM_BUFFER;
   GLintptr offset = 0;
-  glm::mat4 data[2];
+  glm::mat4 data[3];
   data[0] = camera.transform_perspective_get();
-  data[1] = camera.transform_view_get();
+  data[1] = camera.transform_perspective_inverse_get();
+  data[2] = camera.transform_view_get();
   glBindBuffer(target, gl_buffer_globalmatrices);
   glBufferSubData(target, offset, sizeof(data), &data);
   glBindBuffer(target, 0);

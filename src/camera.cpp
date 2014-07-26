@@ -26,12 +26,19 @@ Camera::~Camera()
 void Camera::transform_perspective_create(const int width, const int height)
 {
   perspective = glm::perspective(fov, (float) width / (float) height, 1.0f, 500.0f);
+  inv_perspective = glm::inverse(inv_perspective);
 }
 
 
 glm::mat4 &Camera::transform_perspective_get()
 {
   return perspective;
+}
+
+
+glm::mat4 &Camera::transform_perspective_inverse_get()
+{
+  return inv_perspective;
 }
 
 
