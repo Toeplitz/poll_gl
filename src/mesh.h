@@ -37,6 +37,8 @@ class Mesh {
     const std::vector<glm::ivec3>  &bone_indices_get() const;
     const std::vector<glm::vec3>   &bone_weights_get() const;
     void                            cube_generate(const float &size);
+    void                            cube_generate2(const float &size);
+    void                            cube_generate3(const float &size);
     const std::vector<GLshort>     &indices_get() const;
     const std::vector<glm::vec3>   &positions_get() const;
     void                            print(const int indent_level);

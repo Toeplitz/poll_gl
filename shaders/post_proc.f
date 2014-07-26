@@ -3,7 +3,6 @@
 in vec2 st;
 
 uniform sampler2D tex;
-uniform sampler2D pos;
 
 out vec4 frag_color;
 
@@ -17,7 +16,6 @@ void main()
     out_color = texture(tex, st).rgb;
   }
 
-  out_color = texture(pos, st).rgb;
   frag_color.rgb = out_color;
   frag_color.a = 1.0; 
 }

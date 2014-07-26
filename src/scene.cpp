@@ -88,6 +88,7 @@ Camera *Scene::camera_get()
 
 void Scene::light_nodes_add(Node &node) 
 {
+  std::cout << "Adding light node" << std::endl;
   light_nodes.push_back(&node);
 }
 
@@ -116,7 +117,6 @@ Node &Scene::model_load(const std::string &prefix, const std::string &filename, 
   std::cout << prefix + filename << std::endl;
   Node *root_ptr = model.load(assets, root, prefix, filename, options);
   state_update_recursive(*root_ptr);
-
 
   /*
   std::cout << "Matrices for node: " << root_ptr->name << std::endl;

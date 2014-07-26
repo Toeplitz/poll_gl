@@ -74,7 +74,6 @@ layout(std140) uniform Lights
 
 
 layout (location = 0) out vec4 frag_color;
-layout (location = 1) out vec3 foo_pos;
 
 vec3 Ls = vec3 (1.0, 1.0, 1.0); // white specular colour
 vec3 Ld = vec3 (0.7, 0.7, 0.7); // dull white diffuse light colour
@@ -272,6 +271,4 @@ void main()
   frag_color.rgb = out_color;
   frag_color.a = 1.0;
 
-//  foo_pos = normal_eye;
-  foo_pos = position_eye;
 }

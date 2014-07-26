@@ -30,6 +30,7 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   cam_node->camera_get()->transform_perspective_create(window.width, window.height);
   scene.node_camera_set(cam_node);
 
+  /*
   // STANDARD FORWARD
   glshader.load("shaders/main.v", "shaders/main.f");
   glcontext.uniform_buffers_create(glshader);
@@ -39,8 +40,8 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   node.mesh->quad_generate(1.f);
   glcontext.framebuffer_create(window.width, window.height);
   glcontext.framebuffer_node_create(glshader_screen, node);
+*/
 
-  /*
   // DEFERRED SHADING
   glshader_deferred_first.load("shaders/deferred_pass_one.v", "shaders/deferred_pass_one.f");
   glcontext.uniform_buffers_create(glshader_deferred_first);
@@ -50,7 +51,6 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   node_g.mesh->quad_generate(1.f);
   glcontext.framebuffer_g_create(glshader_deferred_second, window.width, window.height);
   glcontext.framebuffer_g_node_create(glshader_deferred_second, node_g);
-*/
 
   physics.init();
 }
@@ -133,6 +133,7 @@ void Fragmic::run()
     glcontext.uniform_buffers_update_light_num(lights.size());
     for (auto &light: lights) {
       glcontext.uniform_buffers_update_light(*light, index++);
+      light->shader_index_set(index);
     }
 
     /* Update camera */
@@ -141,8 +142,8 @@ void Fragmic::run()
     glcontext.uniform_buffers_update_camera(camera);
 
     /* Draw scene */
-    draw_standard_post_proc(dt);
- //   draw_g_buffer(dt);
+ //   draw_standard_post_proc(dt);
+    draw_g_buffer(dt);
 
     glcontext.check_error();
     window.swap();

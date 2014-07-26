@@ -32,6 +32,7 @@ class Light
   private:
     Light_Properties properties;
     glm::vec3 bias;
+    unsigned int shader_index;
 
   public:
     Light();
@@ -45,4 +46,6 @@ class Light
     void                    properties_direction_set(const glm::vec3 &direction);
     void                    properties_position_set(const glm::vec3 &position);
     void                    properties_type_set(const unsigned int type);
+    void                    shader_index_set(const unsigned int index);
+    unsigned int            shader_index_get();
 };

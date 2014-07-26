@@ -23,15 +23,14 @@ class GLcontext {
     GLuint gl_buffer_material;
     GLuint gl_buffer_state;
     GLuint gl_buffer_light;
+    GLuint gl_uniform_light_index;
     GLuint gl_vertex_buffers[8];
 
     GLuint gl_fb;
     GLuint gl_fb_tex;
-    GLuint gl_fb_p;
     GLuint gl_fb_vertex_buffers[1];
 
     GLuint gl_g_fb;
-    GLuint gl_g_rb_depth;
     GLuint gl_g_fb_tex_position;
     GLuint gl_g_fb_tex_normal;
     GLuint gl_g_fb_tex_depth;
