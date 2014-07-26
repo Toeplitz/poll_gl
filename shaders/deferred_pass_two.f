@@ -7,7 +7,6 @@
 
 //in vec2 st;
 
-uniform sampler2D position_tex;
 uniform sampler2D normal_tex;
 uniform sampler2D depth_tex;
 
@@ -15,8 +14,7 @@ layout(std140) uniform GlobalMatrices {
   mat4 proj;
   mat4 inv_proj;
   mat4 view;
-}
-;
+};
 
 struct Light 
 {
@@ -51,7 +49,7 @@ vec3 phong (in vec3 op_eye, in vec3 n_eye) {
   Light light = lights[light_index];
 
   //vec3 lp_eye = (view * light.position).xyz;
-  vec3 lp_eye = (view * vec4(0, 10, 0, 1)).xyz;
+  vec3 lp_eye = (view * vec4(0, 20, 0, 1)).xyz;
   vec3 dist_to_light_eye = lp_eye - op_eye;
   vec3 direction_to_light_eye = normalize (dist_to_light_eye);
 
@@ -59,18 +57,32 @@ vec3 phong (in vec3 op_eye, in vec3 n_eye) {
   float dot_prod = max(dot (direction_to_light_eye,  n_eye), 0.0);
 
   vec3 Id = d_Ld * dot_prod; // final diffuse intensity
+  // standard specular light
+  vec3 reflection_eye = reflect (-direction_to_light_eye, n_eye);
+  vec3 surface_to_viewer_eye = normalize (-op_eye);
+  float dot_prod_specular = dot (reflection_eye, surface_to_viewer_eye);
+  dot_prod_specular = max (dot_prod_specular, 0.0);
+  float specular_factor = pow (dot_prod_specular, specular_exponent);
+  vec3 Is = d_Ls * ks * specular_factor; // final specular intensity
 
-  return Id;
+  float dist_2d = max (0.0, 1.0 - distance (lp_eye, op_eye) / 50.0);
+  float atten_factor =  dist_2d;
+
+  //return vec3(dist_2d,dist_2d,dist_2d);
+
+  return (Id + Is) * atten_factor;
+
+  //return Id;
 }
 
-vec3 func_positon_from_depth(in vec2 st)
+
+vec3 reconstruct_position(float depth, vec2 tex_coord)
 {
-  float depth = texture2D(depth_tex, st).x;
-  depth = (depth * 2.0) - 1.0;
-  vec2 ndc = (st * 2.0) - 1.0;
-  vec4 pos = vec4(ndc, depth, 1.0);
-  pos = inv_proj * pos;
-  return vec3(pos.xyz / pos.w);
+  vec4 position = vec4(tex_coord, depth, 1);
+  position.xyz = position.xyz * 2 - 1;
+  position = inverse(proj * view) * position;
+  position.xyz /= position.w;
+  return position.xyz;
 }
 
 void main () 
@@ -80,22 +92,16 @@ void main ()
   st.s = gl_FragCoord.x / 1280.0;
   st.t = gl_FragCoord.y / 720.0;
 
-  vec4 p_texel = texture2D(position_tex, st);
   vec4 n_texel = texture2D(normal_tex, st);
-  vec4 d_texel = texture2D(depth_tex, st);
+  float d_texel = texture2D(depth_tex, st).r;
 
- // p_texel.rgb = func_positon_from_depth(st);
-
+  vec3 p_texel = reconstruct_position(d_texel, st);
+  vec3 pos_eye = vec3(view * vec4(p_texel.rgb, 1.0));
 
   frag_color.rgb =  p_texel.rgb;
-  //frag_color.rgb = vec3(0, 1, 0);
-  //frag_color.rgb = phong (p_texel.rgb, normalize(n_texel.rgb));
-//  frag_color.rgb =  d_texel.rgb;
-//    frag_color.rgb =  p_texel.rgb;
-//  frag_color.rgb =  p_texel.rgb - func_positon_from_depth(st);
-  //frag_color.rgb = normalize(n_texel.rgb);
+  frag_color.rgb = phong (pos_eye, normalize(n_texel.rgb));
   frag_color.a = 1.0;
-  if (d_texel.x > -0.0001) {
+  if (d_texel > -0.0001) {
   //  frag_color.rgb = vec3(0, 0, 1);
   //  frag_color.rgb = n_texel.rgb;
    // frag_color.rgb = phong (p_texel.rgb, normalize(n_texel.rgb));

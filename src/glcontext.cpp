@@ -83,8 +83,8 @@ void GLcontext::draw_node(Node &node)
   /* FIXME: hacky ... */
   if (mesh) {
     if (node.light_get()) {
-      // std::cout << "Light position: " << glm::to_string(glm::vec3(mesh->model * glm::vec4(node.original_position, 1.f))) << std::endl; 
-      //node.light_get()->properties_position_set(glm::vec3(mesh->model * glm::vec4(node.original_position, 1.f)));
+       std::cout << "Light position: " << glm::to_string(glm::vec3(mesh->model * glm::vec4(node.original_position, 1.f))) << std::endl; 
+      node.light_get()->properties_position_set(glm::vec3(mesh->model * glm::vec4(node.original_position, 1.f)));
     }
   }
 
@@ -184,66 +184,34 @@ void GLcontext::framebuffer_delete()
 
 void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const int width, const int height)
 {
-  glGenTextures(1, &gl_g_fb_tex_position);
-  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_position);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
   glGenTextures(1, &gl_g_fb_tex_normal);
   glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_normal);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-  /* attach the texture to the framebuffer */
   glGenFramebuffers (1, &gl_g_fb);
   glBindFramebuffer(GL_FRAMEBUFFER, gl_g_fb);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl_g_fb_tex_position, 0);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gl_g_fb_tex_normal, 0);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl_g_fb_tex_normal, 0);
 
-  /* create a renderbuffer which allows depth-testing in the framebuffer */
-  /*
-     GLuint rb = 0;
-     glGenRenderbuffers(1, &rb);
-     glBindRenderbuffer(GL_RENDERBUFFER, rb);
-     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
-     */
-  /* attach renderbuffer to framebuffer */
-  // glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rb);
-  /* tell the framebuffer to expect a colour output attachment (our texture) */
-  GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-  glDrawBuffers(2, draw_bufs);
+  GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0 };
+  glDrawBuffers(1, draw_bufs);
 
   framebuffer_check_status();
 
   glGenTextures(1, &gl_g_fb_tex_depth);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_depth);
-  glTexImage2D(
-      GL_TEXTURE_2D,
-      0,
-      GL_DEPTH_COMPONENT32F,
-      width,
-      height,
-      0,
-      GL_DEPTH_COMPONENT,
-      GL_UNSIGNED_BYTE,
-      NULL
-      );
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, gl_g_fb_tex_depth, 0);
 
-  /* re-bind the default framebuffer as a safe precaution */
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 }
 
 
@@ -269,22 +237,20 @@ void GLcontext::framebuffer_g_draw_second_pass(const Scene &scene, GLshader &sha
 {
   GL_ASSERT(glBindFramebuffer(GL_FRAMEBUFFER, 0));
   GL_ASSERT(glClearColor(0., 0., 0., 1.0f));
-  GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-  //GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT));
+  //GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+  GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT));
 
   GL_ASSERT(glEnable(GL_BLEND)); // --- could reject background frags!
   GL_ASSERT(glBlendEquation(GL_FUNC_ADD));
   GL_ASSERT(glBlendFunc(GL_ONE, GL_ONE)); // addition each time
-  //GL_ASSERT(glDisable(GL_DEPTH_TEST));
+  GL_ASSERT(glDisable(GL_DEPTH_TEST));
   //GL_ASSERT(glDepthMask(GL_FALSE));
 
   shader.use();
   GL_ASSERT(glBindVertexArray(fb_g_node->mesh->gl_vao));
   GL_ASSERT(glActiveTexture(GL_TEXTURE0));
-  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_position));
-  GL_ASSERT(glActiveTexture(GL_TEXTURE1));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_normal));
-  GL_ASSERT(glActiveTexture(GL_TEXTURE2));
+  GL_ASSERT(glActiveTexture(GL_TEXTURE1));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_depth));
 
  // glDrawArrays(GL_TRIANGLES, 0, fb_g_node->mesh->num_vertices_get());
@@ -299,7 +265,7 @@ void GLcontext::framebuffer_g_draw_second_pass(const Scene &scene, GLshader &sha
 
     //std::cout << "Drawing light: "  << node->name << " with index: " << light->shader_index_get() << std::endl;
     //light->properties_position_set(glm::vec3(0, 0, 0));
-    //light->print(0);
+    light->print(0);
     GL_ASSERT(glUniform1i(gl_uniform_light_index, light->shader_index_get()));
     draw_mesh(*node->mesh_get());
   }
@@ -330,12 +296,10 @@ void GLcontext::framebuffer_g_node_create(GLshader &shader, Node &node)
 
   {
     GLint location;
-    location = glGetUniformLocation(program, "position_tex");
-    GL_ASSERT(glUniform1i(location, 0));
     location = glGetUniformLocation(program, "normal_tex");
-    GL_ASSERT(glUniform1i(location, 1));
+    GL_ASSERT(glUniform1i(location, 0));
     location = glGetUniformLocation(program, "depth_tex");
-    GL_ASSERT(glUniform1i(location, 2));
+    GL_ASSERT(glUniform1i(location, 1));
   }
 
   fb_g_node = &node;
