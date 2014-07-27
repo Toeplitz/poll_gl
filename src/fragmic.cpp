@@ -132,8 +132,8 @@ void Fragmic::run()
     auto &lights = assets.light_active_get();
     glcontext.uniform_buffers_update_light_num(lights.size());
     for (auto &light: lights) {
-      glcontext.uniform_buffers_update_light(*light, index++);
       light->shader_index_set(index);
+      glcontext.uniform_buffers_update_light(*light, index++);
     }
 
     /* Update camera */

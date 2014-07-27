@@ -4,6 +4,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+class Node;
+
 
 enum Light_Type
 {
@@ -33,6 +35,7 @@ class Light
     Light_Properties properties;
     glm::vec3 bias;
     unsigned int shader_index;
+    Node *follow;
 
   public:
     Light();
@@ -46,6 +49,8 @@ class Light
     void                    properties_direction_set(const glm::vec3 &direction);
     void                    properties_position_set(const glm::vec3 &position);
     void                    properties_type_set(const unsigned int type);
+    void                    node_follow_set(Node *node);
+    Node                   *node_follow_get();
     void                    shader_index_set(const unsigned int index);
     unsigned int            shader_index_get();
 };

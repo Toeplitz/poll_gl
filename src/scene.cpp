@@ -92,6 +92,10 @@ void Scene::light_nodes_add(Node &node)
   light_nodes.push_back(&node);
 }
 
+void light_nodes_del(Node *node)
+{
+
+}
 
 const std::vector<Node *> &Scene::light_nodes_get() const
 {

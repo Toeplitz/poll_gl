@@ -14,6 +14,7 @@ Light::Light()
   properties.type = LIGHT_UNDEFINED;
   bias = glm::vec3(0.f, 0.f, 0.f);
   shader_index = 0;
+  follow = nullptr;
 }
 
 
@@ -93,6 +94,18 @@ void Light::properties_position_set(const glm::vec3 &position)
 void Light::properties_type_set(const unsigned int type)
 {
   properties.type = type;
+}
+
+
+void Light::node_follow_set(Node *node)
+{
+  follow = node;
+}
+
+
+Node *Light::node_follow_get()
+{
+  return follow;
 }
 
 

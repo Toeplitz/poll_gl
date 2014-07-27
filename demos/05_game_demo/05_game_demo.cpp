@@ -247,8 +247,11 @@ int main()
     Node *panda_light = scene.node_find(room, "Spot_Light");
     light_spot = panda_light->light_get();
     light_spot->bias_set(glm::vec3(0, 20, 0));
-    panda->light_set(light_spot);
-    panda_light->light_set(nullptr);
+    light_spot->node_follow_set(panda);
+    //panda->light_set(light_spot);
+    //panda_light->light_set(nullptr);
+
+    //scene.light_nodes_add(*panda);
 
     Node *node = scene.node_find(room, "Point_Light");
     light_point = node->light_get();

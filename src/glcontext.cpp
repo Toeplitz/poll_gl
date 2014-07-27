@@ -83,8 +83,8 @@ void GLcontext::draw_node(Node &node)
   /* FIXME: hacky ... */
   if (mesh) {
     if (node.light_get()) {
-       std::cout << "Light position: " << glm::to_string(glm::vec3(mesh->model * glm::vec4(node.original_position, 1.f))) << std::endl; 
-      node.light_get()->properties_position_set(glm::vec3(mesh->model * glm::vec4(node.original_position, 1.f)));
+     //  std::cout << "Light position: " << glm::to_string(glm::vec3(mesh->model * glm::vec4(node.original_position, 1.f))) << std::endl; 
+     // node.light_get()->properties_position_set(glm::vec3(mesh->model * glm::vec4(node.original_position, 1.f)));
     }
   }
 
@@ -257,17 +257,27 @@ void GLcontext::framebuffer_g_draw_second_pass(const Scene &scene, GLshader &sha
 
   for (auto &node: scene.light_nodes_get()) {
     Light *light = node->light_get();
+    Mesh *mesh = node->mesh_get();
+    Node *follow = light->node_follow_get();
 
     if (!light) {
-      //std::cout << "Error: no light attached to the light node: " << node->name << std::endl;
+      std::cout << "Error: no light attached to the light node: " << node->name << std::endl;
       continue;
     }
 
+    if (follow) {
+      Mesh *follow_mesh = follow->mesh_get();
+      //std::cout << "Follow node: " << follow->name << std::endl;
+      //std::cout << "Light position: " << glm::to_string(glm::vec3(follow_mesh->model * glm::vec4(follow->original_position, 1.f))) << std::endl; 
+      //light->properties_position_set(glm::vec3(follow_mesh->model * glm::vec4(follow->original_position, 1.f)));
+
+     // print_matrix(std::cout, follow_mesh->model, 0);
+    }
     //std::cout << "Drawing light: "  << node->name << " with index: " << light->shader_index_get() << std::endl;
     //light->properties_position_set(glm::vec3(0, 0, 0));
-    light->print(0);
+    //light->print(0);
     GL_ASSERT(glUniform1i(gl_uniform_light_index, light->shader_index_get()));
-    draw_mesh(*node->mesh_get());
+    draw_mesh(*mesh);
   }
 
 }
