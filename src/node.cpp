@@ -96,12 +96,6 @@ Light *Node::light_create(Assets &assets)
   light_set(light_ptr);
   assets.light_active_add(std::move(light));
 
-  Mesh *mesh_ptr = mesh_create(assets);
-  //mesh_ptr->cube_generate2(5.f);
- // mesh_ptr->cube_generate3(20.f);
-  mesh_ptr->cube_generate(25.f);
-  mesh_set(mesh_ptr);
-  
   return light_ptr;
 }
 

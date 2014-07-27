@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <memory>
+#include "mesh.h"
 
 class Node;
 
@@ -14,6 +16,13 @@ enum Light_Type
   LIGHT_SPOT = 2,
   LIGHT_POINT = 3,
   LIGHT_SPHERE = 4
+};
+
+
+enum Light_Volume
+{
+  LIGHT_VOLUME_SPHERE = 0 << 1,
+  LIGHT_VOLUME_BOX = 0 << 2
 };
 
 
@@ -36,6 +45,7 @@ class Light
     glm::vec3 bias;
     unsigned int shader_index;
     Node *follow;
+    std::unique_ptr<Mesh> volume;
 
   public:
     Light();
@@ -51,6 +61,6 @@ class Light
     void                    properties_type_set(const unsigned int type);
     void                    node_follow_set(Node *node);
     Node                   *node_follow_get();
-    void                    shader_index_set(const unsigned int index);
-    unsigned int            shader_index_get();
+    Mesh                   *volume_mesh_create(const unsigned int shape, const float size);
+    Mesh                   *volume_mesh_get();
 };

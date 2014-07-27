@@ -15,12 +15,12 @@ Light::Light()
   bias = glm::vec3(0.f, 0.f, 0.f);
   shader_index = 0;
   follow = nullptr;
+  volume.reset(nullptr);
 }
 
 
 Light::~Light()
 {
-
 }
 
 
@@ -109,13 +109,19 @@ Node *Light::node_follow_get()
 }
 
 
-void Light::shader_index_set(const unsigned int index)
+Mesh *Light::volume_mesh_create(const unsigned int shape, const float size)
 {
-  shader_index = index;
+  std::unique_ptr<Mesh> mesh(new Mesh());
+  Mesh *mesh_ptr = mesh.get();
+  mesh_ptr->cube_generate(size);
+
+  volume = std::move(mesh);
+
+  return mesh_ptr;
 }
 
 
-unsigned int Light::shader_index_get()
+Mesh *Light::volume_mesh_get()
 {
-  return shader_index;
+  return volume.get();
 }

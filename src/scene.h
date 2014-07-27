@@ -14,7 +14,6 @@ class Scene {
 
   private:
     Node_Ptr_List animated_nodes;
-    Node_Ptr_List light_nodes;
     Node_Ptr_List mesh_nodes;
     Node_Ptr_List upload_queue;
 
@@ -34,9 +33,6 @@ class Scene {
     const std::vector<Node *>  &animated_nodes_get() const;
     void                        animated_nodes_update_transforms(Node &node, const double dt);
     Camera                     *camera_get();
-    void                        light_nodes_add(Node &node);
-    void                        light_nodes_del(Node *node);
-    const std::vector<Node *>  &light_nodes_get() const;
     void                        mesh_nodes_add(Node &node);
     const std::vector<Node *>  &mesh_nodes_get() const;
     Node                       &model_load(const std::string &prefix, const std::string &filename, 

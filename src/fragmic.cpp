@@ -30,6 +30,7 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   cam_node->camera_get()->transform_perspective_create(window.width, window.height);
   scene.node_camera_set(cam_node);
 
+  glshader.load("shaders/main.v", "shaders/main.f");
   /*
   // STANDARD FORWARD
   glshader.load("shaders/main.v", "shaders/main.f");
@@ -66,7 +67,7 @@ void Fragmic::draw_g_buffer(const double dt)
   GLcontext &glcontext = window.glcontext_get();
 
   glcontext.framebuffer_g_draw_first_pass(scene, glshader_deferred_first);
-  glcontext.framebuffer_g_draw_second_pass(scene, glshader_deferred_second);
+  glcontext.framebuffer_g_draw_second_pass(scene.assets_get(), glshader_deferred_second);
 
   /* Step physics simulation */
   physics.step(dt);
@@ -112,6 +113,11 @@ void Fragmic::run()
     /* Upload new nodes */
     Node *upload_node = scene.upload_queue_pop();
     while (upload_node) {
+      Light *light = upload_node->light_get();
+      if (light) {
+        glcontext.vertex_buffers_mesh_create(light->volume_mesh_get());
+      }
+
       glcontext.vertex_buffers_create(*upload_node);
       upload_node = scene.upload_queue_pop();
     }
@@ -125,15 +131,6 @@ void Fragmic::run()
     for (auto &armature: armatures) {
       armature->bones_update_skinningmatrices();
       glcontext.uniform_buffers_update_armature(*armature);
-    }
-
-    /* Update lights */
-    unsigned int index = 0;
-    auto &lights = assets.light_active_get();
-    glcontext.uniform_buffers_update_light_num(lights.size());
-    for (auto &light: lights) {
-      light->shader_index_set(index);
-      glcontext.uniform_buffers_update_light(*light, index++);
     }
 
     /* Update camera */

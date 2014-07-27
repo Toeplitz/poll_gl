@@ -86,23 +86,6 @@ Camera *Scene::camera_get()
 }
 
 
-void Scene::light_nodes_add(Node &node) 
-{
-  std::cout << "Adding light node" << std::endl;
-  light_nodes.push_back(&node);
-}
-
-void light_nodes_del(Node *node)
-{
-
-}
-
-const std::vector<Node *> &Scene::light_nodes_get() const
-{
-  return light_nodes;
-}
-
-
 void Scene::mesh_nodes_add(Node &node) 
 {
   mesh_nodes.push_back(&node);
@@ -286,7 +269,7 @@ void Scene::upload_queue_add(Node &node)
   }
 
   if (node.light_get()) {
-    light_nodes_add(node);
+    upload_queue.push_back(&node);
   }
 
   if (node.mesh) {

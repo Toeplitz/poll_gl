@@ -75,6 +75,7 @@ void Assets::light_activate(Light *light)
       found = it;
     }
   }
+
   inactive_lights.erase(found);
 }
 
@@ -132,7 +133,13 @@ void Assets::light_print_all(const Node &node) const
 
   std::cout << "\tactive: " << std::endl;
   for (auto &light: active_lights) {
-    std::cout << "\t(" << light.get() << ")" << std::endl;
+    std::cout << "\t(" << light.get() << ") ";
+
+    if (light->volume_mesh_get()) {
+      std::cout << "(volume mesh) ";
+    }
+
+    std::cout << std::endl;
   }
   std::cout << "\tinactive: " << std::endl;
   for (auto &light: inactive_lights) {

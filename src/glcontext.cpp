@@ -98,14 +98,13 @@ void GLcontext::draw_node(Node &node)
 
 void GLcontext::draw_mesh(Mesh &mesh)
 {
-  glBindVertexArray(mesh.gl_vao);
+  GL_ASSERT(glBindVertexArray(mesh.gl_vao));
   GLsizei count = (GLsizei) mesh.num_indices_get();
   if (count <= 0) {
-    glDrawArrays(mesh.mode, 0, mesh.num_vertices_get());
+    GL_ASSERT(glDrawArrays(mesh.mode, 0, mesh.num_vertices_get()));
   } else {
-    glDrawElements(mesh.mode, count, GL_UNSIGNED_SHORT, 0);
+    GL_ASSERT(glDrawElements(mesh.mode, count, GL_UNSIGNED_SHORT, 0));
   }
-
 }
 
 
@@ -233,7 +232,7 @@ void GLcontext::framebuffer_g_draw_first_pass(Scene &scene, GLshader &shader)
 }
 
 
-void GLcontext::framebuffer_g_draw_second_pass(const Scene &scene, GLshader &shader)
+void GLcontext::framebuffer_g_draw_second_pass(const Assets &assets, GLshader &shader)
 {
   GL_ASSERT(glBindFramebuffer(GL_FRAMEBUFFER, 0));
   GL_ASSERT(glClearColor(0., 0., 0., 1.0f));
@@ -254,29 +253,17 @@ void GLcontext::framebuffer_g_draw_second_pass(const Scene &scene, GLshader &sha
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_depth));
 
  // glDrawArrays(GL_TRIANGLES, 0, fb_g_node->mesh->num_vertices_get());
+  auto &lights = assets.light_active_get();
+  for (auto &light: lights) {
+    Mesh *mesh = light->volume_mesh_get();
 
-  for (auto &node: scene.light_nodes_get()) {
-    Light *light = node->light_get();
-    Mesh *mesh = node->mesh_get();
-    Node *follow = light->node_follow_get();
-
-    if (!light) {
-      std::cout << "Error: no light attached to the light node: " << node->name << std::endl;
+    if (!mesh) {
+    //  std::cout << "No mesh found" << std::endl;
       continue;
     }
 
-    if (follow) {
-      Mesh *follow_mesh = follow->mesh_get();
-      //std::cout << "Follow node: " << follow->name << std::endl;
-      //std::cout << "Light position: " << glm::to_string(glm::vec3(follow_mesh->model * glm::vec4(follow->original_position, 1.f))) << std::endl; 
-      //light->properties_position_set(glm::vec3(follow_mesh->model * glm::vec4(follow->original_position, 1.f)));
-
-     // print_matrix(std::cout, follow_mesh->model, 0);
-    }
-    //std::cout << "Drawing light: "  << node->name << " with index: " << light->shader_index_get() << std::endl;
-    //light->properties_position_set(glm::vec3(0, 0, 0));
-    //light->print(0);
-    GL_ASSERT(glUniform1i(gl_uniform_light_index, light->shader_index_get()));
+   // std::cout << "Light position: " << glm::to_string(light->properties_get().position) << std::endl;
+    uniform_buffers_update_light(*light);
     draw_mesh(*mesh);
   }
 
@@ -290,23 +277,29 @@ void GLcontext::framebuffer_g_node_create(GLshader &shader, Node &node)
   GLint index;
   Mesh *mesh = node.mesh;
 
-  glGenVertexArrays(1, &mesh->gl_vao);
-  glBindVertexArray(mesh->gl_vao);
-  glGenBuffers(1, gl_g_fb_vertex_buffers);
+  if (!mesh) {
+    std::cout << "Error: no mesh attached to node: '" << node.name << std::endl;
+    return;
+  }
+
+  GL_ASSERT(glGenVertexArrays(1, &mesh->gl_vao));
+  GL_ASSERT(glBindVertexArray(mesh->gl_vao));
+  GL_ASSERT(glGenBuffers(1, gl_g_fb_vertex_buffers));
 
   target = GL_ARRAY_BUFFER;
   {
     std::vector<glm::vec3> positions = mesh->positions_get();
     index = 0;
-    glBindBuffer(target, gl_g_fb_vertex_buffers[index]);
-    glBufferData(target, positions.size() * sizeof(positions[0]), positions.data(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(index);
-    glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    GL_ASSERT(glBindBuffer(target, gl_g_fb_vertex_buffers[index]));
+    GL_ASSERT(glBufferData(target, positions.size() * sizeof(positions[0]), positions.data(), GL_STATIC_DRAW));
+    GL_ASSERT(glEnableVertexAttribArray(index));
+    GL_ASSERT(glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0));
   }
 
   {
     GLint location;
     location = glGetUniformLocation(program, "normal_tex");
+    check_error();
     GL_ASSERT(glUniform1i(location, 0));
     location = glGetUniformLocation(program, "depth_tex");
     GL_ASSERT(glUniform1i(location, 1));
@@ -433,6 +426,7 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
   }
 
   {
+    /*
     Material_Properties properties;
     properties.Ka = glm::vec4(1.f, 0.f, 0.f, 1.f);
     properties.Kd = glm::vec4(0.f, 1.f, 0.f, 1.f);
@@ -446,8 +440,8 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
     glBufferData(target, sizeof(properties), &properties, GL_STREAM_DRAW);
     glUniformBlockBinding(program, block_index, bind_index);
     glBindBufferBase(target, bind_index, gl_buffer_material);
-    //glBindBufferRange(target, bind_index, gl_buffer_material, 0, sizeof(properties));
     glBindBuffer(target, 0);
+    */
   }
 
   {
@@ -476,7 +470,7 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
     Light_Properties properties[8];
 
     bind_index = UB_LIGHT;
-    block_index = shader.get_block_index("Lights");
+    block_index = shader.get_block_index("Light");
     glGenBuffers(1, &gl_buffer_light);
     glBindBuffer(target, gl_buffer_light);
     glBufferData(target, sizeof(properties), &properties, GL_STREAM_DRAW);
@@ -488,6 +482,7 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
   }
 
   {
+    /*
     GLint location;
     location = glGetUniformLocation(program, "diffuse_texture");
     GL_ASSERT(glUniform1i(location, 0));
@@ -495,7 +490,8 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
     GL_ASSERT(glUniform1i(location, 1));
     location = glGetUniformLocation(program, "specular_texture");
     GL_ASSERT(glUniform1i(location, 2));
-    gl_uniform_light_index = glGetUniformLocation(program, "light_index");
+    */
+    //gl_uniform_light_index = glGetUniformLocation(program, "light_index");
   }
 }
 
@@ -534,6 +530,7 @@ void GLcontext::uniform_buffers_update_camera(Camera &camera)
 }
 
 
+/*
 void GLcontext::uniform_buffers_update_light_num(const unsigned int num_lights)
 {
   GLenum target = GL_UNIFORM_BUFFER;
@@ -543,22 +540,22 @@ void GLcontext::uniform_buffers_update_light_num(const unsigned int num_lights)
   glBufferSubData(target, offset, sizeof(int), &num_lights);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
+*/
 
 
-void GLcontext::uniform_buffers_update_light(const Light &light, const unsigned int index)
+void GLcontext::uniform_buffers_update_light(Light &light)
 {
   const Light_Properties &properties = light.properties_get();
-  GLenum target = GL_UNIFORM_BUFFER;
   GLintptr offset = 0;
-  glBindBuffer(target, gl_buffer_light);
-  offset = sizeof(int) * 4 + sizeof(properties) * index;
-  glBufferSubData(target, offset, sizeof(properties), &properties);
-  glBindBuffer(GL_UNIFORM_BUFFER, 0);
+  GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_light));
+  GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(properties), &properties));
+  GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 }
 
 
 void GLcontext::uniform_buffers_update_material(const Material &material)
 {
+  /*
   GLenum target = GL_UNIFORM_BUFFER;
   GLintptr offset = 0;
   glBindBuffer(target, gl_buffer_material);
@@ -583,7 +580,7 @@ void GLcontext::uniform_buffers_update_material(const Material &material)
     glBindTexture(GL_TEXTURE_CUBE_MAP, material.cubemap->gl_texture);
   }
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
+*/
 }
 
 
@@ -610,15 +607,17 @@ void GLcontext::uniform_buffers_update_state(Node &node)
 }
 
 
-
-void GLcontext::vertex_buffers_create(Node &node)
+void GLcontext::vertex_buffers_mesh_create(Mesh *mesh)
 {
   GLenum target;
   GLint index;
-  Mesh *mesh = node.mesh;
-  Material *material = node.material;
 
   if (!mesh) return;
+
+  if (glIsVertexArray(mesh->gl_vao)) {
+    std::cout << "Error: vertex array already exists for the mesh" << std::endl;
+    return;
+  }
 
   glGenVertexArrays(1, &mesh->gl_vao);
   glBindVertexArray(mesh->gl_vao);
@@ -706,6 +705,17 @@ void GLcontext::vertex_buffers_create(Node &node)
     glBindBuffer(target, gl_vertex_buffers[7]);
     glBufferData(target, indices.size() * sizeof(indices[0]), indices.data(), GL_STATIC_DRAW);
   }
+
+}
+
+
+void GLcontext::vertex_buffers_create(Node &node)
+{
+  Mesh *mesh = node.mesh;
+  Material *material = node.material;
+
+  if (!mesh) return;
+  vertex_buffers_mesh_create(mesh);
 
   if (material) {
     if (material->diffuse) {

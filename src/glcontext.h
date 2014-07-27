@@ -60,7 +60,7 @@ class GLcontext {
     void framebuffer_draw_screen();
     void framebuffer_g_create(GLshader &glshader_deferred_second, const int width, const int height);
     void framebuffer_g_draw_first_pass(Scene &scene, GLshader &shader);
-    void framebuffer_g_draw_second_pass(const Scene &scene, GLshader &shader);
+    void framebuffer_g_draw_second_pass(const Assets &assets, GLshader &shader);
     void framebuffer_g_node_create(GLshader &shader, Node &node);
     void framebuffer_node_create(GLshader &shader, Node &node);
     void polygon_mesh_toggle(bool tog);
@@ -68,11 +68,12 @@ class GLcontext {
     void uniform_buffers_delete();
     void uniform_buffers_update_armature(const Armature &armature);
     void uniform_buffers_update_camera(Camera &camera);
-    void uniform_buffers_update_light_num(const unsigned int num_lights);
-    void uniform_buffers_update_light(const Light &light, const unsigned int index);
+ //   void uniform_buffers_update_light_num(const unsigned int num_lights);
+    void uniform_buffers_update_light(Light &light);
     void uniform_buffers_update_material(const Material &material);
     void uniform_buffers_update_mesh(Mesh &mesh);
     void uniform_buffers_update_state(Node &node);
     void vertex_buffers_create(Node &node);
+    void vertex_buffers_mesh_create(Mesh *mesh);
     void vertex_buffers_delete(Node &node);
 };

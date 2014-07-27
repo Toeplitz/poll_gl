@@ -246,19 +246,17 @@ int main()
 
     Node *panda_light = scene.node_find(room, "Spot_Light");
     light_spot = panda_light->light_get();
-    light_spot->bias_set(glm::vec3(0, 20, 0));
+    light_spot->volume_mesh_create(LIGHT_VOLUME_BOX, 40.f);
+    light_spot->properties_position_set(glm::vec3(0, 20, 0));
+    //light_spot->bias_set(glm::vec3(0, 20, 0));
     light_spot->node_follow_set(panda);
-    //panda->light_set(light_spot);
-    //panda_light->light_set(nullptr);
-
-    //scene.light_nodes_add(*panda);
 
     Node *node = scene.node_find(room, "Point_Light");
     light_point = node->light_get();
   }
 
-  scene.scene_graph_print(false);
-  scene.assets_get().print_all(scene.node_root_get());
+ // scene.scene_graph_print(false);
+ // scene.assets_get().print_all(scene.node_root_get());
 
   fragmic.run();
   fragmic.term();
