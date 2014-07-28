@@ -11,9 +11,8 @@
 
 Light::Light()
 {
-  properties.type = LIGHT_UNDEFINED;
+  //properties.type = LIGHT_UNDEFINED;
   bias = glm::vec3(0.f, 0.f, 0.f);
-  shader_index = 0;
   follow = nullptr;
   volume.reset(nullptr);
 }
@@ -34,6 +33,8 @@ void Light::print(const int indent_level)
   std::cout << std::endl;
   indent(std::cout, indent_level);
   std::cout << "Light details: " << std::endl;
+
+  /*
   std::cout << "\tType: ";
   switch (properties.type) {
     case LIGHT_DIRECTIONAL:
@@ -56,6 +57,7 @@ void Light::print(const int indent_level)
   std::cout << "\tDiffuse color: " <<  glm::to_string(properties.diffuse) << std::endl;
   std::cout << "\tSpecular color: " <<  glm::to_string(properties.specular) << std::endl;
 
+  */
 }
 
 
@@ -67,15 +69,17 @@ const Light_Properties &Light::properties_get() const
 
 void Light::properties_set(const glm::vec3 ambient, const glm::vec3 diffuse, const glm::vec3 specular) 
 {
+  /*
   properties.ambient = glm::vec4(ambient, 0);
   properties.diffuse = glm::vec4(diffuse, 0);
   properties.specular = glm::vec4(specular, 0);
+  */
 }
 
 
 void Light::properties_direction_set(const glm::vec3 &direction)
 {
-  properties.direction = glm::vec4(direction, 0);
+  //properties.direction = glm::vec4(direction, 0);
 }
 
 
@@ -87,13 +91,13 @@ void Light::bias_set(const glm::vec3 &bias)
 
 void Light::properties_position_set(const glm::vec3 &position)
 {
-  properties.position = glm::vec4(position + bias, 1.0);
+  properties.position = glm::fvec4(position + bias, 1.0);
 }
 
 
 void Light::properties_type_set(const unsigned int type)
 {
-  properties.type = type;
+  //properties.type = type;
 }
 
 

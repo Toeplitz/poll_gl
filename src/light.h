@@ -28,13 +28,13 @@ enum Light_Volume
 
 struct Light_Properties
 {
+  /*
   glm::vec4 ambient;
   glm::vec4 diffuse;
   glm::vec4 specular;
   glm::vec4 direction;
-  glm::vec4 position;
-  int type;
-  glm::ivec3 buffer;
+  */
+  glm::fvec4 position;
 };
 
 
@@ -43,7 +43,6 @@ class Light
   private:
     Light_Properties properties;
     glm::vec3 bias;
-    unsigned int shader_index;
     Node *follow;
     std::unique_ptr<Mesh> volume;
 

@@ -30,7 +30,6 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   cam_node->camera_get()->transform_perspective_create(window.width, window.height);
   scene.node_camera_set(cam_node);
 
-  glshader.load("shaders/main.v", "shaders/main.f");
   /*
   // STANDARD FORWARD
   glshader.load("shaders/main.v", "shaders/main.f");
@@ -43,15 +42,13 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   glcontext.framebuffer_node_create(glshader_screen, node);
 */
 
-  // DEFERRED SHADING
+  // SETUP FOR DEFERRED SHADING
   glshader_deferred_first.load("shaders/deferred_pass_one.v", "shaders/deferred_pass_one.f");
-  glcontext.uniform_buffers_create(glshader_deferred_first);
   glshader_deferred_second.load("shaders/deferred_pass_two.v", "shaders/deferred_pass_two.f");
-  Node &node_g = *scene.node_create("fb_g_quad");
-  node_g.mesh_create(scene.assets_get());
-  node_g.mesh->quad_generate(1.f);
+  glcontext.uniform_buffers_create();
+  glcontext.uniform_buffers_block_bind(glshader_deferred_first);
+  glcontext.uniform_buffers_block_bind(glshader_deferred_second);
   glcontext.framebuffer_g_create(glshader_deferred_second, window.width, window.height);
-  glcontext.framebuffer_g_node_create(glshader_deferred_second, node_g);
 
   physics.init();
 }

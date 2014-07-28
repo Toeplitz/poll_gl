@@ -248,6 +248,7 @@ int main()
     light_spot = panda_light->light_get();
     light_spot->volume_mesh_create(LIGHT_VOLUME_BOX, 40.f);
     light_spot->properties_position_set(glm::vec3(0, 20, 0));
+   // light_spot->properties_position_set(glm::vec3(0, 1, 0));
     //light_spot->bias_set(glm::vec3(0, 20, 0));
     light_spot->node_follow_set(panda);
 

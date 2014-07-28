@@ -1,15 +1,10 @@
 #version 330
-#define LIGHT_UNDEFINED 0
-#define LIGHT_DIRECTIONAL 1
-#define LIGHT_SPOT 2
-#define LIGHT_POINT 3
 
 //in vec2 st;
 
-uniform sampler2D normal_tex;
-uniform sampler2D depth_tex;
 
-layout(std140) uniform GlobalMatrices {
+layout(std140) uniform GlobalMatrices 
+{
   mat4 proj;
   mat4 inv_proj;
   mat4 view;
@@ -18,14 +13,12 @@ layout(std140) uniform GlobalMatrices {
 
 layout(std140) uniform Light 
 {
-  vec4 light_ambient;
-  vec4 light_diffuse;
-  vec4 light_specular;
-  vec4 light_direction;
   vec4 light_position;
-  int  light_type;
 };
 
+
+uniform sampler2D normal_tex;
+uniform sampler2D depth_tex;
 
 out vec4 frag_color;
 
@@ -39,7 +32,7 @@ vec3 ks = vec3 (0.5, 0.5, 0.5);
 float specular_exponent = 100.0;
 
 vec3 phong (in vec3 op_eye, in vec3 n_eye) {
-  vec3 lp_eye = (view * vec4(vec3(light_position), 1)).xyz;
+  vec3 lp_eye = (view * vec4(vec3(light_position), 1.0)).xyz;
   //vec3 lp_eye = (view * vec4(0, 20, 0, 1)).xyz;
   vec3 dist_to_light_eye = lp_eye - op_eye;
   vec3 direction_to_light_eye = normalize (dist_to_light_eye);
@@ -146,8 +139,11 @@ void main ()
   vec3 p_texel = reconstruct_position(d_texel, st);
   vec3 pos_eye = vec3(view * vec4(p_texel.rgb, 1.0));
 
- // frag_color.rgb =  p_texel.rgb;
+  //frag_color.rgb =  vec3(n_texel);
+  //frag_color.rgb =  vec3(d_texel, d_texel, d_texel);
   frag_color.rgb = phong(pos_eye, normalize(n_texel.rgb));
+ // frag_color.rgb = light_position.rgb;
+  //frag_color.rgb = vec3(0, state_cubemap_skybox, 0);
   frag_color.a = 1.0;
   if (d_texel > -0.0001) {
   //  frag_color.rgb = vec3(0, 0, 1);

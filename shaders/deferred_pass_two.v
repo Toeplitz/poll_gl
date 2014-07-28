@@ -8,9 +8,6 @@ layout(std140) uniform GlobalMatrices {
   mat4 view;
 };
 
-layout(std140) uniform Matrices {
-  mat4 model;
-};
 
 //out vec2 st;
 

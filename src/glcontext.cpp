@@ -53,9 +53,9 @@ bool GLcontext::init(const int width, const int height)
   check_version(3);
 
   glViewport(0, 0, width, height);
-  glEnable (GL_CULL_FACE); // cull face
-  glCullFace (GL_BACK); // cull back face
-  glFrontFace (GL_CCW); // GL_CCW for counter clock-wise
+  GL_ASSERT(glEnable(GL_CULL_FACE)); // cull face
+  GL_ASSERT(glCullFace(GL_BACK)); // cull back face
+  GL_ASSERT(glFrontFace(GL_CCW)); // GL_CCW for counter clock-wise
 
   return true;
 }
@@ -80,18 +80,8 @@ void GLcontext::draw_node(Node &node)
     if (material) uniform_buffers_update_material(*material);
   }
 
-  /* FIXME: hacky ... */
-  if (mesh) {
-    if (node.light_get()) {
-     //  std::cout << "Light position: " << glm::to_string(glm::vec3(mesh->model * glm::vec4(node.original_position, 1.f))) << std::endl; 
-     // node.light_get()->properties_position_set(glm::vec3(mesh->model * glm::vec4(node.original_position, 1.f)));
-    }
-  }
-
   if (node.state.cubemap_skybox) glDepthMask(GL_FALSE);
-
   draw_mesh(*mesh);
-
   if (node.state.cubemap_skybox) glDepthMask(GL_TRUE);
 }
 
@@ -183,6 +173,8 @@ void GLcontext::framebuffer_delete()
 
 void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const int width, const int height)
 {
+  GLuint program = glshader_deferred_second.program;
+
   glGenTextures(1, &gl_g_fb_tex_normal);
   glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_normal);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
@@ -210,6 +202,12 @@ void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const i
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, gl_g_fb_tex_depth, 0);
 
+  glshader_deferred_second.use();
+  GLint location;
+  location = glGetUniformLocation(program, "normal_tex");
+  GL_ASSERT(glUniform1i(location, 0));
+  location = glGetUniformLocation(program, "depth_tex");
+  GL_ASSERT(glUniform1i(location, 1));
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
@@ -246,13 +244,11 @@ void GLcontext::framebuffer_g_draw_second_pass(const Assets &assets, GLshader &s
   //GL_ASSERT(glDepthMask(GL_FALSE));
 
   shader.use();
-  GL_ASSERT(glBindVertexArray(fb_g_node->mesh->gl_vao));
   GL_ASSERT(glActiveTexture(GL_TEXTURE0));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_normal));
   GL_ASSERT(glActiveTexture(GL_TEXTURE1));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_depth));
 
- // glDrawArrays(GL_TRIANGLES, 0, fb_g_node->mesh->num_vertices_get());
   auto &lights = assets.light_active_get();
   for (auto &light: lights) {
     Mesh *mesh = light->volume_mesh_get();
@@ -267,45 +263,6 @@ void GLcontext::framebuffer_g_draw_second_pass(const Assets &assets, GLshader &s
     draw_mesh(*mesh);
   }
 
-}
-
-
-void GLcontext::framebuffer_g_node_create(GLshader &shader, Node &node)
-{
-  GLuint program = shader.program;
-  GLenum target;
-  GLint index;
-  Mesh *mesh = node.mesh;
-
-  if (!mesh) {
-    std::cout << "Error: no mesh attached to node: '" << node.name << std::endl;
-    return;
-  }
-
-  GL_ASSERT(glGenVertexArrays(1, &mesh->gl_vao));
-  GL_ASSERT(glBindVertexArray(mesh->gl_vao));
-  GL_ASSERT(glGenBuffers(1, gl_g_fb_vertex_buffers));
-
-  target = GL_ARRAY_BUFFER;
-  {
-    std::vector<glm::vec3> positions = mesh->positions_get();
-    index = 0;
-    GL_ASSERT(glBindBuffer(target, gl_g_fb_vertex_buffers[index]));
-    GL_ASSERT(glBufferData(target, positions.size() * sizeof(positions[0]), positions.data(), GL_STATIC_DRAW));
-    GL_ASSERT(glEnableVertexAttribArray(index));
-    GL_ASSERT(glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0));
-  }
-
-  {
-    GLint location;
-    location = glGetUniformLocation(program, "normal_tex");
-    check_error();
-    GL_ASSERT(glUniform1i(location, 0));
-    location = glGetUniformLocation(program, "depth_tex");
-    GL_ASSERT(glUniform1i(location, 1));
-  }
-
-  fb_g_node = &node;
 }
 
 
@@ -377,51 +334,53 @@ void GLcontext::polygon_mesh_toggle(bool tog)
 }
 
 
-void GLcontext::uniform_buffers_create(GLshader &shader)
+void GLcontext::uniform_buffers_block_bind(GLshader &shader)
 {
   GLuint program = shader.program;
-  GLenum target = GL_UNIFORM_BUFFER;
   GLuint block_index;
   GLuint bind_index;
 
-  shader.use();
+  for (auto &name : shader.block_names_get()) {
+    std::cout << name << " bind index: " << uniform_buffer_map.at(name) << std::endl;
+    bind_index = uniform_buffer_map.at(name);
+    block_index = shader.get_block_index(name);
+    GL_ASSERT(glUniformBlockBinding(program, block_index, bind_index));
+  }
+}
+
+
+void GLcontext::uniform_buffers_create()
+{
+  GLenum target = GL_UNIFORM_BUFFER;
+  GLuint bind_index;
 
   {
     glm::mat4 matrix[3];
     bind_index = UB_GLOBALMATRICES;
-    block_index = shader.get_block_index("GlobalMatrices");
     glGenBuffers(1, &gl_buffer_globalmatrices);
     glBindBuffer(target, gl_buffer_globalmatrices);
     glBufferData(target, sizeof(matrix), &matrix, GL_STREAM_DRAW);
-    glUniformBlockBinding(program, block_index, bind_index);
     glBindBufferBase(target, bind_index, gl_buffer_globalmatrices);
-    //glBindBufferRange(target, bind_index, gl_buffer_globalmatrices, 0, sizeof(matrix));
     glBindBuffer(target, 0);
   }
 
   {
     glm::mat4 matrix;
     bind_index = UB_MATRICES;
-    block_index = shader.get_block_index("Matrices");
     glGenBuffers(1, &gl_buffer_matrices);
     glBindBuffer(target, gl_buffer_matrices);
     glBufferData(target, sizeof(matrix), &matrix, GL_STREAM_DRAW);
-    glUniformBlockBinding(program, block_index, bind_index);
     glBindBufferBase(target, bind_index, gl_buffer_matrices);
-    //glBindBufferRange(target, bind_index, gl_buffer_matrices, 0, sizeof(matrix));
     glBindBuffer(target, 0);
   }
 
   {
     glm::mat4 matrix[64];
     bind_index = UB_ARMATURE;
-    block_index = shader.get_block_index("Armature");
     glGenBuffers(1, &gl_buffer_armature);
     glBindBuffer(target, gl_buffer_armature);
     glBufferData(target, sizeof(matrix), &matrix, GL_STREAM_DRAW);
-    glUniformBlockBinding(program, block_index, bind_index);
     glBindBufferBase(target, bind_index, gl_buffer_armature);
-    //glBindBufferRange(target, bind_index, gl_buffer_armature, 0, sizeof(matrix));
     glBindBuffer(target, 0);
   }
 
@@ -456,29 +415,22 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
     state.standard = false;
 
     bind_index = UB_STATE;
-    block_index = shader.get_block_index("Node_State");
     glGenBuffers(1, &gl_buffer_state);
     glBindBuffer(target, gl_buffer_state);
     glBufferData(target, sizeof(state), &state, GL_STREAM_DRAW);
-    glUniformBlockBinding(program, block_index, bind_index);
     glBindBufferBase(target, bind_index, gl_buffer_state);
-    //glBindBufferRange(target, bind_index, gl_buffer_state, 0, sizeof(state));
     glBindBuffer(target, 0);
   }
 
   {
-    Light_Properties properties[8];
+    Light_Properties properties;
 
     bind_index = UB_LIGHT;
-    block_index = shader.get_block_index("Light");
     glGenBuffers(1, &gl_buffer_light);
     glBindBuffer(target, gl_buffer_light);
     glBufferData(target, sizeof(properties), &properties, GL_STREAM_DRAW);
-    glUniformBlockBinding(program, block_index, bind_index);
-    //glBindBufferRange(target, bind_index, gl_buffer_light, 0, sizeof(properties));
     glBindBufferBase(target, bind_index, gl_buffer_light);
     glBindBuffer(target, 0);
-
   }
 
   {
@@ -491,7 +443,6 @@ void GLcontext::uniform_buffers_create(GLshader &shader)
     location = glGetUniformLocation(program, "specular_texture");
     GL_ASSERT(glUniform1i(location, 2));
     */
-    //gl_uniform_light_index = glGetUniformLocation(program, "light_index");
   }
 }
 
@@ -518,37 +469,23 @@ void GLcontext::uniform_buffers_update_armature(const Armature &armature)
 
 void GLcontext::uniform_buffers_update_camera(Camera &camera)
 {
-  GLenum target = GL_UNIFORM_BUFFER;
-  GLintptr offset = 0;
   glm::mat4 data[3];
   data[0] = camera.transform_perspective_get();
   data[1] = camera.transform_perspective_inverse_get();
   data[2] = camera.transform_view_get();
-  glBindBuffer(target, gl_buffer_globalmatrices);
-  glBufferSubData(target, offset, sizeof(data), &data);
-  glBindBuffer(target, 0);
+  GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_globalmatrices));
+  GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(data), &data));
+  GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 }
-
-
-/*
-void GLcontext::uniform_buffers_update_light_num(const unsigned int num_lights)
-{
-  GLenum target = GL_UNIFORM_BUFFER;
-  GLintptr offset = 0;
-  glBindBuffer(target, gl_buffer_light);
-  offset = 0;
-  glBufferSubData(target, offset, sizeof(int), &num_lights);
-  glBindBuffer(GL_UNIFORM_BUFFER, 0);
-}
-*/
 
 
 void GLcontext::uniform_buffers_update_light(Light &light)
 {
-  const Light_Properties &properties = light.properties_get();
-  GLintptr offset = 0;
+  Light_Properties properties = light.properties_get();
+
+  //std::cout << glm::to_string(properties.position) << std::endl;
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_light));
-  GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(properties), &properties));
+  GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(properties), &properties));
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 }
 
@@ -599,11 +536,9 @@ void GLcontext::uniform_buffers_update_mesh(Mesh &mesh)
 
 void GLcontext::uniform_buffers_update_state(Node &node)
 {
-  GLenum target = GL_UNIFORM_BUFFER;
-  GLintptr offset = 0;
-  glBindBuffer(target, gl_buffer_state);
-  glBufferSubData(target, offset, sizeof(node.state), &node.state);
-  glBindBuffer(target, 0);
+  GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_state));
+  GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(node.state), &node.state));
+  GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 }
 
 
@@ -619,9 +554,9 @@ void GLcontext::vertex_buffers_mesh_create(Mesh *mesh)
     return;
   }
 
-  glGenVertexArrays(1, &mesh->gl_vao);
-  glBindVertexArray(mesh->gl_vao);
-  glGenBuffers(8, gl_vertex_buffers);
+  GL_ASSERT(glGenVertexArrays(1, &mesh->gl_vao));
+  GL_ASSERT(glBindVertexArray(mesh->gl_vao));
+  GL_ASSERT(glGenBuffers(8, gl_vertex_buffers));
 
   target = GL_ARRAY_BUFFER;
   {

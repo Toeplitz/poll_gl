@@ -206,15 +206,42 @@ void GLshader::load(const std::string &vertex, const std::string &fragment, cons
 }
 
 
-void GLshader::print_block_names()
+std::vector<std::string> GLshader::block_names_get()
 {
   GLint numBlocks;
   GLint nameLen;
 
-  std::vector <std::string> nameList;
+  std::vector <std::string> name_list;
 
   glGetProgramiv(program, GL_ACTIVE_UNIFORM_BLOCKS, &numBlocks);
-  nameList.reserve(numBlocks);
+  name_list.reserve(numBlocks);
+
+  for (int blockIx = 0; blockIx < numBlocks; blockIx++) {
+    glGetActiveUniformBlockiv(program, blockIx, GL_UNIFORM_BLOCK_NAME_LENGTH, &nameLen);
+    std::vector <GLchar> name;
+    name.resize(nameLen);
+    glGetActiveUniformBlockName(program, blockIx, nameLen, NULL, &name[0]);
+    name_list.push_back(std::string());
+    name_list.back().assign(name.begin(), name.end() - 1);       //Remove the null terminator.
+  }
+
+  return name_list;
+}
+
+
+void GLshader::print_block_names()
+{
+  GLint numBlocks;
+  GLint nameLen;
+  GLint block_binding;
+  GLint block_size;
+  GLint ref_vertex;
+  GLint ref_fragment;
+
+  std::vector <std::string> name_list;
+
+  glGetProgramiv(program, GL_ACTIVE_UNIFORM_BLOCKS, &numBlocks);
+  name_list.reserve(numBlocks);
 
   std::cout << "Found " << numBlocks << " block(s) in shader" << std::endl;
 
@@ -223,13 +250,20 @@ void GLshader::print_block_names()
     std::vector <GLchar> name;
     name.resize(nameLen);
     glGetActiveUniformBlockName(program, blockIx, nameLen, NULL, &name[0]);
-    nameList.push_back(std::string());
-    nameList.back().assign(name.begin(), name.end() - 1);       //Remove the null terminator.
+    name_list.push_back(std::string());
+    name_list.back().assign(name.begin(), name.end() - 1);       //Remove the null terminator.
+    glGetActiveUniformBlockiv(program, blockIx, GL_UNIFORM_BLOCK_BINDING, &block_binding);
+    glGetActiveUniformBlockiv(program, blockIx, GL_UNIFORM_BLOCK_DATA_SIZE, &block_size);
+    glGetActiveUniformBlockiv(program, blockIx, GL_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER, &ref_vertex);
+    glGetActiveUniformBlockiv(program, blockIx, GL_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER, &ref_fragment);
+
+    std::cout << "Name: " << name.data() << " block binding: " << block_binding << " block size: " << block_size << std::endl;
+    std::cout << "ref vertex: " << ref_vertex << ", ref fragment: " << ref_fragment << std::endl;
   }
 
-  for (unsigned int il = 0; il < nameList.size(); il++) {
-      std::cout << "Block name: " << nameList[il] << ", index: " <<
-      get_block_index(nameList[il]) << std::endl;
+  for (unsigned int il = 0; il < name_list.size(); il++) {
+      std::cout << "Block name: " << name_list[il] << ", index: " <<
+      get_block_index(name_list[il]) << std::endl;
   }
 }
 

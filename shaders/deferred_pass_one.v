@@ -8,6 +8,7 @@ layout(location = 4) in vec3 weights;
 layout(location = 5) in ivec3 bone_index;
 layout(location = 6) in vec2 texture_coord;
 
+
 layout(std140) uniform GlobalMatrices {
   mat4 proj;
   mat4 inv_proj;
@@ -34,23 +35,9 @@ layout(std140) uniform Node_State {
 };
 
 
-layout(std140) uniform Light 
-{
-  vec4 light_ambient;
-  vec4 light_diffuse;
-  vec4 light_specular;
-  vec4 light_direction;
-  vec4 light_position;
-  int  light_type;
-};
-
 out vec3 position_eye;
 out vec3 normal_eye;
 
-
-vec4 foo() {
-  return light_position;
-}
 
 mat4 func_animation_matrix_get()
 {

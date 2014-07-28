@@ -23,7 +23,6 @@ class GLcontext {
     GLuint gl_buffer_material;
     GLuint gl_buffer_state;
     GLuint gl_buffer_light;
-    GLuint gl_uniform_light_index;
     GLuint gl_vertex_buffers[8];
 
     GLuint gl_fb;
@@ -61,14 +60,13 @@ class GLcontext {
     void framebuffer_g_create(GLshader &glshader_deferred_second, const int width, const int height);
     void framebuffer_g_draw_first_pass(Scene &scene, GLshader &shader);
     void framebuffer_g_draw_second_pass(const Assets &assets, GLshader &shader);
-    void framebuffer_g_node_create(GLshader &shader, Node &node);
     void framebuffer_node_create(GLshader &shader, Node &node);
     void polygon_mesh_toggle(bool tog);
-    void uniform_buffers_create(GLshader &shader);
+    void uniform_buffers_block_bind(GLshader &shader);
+    void uniform_buffers_create();
     void uniform_buffers_delete();
     void uniform_buffers_update_armature(const Armature &armature);
     void uniform_buffers_update_camera(Camera &camera);
- //   void uniform_buffers_update_light_num(const unsigned int num_lights);
     void uniform_buffers_update_light(Light &light);
     void uniform_buffers_update_material(const Material &material);
     void uniform_buffers_update_mesh(Mesh &mesh);

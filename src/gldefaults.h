@@ -1,14 +1,32 @@
 #pragma once
 
+#include <iostream>
+#include <map>
+
 #define UB_GLOBALMATRICES 0
 #define UB_MATRICES 1
 #define UB_ARMATURE 2
-#define UB_MATERIAL 3
-#define UB_STATE 4
-#define UB_LIGHT 5
+#define UB_STATE 3
+#define UB_LIGHT 4
+#define UB_MATERIAL 5
 
 #include <GL/glew.h>
 #include <GL/glu.h>
+
+
+typedef std::map<std::string, int> Uniform_Map;
+
+const Uniform_Map::value_type uniform_buffer_map_def[] = { 
+  std::make_pair("GlobalMatrices", UB_GLOBALMATRICES ),
+  std::make_pair("Matrices", UB_MATRICES),
+  std::make_pair("Armature", UB_ARMATURE), 
+  std::make_pair("Node_State", UB_STATE), 
+  std::make_pair("Material", UB_MATERIAL), 
+  std::make_pair("Light", UB_LIGHT)
+};
+
+const Uniform_Map uniform_buffer_map(uniform_buffer_map_def, 
+    uniform_buffer_map_def + sizeof uniform_buffer_map_def / sizeof uniform_buffer_map_def[0]);
 
 
 #ifndef GL_ASSERT
