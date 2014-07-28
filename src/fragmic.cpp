@@ -44,6 +44,7 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
 
   // SETUP FOR DEFERRED SHADING
   glshader_deferred_first.load("shaders/deferred_pass_one.v", "shaders/deferred_pass_one.f");
+  glcontext.uniform_textures_init(glshader_deferred_first);
   glshader_deferred_second.load("shaders/deferred_pass_two.v", "shaders/deferred_pass_two.f");
   glcontext.uniform_buffers_create();
   glcontext.uniform_buffers_block_bind(glshader_deferred_first);
@@ -100,7 +101,7 @@ void Fragmic::run()
 
   for (;;) {
     double dt = delta_time_get();
-    //   profile_fps(dt);
+    //profile_fps(dt);
 
     if (!window.poll_events()) {
       std::cout << "Fragmic exiting..." << std::endl;

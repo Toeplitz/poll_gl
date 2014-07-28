@@ -31,6 +31,7 @@ class GLcontext {
 
     GLuint gl_g_fb;
     GLuint gl_g_fb_tex_normal;
+    GLuint gl_g_fb_tex_diffuse;
     GLuint gl_g_fb_tex_depth;
     GLuint gl_g_fb_vertex_buffers[1];
 
@@ -71,6 +72,7 @@ class GLcontext {
     void uniform_buffers_update_material(const Material &material);
     void uniform_buffers_update_mesh(Mesh &mesh);
     void uniform_buffers_update_state(Node &node);
+    void uniform_textures_init(GLshader &shader);
     void vertex_buffers_create(Node &node);
     void vertex_buffers_mesh_create(Mesh *mesh);
     void vertex_buffers_delete(Node &node);

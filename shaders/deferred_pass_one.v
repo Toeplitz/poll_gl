@@ -37,7 +37,7 @@ layout(std140) uniform Node_State {
 
 out vec3 position_eye;
 out vec3 normal_eye;
-
+out vec2 st;
 
 mat4 func_animation_matrix_get()
 {
@@ -68,4 +68,5 @@ void main(void)
   position_eye = (model_view * vec4(vertex_position, 1.0)).xyz;
   normal_eye = normal_matrix * vertex_normal;
   gl_Position = proj * vec4(position_eye, 1.0);
+  st = texture_coord;
 }

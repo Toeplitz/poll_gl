@@ -115,6 +115,28 @@ void Node::light_set(Light *light)
 }
 
 
+Mesh *Node::light_volume_mesh_create(const unsigned int shape, const float size)
+{
+  if (!light) {
+    std::cout << "Error: no light attached to node: " << name << std::endl;
+    return nullptr;
+  }
+
+  std::unique_ptr<Mesh> mesh(new Mesh());
+  Mesh *mesh_ptr = mesh.get();
+  mesh_ptr->cube_generate(size);
+
+
+  const Light_Properties &properties = light->properties_get();
+
+  translate(glm::vec3(properties.position));
+  light->volume = std::move(mesh);
+
+  return mesh_ptr;
+}
+
+
+
 void Node::print_state(int indent_level)
 {
   indent(std::cout, indent_level);
@@ -216,11 +238,24 @@ void Node::scale(const glm::vec3 &v)
 }
 
 
-void Node::translate(const glm::vec3 &v)
+void Node::translate(const glm::vec3 &v) 
 {
   glm::mat4 m = glm::translate(glm::mat4(1.f), v);
-  transform_local_current = transform_local_current * m;
-  transform_update_global_recursive(*this);
+  std::cout << "Translate node: " << name << std::endl;
+
+  if (mesh) 
+    mesh->model = mesh->model * m;
+
+  if (light) {
+    Mesh *vol = light->volume_mesh_get();
+    if (vol) {
+      std::cout << "transating ligght mesh" << std::endl;
+      vol->model = vol->model * m;
+    }
+  }
+
+  //transform_local_current = transform_local_current * m;
+  //transform_update_global_recursive(*this);
 }
 
 

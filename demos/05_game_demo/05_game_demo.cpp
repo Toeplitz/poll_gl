@@ -240,21 +240,22 @@ int main()
   {
     Node *light_node = scene.node_create("Light_Directional");
     light_directional = light_node->light_create(assets);
-    light_directional->properties_type_set(LIGHT_DIRECTIONAL);
-    light_directional->properties_direction_set(glm::vec3(0, -1, 0));
-    light_directional->properties_set(glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.5, 0.5, 0.5), glm::vec3(1.0, 1.0, 1.0));
+    light_directional->properties_position_set(glm::vec3(0, 10, 0));
+    light_node->light_volume_mesh_create(LIGHT_VOLUME_BOX, 20.f);
+  }
 
-    Node *panda_light = scene.node_find(room, "Spot_Light");
-    light_spot = panda_light->light_get();
-    light_spot->volume_mesh_create(LIGHT_VOLUME_BOX, 40.f);
+  {
+    Node *light_node = scene.node_find(room, "Spot_Light");
+    light_spot = light_node->light_get();
+    light_spot->bias_set(glm::vec3(0, 20, 0));
     light_spot->properties_position_set(glm::vec3(0, 20, 0));
-   // light_spot->properties_position_set(glm::vec3(0, 1, 0));
-    //light_spot->bias_set(glm::vec3(0, 20, 0));
+    light_node->light_volume_mesh_create(LIGHT_VOLUME_BOX, 40.f);
+
     light_spot->node_follow_set(panda);
+  }
 
     Node *node = scene.node_find(room, "Point_Light");
     light_point = node->light_get();
-  }
 
  // scene.scene_graph_print(false);
  // scene.assets_get().print_all(scene.node_root_get());

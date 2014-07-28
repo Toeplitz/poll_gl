@@ -36,7 +36,6 @@ void GLcontext::check_error()
 void GLcontext::clear()
 {
   glm::vec4 color(0.5, 0.5, 0.5, 1.0);
-  //  glm::vec4 color(0, 0, 0, 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glClearColor(color.x, color.y, color.z, color.a);
 }
@@ -129,7 +128,6 @@ void GLcontext::framebuffer_check_status()
 
 void GLcontext::framebuffer_create(const int width, const int height)
 {
-
   /* create the texture that will be attached to the fb. should be the same
      dimensions as the viewport */
   glGenTextures(1, &gl_fb_tex);
@@ -183,12 +181,21 @@ void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const i
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
+  glGenTextures(1, &gl_g_fb_tex_diffuse);
+  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_diffuse);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
   glGenFramebuffers (1, &gl_g_fb);
   glBindFramebuffer(GL_FRAMEBUFFER, gl_g_fb);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl_g_fb_tex_normal, 0);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gl_g_fb_tex_diffuse, 0);
 
-  GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0 };
-  glDrawBuffers(1, draw_bufs);
+  GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+  glDrawBuffers(2, draw_bufs);
 
   framebuffer_check_status();
 
@@ -206,8 +213,10 @@ void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const i
   GLint location;
   location = glGetUniformLocation(program, "normal_tex");
   GL_ASSERT(glUniform1i(location, 0));
-  location = glGetUniformLocation(program, "depth_tex");
+  location = glGetUniformLocation(program, "diffuse_tex");
   GL_ASSERT(glUniform1i(location, 1));
+  location = glGetUniformLocation(program, "depth_tex");
+  GL_ASSERT(glUniform1i(location, 2));
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
@@ -247,6 +256,8 @@ void GLcontext::framebuffer_g_draw_second_pass(const Assets &assets, GLshader &s
   GL_ASSERT(glActiveTexture(GL_TEXTURE0));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_normal));
   GL_ASSERT(glActiveTexture(GL_TEXTURE1));
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_diffuse));
+  GL_ASSERT(glActiveTexture(GL_TEXTURE2));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_depth));
 
   auto &lights = assets.light_active_get();
@@ -259,6 +270,17 @@ void GLcontext::framebuffer_g_draw_second_pass(const Assets &assets, GLshader &s
     }
 
    // std::cout << "Light position: " << glm::to_string(light->properties_get().position) << std::endl;
+
+    if (light->node_follow_get()) {
+      Mesh *follow_mesh = light->node_follow_get()->mesh_get();
+      glm::vec4 new_pos = follow_mesh->model *  glm::vec4(light->node_follow_get()->original_position, 1);
+      light->properties_position_set(glm::vec3(new_pos));
+
+      uniform_buffers_update_mesh(*follow_mesh);
+    } else {
+      uniform_buffers_update_mesh(*mesh);
+    }
+
     uniform_buffers_update_light(*light);
     draw_mesh(*mesh);
   }
@@ -341,7 +363,7 @@ void GLcontext::uniform_buffers_block_bind(GLshader &shader)
   GLuint bind_index;
 
   for (auto &name : shader.block_names_get()) {
-    std::cout << name << " bind index: " << uniform_buffer_map.at(name) << std::endl;
+ //   std::cout << name << " bind index: " << uniform_buffer_map.at(name) << std::endl;
     bind_index = uniform_buffer_map.at(name);
     block_index = shader.get_block_index(name);
     GL_ASSERT(glUniformBlockBinding(program, block_index, bind_index));
@@ -385,7 +407,6 @@ void GLcontext::uniform_buffers_create()
   }
 
   {
-    /*
     Material_Properties properties;
     properties.Ka = glm::vec4(1.f, 0.f, 0.f, 1.f);
     properties.Kd = glm::vec4(0.f, 1.f, 0.f, 1.f);
@@ -393,14 +414,11 @@ void GLcontext::uniform_buffers_create()
     properties.shininess = 0.f;
 
     bind_index = UB_MATERIAL;
-    block_index = shader.get_block_index("Material");
     glGenBuffers(1, &gl_buffer_material);
     glBindBuffer(target, gl_buffer_material);
     glBufferData(target, sizeof(properties), &properties, GL_STREAM_DRAW);
-    glUniformBlockBinding(program, block_index, bind_index);
     glBindBufferBase(target, bind_index, gl_buffer_material);
     glBindBuffer(target, 0);
-    */
   }
 
   {
@@ -431,18 +449,6 @@ void GLcontext::uniform_buffers_create()
     glBufferData(target, sizeof(properties), &properties, GL_STREAM_DRAW);
     glBindBufferBase(target, bind_index, gl_buffer_light);
     glBindBuffer(target, 0);
-  }
-
-  {
-    /*
-    GLint location;
-    location = glGetUniformLocation(program, "diffuse_texture");
-    GL_ASSERT(glUniform1i(location, 0));
-    location = glGetUniformLocation(program, "normal_texture");
-    GL_ASSERT(glUniform1i(location, 1));
-    location = glGetUniformLocation(program, "specular_texture");
-    GL_ASSERT(glUniform1i(location, 2));
-    */
   }
 }
 
@@ -492,12 +498,8 @@ void GLcontext::uniform_buffers_update_light(Light &light)
 
 void GLcontext::uniform_buffers_update_material(const Material &material)
 {
-  /*
-  GLenum target = GL_UNIFORM_BUFFER;
-  GLintptr offset = 0;
-  glBindBuffer(target, gl_buffer_material);
-  glBufferSubData(target, offset, sizeof(material.properties), &material.properties);
-  
+  GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_material));
+  GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(material.properties), &material.properties));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, 0));
 
   if (material.diffuse) {
@@ -517,7 +519,6 @@ void GLcontext::uniform_buffers_update_material(const Material &material)
     glBindTexture(GL_TEXTURE_CUBE_MAP, material.cubemap->gl_texture);
   }
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
-*/
 }
 
 
@@ -526,11 +527,9 @@ void GLcontext::uniform_buffers_update_mesh(Mesh &mesh)
   glm::mat4 m;
   m = mesh.model;
 
-  GLenum target = GL_UNIFORM_BUFFER;
-  GLintptr offset = 0;
-  glBindBuffer(target, gl_buffer_matrices);
-  glBufferSubData(target, offset, sizeof(m), &m);
-  glBindBuffer(target, 0);
+  GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_matrices));
+  GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(m), &m));
+  GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 }
 
 
@@ -539,6 +538,20 @@ void GLcontext::uniform_buffers_update_state(Node &node)
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_state));
   GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(node.state), &node.state));
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, 0));
+}
+
+
+void GLcontext::uniform_textures_init(GLshader &shader)
+{
+  GLuint program = shader.program;
+
+  GLint location;
+  location = glGetUniformLocation(program, "diffuse_texture");
+  GL_ASSERT(glUniform1i(location, 0));
+  location = glGetUniformLocation(program, "normal_texture");
+  GL_ASSERT(glUniform1i(location, 1));
+  location = glGetUniformLocation(program, "specular_texture");
+  GL_ASSERT(glUniform1i(location, 2));
 }
 
 

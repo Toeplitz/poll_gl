@@ -95,6 +95,12 @@ void Light::properties_position_set(const glm::vec3 &position)
 }
 
 
+const glm::vec4 &Light::properties_position_get() const
+{
+  return properties.position;
+}
+
+
 void Light::properties_type_set(const unsigned int type)
 {
   //properties.type = type;
@@ -110,18 +116,6 @@ void Light::node_follow_set(Node *node)
 Node *Light::node_follow_get()
 {
   return follow;
-}
-
-
-Mesh *Light::volume_mesh_create(const unsigned int shape, const float size)
-{
-  std::unique_ptr<Mesh> mesh(new Mesh());
-  Mesh *mesh_ptr = mesh.get();
-  mesh_ptr->cube_generate(size);
-
-  volume = std::move(mesh);
-
-  return mesh_ptr;
 }
 
 

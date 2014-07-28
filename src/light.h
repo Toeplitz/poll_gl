@@ -34,7 +34,7 @@ struct Light_Properties
   glm::vec4 specular;
   glm::vec4 direction;
   */
-  glm::fvec4 position;
+  glm::vec4 position;
 };
 
 
@@ -44,9 +44,10 @@ class Light
     Light_Properties properties;
     glm::vec3 bias;
     Node *follow;
-    std::unique_ptr<Mesh> volume;
 
   public:
+    std::unique_ptr<Mesh> volume;
+
     Light();
     ~Light();
 
@@ -57,9 +58,9 @@ class Light
                                            const glm::vec3 diffuse, const glm::vec3 specular);
     void                    properties_direction_set(const glm::vec3 &direction);
     void                    properties_position_set(const glm::vec3 &position);
+    const glm::vec4        &properties_position_get() const;
     void                    properties_type_set(const unsigned int type);
     void                    node_follow_set(Node *node);
     Node                   *node_follow_get();
-    Mesh                   *volume_mesh_create(const unsigned int shape, const float size);
     Mesh                   *volume_mesh_get();
 };
