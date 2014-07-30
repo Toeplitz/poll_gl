@@ -44,6 +44,7 @@ class Scene {
     Node                       &node_root_get();
     Node                       *node_camera_get();
     void                        node_camera_set(Node *camera_node);
+    void                        node_upload(Node *node);
     void                        state_update_recursive(Node &node);
     void                        upload_queue_add(Node &node);
     Node                       *upload_queue_pop();

@@ -75,6 +75,7 @@ class Node: public Animated {
     Light              *light_get();
     void                light_set(Light *light);
     Mesh               *light_volume_mesh_create(const unsigned int shape, const float size);
+    Mesh               *light_volume_mesh_create_from_node(Node *node);
     void                print_state(int indent_level);
     Physics_Rigidbody  *physics_rigidbody_create(Assets &assets);
     Physics_Rigidbody  *physics_rigidbody_get();

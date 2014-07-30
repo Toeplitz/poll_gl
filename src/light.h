@@ -21,8 +21,8 @@ enum Light_Type
 
 enum Light_Volume
 {
-  LIGHT_VOLUME_SPHERE = 0 << 1,
-  LIGHT_VOLUME_BOX = 0 << 2
+  LIGHT_VOLUME_SPHERE = 0,
+  LIGHT_VOLUME_BOX = 1
 };
 
 
@@ -47,6 +47,7 @@ class Light
 
   public:
     std::unique_ptr<Mesh> volume;
+    Mesh *volume_ptr;
 
     Light();
     ~Light();

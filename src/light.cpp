@@ -15,6 +15,7 @@ Light::Light()
   bias = glm::vec3(0.f, 0.f, 0.f);
   follow = nullptr;
   volume.reset(nullptr);
+  volume_ptr = nullptr;
 }
 
 
@@ -121,5 +122,10 @@ Node *Light::node_follow_get()
 
 Mesh *Light::volume_mesh_get()
 {
-  return volume.get();
+  /* If light owns its own volume mesh, return it, else look for 
+     pointer to a mesh owned by the asset manager */
+  if (volume)
+    return volume.get();
+  else 
+    return volume_ptr;
 }

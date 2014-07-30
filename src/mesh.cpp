@@ -193,6 +193,40 @@ void Mesh::cube_generate3(const float &size)
   }
 }
 
+
+void Mesh::sphere_generate(const float radius, const unsigned int rings, const unsigned int sectors)
+{
+  float const R = 1.0f / (float) (rings - 1.0f);
+  float const S = 1.0f / (float) (sectors - 1.0f);
+  unsigned int r, s;
+
+  for(r = 0; r < rings; r++) {
+    for(s = 0; s < sectors; s++) {
+      float const y = sinf( - (float) M_PI / 2.0f + (float) M_PI * (float) r * R );
+      float const x = cosf(2.0f * (float) M_PI * (float) s * S) * sinf((float) M_PI * (float) r * R );
+      float const z = sinf(2.0f * (float) M_PI * (float) s * S) * sinf((float) M_PI * (float) r * R );
+
+      positions.push_back(glm::vec3(x, y, z) * radius);
+      texture_st.push_back(glm::vec2(s * S, r * R));
+      normals.push_back(glm::vec3(x, y, z));
+    }
+  }
+
+  indices.resize(rings * sectors * 4);
+  std::vector<GLshort>::iterator i = indices.begin();
+  for(r = 0; r < rings - 1; r++) {
+    for(s = 0; s < sectors - 1; s++) {
+      *i++ = r * sectors + s;
+      *i++ = r * sectors + (s + 1);
+      *i++ = (r + 1) * sectors + (s + 1);
+      *i++ = (r + 1) * sectors + s;
+    }
+  }
+
+  mode = GL_QUAD_STRIP;
+}
+
+
 const std::vector<GLshort> &Mesh::indices_get() const
 {
   return indices;

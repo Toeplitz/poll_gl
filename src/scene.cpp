@@ -204,6 +204,7 @@ Node *Scene::node_create(const std::string &name)
   std::unique_ptr<Node> node(new Node(name));
   Node *node_ptr  = node.get();
   root.child_add(std::move(node), root.tree_level + 1);
+  upload_queue_add(*node_ptr);
   return node_ptr;
 }
 
@@ -223,6 +224,15 @@ Node *Scene::node_camera_get()
 void  Scene::node_camera_set(Node *camera_node)
 {
   this->node_cur_camera = camera_node;
+}
+
+
+void Scene::node_upload(Node *node)
+{
+  if (!node)
+    return;
+
+  upload_queue_add(*node);
 }
 
 

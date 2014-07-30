@@ -20,7 +20,7 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   GLcontext &glcontext = window.glcontext_get();
 
   window.init(title);
-  window.swap_interval_set(1);
+  window.swap_interval_set(0);
   if (!glcontext.init(window.width, window.height)) {
     exit(-1);
   }
@@ -43,12 +43,14 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
 */
 
   // SETUP FOR DEFERRED SHADING
+  glshader_stencil.load("shaders/stencil_pass.v", "shaders/stencil_pass.f");
   glshader_deferred_first.load("shaders/deferred_pass_one.v", "shaders/deferred_pass_one.f");
   glcontext.uniform_textures_init(glshader_deferred_first);
   glshader_deferred_second.load("shaders/deferred_pass_two.v", "shaders/deferred_pass_two.f");
   glcontext.uniform_buffers_create();
   glcontext.uniform_buffers_block_bind(glshader_deferred_first);
   glcontext.uniform_buffers_block_bind(glshader_deferred_second);
+  glcontext.uniform_buffers_block_bind(glshader_stencil);
   glcontext.framebuffer_g_create(glshader_deferred_second, window.width, window.height);
 
   physics.init();
@@ -65,7 +67,7 @@ void Fragmic::draw_g_buffer(const double dt)
   GLcontext &glcontext = window.glcontext_get();
 
   glcontext.framebuffer_g_draw_first_pass(scene, glshader_deferred_first);
-  glcontext.framebuffer_g_draw_second_pass(scene.assets_get(), glshader_deferred_second);
+  glcontext.framebuffer_g_draw_second_pass(scene.assets_get(), glshader_stencil, glshader_deferred_second);
 
   /* Step physics simulation */
   physics.step(dt);
@@ -101,7 +103,7 @@ void Fragmic::run()
 
   for (;;) {
     double dt = delta_time_get();
-    //profile_fps(dt);
+    profile_fps(dt);
 
     if (!window.poll_events()) {
       std::cout << "Fragmic exiting..." << std::endl;

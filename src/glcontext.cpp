@@ -60,6 +60,28 @@ bool GLcontext::init(const int width, const int height)
 }
 
 
+void GLcontext::draw_light(Light *light)
+{
+  Mesh *mesh = light->volume_mesh_get();
+  if (!mesh) {
+    return;
+  }
+
+  if (light->node_follow_get()) {
+    Mesh *follow_mesh = light->node_follow_get()->mesh_get();
+    glm::vec4 new_pos = follow_mesh->model *  glm::vec4(light->node_follow_get()->original_position, 1);
+    light->properties_position_set(glm::vec3(new_pos));
+
+    uniform_buffers_update_mesh(*follow_mesh);
+  } else {
+    uniform_buffers_update_mesh(*mesh);
+  }
+
+  uniform_buffers_update_light(*light);
+  draw_mesh(*mesh);
+
+}
+
 void GLcontext::draw_node(Node &node)
 {
   Mesh *mesh = node.mesh;
@@ -168,6 +190,27 @@ void GLcontext::framebuffer_delete()
 
 }
 
+/*
+   Based on tutorial:
+   http://ogldev.atspace.co.uk/www/tutorial37/tutorial37.html
+ 
+  PROBLEM:
+  Deferred shading with stencil pass for light culling.
+
+  Stencil pass not working as expected.
+
+   When using 
+     glStencilFunc(GL_EQUAL, 0, 0xFF);
+   the light render, but when the camera moves into the light volume the entire scene is lit up.
+     glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
+   no lights are rendering (black screen)
+ 
+   Implemented in three functions:
+   GLcontext::framebuffer_g_create(..)
+   GLcontext::framebuffer_g_draw_first_pass(..)
+   GLcontext::framebuffer_g_draw_second_pass(..)
+
+ */
 
 void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const int width, const int height)
 {
@@ -202,12 +245,12 @@ void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const i
   glGenTextures(1, &gl_g_fb_tex_depth);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_depth);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, gl_g_fb_tex_depth, 0);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, gl_g_fb_tex_depth, 0);
 
   glshader_deferred_second.use();
   GLint location;
@@ -221,70 +264,80 @@ void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const i
 }
 
 
-void GLcontext::framebuffer_g_draw_first_pass(Scene &scene, GLshader &shader)
+void GLcontext::framebuffer_g_draw_first_pass(Scene &scene, GLshader &shader_first_pass)
 {
+  /***** GEOMETRY PASS *********/
   glBindFramebuffer(GL_FRAMEBUFFER, gl_g_fb);
-  GL_ASSERT(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
-  GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+  GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+  glDrawBuffers(2, draw_bufs);
+  glClear(GL_COLOR_BUFFER_BIT);
 
-  GL_ASSERT(glDisable(GL_BLEND));
-  GL_ASSERT(glEnable(GL_DEPTH_TEST));
-  GL_ASSERT(glDepthMask(GL_TRUE));
+  glDepthMask(GL_TRUE);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glEnable(GL_DEPTH_TEST);
 
-  shader.use();
+  shader_first_pass.use();
   for (auto &node: scene.mesh_nodes_get()) {
     draw_node(*node);
   }
 
+  glDepthMask(GL_FALSE);
 }
 
 
-void GLcontext::framebuffer_g_draw_second_pass(const Assets &assets, GLshader &shader)
+void GLcontext::framebuffer_g_draw_second_pass(const Assets &assets, GLshader &shader_stencil, GLshader &shader_light_pass)
 {
-  GL_ASSERT(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-  GL_ASSERT(glClearColor(0., 0., 0., 1.0f));
-  //GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-  GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT));
-
-  GL_ASSERT(glEnable(GL_BLEND)); // --- could reject background frags!
-  GL_ASSERT(glBlendEquation(GL_FUNC_ADD));
-  GL_ASSERT(glBlendFunc(GL_ONE, GL_ONE)); // addition each time
-  GL_ASSERT(glDisable(GL_DEPTH_TEST));
-  //GL_ASSERT(glDepthMask(GL_FALSE));
-
-  shader.use();
-  GL_ASSERT(glActiveTexture(GL_TEXTURE0));
-  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_normal));
-  GL_ASSERT(glActiveTexture(GL_TEXTURE1));
-  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_diffuse));
-  GL_ASSERT(glActiveTexture(GL_TEXTURE2));
-  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_depth));
-
   auto &lights = assets.light_active_get();
+
+  /***** STENCIL PASS *********/
+  shader_stencil.use();
+  glBindFramebuffer(GL_FRAMEBUFFER, gl_g_fb);
+  glEnable(GL_STENCIL_TEST);
+  glDrawBuffer(GL_NONE);
+
+  glEnable(GL_DEPTH_TEST);
+  glDisable(GL_CULL_FACE);
+  glClear(GL_STENCIL_BUFFER_BIT);
+  glStencilFunc(GL_ALWAYS, 0, 0);
+  glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+  glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+  
   for (auto &light: lights) {
-    Mesh *mesh = light->volume_mesh_get();
-
-    if (!mesh) {
-    //  std::cout << "No mesh found" << std::endl;
-      continue;
-    }
-
-   // std::cout << "Light position: " << glm::to_string(light->properties_get().position) << std::endl;
-
-    if (light->node_follow_get()) {
-      Mesh *follow_mesh = light->node_follow_get()->mesh_get();
-      glm::vec4 new_pos = follow_mesh->model *  glm::vec4(light->node_follow_get()->original_position, 1);
-      light->properties_position_set(glm::vec3(new_pos));
-
-      uniform_buffers_update_mesh(*follow_mesh);
-    } else {
-      uniform_buffers_update_mesh(*mesh);
-    }
-
-    uniform_buffers_update_light(*light);
-    draw_mesh(*mesh);
+    /* glDrawElements and uniform buffer updates */
+    draw_light(light.get());
   }
 
+  /***** LIGHT PASS *********/
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glClearColor(0., 0., 0., 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT);
+
+  glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
+  glDisable(GL_DEPTH_TEST);
+  glEnable(GL_BLEND);
+  glBlendEquation(GL_FUNC_ADD);
+  glBlendFunc(GL_ONE, GL_ONE);
+
+  shader_light_pass.use();
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_normal);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_diffuse);
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_depth);
+
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_FRONT);
+
+  for (auto &light: lights) {
+    /* glDrawElements and uniform buffer updates */
+    draw_light(light.get());
+  }
+
+  glCullFace(GL_BACK);
+  glDisable(GL_BLEND);
+
+  glDisable(GL_STENCIL_TEST);
 }
 
 
@@ -363,7 +416,7 @@ void GLcontext::uniform_buffers_block_bind(GLshader &shader)
   GLuint bind_index;
 
   for (auto &name : shader.block_names_get()) {
- //   std::cout << name << " bind index: " << uniform_buffer_map.at(name) << std::endl;
+    //   std::cout << name << " bind index: " << uniform_buffer_map.at(name) << std::endl;
     bind_index = uniform_buffer_map.at(name);
     block_index = shader.get_block_index(name);
     GL_ASSERT(glUniformBlockBinding(program, block_index, bind_index));

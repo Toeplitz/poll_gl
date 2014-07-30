@@ -17,6 +17,7 @@ class Fragmic {
     GLshader glshader_deferred_first;
     GLshader glshader_deferred_second;
     GLshader glshader_screen;
+    GLshader glshader_stencil;
     Scene scene;
     Window window;
 

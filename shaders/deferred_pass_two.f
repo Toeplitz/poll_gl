@@ -142,16 +142,12 @@ void main ()
   vec3 pos_eye = vec3(view * vec4(p_texel.rgb, 1.0));
 
   frag_color.rgb = p_texel;
-  frag_color.rgb =  vec3(d_texel, d_texel, d_texel);
   frag_color.rgb =  vec3(n_texel);
   frag_color.rgb = vec3(diffuse_texel);
+ // frag_color.rgb =  vec3(d_texel, d_texel, d_texel);
+  //frag_color.rgb = vec3(0, 1, 0);
   frag_color.rgb = phong(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel));
 
   frag_color.a = 1.0;
-  //if (d_texel > -0.0001) {
-  //  frag_color.rgb = vec3(0, 0, 1);
-  //  frag_color.rgb = n_texel.rgb;
-   // frag_color.rgb = phong (p_texel.rgb, normalize(n_texel.rgb));
-  //}
 }
 
