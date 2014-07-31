@@ -14,8 +14,8 @@ class Fragmic {
   private:
     Physics physics;
     GLshader glshader;
-    GLshader glshader_deferred_first;
-    GLshader glshader_deferred_second;
+    GLshader glshader_geometry;
+    GLshader glshader_illumination;
     GLshader glshader_screen;
     GLshader glshader_stencil;
     Scene scene;

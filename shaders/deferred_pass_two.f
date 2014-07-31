@@ -33,8 +33,8 @@ vec3 ks = vec3 (0.5, 0.5, 0.5);
 float specular_exponent = 100.0;
 
 vec3 phong(in vec3 op_eye, in vec3 n_eye, in vec3 kd) {
-  vec3 lp_eye = (view * vec4(vec3(light_position), 1.0)).xyz;
-  //vec3 lp_eye = (view * vec4(0, 20, 0, 1)).xyz;
+  //vec3 lp_eye = (view * vec4(vec3(light_position), 1.0)).xyz;
+  vec3 lp_eye = (view * vec4(0, 20, 0, 1)).xyz;
   vec3 dist_to_light_eye = lp_eye - op_eye;
   vec3 direction_to_light_eye = normalize (dist_to_light_eye);
 
@@ -145,7 +145,7 @@ void main ()
   frag_color.rgb =  vec3(n_texel);
   frag_color.rgb = vec3(diffuse_texel);
  // frag_color.rgb =  vec3(d_texel, d_texel, d_texel);
-  //frag_color.rgb = vec3(0, 1, 0);
+  frag_color.rgb = vec3(0, 1, 0);
   frag_color.rgb = phong(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel));
 
   frag_color.a = 1.0;

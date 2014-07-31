@@ -242,7 +242,7 @@ int main()
   {
     Node *light_node = scene.node_create("Light_Directional");
     light_directional = light_node->light_create(assets);
-    light_directional->properties_position_set(glm::vec3(0, 1, 0));
+    light_directional->properties_position_set(glm::vec3(0, 10, 0));
     light_node->light_volume_mesh_create_from_node(sphere);
     scene.node_upload(light_node);
   }

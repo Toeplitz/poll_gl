@@ -61,8 +61,10 @@ class GLcontext {
     void framebuffer_draw_texture(Scene &scene, bool debug);
     void framebuffer_draw_screen();
     void framebuffer_g_create(GLshader &glshader_deferred_second, const int width, const int height);
-    void framebuffer_g_draw_first_pass(Scene &scene, GLshader &shader);
-    void framebuffer_g_draw_second_pass(const Assets &assets, GLshader &shader_stencil, GLshader &shader);
+    void framebuffer_g_light_pass(GLshader &shader_light, Light &light);
+    void framebuffer_g_draw_geometry(Scene &scene, GLshader &shader);
+    void framebuffer_g_draw_illuminated_scene(const Assets &assets, GLshader &shader_stencil, GLshader &shader_light);
+    void framebuffer_g_stencil_pass(GLshader &shader_stencil, Light &light);
     void framebuffer_node_create(GLshader &shader, Node &node);
     void polygon_mesh_toggle(bool tog);
     void uniform_buffers_block_bind(GLshader &shader);

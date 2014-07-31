@@ -12,15 +12,15 @@
 Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   physics(),
   glshader(), 
-  glshader_deferred_first(), 
-  glshader_deferred_second(), 
+  glshader_geometry(), 
+  glshader_illumination(), 
   scene(), 
   window(width, height)
 {
   GLcontext &glcontext = window.glcontext_get();
 
   window.init(title);
-  window.swap_interval_set(0);
+  window.swap_interval_set(1);
   if (!glcontext.init(window.width, window.height)) {
     exit(-1);
   }
@@ -44,14 +44,14 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
 
   // SETUP FOR DEFERRED SHADING
   glshader_stencil.load("shaders/stencil_pass.v", "shaders/stencil_pass.f");
-  glshader_deferred_first.load("shaders/deferred_pass_one.v", "shaders/deferred_pass_one.f");
-  glcontext.uniform_textures_init(glshader_deferred_first);
-  glshader_deferred_second.load("shaders/deferred_pass_two.v", "shaders/deferred_pass_two.f");
+  glshader_geometry.load("shaders/deferred_pass_one.v", "shaders/deferred_pass_one.f");
+  glcontext.uniform_textures_init(glshader_geometry);
+  glshader_illumination.load("shaders/deferred_pass_two.v", "shaders/deferred_pass_two.f");
   glcontext.uniform_buffers_create();
-  glcontext.uniform_buffers_block_bind(glshader_deferred_first);
-  glcontext.uniform_buffers_block_bind(glshader_deferred_second);
+  glcontext.uniform_buffers_block_bind(glshader_geometry);
+  glcontext.uniform_buffers_block_bind(glshader_illumination);
   glcontext.uniform_buffers_block_bind(glshader_stencil);
-  glcontext.framebuffer_g_create(glshader_deferred_second, window.width, window.height);
+  glcontext.framebuffer_g_create(glshader_illumination, window.width, window.height);
 
   physics.init();
 }
@@ -66,8 +66,8 @@ void Fragmic::draw_g_buffer(const double dt)
 {
   GLcontext &glcontext = window.glcontext_get();
 
-  glcontext.framebuffer_g_draw_first_pass(scene, glshader_deferred_first);
-  glcontext.framebuffer_g_draw_second_pass(scene.assets_get(), glshader_stencil, glshader_deferred_second);
+  glcontext.framebuffer_g_draw_geometry(scene, glshader_geometry);
+  glcontext.framebuffer_g_draw_illuminated_scene(scene.assets_get(), glshader_stencil, glshader_illumination);
 
   /* Step physics simulation */
   physics.step(dt);

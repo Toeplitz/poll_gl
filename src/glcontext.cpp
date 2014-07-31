@@ -52,9 +52,14 @@ bool GLcontext::init(const int width, const int height)
   check_version(3);
 
   glViewport(0, 0, width, height);
-  GL_ASSERT(glEnable(GL_CULL_FACE)); // cull face
-  GL_ASSERT(glCullFace(GL_BACK)); // cull back face
-  GL_ASSERT(glFrontFace(GL_CCW)); // GL_CCW for counter clock-wise
+  //GL_ASSERT(glEnable(GL_CULL_FACE)); // cull face
+  //GL_ASSERT(glCullFace(GL_BACK)); // cull back face
+  //GL_ASSERT(glFrontFace(GL_CCW)); // GL_CCW for counter clock-wise
+
+  glFrontFace(GL_CW);
+  glCullFace(GL_BACK);
+  glEnable(GL_CULL_FACE);
+  glEnable(GL_DEPTH_TEST);
 
   return true;
 }
@@ -198,18 +203,6 @@ void GLcontext::framebuffer_delete()
   Deferred shading with stencil pass for light culling.
 
   Stencil pass not working as expected.
-
-   When using 
-     glStencilFunc(GL_EQUAL, 0, 0xFF);
-   the light render, but when the camera moves into the light volume the entire scene is lit up.
-     glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
-   no lights are rendering (black screen)
- 
-   Implemented in three functions:
-   GLcontext::framebuffer_g_create(..)
-   GLcontext::framebuffer_g_draw_first_pass(..)
-   GLcontext::framebuffer_g_draw_second_pass(..)
-
  */
 
 void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const int width, const int height)
@@ -237,23 +230,12 @@ void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const i
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl_g_fb_tex_normal, 0);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gl_g_fb_tex_diffuse, 0);
 
-  /*
-  GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-  glDrawBuffers(2, draw_bufs);
-  */
-
   framebuffer_check_status();
 
   glGenTextures(1, &gl_g_fb_tex_depth);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_depth);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-  /*
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  */
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, gl_g_fb_tex_depth, 0);
 
   glGenTextures(1, &gl_g_fb_tex_final);
@@ -274,13 +256,15 @@ void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const i
 }
 
 
-void GLcontext::framebuffer_g_draw_first_pass(Scene &scene, GLshader &shader_first_pass)
+void GLcontext::framebuffer_g_draw_geometry(Scene &scene, GLshader &shader_first_pass)
 {
-  /***** GEOMETRY PASS *********/
+
   glBindFramebuffer(GL_FRAMEBUFFER, gl_g_fb);
+  glDrawBuffer(GL_COLOR_ATTACHMENT2);
+  glClear(GL_COLOR_BUFFER_BIT);
+
   GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
   glDrawBuffers(2, draw_bufs);
-  glClear(GL_COLOR_BUFFER_BIT);
 
   glDepthMask(GL_TRUE);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -295,59 +279,69 @@ void GLcontext::framebuffer_g_draw_first_pass(Scene &scene, GLshader &shader_fir
 }
 
 
-void GLcontext::framebuffer_g_draw_second_pass(const Assets &assets, GLshader &shader_stencil, GLshader &shader_light_pass)
+void GLcontext::framebuffer_g_light_pass(GLshader &shader_light, Light &light)
 {
-  auto &lights = assets.light_active_get();
+  glDrawBuffer(GL_COLOR_ATTACHMENT2);
 
-  /***** STENCIL PASS *********/
-  shader_stencil.use();
-  glBindFramebuffer(GL_FRAMEBUFFER, gl_g_fb);
-  glEnable(GL_STENCIL_TEST);
-  glDrawBuffer(GL_NONE);
-
-  glEnable(GL_DEPTH_TEST);
-  glDisable(GL_CULL_FACE);
-  glClear(GL_STENCIL_BUFFER_BIT);
-  glStencilFunc(GL_ALWAYS, 0, 0);
-  glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
-  glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
-  
-  for (auto &light: lights) {
-    /* glDrawElements and uniform buffer updates */
-    draw_light(light.get());
-  }
-
-  /***** LIGHT PASS *********/
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  glClearColor(0., 0., 0., 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT);
-
-  glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
-  glDisable(GL_DEPTH_TEST);
-  glEnable(GL_BLEND);
-  glBlendEquation(GL_FUNC_ADD);
-  glBlendFunc(GL_ONE, GL_ONE);
-
-  shader_light_pass.use();
+  shader_light.use();
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_normal);
   glActiveTexture(GL_TEXTURE1);
   glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_diffuse);
   glActiveTexture(GL_TEXTURE2);
   glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_depth);
+ 
+  glStencilFunc(GL_EQUAL, 0, 0xFF);
+
+  glDisable(GL_DEPTH_TEST);
+  glEnable(GL_BLEND);
+  glBlendEquation(GL_FUNC_ADD);
+  glBlendFunc(GL_ONE, GL_ONE);
 
   glEnable(GL_CULL_FACE);
   glCullFace(GL_FRONT);
 
-  for (auto &light: lights) {
-    /* glDrawElements and uniform buffer updates */
-    draw_light(light.get());
-  }
+  draw_light(&light);
 
   glCullFace(GL_BACK);
   glDisable(GL_BLEND);
+}
+
+
+void GLcontext::framebuffer_g_draw_illuminated_scene(const Assets &assets, GLshader &shader_stencil, GLshader &shader_light)
+{
+  auto &lights = assets.light_active_get();
+
+  glEnable(GL_STENCIL_TEST);
+  
+  for (auto &light: lights) {
+    framebuffer_g_stencil_pass(shader_stencil, *light.get());
+    framebuffer_g_light_pass(shader_light, *light.get());
+  }
 
   glDisable(GL_STENCIL_TEST);
+
+  /***** BLIT FINAL FRAME *********/
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_g_fb);
+  glReadBuffer(GL_COLOR_ATTACHMENT2);
+  glBlitFramebuffer(0, 0, 1280, 720,
+      0, 0, 1280, 720, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+}
+
+
+void GLcontext::framebuffer_g_stencil_pass(GLshader &shader_stencil, Light &light)
+{
+  glDrawBuffer(GL_NONE);
+  shader_stencil.use();
+  glEnable(GL_DEPTH_TEST);
+  glDisable(GL_CULL_FACE);
+  glClear(GL_STENCIL_BUFFER_BIT);
+
+  glStencilFunc(GL_ALWAYS, 0, 0);
+  glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+  glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+  draw_light(&light);
 }
 
 

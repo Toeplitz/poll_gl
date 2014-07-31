@@ -1,3 +1,21 @@
+BUILD:
+
+
+Required libs:
+- Bullet
+- Assimp
+- SDL2
+- Glew
+
+mkdir build
+
+add build folder to LD_LIBRARY_PATH:
+export LD_LIBRARY_PATH="~/git/poll/build"
+
+
+
+
+
 Resources:
 http://dhpoware.com/demos/index.html
 
