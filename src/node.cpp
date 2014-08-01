@@ -125,7 +125,7 @@ Mesh *Node::light_volume_mesh_create(const unsigned int shape, const float size)
   std::unique_ptr<Mesh> mesh(new Mesh());
   Mesh *mesh_ptr = mesh.get();
 
-  mesh_ptr->cube_generate(size);
+  mesh_ptr->cube_generate2(size);
 
   const Light_Properties &properties = light->properties_get();
 //  translate(glm::vec3(properties.position));

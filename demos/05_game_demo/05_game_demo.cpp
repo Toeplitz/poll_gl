@@ -212,8 +212,6 @@ int main()
   room = &scene.model_load("data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_LIGHTS);
   physics.collision_shape_add(*room, PHYSICS_COLLISION_TRIANGLE_MESH, true, 0);
 
-  physics.pause();
-
   /* Setup panda character */
   {
     Node &panda_root = scene.model_load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
@@ -243,29 +241,29 @@ int main()
   {
     Node *light_node = scene.node_create("Light_Directional");
     light_directional = light_node->light_create(assets);
-    light_directional->properties_position_set(glm::vec3(0, 10, 0));
+    light_directional->properties_position_set(glm::vec3(0, 20, 0));
     light_node->light_volume_mesh_create_from_node(sphere);
     scene.node_upload(light_node);
   }
 
   {
-   // Node *light_node = scene.node_find(room, "Spot_Light");
-   // light_spot = light_node->light_get();
-   // light_spot->bias_set(glm::vec3(0, 20, 0));
-   // light_spot->properties_position_set(glm::vec3(0, 20, 0));
-   // light_node->light_volume_mesh_create_from_node(sphere);
+    Node *light_node = scene.node_find(room, "Spot_Light");
+    light_spot = light_node->light_get();
+    light_spot->bias_set(glm::vec3(0, 20, 0));
+    light_spot->properties_position_set(glm::vec3(0, 20, 0));
+    light_node->light_volume_mesh_create(LIGHT_VOLUME_BOX, 20.f);
 
-    //light_spot->node_follow_set(panda);
+    light_spot->node_follow_set(panda);
   }
 
   {
-   // Node *light_node = scene.node_find(room, "Point_Light");
-   // light_point = light_node->light_get();
-  //  light_point->bias_set(glm::vec3(20, 20, 0));
-   // light_point->properties_position_set(glm::vec3(0, 1, 0));
+    Node *light_node = scene.node_find(room, "Point_Light");
+    light_point = light_node->light_get();
+    light_point->properties_position_set(glm::vec3(20, 30, 0));
    // light_node->light_volume_mesh_create_from_node(sphere);
-   // light_node->light_volume_mesh_create(LIGHT_VOLUME_BOX, 20.f);
+    light_node->light_volume_mesh_create(LIGHT_VOLUME_BOX, 20.f);
   }
+
  // scene.scene_graph_print(false);
  // scene.assets_get().print_all(scene.node_root_get());
 

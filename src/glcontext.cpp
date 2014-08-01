@@ -95,10 +95,8 @@ void GLcontext::draw_node(Node &node)
     return;
   }
 
-    uniform_buffers_update_state(node);
-  {
-    uniform_buffers_update_mesh(*mesh);
-  }
+  uniform_buffers_update_state(node);
+  uniform_buffers_update_mesh(*mesh);
 
   { 
     Material *material = node.material_get();
@@ -203,7 +201,6 @@ void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const i
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gl_g_fb_tex_final, 0);
 
-
   glshader_deferred_second.use();
   GLint location;
   location = glGetUniformLocation(program, "normal_tex");
@@ -274,6 +271,9 @@ void GLcontext::framebuffer_g_draw_illuminated_scene(const Assets &assets, Scene
     glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
 
     glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendEquation(GL_FUNC_ADD);
+    glBlendFunc(GL_ONE, GL_ONE);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
     glActiveTexture(GL_TEXTURE0);
@@ -286,6 +286,7 @@ void GLcontext::framebuffer_g_draw_illuminated_scene(const Assets &assets, Scene
     draw_light(light.get());
 
     glCullFace(GL_BACK);
+    glDisable(GL_BLEND);
   }
   glDisable(GL_STENCIL_TEST);
 
@@ -512,11 +513,9 @@ void GLcontext::uniform_buffers_update_mesh(Mesh &mesh)
 
 void GLcontext::uniform_buffers_update_state(Node &node)
 {
-  /*
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_state));
   GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(node.state), &node.state));
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, 0));
-  */
 }
 
 
