@@ -212,6 +212,7 @@ int main()
   room = &scene.model_load("data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_LIGHTS);
   physics.collision_shape_add(*room, PHYSICS_COLLISION_TRIANGLE_MESH, true, 0);
 
+  physics.pause();
 
   /* Setup panda character */
   {

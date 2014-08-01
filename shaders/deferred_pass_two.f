@@ -145,8 +145,8 @@ void main ()
   frag_color.rgb =  vec3(n_texel);
   frag_color.rgb = vec3(diffuse_texel);
  // frag_color.rgb =  vec3(d_texel, d_texel, d_texel);
-  frag_color.rgb = vec3(0, 1, 0);
-  frag_color.rgb = phong(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel));
+ // frag_color.rgb = vec3(0, 1, 0);
+ // frag_color.rgb = phong(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel));
 
   frag_color.a = 1.0;
 }

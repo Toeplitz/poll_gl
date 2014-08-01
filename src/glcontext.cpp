@@ -56,11 +56,10 @@ bool GLcontext::init(const int width, const int height)
   //GL_ASSERT(glCullFace(GL_BACK)); // cull back face
   //GL_ASSERT(glFrontFace(GL_CCW)); // GL_CCW for counter clock-wise
 
-  glFrontFace(GL_CW);
+
   glCullFace(GL_BACK);
   glEnable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
-
   return true;
 }
 
@@ -96,8 +95,8 @@ void GLcontext::draw_node(Node &node)
     return;
   }
 
-  {
     uniform_buffers_update_state(node);
+  {
     uniform_buffers_update_mesh(*mesh);
   }
 
@@ -109,6 +108,7 @@ void GLcontext::draw_node(Node &node)
   if (node.state.cubemap_skybox) glDepthMask(GL_FALSE);
   draw_mesh(*mesh);
   if (node.state.cubemap_skybox) glDepthMask(GL_TRUE);
+
 }
 
 
@@ -153,57 +153,11 @@ void GLcontext::framebuffer_check_status()
 }
 
 
-void GLcontext::framebuffer_create(const int width, const int height)
-{
-  /* create the texture that will be attached to the fb. should be the same
-     dimensions as the viewport */
-  glGenTextures(1, &gl_fb_tex);
-  glBindTexture(GL_TEXTURE_2D, gl_fb_tex);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-  /* attach the texture to the framebuffer */
-  glGenFramebuffers (1, &gl_fb);
-  glBindFramebuffer(GL_FRAMEBUFFER, gl_fb);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl_fb_tex, 0);
-
-  /* create a renderbuffer which allows depth-testing in the framebuffer */
-  GLuint rb = 0;
-  glGenRenderbuffers(1, &rb);
-  glBindRenderbuffer(GL_RENDERBUFFER, rb);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
-
-  /* attach renderbuffer to framebuffer */
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rb);
-  /* tell the framebuffer to expect a colour output attachment (our texture) */
-  GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0 };
-  glDrawBuffers(1, draw_bufs);
-
-  framebuffer_check_status();
-
-  /* re-bind the default framebuffer as a safe precaution */
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-
-
 void GLcontext::framebuffer_delete()
 {
 
 }
 
-/*
-   Based on tutorial:
-   http://ogldev.atspace.co.uk/www/tutorial37/tutorial37.html
- 
-  PROBLEM:
-  Deferred shading with stencil pass for light culling.
-
-  Stencil pass not working as expected.
- */
 
 void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const int width, const int height)
 {
@@ -229,13 +183,15 @@ void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const i
   glBindFramebuffer(GL_FRAMEBUFFER, gl_g_fb);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl_g_fb_tex_normal, 0);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gl_g_fb_tex_diffuse, 0);
+  GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+  glDrawBuffers(2, draw_bufs);
 
   framebuffer_check_status();
 
   glGenTextures(1, &gl_g_fb_tex_depth);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_depth);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH32F_STENCIL8, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, gl_g_fb_tex_depth, 0);
 
   glGenTextures(1, &gl_g_fb_tex_final);
@@ -260,13 +216,8 @@ void GLcontext::framebuffer_g_draw_geometry(Scene &scene, GLshader &shader_first
 {
 
   glBindFramebuffer(GL_FRAMEBUFFER, gl_g_fb);
-  glDrawBuffer(GL_COLOR_ATTACHMENT2);
-  glClear(GL_COLOR_BUFFER_BIT);
-
   GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
   glDrawBuffers(2, draw_bufs);
-
-  glDepthMask(GL_TRUE);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);
 
@@ -275,7 +226,6 @@ void GLcontext::framebuffer_g_draw_geometry(Scene &scene, GLshader &shader_first
     draw_node(*node);
   }
 
-  glDepthMask(GL_FALSE);
 }
 
 
@@ -290,64 +240,155 @@ void GLcontext::framebuffer_g_light_pass(GLshader &shader_light, Light &light)
   glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_diffuse);
   glActiveTexture(GL_TEXTURE2);
   glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_depth);
- 
-  glStencilFunc(GL_EQUAL, 0, 0xFF);
 
-  glDisable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);
   glBlendEquation(GL_FUNC_ADD);
   glBlendFunc(GL_ONE, GL_ONE);
-
-  glEnable(GL_CULL_FACE);
-  glCullFace(GL_FRONT);
-
-  draw_light(&light);
-
-  glCullFace(GL_BACK);
   glDisable(GL_BLEND);
+
 }
 
 
-void GLcontext::framebuffer_g_draw_illuminated_scene(const Assets &assets, GLshader &shader_stencil, GLshader &shader_light)
+void GLcontext::framebuffer_g_draw_illuminated_scene(const Assets &assets, Scene &scene, GLshader shader_geometry,  GLshader &shader_stencil, GLshader &shader_light)
 {
   auto &lights = assets.light_active_get();
 
-  glEnable(GL_STENCIL_TEST);
+  glBindFramebuffer(GL_FRAMEBUFFER, gl_g_fb);
+
+  glDrawBuffer(GL_COLOR_ATTACHMENT4);
+  glClear(GL_COLOR_BUFFER_BIT);
   
+  GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+  glDrawBuffers(2, draw_bufs);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glDepthMask(GL_TRUE);
+  glEnable(GL_DEPTH_TEST);
+  shader_geometry.use();
+  for (auto &node: scene.mesh_nodes_get()) {
+    draw_node(*node);
+  }
+  glDepthMask(GL_FALSE);
+
+  shader_light.use();
+  glEnable(GL_STENCIL_TEST);
+ 
+  shader_stencil.use();
   for (auto &light: lights) {
-    framebuffer_g_stencil_pass(shader_stencil, *light.get());
-    framebuffer_g_light_pass(shader_light, *light.get());
+    if (!light->volume_mesh_get()) 
+      continue;
+
+    glDrawBuffer(GL_NONE);
+    glClear(GL_STENCIL_BUFFER_BIT);
+
+    /*
+    glStencilFunc(GL_ALWAYS, 1, 0xFF); // Set any stencil to 1
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glStencilMask(0xFF); // Write to stencil buffer
+    glDepthMask(GL_FALSE); // Don't write to depth buffer
+    glClear(GL_STENCIL_BUFFER_BIT); // Clear stencil buffer (0 by default)
+*/
+
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    glStencilFunc(GL_ALWAYS, 0, 0);
+
+    glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+    glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+
+    /* Draw a 3D sphere */
+    draw_light(light.get());
+
+   // glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+    glDrawBuffer(GL_COLOR_ATTACHMENT2);
+    glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
+
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
+    shader_light.use();
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_normal);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_diffuse);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_depth);
+
+    draw_light(light.get());
+    //draw_node(*fb_node);
+
+    glCullFace(GL_BACK);
   }
 
-  glDisable(GL_STENCIL_TEST);
+ // glDrawBuffer(GL_COLOR_ATTACHMENT2);
 
+  /*
+  glStencilFunc(GL_NOTEQUAL, 1, 0xFF); // Pass test if stencil value is 1
+  glStencilMask(0x00); // Don't write anything to stencil buffer
+*/
+
+  //glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
+  //glDisable(GL_DEPTH_TEST);
+  //glEnable(GL_CULL_FACE);
+  //glCullFace(GL_FRONT);
+
+  /*
+  shader_light.use();
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_normal);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_diffuse);
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_depth);
+
+  draw_node(*fb_node);
+
+  glCullFace(GL_BACK);
+*/
   /***** BLIT FINAL FRAME *********/
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_g_fb);
   glReadBuffer(GL_COLOR_ATTACHMENT2);
-  glBlitFramebuffer(0, 0, 1280, 720,
-      0, 0, 1280, 720, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+  GL_ASSERT(glBlitFramebuffer(0, 0, 1280, 720, 0, 0, 1280, 720, GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST));
+  glDisable(GL_STENCIL_TEST);
 }
 
 
 void GLcontext::framebuffer_g_stencil_pass(GLshader &shader_stencil, Light &light)
 {
+  glBindFramebuffer(GL_FRAMEBUFFER, gl_g_fb);
   glDrawBuffer(GL_NONE);
   shader_stencil.use();
-  glEnable(GL_DEPTH_TEST);
-  glDisable(GL_CULL_FACE);
-  glClear(GL_STENCIL_BUFFER_BIT);
 
-  glStencilFunc(GL_ALWAYS, 0, 0);
-  glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
-  glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+ // glEnable(GL_CULL_FACE);
+
+  /*
+*/
+
+  /*
+  glStencilMask(0xFF);
+  glClearStencil(1);
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
+  glStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
+
+  glCullFace(GL_BACK);
+  */
   draw_light(&light);
+
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  glDepthMask(GL_TRUE);
+  /*
+  glCullFace(GL_FRONT);
+  glStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
+  draw_light(&light);
+  */
+
 }
 
 
-void GLcontext::framebuffer_node_create(GLshader &shader, Node &node)
+void GLcontext::framebuffer_node_create(Node &node)
 {
-  GLuint program = shader.program;
   GLenum target;
   GLint index;
   Mesh *mesh = node.mesh;
@@ -366,44 +407,7 @@ void GLcontext::framebuffer_node_create(GLshader &shader, Node &node)
     glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0);
   }
 
-  {
-    GLint location;
-    location = glGetUniformLocation(program, "tex");
-    GL_ASSERT(glUniform1i(location, 0));
-  }
-
   fb_node = &node;
-}
-
-
-
-void GLcontext::framebuffer_draw_texture(Scene &scene, bool debug)
-{
-  if (debug) {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  } else {
-    glBindFramebuffer(GL_FRAMEBUFFER, gl_fb);
-  }
-
-  clear();
-  for (auto &node: scene.mesh_nodes_get()) {
-    draw_node(*node);
-  }
-}
-
-
-void GLcontext::framebuffer_draw_screen()
-{
-
-  Mesh *mesh = fb_node->mesh;
-
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  clear();
-
-  glBindVertexArray(mesh->gl_vao);
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, gl_fb_tex);
-  glDrawArrays(GL_TRIANGLES, 0, fb_node->mesh->num_vertices_get());
 }
 
 
@@ -592,9 +596,11 @@ void GLcontext::uniform_buffers_update_mesh(Mesh &mesh)
 
 void GLcontext::uniform_buffers_update_state(Node &node)
 {
+  /*
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_state));
   GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(node.state), &node.state));
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, 0));
+  */
 }
 
 

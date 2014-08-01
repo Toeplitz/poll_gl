@@ -30,11 +30,12 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   cam_node->camera_get()->transform_perspective_create(window.width, window.height);
   scene.node_camera_set(cam_node);
 
+  glshader_screen.load("shaders/post_proc.v", "shaders/post_proc.f");
+
   /*
   // STANDARD FORWARD
   glshader.load("shaders/main.v", "shaders/main.f");
   glcontext.uniform_buffers_create(glshader);
-  glshader_screen.load("shaders/post_proc.v", "shaders/post_proc.f");
   Node &node = *scene.node_create("fb_quad");
   node.mesh_create(scene.assets_get());
   node.mesh->quad_generate(1.f);
@@ -51,7 +52,11 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   glcontext.uniform_buffers_block_bind(glshader_geometry);
   glcontext.uniform_buffers_block_bind(glshader_illumination);
   glcontext.uniform_buffers_block_bind(glshader_stencil);
+  Node &node = *scene.node_create("fb_quad");
+  node.mesh_create(scene.assets_get());
+  node.mesh->quad_generate(1.f);
   glcontext.framebuffer_g_create(glshader_illumination, window.width, window.height);
+  glcontext.framebuffer_node_create(node);
 
   physics.init();
 }
@@ -66,28 +71,11 @@ void Fragmic::draw_g_buffer(const double dt)
 {
   GLcontext &glcontext = window.glcontext_get();
 
-  glcontext.framebuffer_g_draw_geometry(scene, glshader_geometry);
-  glcontext.framebuffer_g_draw_illuminated_scene(scene.assets_get(), glshader_stencil, glshader_illumination);
+  //glcontext.framebuffer_g_draw_geometry(scene, glshader_geometry);
+  glcontext.framebuffer_g_draw_illuminated_scene(scene.assets_get(), scene, glshader_geometry, glshader_stencil, glshader_illumination);
 
   /* Step physics simulation */
   physics.step(dt);
-}
-
-
-void Fragmic::draw_standard_post_proc(const double dt)
-{
-  GLcontext &glcontext = window.glcontext_get();
-  glshader.use();
-  glcontext.framebuffer_draw_texture(scene, window.debug);
-
-  /* Step physics simulation */
-  physics.step(dt);
-
-  if (!window.debug) {
-    glshader_screen.use();
-    glcontext.framebuffer_draw_screen();
-  }
-
 }
 
 
@@ -139,7 +127,6 @@ void Fragmic::run()
     glcontext.uniform_buffers_update_camera(camera);
 
     /* Draw scene */
- //   draw_standard_post_proc(dt);
     draw_g_buffer(dt);
 
     glcontext.check_error();
