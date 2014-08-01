@@ -253,40 +253,35 @@ void GLcontext::framebuffer_g_draw_illuminated_scene(const Assets &assets, Scene
 {
   auto &lights = assets.light_active_get();
 
-  glBindFramebuffer(GL_FRAMEBUFFER, gl_g_fb);
-
-  glDrawBuffer(GL_COLOR_ATTACHMENT4);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_g_fb);
+  glDrawBuffer(GL_COLOR_ATTACHMENT2);
   glClear(GL_COLOR_BUFFER_BIT);
   
+  /* GEOMETRY PASS */
+  shader_geometry.use();
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_g_fb);
   GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
   glDrawBuffers(2, draw_bufs);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glDepthMask(GL_TRUE);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);
-  shader_geometry.use();
   for (auto &node: scene.mesh_nodes_get()) {
     draw_node(*node);
   }
   glDepthMask(GL_FALSE);
 
-  shader_light.use();
+
+
   glEnable(GL_STENCIL_TEST);
- 
+
   shader_stencil.use();
   for (auto &light: lights) {
     if (!light->volume_mesh_get()) 
       continue;
 
+    shader_stencil.use();
     glDrawBuffer(GL_NONE);
     glClear(GL_STENCIL_BUFFER_BIT);
-
-    /*
-    glStencilFunc(GL_ALWAYS, 1, 0xFF); // Set any stencil to 1
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-    glStencilMask(0xFF); // Write to stencil buffer
-    glDepthMask(GL_FALSE); // Don't write to depth buffer
-    glClear(GL_STENCIL_BUFFER_BIT); // Clear stencil buffer (0 by default)
-*/
 
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
@@ -298,15 +293,13 @@ void GLcontext::framebuffer_g_draw_illuminated_scene(const Assets &assets, Scene
     /* Draw a 3D sphere */
     draw_light(light.get());
 
-   // glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
+    shader_light.use();
     glDrawBuffer(GL_COLOR_ATTACHMENT2);
     glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
 
     glDisable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
-    shader_light.use();
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_normal);
     glActiveTexture(GL_TEXTURE1);
@@ -315,41 +308,15 @@ void GLcontext::framebuffer_g_draw_illuminated_scene(const Assets &assets, Scene
     glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_depth);
 
     draw_light(light.get());
-    //draw_node(*fb_node);
 
     glCullFace(GL_BACK);
   }
 
- // glDrawBuffer(GL_COLOR_ATTACHMENT2);
-
-  /*
-  glStencilFunc(GL_NOTEQUAL, 1, 0xFF); // Pass test if stencil value is 1
-  glStencilMask(0x00); // Don't write anything to stencil buffer
-*/
-
-  //glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
-  //glDisable(GL_DEPTH_TEST);
-  //glEnable(GL_CULL_FACE);
-  //glCullFace(GL_FRONT);
-
-  /*
-  shader_light.use();
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_normal);
-  glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_diffuse);
-  glActiveTexture(GL_TEXTURE2);
-  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_depth);
-
-  draw_node(*fb_node);
-
-  glCullFace(GL_BACK);
-*/
   /***** BLIT FINAL FRAME *********/
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_g_fb);
   glReadBuffer(GL_COLOR_ATTACHMENT2);
-  GL_ASSERT(glBlitFramebuffer(0, 0, 1280, 720, 0, 0, 1280, 720, GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST));
+  GL_ASSERT(glBlitFramebuffer(0, 0, 1280, 720, 0, 0, 1280, 720, GL_COLOR_BUFFER_BIT, GL_NEAREST));
   glDisable(GL_STENCIL_TEST);
 }
 
