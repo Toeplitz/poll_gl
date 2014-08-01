@@ -52,11 +52,14 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   glcontext.uniform_buffers_block_bind(glshader_geometry);
   glcontext.uniform_buffers_block_bind(glshader_illumination);
   glcontext.uniform_buffers_block_bind(glshader_stencil);
+
+  /*
   Node &node = *scene.node_create("fb_quad");
   node.mesh_create(scene.assets_get());
   node.mesh->quad_generate(1.f);
+  */
   glcontext.framebuffer_g_create(glshader_illumination, window.width, window.height);
-  glcontext.framebuffer_node_create(node);
+  //glcontext.framebuffer_node_create(node);
 
   physics.init();
 }

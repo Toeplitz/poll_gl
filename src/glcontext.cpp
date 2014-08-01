@@ -191,7 +191,11 @@ void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const i
   glGenTextures(1, &gl_g_fb_tex_depth);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_depth);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH32F_STENCIL8, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, gl_g_fb_tex_depth, 0);
 
   glGenTextures(1, &gl_g_fb_tex_final);
@@ -208,44 +212,18 @@ void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const i
   GL_ASSERT(glUniform1i(location, 1));
   location = glGetUniformLocation(program, "depth_tex");
   GL_ASSERT(glUniform1i(location, 2));
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 
 void GLcontext::framebuffer_g_draw_geometry(Scene &scene, GLshader &shader_first_pass)
 {
 
-  glBindFramebuffer(GL_FRAMEBUFFER, gl_g_fb);
-  GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-  glDrawBuffers(2, draw_bufs);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glEnable(GL_DEPTH_TEST);
-
-  shader_first_pass.use();
-  for (auto &node: scene.mesh_nodes_get()) {
-    draw_node(*node);
-  }
 
 }
 
 
 void GLcontext::framebuffer_g_light_pass(GLshader &shader_light, Light &light)
 {
-  glDrawBuffer(GL_COLOR_ATTACHMENT2);
-
-  shader_light.use();
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_normal);
-  glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_diffuse);
-  glActiveTexture(GL_TEXTURE2);
-  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_depth);
-
-  glEnable(GL_BLEND);
-  glBlendEquation(GL_FUNC_ADD);
-  glBlendFunc(GL_ONE, GL_ONE);
-  glDisable(GL_BLEND);
-
 }
 
 
@@ -270,15 +248,13 @@ void GLcontext::framebuffer_g_draw_illuminated_scene(const Assets &assets, Scene
   }
   glDepthMask(GL_FALSE);
 
-
-
+  /* STENCIL AND LIGHT PASS*/
   glEnable(GL_STENCIL_TEST);
-
-  shader_stencil.use();
   for (auto &light: lights) {
     if (!light->volume_mesh_get()) 
       continue;
 
+    /* STENCIL PASS */
     shader_stencil.use();
     glDrawBuffer(GL_NONE);
     glClear(GL_STENCIL_BUFFER_BIT);
@@ -290,9 +266,9 @@ void GLcontext::framebuffer_g_draw_illuminated_scene(const Assets &assets, Scene
     glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
     glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
 
-    /* Draw a 3D sphere */
     draw_light(light.get());
 
+    /* LIGHT PASS */
     shader_light.use();
     glDrawBuffer(GL_COLOR_ATTACHMENT2);
     glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
@@ -311,45 +287,18 @@ void GLcontext::framebuffer_g_draw_illuminated_scene(const Assets &assets, Scene
 
     glCullFace(GL_BACK);
   }
+  glDisable(GL_STENCIL_TEST);
 
   /***** BLIT FINAL FRAME *********/
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_g_fb);
   glReadBuffer(GL_COLOR_ATTACHMENT2);
   GL_ASSERT(glBlitFramebuffer(0, 0, 1280, 720, 0, 0, 1280, 720, GL_COLOR_BUFFER_BIT, GL_NEAREST));
-  glDisable(GL_STENCIL_TEST);
 }
 
 
 void GLcontext::framebuffer_g_stencil_pass(GLshader &shader_stencil, Light &light)
 {
-  glBindFramebuffer(GL_FRAMEBUFFER, gl_g_fb);
-  glDrawBuffer(GL_NONE);
-  shader_stencil.use();
-
- // glEnable(GL_CULL_FACE);
-
-  /*
-*/
-
-  /*
-  glStencilMask(0xFF);
-  glClearStencil(1);
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LEQUAL);
-  glStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
-
-  glCullFace(GL_BACK);
-  */
-  draw_light(&light);
-
-  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-  glDepthMask(GL_TRUE);
-  /*
-  glCullFace(GL_FRONT);
-  glStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
-  draw_light(&light);
-  */
 
 }
 
