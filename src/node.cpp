@@ -115,27 +115,6 @@ void Node::light_set(Light *light)
 }
 
 
-Mesh *Node::light_volume_mesh_create(const unsigned int shape, const float size)
-{
-  if (!light) {
-    std::cout << "Error: no light attached to node: " << name << std::endl;
-    return nullptr;
-  }
-
-  std::unique_ptr<Mesh> mesh(new Mesh());
-  Mesh *mesh_ptr = mesh.get();
-
-  mesh_ptr->cube_generate2(size);
-
- // const Light_Properties &properties = light->properties_get();
- //  translate(glm::vec3(properties.position));
-
-  light->volume = std::move(mesh);
-
-  return mesh_ptr;
-}
-
-
 Mesh *Node::light_volume_mesh_create_from_node(Node *node)
 {
   if (!light) {
@@ -148,19 +127,11 @@ Mesh *Node::light_volume_mesh_create_from_node(Node *node)
     return nullptr;
   }
 
-  light->volume.reset(nullptr);
-  light->volume_ptr = node->mesh;
- // const Light_Properties &properties = light->properties_get();
-  //translate(glm::vec3(properties.position));
+  glm::vec3 t = glm::vec3(light->properties_position_get());
+  t.y = 0;
+  light->translate(t);
 
-//  glm::mat4 transform = glm::translate(glm::mat4(1.f), 
-//  light->properties_transform_set(
-  const glm::mat4 transform = light->properties_transform_get();
-  glm::vec3 light_pos_current = glm::vec3(light->properties_position_get());
-  light_pos_current.y = 0;
-
-  glm::mat4 transform_update = glm::translate(transform, light_pos_current);
-  light->properties_transform_set(transform_update);
+  light->volume = node->mesh;
 
   return light->volume_mesh_get();
 }
@@ -266,12 +237,14 @@ void Node::scale(const glm::vec3 &v)
   if (mesh) 
     mesh->model = mesh->model * m;
 
+  /*
   if (light) {
     Mesh *vol = light->volume_mesh_get();
     if (vol) {
       vol->model = vol->model * m;
     }
   }
+  */
 }
 
 
@@ -283,6 +256,7 @@ void Node::translate(const glm::vec3 &v)
   if (mesh) 
     mesh->model = mesh->model * m;
 
+  /*
   if (light) {
     Mesh *vol = light->volume_mesh_get();
     if (vol) {
@@ -290,6 +264,7 @@ void Node::translate(const glm::vec3 &v)
       vol->model = vol->model * m;
     }
   }
+  */
 
   //transform_local_current = transform_local_current * m;
   //transform_update_global_recursive(*this);

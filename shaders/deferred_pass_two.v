@@ -26,7 +26,7 @@ layout(std140) uniform Light
 void main()
 {
  // st = (vec2(vertex_position) + 1.0) * 0.5;
-  gl_Position = proj * view * model * light_transform * vec4(vertex_position, 1.0);
+  gl_Position = proj * view * light_transform * vec4(vertex_position, 1.0);
  // gl_Position = vec4(vertex_position, 1.0);
 }
 

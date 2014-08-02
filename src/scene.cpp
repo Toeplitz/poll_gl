@@ -204,7 +204,6 @@ Node *Scene::node_create(const std::string &name)
   std::unique_ptr<Node> node(new Node(name));
   Node *node_ptr  = node.get();
   root.child_add(std::move(node), root.tree_level + 1);
-  upload_queue_add(*node_ptr);
   return node_ptr;
 }
 
@@ -274,15 +273,18 @@ void Scene::state_update_recursive(Node &node)
 
 void Scene::upload_queue_add(Node &node) 
 {
+  std::cout << "Adding node: " << node.name << " to upload queue" << std::endl;
   if (node.armature) {
     animated_nodes_add(node);
   }
 
   if (node.light_get()) {
+    std::cout << "\thas light" << std::endl;
     upload_queue.push_back(&node);
   }
 
   if (node.mesh) {
+    std::cout << "\thas mesh" << std::endl;
     upload_queue.push_back(&node);
     mesh_nodes_add(node);
   } 

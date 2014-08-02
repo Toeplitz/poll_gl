@@ -236,33 +236,45 @@ int main()
 
   /* Setup lights */
   Node *sphere = &scene.model_load("data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
-  sphere->scale(glm::vec3(25, 25, 25));
+
+  Node *box = scene.node_create("box");
+  Mesh *mesh = box->mesh_create(scene.assets_get());
+  mesh->cube_generate2(1);
 
   {
-    Node *light_node = scene.node_create("Light_Directional");
-    light_directional = light_node->light_create(assets);
-    light_directional->properties_position_set(glm::vec3(0, 20, 0));
-    light_node->light_volume_mesh_create_from_node(sphere);
-    scene.node_upload(light_node);
+    glm::vec3 light_positions[5] = {
+      glm::vec3(0, 20, 0),
+      glm::vec3(-50, 20, 45),
+      glm::vec3(-50, 20, -45),
+      glm::vec3(50, 20, 45),
+      glm::vec3(50, 20, -45)
+    };
+
+    for (int i = 0; i < 5; i++) {
+      Node *node = scene.node_create("Light_Directional");
+      light_directional = node->light_create(assets);
+      light_directional->properties_position_set(light_positions[i]);
+      node->light_volume_mesh_create_from_node(sphere);
+      light_directional->scale(glm::vec3(55, 55, 55));
+    }
   }
 
   {
-    Node *light_node = scene.node_find(room, "Spot_Light");
-    light_spot = light_node->light_get();
+    Node *node = scene.node_find(room, "Spot_Light");
+    light_spot = node->light_get();
     light_spot->bias_set(glm::vec3(0, 20, 0));
     light_spot->properties_position_set(glm::vec3(0, 20, 0));
-    light_node->light_volume_mesh_create(LIGHT_VOLUME_BOX, 20.f);
-
+    node->light_volume_mesh_create_from_node(sphere);
     light_spot->node_follow_set(panda);
+    light_spot->scale(glm::vec3(55, 55, 55));
   }
 
   {
-    Node *light_node = scene.node_find(room, "Point_Light");
-    light_point = light_node->light_get();
-    light_point->properties_position_set(glm::vec3(30, 10, 20));
-    light_node->light_volume_mesh_create_from_node(sphere);
-    //scene.node_upload(light_node);
-   // light_node->light_volume_mesh_create(LIGHT_VOLUME_BOX, 40.f);
+    Node *node = scene.node_find(room, "Point_Light");
+    light_point = node->light_get();
+    light_point->properties_position_set(glm::vec3(30, 20, 20));
+    node->light_volume_mesh_create_from_node(sphere);
+    light_point->scale(glm::vec3(25, 25, 25));
   }
 
  // scene.scene_graph_print(false);

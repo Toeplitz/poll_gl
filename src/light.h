@@ -43,12 +43,16 @@ class Light
 {
   private:
     Light_Properties properties;
+    glm::mat4 transform_scale;
+    glm::mat4 transform_translate;
+
+    glm::vec3 position_diff;
+
     glm::vec3 bias;
     Node *follow;
 
   public:
-    std::unique_ptr<Mesh> volume;
-    Mesh *volume_ptr;
+    Mesh *volume;
 
     Light();
     ~Light();
@@ -66,5 +70,9 @@ class Light
     void                    properties_type_set(const unsigned int type);
     void                    node_follow_set(Node *node);
     Node                   *node_follow_get();
+    void                    scale(const glm::vec3 &v);
+    void                    translate(const glm::vec3 &v);
+    const glm::mat4        &transform_scale_get();
+    const glm::mat4        &transform_translate_get();
     Mesh                   *volume_mesh_get();
 };

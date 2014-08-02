@@ -248,11 +248,13 @@ void Model::lights_parse(Assets &assets)
     }
 
     {
+      /*
       float x = assimp_light.mPosition.x;
       float y = assimp_light.mPosition.y;
       float z = assimp_light.mPosition.z;
       glm::vec3 light_position(x, y, z);
       light.properties_position_set(light_node->original_position);
+      */
     }
 
     {

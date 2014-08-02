@@ -9,14 +9,13 @@
 /**************************************************/
 
 
-Light::Light()
+Light::Light():
+  position_diff(0.f, 0.f, 0.f)
 {
   //properties.type = LIGHT_UNDEFINED;
   bias = glm::vec3(0.f, 0.f, 0.f);
   follow = nullptr;
-  volume.reset(nullptr);
-  volume_ptr = nullptr;
-  properties_position_set(glm::vec3(0, 0, 0));
+  volume = nullptr;
   properties_transform_set(glm::mat4(1.f));
 }
 
@@ -94,8 +93,7 @@ void Light::bias_set(const glm::vec3 &bias)
 
 void Light::properties_position_set(const glm::vec3 &position)
 {
-  properties.position = glm::fvec4(position + bias, 1.0);
-
+  properties.position = glm::vec4(position + bias, 1.f);
 }
 
 
@@ -135,12 +133,35 @@ Node *Light::node_follow_get()
 }
 
 
+void Light::scale(const glm::vec3 &v)
+{
+  glm::mat4 transform = properties_transform_get();
+  transform_scale = glm::scale(transform, v);
+  properties_transform_set(transform_scale);
+}
+
+
+void Light::translate(const glm::vec3 &v)
+{
+  glm::mat4 transform = properties_transform_get();
+  transform_translate = glm::translate(transform, v);
+  properties_transform_set(transform_translate);
+}
+
+
+const glm::mat4 &Light::transform_scale_get()
+{
+  return transform_scale;
+}
+
+
+const glm::mat4 &Light::transform_translate_get()
+{
+  return transform_translate;
+}
+
+
 Mesh *Light::volume_mesh_get()
 {
-  /* If light owns its own volume mesh, return it, else look for 
-     pointer to a mesh owned by the asset manager */
-  if (volume)
-    return volume.get();
-  else 
-    return volume_ptr;
+  return volume;
 }

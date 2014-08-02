@@ -52,14 +52,11 @@ bool GLcontext::init(const int width, const int height)
   check_version(3);
 
   glViewport(0, 0, width, height);
-  //GL_ASSERT(glEnable(GL_CULL_FACE)); // cull face
-  //GL_ASSERT(glCullFace(GL_BACK)); // cull back face
-  //GL_ASSERT(glFrontFace(GL_CCW)); // GL_CCW for counter clock-wise
 
+  GL_ASSERT(glCullFace(GL_BACK));
+  GL_ASSERT(glEnable(GL_CULL_FACE));
+  GL_ASSERT(glEnable(GL_DEPTH_TEST));
 
-  glCullFace(GL_BACK);
-  glEnable(GL_CULL_FACE);
-  glEnable(GL_DEPTH_TEST);
   return true;
 }
 
@@ -67,24 +64,24 @@ bool GLcontext::init(const int width, const int height)
 void GLcontext::draw_light(Light *light)
 {
   Mesh *mesh = light->volume_mesh_get();
+  Node *follow = light->node_follow_get();
+
   if (!mesh) {
+    std::cout << "Error: no mesh attached to light" << std::endl;
     return;
   }
 
-  if (light->node_follow_get()) {
-    Mesh *follow_mesh = light->node_follow_get()->mesh_get();
-    glm::vec4 new_pos = follow_mesh->model *  glm::vec4(light->node_follow_get()->original_position, 1);
-    light->properties_position_set(glm::vec3(new_pos));
-
-    uniform_buffers_update_mesh(*follow_mesh);
-  } else {
-    uniform_buffers_update_mesh(*mesh);
+  if (follow) {
+    Mesh *mesh = follow->mesh_get();
+    light->properties_transform_set(mesh->model * light->transform_scale_get());
+    glm::vec3 position = glm::vec3(mesh->model * glm::vec4(follow->original_position, 1.f));
+    light->properties_position_set(position);
   }
 
   uniform_buffers_update_light(*light);
   draw_mesh(*mesh);
-
 }
+
 
 void GLcontext::draw_node(Node &node)
 {
@@ -253,7 +250,6 @@ void GLcontext::framebuffer_g_draw_illuminated_scene(const Assets &assets, Scene
       continue;
     }
 
-    std::cout << "drawing light: " << light.get() << std::endl;
     /* STENCIL PASS */
     shader_stencil.use();
     glDrawBuffer(GL_NONE);
@@ -339,7 +335,6 @@ void GLcontext::polygon_mesh_toggle(bool tog)
 
 void GLcontext::uniform_buffers_block_bind(GLshader &shader)
 {
-  GLuint program = shader.program;
   GLuint block_index;
   GLuint bind_index;
 
@@ -347,7 +342,7 @@ void GLcontext::uniform_buffers_block_bind(GLshader &shader)
     //   std::cout << name << " bind index: " << uniform_buffer_map.at(name) << std::endl;
     bind_index = uniform_buffer_map.at(name);
     block_index = shader.get_block_index(name);
-    GL_ASSERT(glUniformBlockBinding(program, block_index, bind_index));
+    GL_ASSERT(glUniformBlockBinding(shader.program, block_index, bind_index));
   }
 }
 
@@ -470,7 +465,6 @@ void GLcontext::uniform_buffers_update_light(Light &light)
 {
   Light_Properties properties = light.properties_get();
 
-  //std::cout << glm::to_string(properties.position) << std::endl;
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_light));
   GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(properties), &properties));
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, 0));
