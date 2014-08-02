@@ -259,9 +259,10 @@ int main()
   {
     Node *light_node = scene.node_find(room, "Point_Light");
     light_point = light_node->light_get();
-    light_point->properties_position_set(glm::vec3(20, 30, 0));
-   // light_node->light_volume_mesh_create_from_node(sphere);
-    light_node->light_volume_mesh_create(LIGHT_VOLUME_BOX, 20.f);
+    light_point->properties_position_set(glm::vec3(30, 10, 20));
+    light_node->light_volume_mesh_create_from_node(sphere);
+    //scene.node_upload(light_node);
+   // light_node->light_volume_mesh_create(LIGHT_VOLUME_BOX, 40.f);
   }
 
  // scene.scene_graph_print(false);

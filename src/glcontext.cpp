@@ -248,9 +248,12 @@ void GLcontext::framebuffer_g_draw_illuminated_scene(const Assets &assets, Scene
   /* STENCIL AND LIGHT PASS*/
   glEnable(GL_STENCIL_TEST);
   for (auto &light: lights) {
-    if (!light->volume_mesh_get()) 
+    if (!light->volume_mesh_get()) {
+      std::cout << "no mesh " << light.get() << std::endl;
       continue;
+    }
 
+    std::cout << "drawing light: " << light.get() << std::endl;
     /* STENCIL PASS */
     shader_stencil.use();
     glDrawBuffer(GL_NONE);

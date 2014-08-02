@@ -127,8 +127,9 @@ Mesh *Node::light_volume_mesh_create(const unsigned int shape, const float size)
 
   mesh_ptr->cube_generate2(size);
 
-  const Light_Properties &properties = light->properties_get();
-//  translate(glm::vec3(properties.position));
+ // const Light_Properties &properties = light->properties_get();
+ //  translate(glm::vec3(properties.position));
+
   light->volume = std::move(mesh);
 
   return mesh_ptr;
@@ -149,9 +150,8 @@ Mesh *Node::light_volume_mesh_create_from_node(Node *node)
 
   light->volume.reset(nullptr);
   light->volume_ptr = node->mesh;
-  const Light_Properties &properties = light->properties_get();
+ // const Light_Properties &properties = light->properties_get();
  // translate(glm::vec3(properties.position));
-
 
   return light->volume_mesh_get();
 }
