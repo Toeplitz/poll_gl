@@ -14,7 +14,13 @@ layout(std140) uniform Matrices {
 };
 
 
+layout(std140) uniform Light 
+{
+  vec4 light_position;
+  mat4 light_transform;
+};
+
 void main(void) 
 {
-  gl_Position = proj * view * model * vec4(vertex_position, 1.0);
+  gl_Position = proj * view * model * light_transform * vec4(vertex_position, 1.0);
 }

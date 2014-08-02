@@ -35,6 +35,7 @@ struct Light_Properties
   glm::vec4 direction;
   */
   glm::vec4 position;
+  glm::mat4 transform;
 };
 
 
@@ -60,6 +61,8 @@ class Light
     void                    properties_direction_set(const glm::vec3 &direction);
     void                    properties_position_set(const glm::vec3 &position);
     const glm::vec4        &properties_position_get() const;
+    void                    properties_transform_set(const glm::mat4 transform);
+    const glm::mat4        &properties_transform_get();
     void                    properties_type_set(const unsigned int type);
     void                    node_follow_set(Node *node);
     Node                   *node_follow_get();

@@ -16,6 +16,8 @@ Light::Light()
   follow = nullptr;
   volume.reset(nullptr);
   volume_ptr = nullptr;
+  properties_position_set(glm::vec3(0, 0, 0));
+  properties_transform_set(glm::mat4(1.f));
 }
 
 
@@ -93,12 +95,25 @@ void Light::bias_set(const glm::vec3 &bias)
 void Light::properties_position_set(const glm::vec3 &position)
 {
   properties.position = glm::fvec4(position + bias, 1.0);
+
 }
 
 
 const glm::vec4 &Light::properties_position_get() const
 {
   return properties.position;
+}
+
+
+void Light::properties_transform_set(const glm::mat4 transform)
+{
+  properties.transform = transform;
+}
+
+
+const glm::mat4 &Light::properties_transform_get()
+{
+  return properties.transform;
 }
 
 

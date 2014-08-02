@@ -14,6 +14,7 @@ layout(std140) uniform GlobalMatrices
 layout(std140) uniform Light 
 {
   vec4 light_position;
+  mat4 light_transform;
 };
 
 
@@ -50,7 +51,7 @@ vec3 phong(in vec3 op_eye, in vec3 n_eye, in vec3 kd) {
   float specular_factor = pow (dot_prod_specular, specular_exponent);
   vec3 Is = d_Ls * ks * specular_factor; // final specular intensity
 
-  float dist_2d = max (0.0, 1.0 - distance (lp_eye, op_eye) / 30.0);
+  float dist_2d = max (0.0, 1.0 - distance (lp_eye, op_eye) / 1000.0);
   float atten_factor =  dist_2d;
 
   //return vec3(dist_2d,dist_2d,dist_2d);
