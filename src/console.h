@@ -2,16 +2,18 @@
 
 #include "glshader.h"
 #include "glcontext.h"
+#include "text.h"
 
 
 class Console
 {
   private:
 
+    bool flag_toggle;
     GLshader shader_console;
     GLcontext *glcontext;
+    Text text;
 
-    bool flag_toggle;
 
   public:
 

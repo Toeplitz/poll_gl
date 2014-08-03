@@ -1,5 +1,5 @@
 #include "image.h"
-#include "stb_image.h"
+#include "../external/stb_image.h"
 
 
 Image::Image()
