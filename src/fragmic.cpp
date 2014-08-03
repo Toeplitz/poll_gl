@@ -32,17 +32,6 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
 
   glshader_screen.load("shaders/post_proc.v", "shaders/post_proc.f");
 
-  /*
-  // STANDARD FORWARD
-  glshader.load("shaders/main.v", "shaders/main.f");
-  glcontext.uniform_buffers_create(glshader);
-  Node &node = *scene.node_create("fb_quad");
-  node.mesh_create(scene.assets_get());
-  node.mesh->quad_generate(1.f);
-  glcontext.framebuffer_create(window.width, window.height);
-  glcontext.framebuffer_node_create(glshader_screen, node);
-*/
-
   // SETUP FOR DEFERRED SHADING
   glshader_stencil.load("shaders/stencil_pass.v", "shaders/stencil_pass.f");
   glshader_geometry.load("shaders/deferred_pass_one.v", "shaders/deferred_pass_one.f");
@@ -61,6 +50,7 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   glcontext.framebuffer_g_create(glshader_illumination, window.width, window.height);
   //glcontext.framebuffer_node_create(node);
 
+  console.init(glcontext);
   physics.init();
 }
 
@@ -132,6 +122,8 @@ void Fragmic::run()
     /* Draw scene */
     draw_g_buffer(dt);
 
+    console.draw();
+
     glcontext.check_error();
     window.swap();
   }
@@ -149,6 +141,10 @@ void Fragmic::term()
   window.term();
 }
 
+Console &Fragmic::console_get() 
+{
+  return console;
+}
 
 Physics &Fragmic::physics_get() 
 {

@@ -1,7 +1,8 @@
 #pragma once
 
 #include <SDL2/SDL_stdinc.h>            // for Uint32
-#include <string>                       
+#include <string>
+#include "console.h"
 #include "camera.h"                     
 #include "glcontext.h"                  
 #include "glshader.h"                   
@@ -12,6 +13,7 @@
 
 class Fragmic {
   private:
+    Console console;
     Physics physics;
     GLshader glshader;
     GLshader glshader_geometry;
@@ -32,6 +34,7 @@ class Fragmic {
 
     void     run();
     void     term();
+    Console &console_get();
     Physics &physics_get();
     Scene   &scene_get();
     Window  &window_get();

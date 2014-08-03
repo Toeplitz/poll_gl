@@ -8,8 +8,13 @@ static void common_debug_keyboard_pressed_cb(SDL_Keysym *keysym);
 static void common_debug_keyboard_pressed_cb(SDL_Keysym *keysym)
 {
   Physics &physics = f->physics_get();
+  Console &console = f->console_get();
+
 
   switch (keysym->sym) {
+    case 96:
+      console.toggle();
+      break;
     case SDLK_f:
       physics.pause();
       break;
