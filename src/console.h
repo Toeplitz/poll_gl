@@ -2,6 +2,7 @@
 
 #include "glshader.h"
 #include "glcontext.h"
+#include "scene.h"
 #include "text.h"
 
 
@@ -10,9 +11,10 @@ class Console
   private:
 
     bool flag_toggle;
-    GLshader shader_console;
+    GLshader glshader_console;
     GLcontext *glcontext;
     Text text;
+    Node *node;
 
 
   public:
@@ -20,7 +22,7 @@ class Console
     Console();
     ~Console();
 
-    void init(GLcontext &glcontext);
+    void init(Scene &scene, GLcontext &glcontext);
     void draw();
     void toggle();
 };

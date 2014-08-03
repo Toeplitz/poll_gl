@@ -4,12 +4,14 @@
 
 Image::Image()
 {
+  data = nullptr;
 }
 
 
 Image::~Image()
 {
-  stbi_image_free(data);
+  if (data)
+    stbi_image_free(data);
 }
 
 
@@ -23,4 +25,12 @@ bool Image::load(const std::string &filename)
   std::cout << filename << " loaded, size: " << width << " x " << height << ", " << components << std::endl;
 
   return true;
+}
+
+
+void Image::data_set(unsigned char *data, const int width, const int height)
+{
+  this->data = data;
+  this->width = width;
+  this->height = height;
 }

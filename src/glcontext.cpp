@@ -119,6 +119,15 @@ void GLcontext::draw_mesh(Mesh &mesh)
 }
 
 
+void GLcontext::draw_text(Text &text)
+{
+  Texture &texture = text.font_texture_get();
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, texture.gl_texture);
+
+}
+
+
 void GLcontext::framebuffer_check_status() 
 {
   GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -333,6 +342,23 @@ void GLcontext::polygon_mesh_toggle(bool tog)
 }
 
 
+void GLcontext::texture_font_bitmap_create(Texture &texture)
+{
+  if (glIsTexture(texture.gl_texture)) {
+    return;
+  }
+
+  GL_ASSERT(glGenTextures(1, &texture.gl_texture));
+  GL_ASSERT(glActiveTexture(GL_TEXTURE0));
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, texture.gl_texture));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+  GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, texture.image->width, texture.image->height,
+      0, GL_RED, GL_UNSIGNED_BYTE, texture.image->data));
+
+}
+
+
 void GLcontext::uniform_buffers_block_bind(GLshader &shader)
 {
   GLuint block_index;
@@ -527,6 +553,16 @@ void GLcontext::uniform_textures_init(GLshader &shader)
   GL_ASSERT(glUniform1i(location, 1));
   location = glGetUniformLocation(program, "specular_texture");
   GL_ASSERT(glUniform1i(location, 2));
+}
+
+
+void GLcontext::uniform_textures_font_init(GLshader &shader)
+{
+  GLuint program = shader.program;
+
+  GLint location;
+  location = glGetUniformLocation(program, "bitmap_texture");
+  GL_ASSERT(glUniform1i(location, 0));
 }
 
 

@@ -13,6 +13,7 @@
 #include "gldefaults.h"
 #include "glshader.h"
 #include "scene.h"
+#include "text.h"
 
 
 class GLcontext {
@@ -54,15 +55,18 @@ class GLcontext {
     void draw_light(Light *light);
     void draw_node(Node &node);
     void draw_mesh(Mesh &mesh);
+    void draw_text(Text &text);
     void framebuffer_check_status();
     void framebuffer_delete();
     void framebuffer_g_create(GLshader &glshader_deferred_second, const int width, const int height);
     void framebuffer_g_light_pass(GLshader &shader_light, Light &light);
     void framebuffer_g_draw_geometry(Scene &scene, GLshader &shader);
-    void framebuffer_g_draw_illuminated_scene(const Assets &assets, Scene &scene, GLshader shader_geometry,  GLshader &shader_stencil, GLshader &shader_light);
+    void framebuffer_g_draw_illuminated_scene(const Assets &assets, Scene &scene, GLshader shader_geometry,  
+                                              GLshader &shader_stencil, GLshader &shader_light);
     void framebuffer_g_stencil_pass(GLshader &shader_stencil, Light &light);
     void framebuffer_node_create(Node &node);
     void polygon_mesh_toggle(bool tog);
+    void texture_font_bitmap_create(Texture &texture);
     void uniform_buffers_block_bind(GLshader &shader);
     void uniform_buffers_create();
     void uniform_buffers_delete();
@@ -73,7 +77,9 @@ class GLcontext {
     void uniform_buffers_update_mesh(Mesh &mesh);
     void uniform_buffers_update_state(Node &node);
     void uniform_textures_init(GLshader &shader);
+    void uniform_textures_font_init(GLshader &shader);
     void vertex_buffers_create(Node &node);
     void vertex_buffers_mesh_create(Mesh *mesh);
     void vertex_buffers_delete(Node &node);
+
 };

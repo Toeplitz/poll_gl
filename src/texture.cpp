@@ -7,6 +7,8 @@
 
 Texture::Texture()
 {
+  std::unique_ptr<Image> image_ptr(new Image());
+  image = std::move(image_ptr);
   gl_texture = 0;
 }
 
@@ -24,8 +26,6 @@ Texture::~Texture()
 
 bool Texture::image_load(const std::string &filename)
 {
-  std::unique_ptr<Image> image_ptr(new Image());
-  image = std::move(image_ptr);
   this->filename = filename;
 
   if (!image->load(filename)) {
@@ -35,4 +35,11 @@ bool Texture::image_load(const std::string &filename)
 
   return true;
 }
+
+
+Image &Texture::image_get()
+{
+  return *image.get();
+}
+
 

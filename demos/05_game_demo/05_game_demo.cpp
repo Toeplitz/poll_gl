@@ -277,7 +277,7 @@ int main()
     light_point->scale(glm::vec3(25, 25, 25));
   }
 
- // scene.scene_graph_print(false);
+  scene.scene_graph_print(false);
  // scene.assets_get().print_all(scene.node_root_get());
 
   fragmic.run();

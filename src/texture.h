@@ -18,7 +18,8 @@ class Texture {
     Texture();
     ~Texture();
 
-    bool image_load(const std::string &filename);
+    bool    image_load(const std::string &filename);
+    Image  &image_get();
 
 };
 
