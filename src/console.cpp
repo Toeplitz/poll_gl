@@ -39,8 +39,8 @@ void Console::init(Scene &scene, GLcontext &glcontext)
   mesh->quad_generate(1.f);
 
   glcontext.vertex_buffers_mesh_create(mesh);
-  glcontext.uniform_textures_font_init(glshader_console);
-  glcontext.texture_font_bitmap_create(texture);
+  glcontext.uniform_locations_console_init(glshader_console);
+  glcontext.texture_single_channel_create(texture);
 
 }
 
@@ -51,11 +51,11 @@ void Console::draw()
     return;
 
   glshader_console.use();
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  GL_ASSERT(glEnable(GL_BLEND));
+  GL_ASSERT(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
   glcontext->draw_text(text);
-  glcontext->draw_node(*node);
-  glDisable(GL_BLEND);
+  glcontext->draw_mesh(*node->mesh_get());
+  GL_ASSERT(glDisable(GL_BLEND));
 
 }
 

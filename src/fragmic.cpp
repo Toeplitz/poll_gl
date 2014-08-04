@@ -13,7 +13,7 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   physics(),
   glshader(), 
   glshader_geometry(), 
-  glshader_illumination(), 
+  glshader_light(), 
   scene(), 
   window(width, height)
 {
@@ -35,11 +35,12 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   // SETUP FOR DEFERRED SHADING
   glshader_stencil.load("shaders/stencil_pass.v", "shaders/stencil_pass.f");
   glshader_geometry.load("shaders/deferred_pass_one.v", "shaders/deferred_pass_one.f");
-  glcontext.uniform_textures_init(glshader_geometry);
-  glshader_illumination.load("shaders/deferred_pass_two.v", "shaders/deferred_pass_two.f");
+  glshader_light.load("shaders/deferred_pass_two.v", "shaders/deferred_pass_two.f");
+  glcontext.uniform_locations_geometry_init(glshader_geometry);
+  glcontext.uniform_locations_lighting_init(glshader_light);
   glcontext.uniform_buffers_create();
   glcontext.uniform_buffers_block_bind(glshader_geometry);
-  glcontext.uniform_buffers_block_bind(glshader_illumination);
+  glcontext.uniform_buffers_block_bind(glshader_light);
   glcontext.uniform_buffers_block_bind(glshader_stencil);
 
   /*
@@ -47,7 +48,7 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   node.mesh_create(scene.assets_get());
   node.mesh->quad_generate(1.f);
   */
-  glcontext.framebuffer_g_create(glshader_illumination, window.width, window.height);
+  glcontext.framebuffer_create(window.width, window.height);
   //glcontext.framebuffer_node_create(node);
 
   console.init(scene, glcontext);
@@ -64,8 +65,7 @@ void Fragmic::draw_g_buffer(const double dt)
 {
   GLcontext &glcontext = window.glcontext_get();
 
-  //glcontext.framebuffer_g_draw_geometry(scene, glshader_geometry);
-  glcontext.framebuffer_g_draw_illuminated_scene(scene.assets_get(), scene, glshader_geometry, glshader_stencil, glshader_illumination);
+  glcontext.framebuffer_draw_scene(scene.assets_get(), scene, glshader_geometry, glshader_stencil, glshader_light);
 
   /* Step physics simulation */
   physics.step(dt);
@@ -94,12 +94,16 @@ void Fragmic::run()
     /* Upload new nodes */
     Node *upload_node = scene.upload_queue_pop();
     while (upload_node) {
+      Material *material = upload_node->material_get();
+      Mesh *mesh = upload_node->mesh_get();
       Light *light = upload_node->light_get();
+
       if (light) {
         glcontext.vertex_buffers_mesh_create(light->volume_mesh_get());
       }
 
-      glcontext.vertex_buffers_create(*upload_node);
+      glcontext.vertex_buffers_mesh_create(mesh);
+      glcontext.texture_materials_create(material);
       upload_node = scene.upload_queue_pop();
     }
 
@@ -135,7 +139,10 @@ void Fragmic::term()
   GLcontext &glcontext = window.glcontext_get();
   glcontext.uniform_buffers_delete();
   for (auto &node: scene.mesh_nodes_get()) {
-    glcontext.vertex_buffers_delete(*node);
+    Material *material = node->material_get();
+    Mesh *mesh = node->mesh_get();
+    glcontext.vertex_buffers_mesh_delete(mesh);
+    glcontext.texture_materials_delete(material);
   }
   glshader.term();
   window.term();

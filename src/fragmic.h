@@ -17,7 +17,7 @@ class Fragmic {
     Physics physics;
     GLshader glshader;
     GLshader glshader_geometry;
-    GLshader glshader_illumination;
+    GLshader glshader_light;
     GLshader glshader_screen;
     GLshader glshader_stencil;
     Scene scene;

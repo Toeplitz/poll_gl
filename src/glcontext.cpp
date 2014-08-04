@@ -33,14 +33,6 @@ void GLcontext::check_error()
 }
 
 
-void GLcontext::clear()
-{
-  glm::vec4 color(0.5, 0.5, 0.5, 1.0);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glClearColor(color.x, color.y, color.z, color.a);
-}
-
-
 bool GLcontext::init(const int width, const int height)
 {
   glewExperimental= GL_TRUE;
@@ -56,6 +48,7 @@ bool GLcontext::init(const int width, const int height)
   GL_ASSERT(glCullFace(GL_BACK));
   GL_ASSERT(glEnable(GL_CULL_FACE));
   GL_ASSERT(glEnable(GL_DEPTH_TEST));
+  GL_ASSERT(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
   return true;
 }
@@ -163,84 +156,62 @@ void GLcontext::framebuffer_delete()
 }
 
 
-void GLcontext::framebuffer_g_create(GLshader &glshader_deferred_second, const int width, const int height)
+void GLcontext::framebuffer_create(const int width, const int height)
 {
-  GLuint program = glshader_deferred_second.program;
-
-  glGenTextures(1, &gl_g_fb_tex_normal);
-  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_normal);
+  glGenTextures(1, &gl_fb_tex_normal);
+  glBindTexture(GL_TEXTURE_2D, gl_fb_tex_normal);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-  glGenTextures(1, &gl_g_fb_tex_diffuse);
-  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_diffuse);
+  glGenTextures(1, &gl_fb_tex_diffuse);
+  glBindTexture(GL_TEXTURE_2D, gl_fb_tex_diffuse);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-  glGenFramebuffers (1, &gl_g_fb);
-  glBindFramebuffer(GL_FRAMEBUFFER, gl_g_fb);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl_g_fb_tex_normal, 0);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gl_g_fb_tex_diffuse, 0);
+  glGenFramebuffers (1, &gl_fb);
+  glBindFramebuffer(GL_FRAMEBUFFER, gl_fb);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl_fb_tex_normal, 0);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gl_fb_tex_diffuse, 0);
   GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
   glDrawBuffers(2, draw_bufs);
 
   framebuffer_check_status();
 
-  glGenTextures(1, &gl_g_fb_tex_depth);
+  glGenTextures(1, &gl_fb_tex_depth);
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_depth);
+  glBindTexture(GL_TEXTURE_2D, gl_fb_tex_depth);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, gl_g_fb_tex_depth, 0);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, gl_fb_tex_depth, 0);
 
-  glGenTextures(1, &gl_g_fb_tex_final);
-  glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_final);
+  glGenTextures(1, &gl_fb_tex_final);
+  glBindTexture(GL_TEXTURE_2D, gl_fb_tex_final);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gl_g_fb_tex_final, 0);
-
-  glshader_deferred_second.use();
-  GLint location;
-  location = glGetUniformLocation(program, "normal_tex");
-  GL_ASSERT(glUniform1i(location, 0));
-  location = glGetUniformLocation(program, "diffuse_tex");
-  GL_ASSERT(glUniform1i(location, 1));
-  location = glGetUniformLocation(program, "depth_tex");
-  GL_ASSERT(glUniform1i(location, 2));
-}
-
-
-void GLcontext::framebuffer_g_draw_geometry(Scene &scene, GLshader &shader_first_pass)
-{
-
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gl_fb_tex_final, 0);
 
 }
 
 
-void GLcontext::framebuffer_g_light_pass(GLshader &shader_light, Light &light)
-{
-}
-
-
-void GLcontext::framebuffer_g_draw_illuminated_scene(const Assets &assets, Scene &scene, GLshader shader_geometry,  GLshader &shader_stencil, GLshader &shader_light)
+void GLcontext::framebuffer_draw_scene(const Assets &assets, Scene &scene, GLshader shader_geometry,  GLshader &shader_stencil, GLshader &shader_light)
 {
   auto &lights = assets.light_active_get();
 
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_g_fb);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb);
   glDrawBuffer(GL_COLOR_ATTACHMENT2);
   glClear(GL_COLOR_BUFFER_BIT);
   
   /* GEOMETRY PASS */
   shader_geometry.use();
-  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_g_fb);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb);
   GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
   glDrawBuffers(2, draw_bufs);
   glDepthMask(GL_TRUE);
@@ -285,11 +256,11 @@ void GLcontext::framebuffer_g_draw_illuminated_scene(const Assets &assets, Scene
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_normal);
+    glBindTexture(GL_TEXTURE_2D, gl_fb_tex_normal);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_diffuse);
+    glBindTexture(GL_TEXTURE_2D, gl_fb_tex_diffuse);
     glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, gl_g_fb_tex_depth);
+    glBindTexture(GL_TEXTURE_2D, gl_fb_tex_depth);
 
     draw_light(light.get());
 
@@ -300,15 +271,9 @@ void GLcontext::framebuffer_g_draw_illuminated_scene(const Assets &assets, Scene
 
   /***** BLIT FINAL FRAME *********/
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-  glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_g_fb);
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_fb);
   glReadBuffer(GL_COLOR_ATTACHMENT2);
   GL_ASSERT(glBlitFramebuffer(0, 0, 1280, 720, 0, 0, 1280, 720, GL_COLOR_BUFFER_BIT, GL_NEAREST));
-}
-
-
-void GLcontext::framebuffer_g_stencil_pass(GLshader &shader_stencil, Light &light)
-{
-
 }
 
 
@@ -342,7 +307,58 @@ void GLcontext::polygon_mesh_toggle(bool tog)
 }
 
 
-void GLcontext::texture_font_bitmap_create(Texture &texture)
+void GLcontext::texture_materials_create(Material *material)
+{
+  if (!material)
+    return;
+
+  if (material->diffuse) {
+    texture_create(*material->diffuse, GL_TEXTURE0);
+  }
+  if (material->normal) {
+    texture_create(*material->normal, GL_TEXTURE1);
+  }
+  if (material->specular) {
+    texture_create(*material->specular, GL_TEXTURE2);
+  }
+  if (material->cubemap) {
+    if (!glIsTexture(material->cubemap->gl_texture)) {
+      GL_ASSERT(glGenTextures(1,  &material->cubemap->gl_texture));
+      GL_ASSERT(glActiveTexture(GL_TEXTURE3));
+      GL_ASSERT(glBindTexture(GL_TEXTURE_CUBE_MAP, material->cubemap->gl_texture));
+      texture_cubemap_create(material->cubemap->front);
+      texture_cubemap_create(material->cubemap->back);
+      texture_cubemap_create(material->cubemap->top);
+      texture_cubemap_create(material->cubemap->bottom);
+      texture_cubemap_create(material->cubemap->left);
+      texture_cubemap_create(material->cubemap->right);
+    }
+  }
+}
+
+
+void GLcontext::texture_materials_delete(Material *material)
+{
+  if (!material)
+    return;
+
+  if (material->diffuse) {
+    texture_delete(*material->diffuse);
+  }
+  if (material->normal) {
+    texture_delete(*material->normal);
+  }
+  if (material->specular) {
+    texture_delete(*material->specular);
+  }
+  if (material->cubemap) {
+    texture_cubemap_delete(*material->cubemap);
+  }
+
+}
+
+
+void GLcontext::texture_single_channel_create(Texture &texture)
 {
   if (glIsTexture(texture.gl_texture)) {
     return;
@@ -504,22 +520,21 @@ void GLcontext::uniform_buffers_update_material(const Material &material)
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, 0));
 
   if (material.diffuse) {
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, material.diffuse->gl_texture);
+    GL_ASSERT(glActiveTexture(GL_TEXTURE0));
+    GL_ASSERT(glBindTexture(GL_TEXTURE_2D, material.diffuse->gl_texture));
   }
   if (material.normal) {
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, material.normal->gl_texture);
+    GL_ASSERT(glActiveTexture(GL_TEXTURE1));
+    GL_ASSERT(glBindTexture(GL_TEXTURE_2D, material.normal->gl_texture));
   }
   if (material.specular) {
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, material.specular->gl_texture);
+    GL_ASSERT(glActiveTexture(GL_TEXTURE2));
+    GL_ASSERT(glBindTexture(GL_TEXTURE_2D, material.specular->gl_texture));
   }
   if (material.cubemap) {
-    glActiveTexture(GL_TEXTURE3);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, material.cubemap->gl_texture);
+    GL_ASSERT(glActiveTexture(GL_TEXTURE3));
+    GL_ASSERT(glBindTexture(GL_TEXTURE_CUBE_MAP, material.cubemap->gl_texture));
   }
-  glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 
@@ -542,7 +557,21 @@ void GLcontext::uniform_buffers_update_state(Node &node)
 }
 
 
-void GLcontext::uniform_textures_init(GLshader &shader)
+void GLcontext::uniform_locations_lighting_init(GLshader &shader)
+{
+  GLuint program = shader.program;
+
+  GLint location;
+  location = glGetUniformLocation(program, "normal_tex");
+  GL_ASSERT(glUniform1i(location, 0));
+  location = glGetUniformLocation(program, "diffuse_tex");
+  GL_ASSERT(glUniform1i(location, 1));
+  location = glGetUniformLocation(program, "depth_tex");
+  GL_ASSERT(glUniform1i(location, 2));
+
+}
+
+void GLcontext::uniform_locations_geometry_init(GLshader &shader)
 {
   GLuint program = shader.program;
 
@@ -556,7 +585,7 @@ void GLcontext::uniform_textures_init(GLshader &shader)
 }
 
 
-void GLcontext::uniform_textures_font_init(GLshader &shader)
+void GLcontext::uniform_locations_console_init(GLshader &shader)
 {
   GLuint program = shader.program;
 
@@ -668,65 +697,14 @@ void GLcontext::vertex_buffers_mesh_create(Mesh *mesh)
 }
 
 
-void GLcontext::vertex_buffers_create(Node &node)
+void GLcontext::vertex_buffers_mesh_delete(Mesh *mesh)
 {
-  Mesh *mesh = node.mesh;
-  Material *material = node.material;
 
-  if (!mesh) return;
-  vertex_buffers_mesh_create(mesh);
+  if (!mesh)
+    return;
 
-  if (material) {
-    if (material->diffuse) {
-      texture_create(*material->diffuse, GL_TEXTURE0);
-    }
-    if (material->normal) {
-      texture_create(*material->normal, GL_TEXTURE1);
-    }
-    if (material->specular) {
-      texture_create(*material->specular, GL_TEXTURE2);
-    }
-    if (material->cubemap) {
-      if (!glIsTexture(material->cubemap->gl_texture)) {
-        GL_ASSERT(glGenTextures(1,  &material->cubemap->gl_texture));
-        GL_ASSERT(glActiveTexture(GL_TEXTURE3));
-        GL_ASSERT(glBindTexture(GL_TEXTURE_CUBE_MAP, material->cubemap->gl_texture));
-        texture_cubemap_create(material->cubemap->front);
-        texture_cubemap_create(material->cubemap->back);
-        texture_cubemap_create(material->cubemap->top);
-        texture_cubemap_create(material->cubemap->bottom);
-        texture_cubemap_create(material->cubemap->left);
-        texture_cubemap_create(material->cubemap->right);
-      }
-    }
-  }
-}
-
-
-void GLcontext::vertex_buffers_delete(Node &node)
-{
-  Mesh *mesh = node.mesh;
-  Material *material = node.material;
-
-  if (mesh) {
-    GL_ASSERT(glDeleteBuffers(8, gl_vertex_buffers));
-    GL_ASSERT(glDeleteVertexArrays(1, &mesh->gl_vao));
-  }
-  if (material) {
-    if (material->diffuse) {
-      texture_delete(*material->diffuse);
-    }
-    if (material->normal) {
-      texture_delete(*material->normal);
-    }
-    if (material->specular) {
-      texture_delete(*material->specular);
-    }
-    if (material->cubemap) {
-      texture_cubemap_delete(*material->cubemap);
-    }
-  }
-
+  GL_ASSERT(glDeleteBuffers(8, gl_vertex_buffers));
+  GL_ASSERT(glDeleteVertexArrays(1, &mesh->gl_vao));
 }
 
 
