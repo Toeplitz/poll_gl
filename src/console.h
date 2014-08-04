@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+#include <functional>
 #include "glshader.h"
 #include "glcontext.h"
 #include "scene.h"
@@ -16,6 +18,12 @@ class Console
     Text text;
     Node *node;
 
+    std::map<std::string, std::function<void ()>> commands;
+
+    void command_add(const std::string &key, std::function<void (void *)>);
+    void command_defaults_set();
+    void command_exec(const std::string &key, const std::string &value);
+    void command_parse(std::string &command_full);
 
   public:
 

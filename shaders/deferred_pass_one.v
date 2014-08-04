@@ -2,8 +2,6 @@
 
 layout(location = 0) in vec3 vertex_position;
 layout(location = 1) in vec3 vertex_normal;
-layout(location = 2) in vec3 vtangent;
-layout(location = 3) in vec3 bitangent;
 layout(location = 4) in vec3 weights;
 layout(location = 5) in ivec3 bone_index;
 layout(location = 6) in vec2 texture_coord;
@@ -35,7 +33,6 @@ layout(std140) uniform Node_State {
 };
 
 
-out vec3 position_eye;
 out vec3 normal_eye;
 out vec2 st;
 
@@ -64,8 +61,9 @@ void main(void)
   mat4 model_view = view * m;
   mat3 normal_matrix = mat3(transpose(inverse(model_view)));
 
+  vec3 position_eye = (model_view * vec4(vertex_position, 1.0)).xyz;
+
   // Out variables
-  position_eye = (model_view * vec4(vertex_position, 1.0)).xyz;
   normal_eye = normal_matrix * vertex_normal;
   gl_Position = proj * vec4(position_eye, 1.0);
   st = texture_coord;

@@ -21,9 +21,9 @@ class Text
     Text();
     ~Text();
 
-    void                  font_read(const std::string &font_file);
-    void                  font_bitmap_bake();
-    Texture              &font_texture_get();
-    const glm::vec4      &font_coordinates_get();
+    const std::vector<glm::vec4>   bake_coords(float x, float y, char *text);
+    void                           font_read(const std::string &font_file);
+    void                           font_bitmap_bake();
+    Texture                       &texture_get();
 
 };

@@ -43,8 +43,7 @@ bool GLcontext::init(const int width, const int height)
   check_error();
   check_version(3);
 
-  glViewport(0, 0, width, height);
-
+  GL_ASSERT(glViewport(0, 0, width, height));
   GL_ASSERT(glCullFace(GL_BACK));
   GL_ASSERT(glEnable(GL_CULL_FACE));
   GL_ASSERT(glEnable(GL_DEPTH_TEST));
@@ -114,7 +113,7 @@ void GLcontext::draw_mesh(Mesh &mesh)
 
 void GLcontext::draw_text(Text &text)
 {
-  Texture &texture = text.font_texture_get();
+  Texture &texture = text.texture_get();
   GL_ASSERT(glActiveTexture(GL_TEXTURE0));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, texture.gl_texture));
 
@@ -357,6 +356,8 @@ void GLcontext::uniform_buffers_block_bind(GLshader &shader)
   GLuint block_index;
   GLuint bind_index;
 
+  shader.use();
+
   for (auto &name : shader.block_names_get()) {
     //   std::cout << name << " bind index: " << uniform_buffer_map.at(name) << std::endl;
     bind_index = uniform_buffer_map.at(name);
@@ -536,10 +537,11 @@ void GLcontext::uniform_buffers_update_state(Node &node)
 
 void GLcontext::uniform_locations_lighting_init(GLshader &shader)
 {
-  GLuint program = shader.program;
-  std::cout << "Initializing light uniform locations" << std::endl;
-
   GLint location;
+  GLuint program = shader.program;
+
+  shader.use();
+
   location = glGetUniformLocation(program, "normal_tex");
   GL_ASSERT(glUniform1i(location, 0));
   location = glGetUniformLocation(program, "diffuse_tex");
@@ -552,10 +554,10 @@ void GLcontext::uniform_locations_lighting_init(GLshader &shader)
 void GLcontext::uniform_locations_geometry_init(GLshader &shader)
 {
   GLuint program = shader.program;
-
-  std::cout << "Initializing geometry uniform locations" << std::endl;
-
   GLint location;
+
+  shader.use();
+
   location = glGetUniformLocation(program, "diffuse_texture");
   GL_ASSERT(glUniform1i(location, 0));
   location = glGetUniformLocation(program, "normal_texture");
@@ -567,9 +569,11 @@ void GLcontext::uniform_locations_geometry_init(GLshader &shader)
 
 void GLcontext::uniform_locations_console_init(GLshader &shader)
 {
+  GLint location;
   GLuint program = shader.program;
 
-  GLint location;
+  shader.use();
+
   location = glGetUniformLocation(program, "bitmap_texture");
   GL_ASSERT(glUniform1i(location, 0));
 }

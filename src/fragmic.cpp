@@ -62,17 +62,6 @@ Fragmic::~Fragmic()
 }
 
 
-void Fragmic::draw_g_buffer(const double dt)
-{
-  GLcontext &glcontext = window.glcontext_get();
-
-  glcontext.framebuffer_draw_scene(scene.assets_get(), scene, glshader_geometry, glshader_stencil, glshader_light);
-
-  /* Step physics simulation */
-  physics.step(dt);
-}
-
-
 /**************************************************/
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
@@ -125,8 +114,12 @@ void Fragmic::run()
     glcontext.uniform_buffers_update_camera(camera);
 
     /* Draw scene */
-    draw_g_buffer(dt);
+    glcontext.framebuffer_draw_scene(scene.assets_get(), scene, glshader_geometry, glshader_stencil, glshader_light);
 
+    /* Step physics simulation */
+    physics.step(dt);
+
+    /* Draw console if toggled */
     console.draw();
 
     glcontext.check_error();

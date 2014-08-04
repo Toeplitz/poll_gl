@@ -1,4 +1,5 @@
 #include "console.h"
+#include <glm/gtx/string_cast.hpp>
 
 
 /**************************************************/
@@ -29,7 +30,7 @@ void Console::init(Scene &scene, GLcontext &glcontext)
 
   text.font_read("data/fonts/FreeMono.ttf");
   text.font_bitmap_bake();
-  Texture &texture = text.font_texture_get();
+  Texture &texture = text.texture_get();
 
   node = scene.node_create("console");
   Mesh *mesh = node->mesh_create(scene.assets_get());
@@ -40,6 +41,15 @@ void Console::init(Scene &scene, GLcontext &glcontext)
   glcontext.vertex_buffers_mesh_create(mesh);
   glcontext.texture_single_channel_create(texture);
   glcontext.uniform_locations_console_init(glshader_console);
+
+  float x, y;
+  x = 0;
+  y = 10;
+  const std::vector<glm::vec4> coords = text.bake_coords(x, y, "Martin");
+
+  for (size_t i = 0; i < coords.size(); i++) {
+    std::cout << glm::to_string(coords[i]) << std::endl;
+  }
 
 }
 

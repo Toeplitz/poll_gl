@@ -24,7 +24,6 @@ class Fragmic {
     Window window;
 
     double       delta_time_get();
-    void         draw_g_buffer(const double dt);
     void         draw_standard_post_proc(const double dt);
     void         profile_fps(const double dt);
 

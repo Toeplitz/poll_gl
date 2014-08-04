@@ -17,9 +17,6 @@ class GLshader {
     GLuint vs;
     GLuint fs;
     GLuint gs;
-    std::string vertexShaderFile;
-    std::string fragmentShaderFile;
-    std::string geomShaderFile;
 
     void    compile();
     GLuint  create_shader(std::string fileName, GLenum type);
@@ -28,6 +25,9 @@ class GLshader {
     void    validate();
 
   public:
+    std::string vertexShaderFile;
+    std::string fragmentShaderFile;
+    std::string geomShaderFile;
     GLuint program;
 
     GLshader();
