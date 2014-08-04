@@ -31,16 +31,15 @@ void Console::init(Scene &scene, GLcontext &glcontext)
   text.font_bitmap_bake();
   Texture &texture = text.font_texture_get();
 
-  glshader_console.load("shaders/console.v", "shaders/console.f"); 
-  glshader_console.use();
-
   node = scene.node_create("console");
   Mesh *mesh = node->mesh_create(scene.assets_get());
   mesh->quad_generate(1.f);
 
+  glshader_console.load("shaders/console.v", "shaders/console.f"); 
+
   glcontext.vertex_buffers_mesh_create(mesh);
-  glcontext.uniform_locations_console_init(glshader_console);
   glcontext.texture_single_channel_create(texture);
+  glcontext.uniform_locations_console_init(glshader_console);
 
 }
 

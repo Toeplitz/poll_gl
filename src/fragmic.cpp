@@ -24,6 +24,7 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   if (!glcontext.init(window.width, window.height)) {
     exit(-1);
   }
+  glcontext.check_error();
 
   Node *cam_node = scene.node_create("camera");
   cam_node->camera_create(scene.assets_get());
@@ -33,8 +34,8 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   glshader_screen.load("shaders/post_proc.v", "shaders/post_proc.f");
 
   // SETUP FOR DEFERRED SHADING
-  glshader_stencil.load("shaders/stencil_pass.v", "shaders/stencil_pass.f");
   glshader_geometry.load("shaders/deferred_pass_one.v", "shaders/deferred_pass_one.f");
+  glshader_stencil.load("shaders/stencil_pass.v", "shaders/stencil_pass.f");
   glshader_light.load("shaders/deferred_pass_two.v", "shaders/deferred_pass_two.f");
   glcontext.uniform_locations_geometry_init(glshader_geometry);
   glcontext.uniform_locations_lighting_init(glshader_light);

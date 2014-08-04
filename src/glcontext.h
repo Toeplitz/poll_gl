@@ -33,12 +33,12 @@ class GLcontext {
     GLuint gl_fb_tex_final;
     GLuint gl_fb_vertex_buffers[1];
 
-    Node *fb_node;
-
     bool check_version(const int &major);
     void texture_cubemap_create(Cubemap_Item &item);
     void texture_cubemap_delete(Cubemap &cubemap);
-    void texture_create(Texture &texture, GLenum n);
+    void texture_create(Texture &texture, GLenum active_texture, GLint filter,
+                        GLint wrap, GLint internal_format, GLenum format,
+                        const bool unpack_align);
     void texture_delete(Texture &texture);
 
   public:
