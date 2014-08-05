@@ -104,10 +104,8 @@ Text::~Text()
 /**************************************************/
 
 
-const std::vector<glm::vec4> Text::bake_coords(float x, float y, char *text) 
+void Text::bake_coords(Mesh *mesh, float x, float y, char *text) 
 {
-  std::vector<glm::vec4> coords;
-
   while (*text) {
     int c = (unsigned char) *text;
 
@@ -115,13 +113,18 @@ const std::vector<glm::vec4> Text::bake_coords(float x, float y, char *text)
 
       stbtt_aligned_quad q;
       baked_quad_get(cdata, 512, 512, c - 32, &x, &y, &q);
-
-      coords.push_back(glm::vec4(q.x0, q.y0, q.s0, q.t0));
-      coords.push_back(glm::vec4(q.x1, q.y1, q.s1, q.t1));
-      coords.push_back(glm::vec4(q.x1, q.y0, q.s1, q.t0));
-      coords.push_back(glm::vec4(q.x0, q.y0, q.s0, q.t0));
-      coords.push_back(glm::vec4(q.x0, q.y1, q.s0, q.t1));
-      coords.push_back(glm::vec4(q.x1, q.y1, q.s1, q.t1));
+      mesh->positions_add(glm::vec3(q.x0, q.y0, 0));
+      mesh->texture_st_add(glm::vec2(q.s0, q.t0));
+      mesh->positions_add(glm::vec3(q.x1, q.y1, 0));
+      mesh->texture_st_add(glm::vec2(q.s1, q.t1));
+      mesh->positions_add(glm::vec3(q.x1, q.y0, 0));
+      mesh->texture_st_add(glm::vec2(q.s1, q.t0));
+      mesh->positions_add(glm::vec3(q.x0, q.y0, 0));
+      mesh->texture_st_add(glm::vec2(q.s0, q.t0));
+      mesh->positions_add(glm::vec3(q.x0, q.y1, 0));
+      mesh->texture_st_add(glm::vec2(q.s0, q.t1));
+      mesh->positions_add(glm::vec3(q.x1, q.y1, 0));
+      mesh->texture_st_add(glm::vec2(q.s1, q.t1));
  //     stbtt_GetBakedQuad(cdata, 512, 512, *text - 32, &x, &y, &q, 1);
       std::cout << "char: " << c << std::endl;
       std::cout << "x, y = " << x << ", " << y << std::endl;
@@ -129,7 +132,12 @@ const std::vector<glm::vec4> Text::bake_coords(float x, float y, char *text)
     ++text;
   }
 
-  return coords;
+}
+
+
+Font *Text::font_get()
+{
+  return font;
 }
 
 

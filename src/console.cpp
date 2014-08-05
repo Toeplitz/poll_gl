@@ -27,33 +27,28 @@ Console::~Console()
 void Console::init(Scene &scene, GLcontext &glcontext)
 {
   this->glcontext = &glcontext;
+  glshader_console.load("shaders/console.v", "shaders/console.f"); 
+  glcontext.uniform_locations_console_init(glshader_console);
 
   font.load("data/fonts/FreeMono.ttf");
   font.bake();
   Texture &texture = font.texture_get();
-
-  node = scene.node_create("console");
-  Mesh *mesh = node->mesh_create(scene.assets_get());
-  mesh->quad_generate(1.f);
-
-  Node *text_node = scene.node_create("entry_box", node);
-  Text *text = text_node->text_create(&font, scene.assets_get());
-
-  glshader_console.load("shaders/console.v", "shaders/console.f"); 
-
-  glcontext.vertex_buffers_mesh_create(mesh);
   glcontext.texture_single_channel_create(texture);
-  glcontext.uniform_locations_console_init(glshader_console);
+
+  node_console = scene.node_create("console");
+  Mesh *mesh = node_console->mesh_create(scene.assets_get());
+  mesh->quad_generate(1.f);
+  glcontext.vertex_buffers_mesh_create(mesh);
+
+  node_text = scene.node_create("entry_box", node_console);
+  Text *text = node_text->text_create(&font, scene.assets_get());
+  Mesh *text_mesh = node_text->mesh_get();
 
   float x, y;
-  x = 0;
-  y = 10;
-  const std::vector<glm::vec4> coords = text->bake_coords(x, y, "Martin");
-
-  for (size_t i = 0; i < coords.size(); i++) {
-    std::cout << glm::to_string(coords[i]) << std::endl;
-  }
-
+  x = 100;
+  y = 100;
+  text->bake_coords(text_mesh, x, y, "Martin");
+  glcontext.vertex_buffers_mesh_create(text_mesh);
 }
 
 
@@ -63,11 +58,8 @@ void Console::draw()
     return;
 
   glshader_console.use();
-  GL_ASSERT(glEnable(GL_BLEND));
-  GL_ASSERT(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
- // glcontext->draw_text(text);
-  glcontext->draw_mesh(*node->mesh_get());
-  GL_ASSERT(glDisable(GL_BLEND));
+  glcontext->draw_text(*node_text);
+ // glcontext->draw_mesh(*node_console->mesh_get());
 
 }
 

@@ -111,14 +111,37 @@ void GLcontext::draw_mesh(Mesh &mesh)
 }
 
 
-void GLcontext::draw_text(Text &text)
+void GLcontext::draw_text(Node &node)
 {
-  /*
-  Texture &texture = text.texture_get();
+  Font *font = nullptr;
+  Mesh *mesh = node.mesh_get();
+  Text *text = node.text_get();
+
+  if (!text) {
+    std::cout << "Error: no text attached to node: '" << node.name << "'" << std::endl;
+    return;
+  }
+  if (!mesh) {
+    std::cout << "Error: no mesh attached to node: '" << node.name << "'" << std::endl;
+    return;
+  }
+
+  font = text->font_get();
+  if (!font) {
+    std::cout << "Error: no font attached to text object" << std::endl;
+    return;
+  }
+
+  Texture &texture = font->texture_get();
+
+  GL_ASSERT(glEnable(GL_BLEND));
+  GL_ASSERT(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
   GL_ASSERT(glActiveTexture(GL_TEXTURE0));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, texture.gl_texture));
-  */
-
+  draw_mesh(*mesh);
+  std::cout << "num vertex: " << mesh->num_vertices_get() << std::endl;
+  std::cout << "num st: " << mesh->num_texture_st_get() << std::endl;
+  GL_ASSERT(glDisable(GL_BLEND));
 }
 
 

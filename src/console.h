@@ -16,7 +16,8 @@ class Console
     GLshader glshader_console;
     GLcontext *glcontext;
     Font font;
-    Node *node;
+    Node *node_console;
+    Node *node_text;
 
     std::map<std::string, std::function<void ()>> commands;
 

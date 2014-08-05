@@ -50,7 +50,7 @@ class GLcontext {
     void draw_light(Light *light);
     void draw_node(Node &node);
     void draw_mesh(Mesh &mesh);
-    void draw_text(Text &text);
+    void draw_text(Node &node);
     void framebuffer_check_status();
     void framebuffer_create(const int width, const int height);
     void framebuffer_delete();

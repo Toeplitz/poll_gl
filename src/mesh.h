@@ -43,6 +43,7 @@ class Mesh {
     void                            print(const int indent_level);
     const std::vector<glm::vec3>   &normals_get() const;
     unsigned int                    num_indices_get();
+    unsigned int                    num_texture_st_get();
     unsigned int                    num_vertices_get();
     const std::vector<glm::vec3>   &tangents_get() const;
     const std::vector<glm::vec2>   &texture_st_get() const;

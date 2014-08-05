@@ -202,6 +202,19 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
 }
 
 
+void Scene::node_camera_set(Node *camera_node)
+{
+  this->node_cur_camera = camera_node;
+}
+
+
+Node *Scene::node_camera_get()
+{
+  return node_cur_camera;
+}
+
+
+
 Node *Scene::node_create(const std::string &name, Node *parent)
 {
   std::unique_ptr<Node> node(new Node(name));
@@ -218,27 +231,6 @@ Node *Scene::node_create(const std::string &name, Node *parent)
 Node &Scene::node_root_get() 
 {
   return root;
-}
-
-
-Node *Scene::node_camera_get()
-{
-  return node_cur_camera;
-}
-
-
-void  Scene::node_camera_set(Node *camera_node)
-{
-  this->node_cur_camera = camera_node;
-}
-
-
-void Scene::node_upload(Node *node)
-{
-  if (!node)
-    return;
-
-  upload_queue_add(*node);
 }
 
 

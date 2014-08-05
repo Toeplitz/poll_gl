@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <memory>
+#include "mesh.h"
 #include "texture.h"
 
 
@@ -36,7 +37,8 @@ class Text
     Text();
     ~Text();
 
-    const std::vector<glm::vec4>  bake_coords(float x, float y, char *text);
-    void                          font_set(Font *font);
+    void   bake_coords(Mesh *mesh, float x, float y, char *text);
+    Font  *font_get();
+    void   font_set(Font *font);
 
 };

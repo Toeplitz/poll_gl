@@ -123,13 +123,21 @@ void Mesh::print(const int indent_level)
 }
 
 
-unsigned int Mesh::num_indices_get() {
+unsigned int Mesh::num_indices_get() 
+{
   return indices.size();
 }
 
 
-unsigned int Mesh::num_vertices_get() {
+unsigned int Mesh::num_vertices_get() 
+{
   return positions.size();
+}
+
+
+unsigned int Mesh::num_texture_st_get() 
+{
+  return texture_st.size();
 }
 
 
