@@ -14,6 +14,7 @@
 #include "physics_rigidbody.h"
 #include "material.h"
 #include "mesh.h"
+#include "text.h"
 
 
 class Armature;
@@ -44,6 +45,7 @@ class Node: public Animated {
     Camera             *camera;
     Light              *light;
     Physics_Rigidbody  *rigidbody;
+    Text               *text;
 
   public:
     Armature           *armature;
@@ -88,6 +90,9 @@ class Node: public Animated {
     void                mesh_set(Mesh *mesh);
     void                rotate(const float angle, const glm::vec3 &v);
     void                scale(const glm::vec3 &v);
+    Text               *text_create(Font *font, Assets &assets);
+    Text               *text_get();
+    void                text_set(Text *text);
     void                translate(const glm::vec3 &v);
     void                transform_local_current_set(const glm::mat4 &transform);
     void                transform_local_original_set(const glm::mat4 &transform);

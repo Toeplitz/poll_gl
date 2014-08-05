@@ -162,6 +162,9 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
   if (node.mesh) {
     std::cout << " (mesh)";
   }
+  if (node.text_get()) {
+    std::cout << " (text)";
+  }
 
   if (!compact) {
     /*
@@ -199,11 +202,15 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
 }
 
 
-Node *Scene::node_create(const std::string &name)
+Node *Scene::node_create(const std::string &name, Node *parent)
 {
   std::unique_ptr<Node> node(new Node(name));
   Node *node_ptr  = node.get();
-  root.child_add(std::move(node), root.tree_level + 1);
+  if (!parent)
+    root.child_add(std::move(node), root.tree_level + 1);
+  else 
+    parent->child_add(std::move(node), parent->tree_level + 1);
+
   return node_ptr;
 }
 

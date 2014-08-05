@@ -28,13 +28,16 @@ void Console::init(Scene &scene, GLcontext &glcontext)
 {
   this->glcontext = &glcontext;
 
-  text.font_read("data/fonts/FreeMono.ttf");
-  text.font_bitmap_bake();
-  Texture &texture = text.texture_get();
+  font.load("data/fonts/FreeMono.ttf");
+  font.bake();
+  Texture &texture = font.texture_get();
 
   node = scene.node_create("console");
   Mesh *mesh = node->mesh_create(scene.assets_get());
   mesh->quad_generate(1.f);
+
+  Node *text_node = scene.node_create("entry_box", node);
+  Text *text = text_node->text_create(&font, scene.assets_get());
 
   glshader_console.load("shaders/console.v", "shaders/console.f"); 
 
@@ -45,7 +48,7 @@ void Console::init(Scene &scene, GLcontext &glcontext)
   float x, y;
   x = 0;
   y = 10;
-  const std::vector<glm::vec4> coords = text.bake_coords(x, y, "Martin");
+  const std::vector<glm::vec4> coords = text->bake_coords(x, y, "Martin");
 
   for (size_t i = 0; i < coords.size(); i++) {
     std::cout << glm::to_string(coords[i]) << std::endl;
@@ -62,7 +65,7 @@ void Console::draw()
   glshader_console.use();
   GL_ASSERT(glEnable(GL_BLEND));
   GL_ASSERT(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-  glcontext->draw_text(text);
+ // glcontext->draw_text(text);
   glcontext->draw_mesh(*node->mesh_get());
   GL_ASSERT(glDisable(GL_BLEND));
 

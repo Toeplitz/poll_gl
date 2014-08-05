@@ -113,9 +113,11 @@ void GLcontext::draw_mesh(Mesh &mesh)
 
 void GLcontext::draw_text(Text &text)
 {
+  /*
   Texture &texture = text.texture_get();
   GL_ASSERT(glActiveTexture(GL_TEXTURE0));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, texture.gl_texture));
+  */
 
 }
 

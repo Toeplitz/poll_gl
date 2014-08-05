@@ -9,21 +9,34 @@
 #include "texture.h"
 
 
+class Font
+{
+  private:
+    unsigned char *buffer;
+    Texture texture;
+
+  public:
+    Font();
+    ~Font();
+
+    void     bake();
+    void     load(const std::string &filename);
+    Texture &texture_get();
+};
+
+
+
 class Text
 {
   private:
-    Texture texture;
-
-    unsigned char *buffer;
+    Font *font;
 
   public:
 
     Text();
     ~Text();
 
-    const std::vector<glm::vec4>   bake_coords(float x, float y, char *text);
-    void                           font_read(const std::string &font_file);
-    void                           font_bitmap_bake();
-    Texture                       &texture_get();
+    const std::vector<glm::vec4>  bake_coords(float x, float y, char *text);
+    void                          font_set(Font *font);
 
 };

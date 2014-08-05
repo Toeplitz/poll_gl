@@ -239,7 +239,7 @@ int main()
 
   Node *box = scene.node_create("box");
   Mesh *mesh = box->mesh_create(scene.assets_get());
-  mesh->cube_generate2(1);
+  mesh->cube_generate(1);
 
   {
     glm::vec3 light_positions[5] = {
@@ -255,7 +255,7 @@ int main()
       light_directional = node->light_create(assets);
       light_directional->properties_position_set(light_positions[i]);
       node->light_volume_mesh_create_from_node(sphere);
-      light_directional->scale(glm::vec3(55, 55, 55));
+      light_directional->scale(glm::vec3(20, 20, 20));
     }
   }
 
@@ -264,9 +264,9 @@ int main()
     light_spot = node->light_get();
     light_spot->bias_set(glm::vec3(0, 20, 0));
     light_spot->properties_position_set(glm::vec3(0, 20, 0));
-    node->light_volume_mesh_create_from_node(sphere);
+    node->light_volume_mesh_create_from_node(box);
     light_spot->node_follow_set(panda);
-    light_spot->scale(glm::vec3(55, 55, 55));
+    light_spot->scale(glm::vec3(20, 20, 20));
   }
 
   {
@@ -277,8 +277,8 @@ int main()
     light_point->scale(glm::vec3(25, 25, 25));
   }
 
-  //scene.scene_graph_print(false);
- // scene.assets_get().print_all(scene.node_root_get());
+  scene.scene_graph_print(true);
+  scene.assets_get().print_all(scene.node_root_get());
 
   fragmic.run();
   fragmic.term();

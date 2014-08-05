@@ -12,6 +12,7 @@ Node::Node(const std::string &node_name):
   camera(nullptr),
   light(nullptr),
   rigidbody(nullptr),
+  text(nullptr),
   armature(nullptr),
   material(nullptr),
   mesh(nullptr),
@@ -245,6 +246,33 @@ void Node::scale(const glm::vec3 &v)
     }
   }
   */
+}
+
+
+Text *Node::text_create(Font *font, Assets &assets)
+{
+  std::unique_ptr<Text> text(new Text());
+  Text *text_ptr = text.get();
+  text_ptr->font_set(font);
+  text_set(text_ptr);
+
+  if (!mesh_get())
+    mesh_create(assets);
+
+  assets.text_add(std::move(text));
+  return text_ptr;
+}
+
+
+Text *Node::text_get()
+{
+  return text;
+}
+
+
+void Node::text_set(Text *text)
+{
+  this->text = text;
 }
 
 

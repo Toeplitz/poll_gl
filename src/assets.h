@@ -22,6 +22,7 @@ class Assets {
     std::vector<std::unique_ptr<Physics_Rigidbody>> rigidbodies;
     std::vector<std::unique_ptr<Material>> materials;
     std::vector<std::unique_ptr<Mesh>> meshes;
+    std::vector<std::unique_ptr<Text>> texts;
 
   public:
     Assets();
@@ -47,6 +48,8 @@ class Assets {
     void                                  mesh_add(std::unique_ptr<Mesh> &&mesh);
     unsigned int                          mesh_node_lookup(const Mesh *mesh, const Node &node) const;
     void                                  mesh_print_all(const Node &node) const;
+    void                                  text_add(std::unique_ptr<Text> &&text);
+    void                                  text_print_all(const Node &node) const;
 
 };
 

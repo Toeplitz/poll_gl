@@ -156,6 +156,7 @@ void Assets::print_all(const Node &node) const
   light_print_all(node);
   material_print_all(node);
   mesh_print_all(node);
+  text_print_all(node);
   std::cout << "==================================================" << std::endl;
 }
 
@@ -250,3 +251,17 @@ void Assets::mesh_print_all(const Node &node) const
 }
 
 
+void Assets::text_add(std::unique_ptr<Text> &&text) 
+{
+  texts.push_back(std::move(text));
+}
+
+
+void Assets::text_print_all(const Node &node) const
+{
+  std::cout << "\nText: " << std::endl;
+
+  for (auto &text: texts) {
+    std::cout << "\t(" << text.get() << ")" << std::endl;
+  }
+}

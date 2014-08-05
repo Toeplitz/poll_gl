@@ -7,19 +7,24 @@
 
 static stbtt_bakedchar cdata[96];
 
+static void baked_quad_get(stbtt_bakedchar *chardata, int pw, int ph, int char_index,
+                           float *xpos, float *ypos, stbtt_aligned_quad *q);
+
+
+/**************************************************/
+/***************** FONT CLASS *********************/
+/**************************************************/
 
 /**************************************************/
 /***************** CONSTRUCTORS *******************/
 /**************************************************/
 
-
-Text::Text()
+Font::Font()
 {
   buffer = nullptr;
 }
 
-
-Text::~Text()
+Font::~Font()
 {
   if (buffer)
     free(buffer);
@@ -30,27 +35,8 @@ Text::~Text()
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
 
-void Text::font_read(const std::string &font_file)
-{
-  FILE *fp = fopen(font_file.c_str(), "rb");
-  if (!fp) return;
-  fseek(fp, 0, SEEK_END);
-  int size = ftell(fp);
-  fseek(fp, 0, SEEK_SET);
 
-  buffer = (unsigned char *) malloc(size); 
-  if (!buffer) {
-    std::cout << "Error: font file '" << font_file << "' has zero size" << std::endl;
-    fclose(fp);
-    return;
-  }
-
-  fread(buffer, 1, size, fp);
-  fclose(fp);
-}
-
-
-void Text::font_bitmap_bake()
+void Font::bake()
 {
   unsigned char *bitmap;
 
@@ -68,30 +54,54 @@ void Text::font_bitmap_bake()
 }
 
 
-Texture &Text::texture_get()
+void Font::load(const std::string &filename)
+{
+  FILE *fp = fopen(filename.c_str(), "rb");
+  if (!fp) return;
+  fseek(fp, 0, SEEK_END);
+  int size = ftell(fp);
+  fseek(fp, 0, SEEK_SET);
+
+  buffer = (unsigned char *) malloc(size); 
+  if (!buffer) {
+    std::cout << "Error: font file '" << filename << "' has zero size" << std::endl;
+    fclose(fp);
+    return;
+  }
+
+  fread(buffer, 1, size, fp);
+  fclose(fp);
+}
+
+
+Texture &Font::texture_get()
 {
   return texture;
 }
 
-static void baked_quad_get(stbtt_bakedchar *chardata, int pw, int ph, int char_index,
-    float *xpos, float *ypos, stbtt_aligned_quad *q)
+
+/**************************************************/
+/***************** TEXT CLASS *********************/
+/**************************************************/
+
+/**************************************************/
+/***************** CONSTRUCTORS *******************/
+/**************************************************/
+
+
+Text::Text()
 {
-  stbtt_bakedchar *b = chardata + char_index;
-  int round_x = STBTT_ifloor(*xpos + b->xoff);
-  int round_y = STBTT_ifloor(*ypos - b->yoff);
-
-  q->x0 = (float)round_x;
-  q->y0 = (float)round_y;
-  q->x1 = (float)round_x + b->x1 - b->x0;
-  q->y1 = (float)round_y - b->y1 + b->y0;
-
-  q->s0 = b->x0 / (float)pw;
-  q->t0 = b->y0 / (float)pw;
-  q->s1 = b->x1 / (float)ph;
-  q->t1 = b->y1 / (float)ph;
-
-  *xpos += b->xadvance;
 }
+
+
+Text::~Text()
+{
+}
+
+
+/**************************************************/
+/***************** PUBLIC METHODS *****************/
+/**************************************************/
 
 
 const std::vector<glm::vec4> Text::bake_coords(float x, float y, char *text) 
@@ -123,3 +133,33 @@ const std::vector<glm::vec4> Text::bake_coords(float x, float y, char *text)
 }
 
 
+void Text::font_set(Font *font)
+{
+  this->font = font;
+}
+
+
+/**************************************************/
+/*************** STATIC FUNCTIONS *****************/
+/**************************************************/
+
+
+static void baked_quad_get(stbtt_bakedchar *chardata, int pw, int ph, int char_index,
+                           float *xpos, float *ypos, stbtt_aligned_quad *q)
+{
+  stbtt_bakedchar *b = chardata + char_index;
+  int round_x = STBTT_ifloor(*xpos + b->xoff);
+  int round_y = STBTT_ifloor(*ypos - b->yoff);
+
+  q->x0 = (float)round_x;
+  q->y0 = (float)round_y;
+  q->x1 = (float)round_x + b->x1 - b->x0;
+  q->y1 = (float)round_y - b->y1 + b->y0;
+
+  q->s0 = b->x0 / (float)pw;
+  q->t0 = b->y0 / (float)pw;
+  q->s1 = b->x1 / (float)ph;
+  q->t1 = b->y1 / (float)ph;
+
+  *xpos += b->xadvance;
+}

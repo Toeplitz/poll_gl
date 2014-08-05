@@ -15,7 +15,7 @@ class Console
     bool flag_toggle;
     GLshader glshader_console;
     GLcontext *glcontext;
-    Text text;
+    Font font;
     Node *node;
 
     std::map<std::string, std::function<void ()>> commands;

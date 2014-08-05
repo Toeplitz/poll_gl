@@ -45,110 +45,13 @@ void Mesh::aabb_generate_bounding()
 }
 
 
+const std::vector<glm::vec3> &Mesh::bone_weights_get() const
+{
+  return bone_weights;
+}
+
+
 void Mesh::cube_generate(const float &size)
-{
-  const int n_vertices = 6 * 6;
-  float cube_vertices[] = {
-    -1.0f,  1.0f, -1.0f,
-    -1.0f, -1.0f, -1.0f,
-    1.0f, -1.0f, -1.0f,
-    1.0f, -1.0f, -1.0f,
-    1.0f,  1.0f, -1.0f,
-    -1.0f,  1.0f, -1.0f,
-
-    -1.0f, -1.0f,  1.0f,
-    -1.0f, -1.0f, -1.0f,
-    -1.0f,  1.0f, -1.0f,
-    -1.0f,  1.0f, -1.0f,
-    -1.0f,  1.0f,  1.0f,
-    -1.0f, -1.0f,  1.0f,
-
-    1.0f, -1.0f, -1.0f,
-    1.0f, -1.0f,  1.0f,
-    1.0f,  1.0f,  1.0f,
-    1.0f,  1.0f,  1.0f,
-    1.0f,  1.0f, -1.0f,
-    1.0f, -1.0f, -1.0f,
-
-    -1.0f, -1.0f,  1.0f,
-    -1.0f,  1.0f,  1.0f,
-    1.0f,  1.0f,  1.0f,
-    1.0f,  1.0f,  1.0f,
-    1.0f, -1.0f,  1.0f,
-    -1.0f, -1.0f,  1.0f,
-
-    -1.0f,  1.0f, -1.0f,
-    1.0f,  1.0f, -1.0f,
-    1.0f,  1.0f,  1.0f,
-    1.0f,  1.0f,  1.0f,
-    -1.0f,  1.0f,  1.0f,
-    -1.0f,  1.0f, -1.0f,
-
-    -1.0f, -1.0f, -1.0f,
-    -1.0f, -1.0f,  1.0f,
-    1.0f, -1.0f, -1.0f,
-    1.0f, -1.0f, -1.0f,
-    -1.0f, -1.0f,  1.0f,
-    1.0f, -1.0f,  1.0f
-  };
-
-  for (int i = 0; i < n_vertices * 3; i = i + 3) {
-    positions.push_back(glm::vec3(cube_vertices[i], 
-          cube_vertices[i + 1], cube_vertices[i + 2]) * size);
-  }
-}
-
-
-void Mesh::cube_generate2(const float &size)
-{
-  static const GLfloat cube_vertices[] = {
-    -1.0f,-1.0f,-1.0f, // triangle 1 : begin
-    -1.0f,-1.0f, 1.0f,
-    -1.0f, 1.0f, 1.0f, // triangle 1 : end
-    1.0f, 1.0f,-1.0f, // triangle 2 : begin
-    -1.0f,-1.0f,-1.0f,
-    -1.0f, 1.0f,-1.0f, // triangle 2 : end
-    1.0f,-1.0f, 1.0f,
-    -1.0f,-1.0f,-1.0f,
-    1.0f,-1.0f,-1.0f,
-    1.0f, 1.0f,-1.0f,
-    1.0f,-1.0f,-1.0f,
-    -1.0f,-1.0f,-1.0f,
-    -1.0f,-1.0f,-1.0f,
-    -1.0f, 1.0f, 1.0f,
-    -1.0f, 1.0f,-1.0f,
-    1.0f,-1.0f, 1.0f,
-    -1.0f,-1.0f, 1.0f,
-    -1.0f,-1.0f,-1.0f,
-    -1.0f, 1.0f, 1.0f,
-    -1.0f,-1.0f, 1.0f,
-    1.0f,-1.0f, 1.0f,
-    1.0f, 1.0f, 1.0f,
-    1.0f,-1.0f,-1.0f,
-    1.0f, 1.0f,-1.0f,
-    1.0f,-1.0f,-1.0f,
-    1.0f, 1.0f, 1.0f,
-    1.0f,-1.0f, 1.0f,
-    1.0f, 1.0f, 1.0f,
-    1.0f, 1.0f,-1.0f,
-    -1.0f, 1.0f,-1.0f,
-    1.0f, 1.0f, 1.0f,
-    -1.0f, 1.0f,-1.0f,
-    -1.0f, 1.0f, 1.0f,
-    1.0f, 1.0f, 1.0f,
-    -1.0f, 1.0f, 1.0f,
-    1.0f,-1.0f, 1.0f
-  };
-
-  for (int i = 0; i < 36 * 3; i = i + 3) {
-    positions.push_back(glm::vec3(cube_vertices[i], 
-          cube_vertices[i + 1], cube_vertices[i + 2]) * size);
-  }
-
-}
-
-
-void Mesh::cube_generate3(const float &size)
 {
   GLfloat cube_vertices[] = {
     // front
@@ -185,7 +88,7 @@ void Mesh::cube_generate3(const float &size)
   };
 
   for (int i = 0; i < 8 * 3; i = i + 3) {
-    positions.push_back(glm::vec3(cube_vertices[i], 
+    positions_add(glm::vec3(cube_vertices[i], 
           cube_vertices[i + 1], cube_vertices[i + 2]) * size);
   }
   for (int i = 0; i < 12 * 3; i++) {
@@ -194,42 +97,21 @@ void Mesh::cube_generate3(const float &size)
 }
 
 
-void Mesh::sphere_generate(const float radius, const unsigned int rings, const unsigned int sectors)
-{
-  float const R = 1.0f / (float) (rings - 1.0f);
-  float const S = 1.0f / (float) (sectors - 1.0f);
-  unsigned int r, s;
-
-  for(r = 0; r < rings; r++) {
-    for(s = 0; s < sectors; s++) {
-      float const y = sinf( - (float) M_PI / 2.0f + (float) M_PI * (float) r * R );
-      float const x = cosf(2.0f * (float) M_PI * (float) s * S) * sinf((float) M_PI * (float) r * R );
-      float const z = sinf(2.0f * (float) M_PI * (float) s * S) * sinf((float) M_PI * (float) r * R );
-
-      positions.push_back(glm::vec3(x, y, z) * radius);
-      texture_st.push_back(glm::vec2(s * S, r * R));
-      normals.push_back(glm::vec3(x, y, z));
-    }
-  }
-
-  indices.resize(rings * sectors * 4);
-  std::vector<GLshort>::iterator i = indices.begin();
-  for(r = 0; r < rings - 1; r++) {
-    for(s = 0; s < sectors - 1; s++) {
-      *i++ = r * sectors + s;
-      *i++ = r * sectors + (s + 1);
-      *i++ = (r + 1) * sectors + (s + 1);
-      *i++ = (r + 1) * sectors + s;
-    }
-  }
-
-  mode = GL_QUAD_STRIP;
-}
-
-
 const std::vector<GLshort> &Mesh::indices_get() const
 {
   return indices;
+}
+
+
+void Mesh::positions_add(const glm::vec3 &v)
+{
+  positions.push_back(v);
+}
+
+
+const std::vector<glm::vec3> &Mesh::positions_get() const
+{
+  return positions;
 }
 
 
@@ -263,10 +145,6 @@ const std::vector<glm::ivec3> &Mesh::bone_indices_get() const
 }
 
 
-const std::vector<glm::vec3> &Mesh::positions_get() const
-{
-  return positions;
-}
 
 
 const std::vector<glm::vec3> &Mesh::normals_get() const
@@ -281,32 +159,35 @@ const std::vector<glm::vec3> &Mesh::tangents_get() const
 }
 
 
+void Mesh::quad_generate(const float &size)
+{
+  const int n_vertices = 6;
+  GLfloat quad_pos[] = {
+    -1.0, -1.0,
+     1.0, -1.0,
+     1.0,  1.0,
+     1.0,  1.0,
+    -1.0,  1.0,
+    -1.0, -1.0
+  };
+
+  for (int i = 0; i < n_vertices * 2; i = i + 2) {
+    positions_add(glm::vec3(quad_pos[i], quad_pos[i + 1], 0.0) * size);
+  }
+
+}
+
+
+void Mesh::texture_st_add(const glm::vec2 &v)
+{
+  texture_st.push_back(v);
+}
+
+
 const std::vector<glm::vec2> &Mesh::texture_st_get() const
 {
   return texture_st;
 }
 
 
-const std::vector<glm::vec3> &Mesh::bone_weights_get() const
-{
-  return bone_weights;
-}
 
-
-void Mesh::quad_generate(const float &size)
-{
-  const int n_vertices = 6;
-  GLfloat quad_pos[] = {
-    -1.0, -1.0,
-    1.0, -1.0,
-    1.0,  1.0,
-    1.0,  1.0,
-    -1.0,  1.0,
-    -1.0, -1.0
-  };
-
-  for (int i = 0; i < n_vertices * 2; i = i + 2) {
-    positions.push_back(glm::vec3(quad_pos[i], quad_pos[i + 1], 0.0) * size);
-  }
-
-}
