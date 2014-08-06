@@ -18,7 +18,7 @@ int main()
     common_debug_use();
   }
 
-
+/*
   const float spot_offset = 25;
 
   {
@@ -51,6 +51,7 @@ int main()
     light->properties_position_set(glm::vec3(0, spot_offset, spot_offset));
     light->properties_direction_set(glm::vec3(0, 0, -1));
   }
+  */
 
 
   Node &plane = scene.model_load("data/game_assets/", "Room_no_slope.dae", MODEL_IMPORT_OPTIMIZED);

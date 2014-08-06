@@ -30,6 +30,12 @@ void Camera::fov_set(const float fov)
 }
 
 
+const glm::vec3 &Camera::position_get()
+{
+  return position;
+}
+
+
 void Camera::transform_perspective_create(const int width, const int height)
 {
   this->width = width;
@@ -55,6 +61,7 @@ glm::mat4 &Camera::transform_perspective_inverse_get()
 void Camera::transform_view_create(const glm::vec3 position, const glm::vec3 direction) 
 {
   view = glm::lookAt(position, position + direction, up);
+  this->position = position;
 }
 
 

@@ -18,7 +18,7 @@ int main()
     common_debug_use();
   }
 
-
+/*
   Node *light_node = scene.node_create("Light");
   Light *light = light_node->light_create(assets);
   light->properties_type_set(LIGHT_DIRECTIONAL);
@@ -50,6 +50,7 @@ int main()
   Node &base_node = scene.model_load("data/", "base.dae", MODEL_IMPORT_OPTIMIZED);
   physics.collision_shape_add(base_node, PHYSICS_COLLISION_BOX, true, 0);
 
+*/
   physics.pause();
   scene.scene_graph_print(true);
 

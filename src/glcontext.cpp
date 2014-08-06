@@ -248,7 +248,7 @@ void GLcontext::framebuffer_draw_scene(const Assets &assets, Scene &scene, GLsha
   GL_ASSERT(glEnable(GL_STENCIL_TEST));
   for (auto &light: lights) {
     if (!light->volume_mesh_get()) {
-      std::cout << "no mesh " << light.get() << std::endl;
+      std::cout << "No mesh attached to light: " << light.get() << std::endl;
       continue;
     }
 
@@ -596,12 +596,31 @@ void GLcontext::uniform_locations_console_init(GLshader &shader)
 }
 
 
+void GLcontext::vertex_buffers_light_create(Light *light)
+{
+  Mesh *mesh;
+
+  if (!light) 
+    return;
+
+  mesh = light->volume_mesh_get();
+
+  if (!mesh) {
+    std::cout << "Error: no mesh attached to the light" << std::endl;
+    return;
+  }
+
+  vertex_buffers_mesh_create(mesh);
+}
+
+
 void GLcontext::vertex_buffers_mesh_create(Mesh *mesh, const size_t max_size)
 {
   GLenum target;
   GLint index;
 
-  if (!mesh) return;
+  if (!mesh) 
+    return;
 
   if (glIsVertexArray(mesh->gl_vao)) {
     std::cout << "Error: vertex array already exists for the mesh" << std::endl;

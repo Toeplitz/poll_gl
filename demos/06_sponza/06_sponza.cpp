@@ -16,7 +16,7 @@ int main()
     common_fpcamera_use(camera_node);
     common_debug_use();
   }
-
+/*
   {
     Node *light_node = scene.node_create("Light");
     Light *light = light_node->light_create(assets);
@@ -31,6 +31,7 @@ int main()
     light->properties_position_set(glm::vec3(5, 5, -0.2));
     light->properties_set(glm::vec3(1, 1, 1), glm::vec3(1, 1, 1), glm::vec3(1.0, 1.0, 1.0));
   }
+  */
 
   Node &root = scene.node_root_get();
   Node &sponza = scene.model_load("data/crytek-sponza/", "sponza_with_spec.obj", MODEL_IMPORT_OPTIMIZED);

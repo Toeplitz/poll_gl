@@ -90,12 +90,14 @@ void Node::child_add(std::unique_ptr<Node> &&node, int level)
 }
 
 
-Light *Node::light_create(Assets &assets)
+Light *Node::light_create(Assets &assets, const glm::vec3 position, Node *node_volume)
 {
   std::unique_ptr<Light> light(new Light());
   Light *light_ptr = light.get();
   light_set(light_ptr);
   assets.light_active_add(std::move(light));
+  light_ptr->properties_position_set(position);
+  light_volume_mesh_create_from_node(node_volume);
 
   return light_ptr;
 }

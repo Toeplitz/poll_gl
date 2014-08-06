@@ -15,6 +15,7 @@ class Camera
     glm::mat4 perspective;
     glm::mat4 inv_perspective;
     glm::mat4 view;
+    glm::vec3 position;
     int width;
     int height;
 
@@ -30,11 +31,12 @@ class Camera
       }
 
 
-    void        fov_set(const float val);
-    void        transform_perspective_create(const int width, const int height);
-    glm::mat4  &transform_perspective_get();
-    glm::mat4  &transform_perspective_inverse_get();
-    glm::mat4  &transform_view_get();
-    void        transform_view_create(const glm::vec3 position, const glm::vec3 direction);
-    void        update();
+    void               fov_set(const float val);
+    const glm::vec3   &position_get();
+    void               transform_perspective_create(const int width, const int height);
+    glm::mat4         &transform_perspective_get();
+    glm::mat4         &transform_perspective_inverse_get();
+    glm::mat4         &transform_view_get();
+    void               transform_view_create(const glm::vec3 position, const glm::vec3 direction);
+    void               update();
 };

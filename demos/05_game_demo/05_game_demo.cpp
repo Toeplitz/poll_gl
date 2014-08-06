@@ -204,6 +204,7 @@ int main()
   Assets &assets = scene.assets_get();
   Window &window = fragmic.window_get();
   Physics &physics = fragmic.physics_get();
+  GLcontext glcontext = window.glcontext_get();
 
   window.joystick_axis_motion_callback_set(joystick_axis_motion_cb);
   window.joystick_pressed_callback_set(joystick_button_pressed_cb);
@@ -248,10 +249,6 @@ int main()
   /* Setup lights */
   Node *sphere = &scene.model_load("data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
 
-  Node *box = scene.node_create("box");
-  Mesh *mesh = box->mesh_create(scene.assets_get());
-  mesh->cube_generate(1);
-
   {
     glm::vec3 light_positions[5] = {
       glm::vec3(0, 20, 0),
@@ -263,30 +260,12 @@ int main()
 
     for (int i = 0; i < 5; i++) {
       Node *node = scene.node_create("Light_Directional");
-      light_directional = node->light_create(assets);
-      light_directional->properties_position_set(light_positions[i]);
-      node->light_volume_mesh_create_from_node(sphere);
-      light_directional->scale(glm::vec3(20, 20, 20));
+      Light *light = node->light_create(assets, light_positions[i], sphere);
+      light->scale(glm::vec3(20, 20, 20));
+      glcontext.vertex_buffers_light_create(light);
     }
   }
 
-  {
-    Node *node = scene.node_find(room, "Spot_Light");
-    light_spot = node->light_get();
-    light_spot->bias_set(glm::vec3(0, 20, 0));
-    light_spot->properties_position_set(glm::vec3(0, 20, 0));
-    node->light_volume_mesh_create_from_node(box);
-    light_spot->node_follow_set(panda);
-    light_spot->scale(glm::vec3(20, 20, 20));
-  }
-
-  {
-    Node *node = scene.node_find(room, "Point_Light");
-    light_point = node->light_get();
-    light_point->properties_position_set(glm::vec3(30, 20, 20));
-    node->light_volume_mesh_create_from_node(sphere);
-    light_point->scale(glm::vec3(25, 25, 25));
-  }
 
   scene.scene_graph_print(true);
   scene.assets_get().print_all(scene.node_root_get());

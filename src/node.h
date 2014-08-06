@@ -73,7 +73,7 @@ class Node: public Animated {
     void                camera_set(Camera *camera);
     void                copy_transform_data(Node &node);
     void                child_add(std::unique_ptr<Node> &&node, int level);
-    Light              *light_create(Assets &assets);
+    Light              *light_create(Assets &assets, const glm::vec3 position, Node *node_volume);
     Light              *light_get();
     void                light_set(Light *light);
     Mesh               *light_volume_mesh_create(const unsigned int shape, const float size);

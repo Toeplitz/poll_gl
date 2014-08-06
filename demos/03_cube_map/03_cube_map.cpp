@@ -33,7 +33,8 @@ int main()
     scene.upload_queue_add(node);
   }
   */
-  
+ 
+  /*
   Node *light_node = scene.node_create("Light");
   Light *light = light_node->light_create(assets);
   light->properties_type_set(LIGHT_DIRECTIONAL);
@@ -76,6 +77,7 @@ int main()
         "DarkStormyBack2048.png", "bar.png", "foo.png", "DarkStormyLeft2048.png", "DarkStormyRight2048.png");
     scene.upload_queue_add(node);
   }
+  */
 
   scene.scene_graph_print(true);
 

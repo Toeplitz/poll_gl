@@ -89,7 +89,7 @@ void Fragmic::run()
       Light *light = upload_node->light_get();
 
       if (light) {
-        glcontext.vertex_buffers_mesh_create(light->volume_mesh_get());
+        glcontext.vertex_buffers_light_create(light);
       }
 
       glcontext.vertex_buffers_mesh_create(mesh);

@@ -17,6 +17,7 @@ int main()
     common_debug_use();
   }
 
+  /*
   {
     Node *light_node = scene.node_create("Light");
     Light *light = light_node->light_create(assets);
@@ -31,6 +32,7 @@ int main()
     light->properties_position_set(glm::vec3(5, 5, -0.2));
     light->properties_set(glm::vec3(1, 1, 1), glm::vec3(1, 1, 1), glm::vec3(1.0, 1.0, 1.0));
   }
+  */
 
   Node &node = scene.model_load("demos/07_showcase/assets/", "scene.dae", MODEL_IMPORT_OPTIMIZED);
 
