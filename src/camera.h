@@ -15,6 +15,8 @@ class Camera
     glm::mat4 perspective;
     glm::mat4 inv_perspective;
     glm::mat4 view;
+    int width;
+    int height;
 
     std::function<void ()> update_callback;
   public: 
@@ -28,6 +30,7 @@ class Camera
       }
 
 
+    void        fov_set(const float val);
     void        transform_perspective_create(const int width, const int height);
     glm::mat4  &transform_perspective_get();
     glm::mat4  &transform_perspective_inverse_get();

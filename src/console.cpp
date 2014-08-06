@@ -34,6 +34,7 @@ Console::~Console()
 
 void Console::init(Scene &scene, GLcontext &glcontext, Window &window)
 {
+  this->scene = &scene;
   this->glcontext = &glcontext;
 
   window.keyboard_pressed_callback_set(this, &Console::keyboard_pressed_cb);
@@ -99,7 +100,6 @@ void Console::keyboard_pressed_cb(SDL_Keysym *keysym)
       }
       break;
     default:
-
       if((keysym->sym >= SDLK_a && keysym->sym <= SDLK_z) ||
           (keysym->sym >= SDLK_0 && keysym->sym <= SDLK_9) ||
           keysym->sym == SDLK_PERIOD) {
@@ -109,10 +109,8 @@ void Console::keyboard_pressed_cb(SDL_Keysym *keysym)
         text->bake_coords(mesh, 10, 10);
         glcontext->vertex_buffers_mesh_update(mesh);
       } 
-
       break;
   }
-
 
 }
 
@@ -155,15 +153,28 @@ bool Console::active()
 
 void Console::callback_camera_fov_set(const float val)
 {
-  std::cout << "Setting fov: " << val << std::endl;
+  Camera *camera = scene->camera_get();
+  camera->fov_set(val);
+}
 
 
+void Console::callback_light_create(const float val)
+{
+  Assets &assets = scene->assets_get();
+  Camera *camera = scene->camera_get();
+  Node *sphere = &scene->model_load("data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
+  Node *node = scene->node_create("light_added");
+  Light *light = node->light_create(assets);
+  light->properties_position_set(glm::vec3(0 , 0 , 0));
+  node->light_volume_mesh_create_from_node(sphere);
+  light->scale(glm::vec3(20, 20, 20));
 }
 
 
 void Console::command_defaults_set()
 {
   commands["fov"] = std::bind(&Console::callback_camera_fov_set, this, _1);
+  commands["light"] = std::bind(&Console::callback_light_create, this, _1);
 }
 
 
@@ -190,9 +201,4 @@ void Console::command_parse(std::string &cmd_full)
     command_exec(tokens[0], tokens[1]);
   }
 
-  /*
-  std::cout << "Parsing command: '" << cmd_full << "'" << std::endl;
-  std::cout << "Command: '" << tokens[0] << "'" << std::endl;
-  std::cout << "Argument: '" << tokens[1] << "'" << std::endl;
-  */
 }

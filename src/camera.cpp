@@ -23,8 +23,18 @@ Camera::~Camera()
 /**************************************************/
 
 
+void Camera::fov_set(const float fov)
+{
+  this->fov = fov;
+  transform_perspective_create(width, height);
+}
+
+
 void Camera::transform_perspective_create(const int width, const int height)
 {
+  this->width = width;
+  this->height = height;
+
   perspective = glm::perspective(fov, (float) width / (float) height, 1.0f, 500.0f);
   inv_perspective = glm::inverse(inv_perspective);
 }
