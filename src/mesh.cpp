@@ -109,6 +109,12 @@ void Mesh::positions_add(const glm::vec3 &v)
 }
 
 
+void Mesh::positions_clear()
+{
+  positions.clear();
+}
+
+
 const std::vector<glm::vec3> &Mesh::positions_get() const
 {
   return positions;
@@ -189,6 +195,12 @@ void Mesh::quad_generate(const float &size)
 void Mesh::texture_st_add(const glm::vec2 &v)
 {
   texture_st.push_back(v);
+}
+
+
+void Mesh::texture_st_clear()
+{
+  texture_st.clear();
 }
 
 

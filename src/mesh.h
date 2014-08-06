@@ -14,6 +14,7 @@ class Mesh {
   public:
     GLenum mode;
     GLuint gl_vao;
+    GLuint gl_vertex_buffers[8];
 
     Aabb aabb;
     std::vector<GLshort> indices;
@@ -38,8 +39,9 @@ class Mesh {
     const std::vector<glm::vec3>   &bone_weights_get() const;
     void                            cube_generate(const float &size);
     const std::vector<GLshort>     &indices_get() const;
-    const std::vector<glm::vec3>   &positions_get() const;
     void                            positions_add(const glm::vec3 &v);
+    void                            positions_clear();
+    const std::vector<glm::vec3>   &positions_get() const;
     void                            print(const int indent_level);
     const std::vector<glm::vec3>   &normals_get() const;
     unsigned int                    num_indices_get();
@@ -47,6 +49,7 @@ class Mesh {
     unsigned int                    num_vertices_get();
     const std::vector<glm::vec3>   &tangents_get() const;
     const std::vector<glm::vec2>   &texture_st_get() const;
+    void                            texture_st_clear();
     void                            texture_st_add(const glm::vec2 &v);
     void                            quad_generate(const float &size);
 };

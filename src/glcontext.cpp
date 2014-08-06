@@ -139,8 +139,6 @@ void GLcontext::draw_text(Node &node)
   GL_ASSERT(glActiveTexture(GL_TEXTURE0));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, texture.gl_texture));
   draw_mesh(*mesh);
-  std::cout << "num vertex: " << mesh->num_vertices_get() << std::endl;
-  std::cout << "num st: " << mesh->num_texture_st_get() << std::endl;
   GL_ASSERT(glDisable(GL_BLEND));
 }
 
@@ -370,7 +368,7 @@ void GLcontext::texture_single_channel_create(Texture &texture)
   GLenum wrap = GL_NONE;
   GLint internal_format = GL_RED;
   GLenum format = GL_RED;
-  bool unpack_align = true;
+  bool unpack_align = false;
 
   texture_create(texture, GL_TEXTURE0, filter, wrap, internal_format, format, unpack_align);
 }
@@ -604,7 +602,7 @@ void GLcontext::uniform_locations_console_init(GLshader &shader)
 }
 
 
-void GLcontext::vertex_buffers_mesh_create(Mesh *mesh)
+void GLcontext::vertex_buffers_mesh_create(Mesh *mesh, const size_t max_size)
 {
   GLenum target;
   GLint index;
@@ -618,14 +616,25 @@ void GLcontext::vertex_buffers_mesh_create(Mesh *mesh)
 
   GL_ASSERT(glGenVertexArrays(1, &mesh->gl_vao));
   GL_ASSERT(glBindVertexArray(mesh->gl_vao));
-  GL_ASSERT(glGenBuffers(8, gl_vertex_buffers));
+  GL_ASSERT(glGenBuffers(8, mesh->gl_vertex_buffers));
 
   target = GL_ARRAY_BUFFER;
   {
     std::vector<glm::vec3> positions = mesh->positions_get();
     index = 0;
-    GL_ASSERT(glBindBuffer(target, gl_vertex_buffers[index]));
-    GL_ASSERT(glBufferData(target, positions.size() * sizeof(positions[0]), positions.data(), GL_STATIC_DRAW));
+    size_t size = positions.size() * sizeof(positions[0]) + max_size;
+
+    if (max_size > 0) {
+      std::cout << "max size: " << size << std::endl;
+      std::cout << "size: " << size - max_size << std::endl;
+    }
+    else {
+      std::cout << "size: " << size << std::endl;
+    }
+
+
+    GL_ASSERT(glBindBuffer(target, mesh->gl_vertex_buffers[index]));
+    GL_ASSERT(glBufferData(target, size, positions.data(), GL_STATIC_DRAW));
     GL_ASSERT(glEnableVertexAttribArray(index));
     GL_ASSERT(glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0));
   }
@@ -634,7 +643,7 @@ void GLcontext::vertex_buffers_mesh_create(Mesh *mesh)
     std::vector<glm::vec3> normals = mesh->normals_get();
     index = 1;
     if (normals.size() > 0) {
-      GL_ASSERT(glBindBuffer(target, gl_vertex_buffers[index]));
+      GL_ASSERT(glBindBuffer(target, mesh->gl_vertex_buffers[index]));
       GL_ASSERT(glBufferData(target, normals.size() * sizeof(normals[0]), normals.data(), GL_STATIC_DRAW));
       GL_ASSERT(glEnableVertexAttribArray(index));
       GL_ASSERT(glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0));
@@ -645,7 +654,7 @@ void GLcontext::vertex_buffers_mesh_create(Mesh *mesh)
     std::vector<glm::vec3> tangents = mesh->tangents_get();
     if (tangents.size() > 0) {
       index = 2;
-      GL_ASSERT(glBindBuffer(target, gl_vertex_buffers[index]));
+      GL_ASSERT(glBindBuffer(target, mesh->gl_vertex_buffers[index]));
       GL_ASSERT(glBufferData(target, tangents.size() * sizeof(tangents[0]), tangents.data(), GL_STATIC_DRAW));
       GL_ASSERT(glEnableVertexAttribArray(index));
       GL_ASSERT(glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0));
@@ -656,7 +665,7 @@ void GLcontext::vertex_buffers_mesh_create(Mesh *mesh)
     std::vector<glm::vec3> bitangents = mesh->bitangents_get();
     if (bitangents.size() > 0) {
       index = 3;
-      GL_ASSERT(glBindBuffer(target, gl_vertex_buffers[index]));
+      GL_ASSERT(glBindBuffer(target, mesh->gl_vertex_buffers[index]));
       GL_ASSERT(glBufferData(target, bitangents.size() * sizeof(bitangents[0]), bitangents.data(), GL_STATIC_DRAW));
       GL_ASSERT(glEnableVertexAttribArray(index));
       GL_ASSERT(glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0));
@@ -667,7 +676,7 @@ void GLcontext::vertex_buffers_mesh_create(Mesh *mesh)
     std::vector<glm::vec3> bone_weights = mesh->bone_weights_get();
     if (bone_weights.size() > 0) {
       index = 4;
-      GL_ASSERT(glBindBuffer(target, gl_vertex_buffers[index]));
+      GL_ASSERT(glBindBuffer(target, mesh->gl_vertex_buffers[index]));
       GL_ASSERT(glBufferData(target, bone_weights.size() * sizeof(bone_weights[0]), bone_weights.data(), GL_STATIC_DRAW));
       GL_ASSERT(glEnableVertexAttribArray(index));
       GL_ASSERT(glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0));
@@ -678,7 +687,7 @@ void GLcontext::vertex_buffers_mesh_create(Mesh *mesh)
     std::vector<glm::ivec3> bone_indices = mesh->bone_indices_get();
     if (bone_indices.size() > 0) {
       index = 5;
-      GL_ASSERT(glBindBuffer(target, gl_vertex_buffers[index]));
+      GL_ASSERT(glBindBuffer(target, mesh->gl_vertex_buffers[index]));
       GL_ASSERT(glBufferData(target, bone_indices.size() * sizeof(bone_indices[0]), bone_indices.data(), GL_STATIC_DRAW));
       GL_ASSERT(glEnableVertexAttribArray(index));
       GL_ASSERT(glVertexAttribIPointer(index, 3, GL_INT, 0, 0));
@@ -689,8 +698,8 @@ void GLcontext::vertex_buffers_mesh_create(Mesh *mesh)
     std::vector<glm::vec2> uvs = mesh->texture_st_get();
     if (uvs.size() > 0) {
       index = 6;
-      GL_ASSERT(glBindBuffer(target, gl_vertex_buffers[index]));
-      GL_ASSERT(glBufferData(target, uvs.size() * sizeof(uvs[0]), uvs.data(), GL_STATIC_DRAW));
+      GL_ASSERT(glBindBuffer(target, mesh->gl_vertex_buffers[index]));
+      GL_ASSERT(glBufferData(target, uvs.size() * sizeof(uvs[0]) + max_size, uvs.data(), GL_STATIC_DRAW));
       GL_ASSERT(glEnableVertexAttribArray(index));
       GL_ASSERT(glVertexAttribPointer(index, 2, GL_FLOAT, GL_FALSE, 0, 0));
     }
@@ -699,12 +708,52 @@ void GLcontext::vertex_buffers_mesh_create(Mesh *mesh)
   {
     target = GL_ELEMENT_ARRAY_BUFFER;
     std::vector<GLshort> indices = mesh->indices_get();
-    GL_ASSERT(glBindBuffer(target, gl_vertex_buffers[7]));
+    GL_ASSERT(glBindBuffer(target, mesh->gl_vertex_buffers[7]));
     GL_ASSERT(glBufferData(target, indices.size() * sizeof(indices[0]), indices.data(), GL_STATIC_DRAW));
   }
 
 }
 
+
+void GLcontext::vertex_buffers_mesh_update(Mesh *mesh)
+{
+  GLenum target;
+  GLint index;
+
+  if (!mesh) return;
+
+  GL_ASSERT(glBindVertexArray(mesh->gl_vao));
+
+  target = GL_ARRAY_BUFFER;
+  {
+    std::vector<glm::vec3> positions = mesh->positions_get();
+    index = 0;
+    size_t size = positions.size() * sizeof(positions[0]);
+
+    std::cout << "size: " << size << std::endl;
+
+    GL_ASSERT(glBindBuffer(target, mesh->gl_vertex_buffers[index]));
+    GL_ASSERT(glBufferSubData(target, 0, size, positions.data()));
+    /*
+    GL_ASSERT(glEnableVertexAttribArray(index));
+    GL_ASSERT(glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0));
+    */
+  }
+
+  {
+    std::vector<glm::vec2> uvs = mesh->texture_st_get();
+    if (uvs.size() > 0) {
+      index = 6;
+      GL_ASSERT(glBindBuffer(target, mesh->gl_vertex_buffers[index]));
+      GL_ASSERT(glBufferSubData(target, 0, uvs.size() * sizeof(uvs[0]), uvs.data()));
+      /*
+      GL_ASSERT(glEnableVertexAttribArray(index));
+      GL_ASSERT(glVertexAttribPointer(index, 2, GL_FLOAT, GL_FALSE, 0, 0));
+      */
+    }
+  }
+
+}
 
 void GLcontext::vertex_buffers_mesh_delete(Mesh *mesh)
 {
@@ -712,7 +761,7 @@ void GLcontext::vertex_buffers_mesh_delete(Mesh *mesh)
   if (!mesh)
     return;
 
-  GL_ASSERT(glDeleteBuffers(8, gl_vertex_buffers));
+  GL_ASSERT(glDeleteBuffers(8, mesh->gl_vertex_buffers));
   GL_ASSERT(glDeleteVertexArrays(1, &mesh->gl_vao));
 }
 
@@ -765,6 +814,8 @@ void GLcontext::texture_create(Texture &texture, GLenum active_texture, GLint fi
     GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap));
     GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap));
   }
+
+  std::cout << "Uploading texture: " << texture.image->width << " x " << texture.image->height << std::endl;
 
   GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, internal_format, texture.image->width, texture.image->height,
       0, format, GL_UNSIGNED_BYTE, texture.image->data));

@@ -48,7 +48,7 @@ void Font::bake()
     return;
   }
 
-  stbtt_BakeFontBitmap(buffer, 0, 32.0, bitmap, 512, 512, 32, 96, cdata);
+  stbtt_BakeFontBitmap(buffer, 0, 20.0, bitmap, 512, 512, 32, 96, cdata);
   Image &image = texture.image_get();
   image.data_set(bitmap, 512, 512);
 }
@@ -104,8 +104,20 @@ Text::~Text()
 /**************************************************/
 
 
-void Text::bake_coords(Mesh *mesh, float x, float y, char *text) 
+
+
+void Text::bake_coords(Mesh *mesh, float x, float y) 
 {
+  char *text = new char[input.size() + 1];
+  std::copy(input.begin(), input.end(), text);
+  text[input.size()] = '\0'; 
+  char *ptr = text;
+
+  mesh->positions_clear();
+  mesh->texture_st_clear();
+
+  std::cout << "Bake: " << input << std::endl;
+
   while (*text) {
     int c = (unsigned char) *text;
 
@@ -113,25 +125,32 @@ void Text::bake_coords(Mesh *mesh, float x, float y, char *text)
 
       stbtt_aligned_quad q;
       baked_quad_get(cdata, 512, 512, c - 32, &x, &y, &q);
+
       mesh->positions_add(glm::vec3(q.x0, q.y0, 0));
-      mesh->texture_st_add(glm::vec2(q.s0, q.t0));
       mesh->positions_add(glm::vec3(q.x1, q.y1, 0));
-      mesh->texture_st_add(glm::vec2(q.s1, q.t1));
       mesh->positions_add(glm::vec3(q.x1, q.y0, 0));
-      mesh->texture_st_add(glm::vec2(q.s1, q.t0));
       mesh->positions_add(glm::vec3(q.x0, q.y0, 0));
-      mesh->texture_st_add(glm::vec2(q.s0, q.t0));
       mesh->positions_add(glm::vec3(q.x0, q.y1, 0));
-      mesh->texture_st_add(glm::vec2(q.s0, q.t1));
       mesh->positions_add(glm::vec3(q.x1, q.y1, 0));
+
+      mesh->texture_st_add(glm::vec2(q.s0, q.t0));
       mesh->texture_st_add(glm::vec2(q.s1, q.t1));
- //     stbtt_GetBakedQuad(cdata, 512, 512, *text - 32, &x, &y, &q, 1);
+      mesh->texture_st_add(glm::vec2(q.s1, q.t0));
+      mesh->texture_st_add(glm::vec2(q.s0, q.t0));
+      mesh->texture_st_add(glm::vec2(q.s0, q.t1));
+      mesh->texture_st_add(glm::vec2(q.s1, q.t1));
+
+      /*
       std::cout << "char: " << c << std::endl;
       std::cout << "x, y = " << x << ", " << y << std::endl;
+      */
     }
     ++text;
   }
 
+  
+  this->input = input;
+  delete [] ptr;
 }
 
 
@@ -146,6 +165,17 @@ void Text::font_set(Font *font)
   this->font = font;
 }
 
+
+void Text::string_append(const std::string s)
+{
+  this->input = input + s;
+}
+
+
+void Text::string_set(std::string input)
+{
+  this->input = input;
+}
 
 /**************************************************/
 /*************** STATIC FUNCTIONS *****************/

@@ -237,15 +237,6 @@ void Node::scale(const glm::vec3 &v)
 
   if (mesh) 
     mesh->model = mesh->model * m;
-
-  /*
-  if (light) {
-    Mesh *vol = light->volume_mesh_get();
-    if (vol) {
-      vol->model = vol->model * m;
-    }
-  }
-  */
 }
 
 
@@ -279,23 +270,9 @@ void Node::text_set(Text *text)
 void Node::translate(const glm::vec3 &v) 
 {
   glm::mat4 m = glm::translate(glm::mat4(1.f), v);
-  std::cout << "Translate node: " << name << std::endl;
 
   if (mesh) 
     mesh->model = mesh->model * m;
-
-  /*
-  if (light) {
-    Mesh *vol = light->volume_mesh_get();
-    if (vol) {
-      std::cout << "transating ligght mesh" << std::endl;
-      vol->model = vol->model * m;
-    }
-  }
-  */
-
-  //transform_local_current = transform_local_current * m;
-  //transform_update_global_recursive(*this);
 }
 
 
@@ -321,10 +298,6 @@ void Node::transform_update_global_recursive(Node &node)
   } else {
     node.transform_global = transform;
   }
-
- // if (node.mesh && !node.armature) {
- //   node.mesh->model = node.transform_global;;
- // }
 
   for (auto &child : node.children) {
     transform_update_global_recursive(*child);

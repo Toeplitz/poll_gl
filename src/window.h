@@ -29,6 +29,7 @@ class Window {
     std::function <void (SDL_JoyButtonEvent *)> custom_joystick_pressed_callback;
     std::function <void (SDL_JoyButtonEvent *)> custom_joystick_released_callback;
 
+    std::function <void (SDL_Keysym *)> custom_keyboard_pressed_callback;
     std::vector<std::function <void (SDL_Keysym *)>> custom_keyboard_pressed_callback_list;
     std::vector<std::function <void (SDL_Keysym *)>> custom_keyboard_released_callback_list;
 
@@ -75,7 +76,7 @@ class Window {
     template <typename Client>
       void keyboard_pressed_callback_set(Client *client, void (Client::*method) (SDL_Keysym *)) 
       {
-       // custom_keyboard_pressed_callback = std::bind(method, client, _1);
+        custom_keyboard_pressed_callback = std::bind(method, client, _1);
       }
 
 

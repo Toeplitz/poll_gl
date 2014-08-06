@@ -24,7 +24,6 @@ class GLcontext {
     GLuint gl_buffer_material;
     GLuint gl_buffer_state;
     GLuint gl_buffer_light;
-    GLuint gl_vertex_buffers[8];
 
     GLuint gl_fb;
     GLuint gl_fb_tex_normal;
@@ -73,7 +72,8 @@ class GLcontext {
     void uniform_locations_geometry_init(GLshader &shader);
     void uniform_locations_lighting_init(GLshader &shader);
     void uniform_locations_console_init(GLshader &shader);
-    void vertex_buffers_mesh_create(Mesh *mesh);
+    void vertex_buffers_mesh_create(Mesh *mesh, const size_t max_size = 0);
+    void vertex_buffers_mesh_update(Mesh *mesh);
     void vertex_buffers_mesh_delete(Mesh *mesh);
 
 };

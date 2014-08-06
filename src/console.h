@@ -6,6 +6,7 @@
 #include "glcontext.h"
 #include "scene.h"
 #include "text.h"
+#include "window.h"
 
 
 class Console
@@ -31,7 +32,8 @@ class Console
     Console();
     ~Console();
 
-    void init(Scene &scene, GLcontext &glcontext);
+    void init(Scene &scene, GLcontext &glcontext, Window &window);
     void draw();
+    void keyboard_pressed_cb(SDL_Keysym *keysym);
     void toggle();
 };

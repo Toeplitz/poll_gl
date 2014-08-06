@@ -52,7 +52,7 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   glcontext.framebuffer_create(window.width, window.height);
   //glcontext.framebuffer_node_create(node);
 
-  console.init(scene, glcontext);
+  console.init(scene, glcontext, window);
   physics.init();
 }
 
