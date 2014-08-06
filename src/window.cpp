@@ -47,8 +47,8 @@ bool Window::init(const std::string &title)
   SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
   SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-  //SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-  //SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+  SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
@@ -96,15 +96,6 @@ float Window::joystick_angle_get(float x, float y, float *radius)
   *radius = r;
 
   return angle;
-}
-
-
-void Window::debug_toggle()
-{
-  debug = !debug;
-  glm::vec4 d(0, 0, 0, debug);
-  //glcontext.uniform_buffers_update_debug(d);
-  std::cout << "Debug symbol to shader: " << d.w << std::endl;
 }
 
 
@@ -219,27 +210,22 @@ void Window::joystick_button_released(SDL_JoyButtonEvent *ev)
 
 bool Window::keyboard_callback_pressed(SDL_Keysym *keysym)
 {
-  if (custom_keyboard_pressed_callback)
-    custom_keyboard_pressed_callback(keysym);
+  switch (keysym->sym) {
+    case SDLK_ESCAPE:
+      return false;
+      break;
+    default:
+      break;
+  }
 
   for (auto &func: custom_keyboard_pressed_callback_list) {
     func(keysym);
   }
 
-  switch (keysym->sym) {
-    case SDLK_ESCAPE:
-      return false;
-      break;
-    case SDLK_p:
-      glcontext.polygon_mesh_toggle(polygon_view_toggle);
-      polygon_view_toggle = !polygon_view_toggle;
-      break;
-    case SDLK_d:
-      debug_toggle();
-      break;
-    default:
-      break;
-  }
+  if (custom_keyboard_pressed_callback)
+    custom_keyboard_pressed_callback(keysym);
+
+
 
   return true;
 }

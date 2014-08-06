@@ -299,12 +299,6 @@ void GLcontext::framebuffer_draw_scene(const Assets &assets, Scene &scene, GLsha
 }
 
 
-void GLcontext::polygon_mesh_toggle(bool tog)
-{
-  GL_ASSERT(glPolygonMode(GL_FRONT_AND_BACK, tog ? GL_FILL : GL_LINE));
-}
-
-
 void GLcontext::texture_materials_create(Material *material)
 {
   GLint filter = GL_LINEAR;
@@ -624,15 +618,6 @@ void GLcontext::vertex_buffers_mesh_create(Mesh *mesh, const size_t max_size)
     index = 0;
     size_t size = positions.size() * sizeof(positions[0]) + max_size;
 
-    if (max_size > 0) {
-      std::cout << "max size: " << size << std::endl;
-      std::cout << "size: " << size - max_size << std::endl;
-    }
-    else {
-      std::cout << "size: " << size << std::endl;
-    }
-
-
     GL_ASSERT(glBindBuffer(target, mesh->gl_vertex_buffers[index]));
     GL_ASSERT(glBufferData(target, size, positions.data(), GL_STATIC_DRAW));
     GL_ASSERT(glEnableVertexAttribArray(index));
@@ -729,15 +714,8 @@ void GLcontext::vertex_buffers_mesh_update(Mesh *mesh)
     std::vector<glm::vec3> positions = mesh->positions_get();
     index = 0;
     size_t size = positions.size() * sizeof(positions[0]);
-
-    std::cout << "size: " << size << std::endl;
-
     GL_ASSERT(glBindBuffer(target, mesh->gl_vertex_buffers[index]));
     GL_ASSERT(glBufferSubData(target, 0, size, positions.data()));
-    /*
-    GL_ASSERT(glEnableVertexAttribArray(index));
-    GL_ASSERT(glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0));
-    */
   }
 
   {
@@ -746,10 +724,6 @@ void GLcontext::vertex_buffers_mesh_update(Mesh *mesh)
       index = 6;
       GL_ASSERT(glBindBuffer(target, mesh->gl_vertex_buffers[index]));
       GL_ASSERT(glBufferSubData(target, 0, uvs.size() * sizeof(uvs[0]), uvs.data()));
-      /*
-      GL_ASSERT(glEnableVertexAttribArray(index));
-      GL_ASSERT(glVertexAttribPointer(index, 2, GL_FLOAT, GL_FALSE, 0, 0));
-      */
     }
   }
 

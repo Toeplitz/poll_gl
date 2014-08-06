@@ -116,8 +116,6 @@ void Text::bake_coords(Mesh *mesh, float x, float y)
   mesh->positions_clear();
   mesh->texture_st_clear();
 
-  std::cout << "Bake: " << input << std::endl;
-
   while (*text) {
     int c = (unsigned char) *text;
 
@@ -139,11 +137,6 @@ void Text::bake_coords(Mesh *mesh, float x, float y)
       mesh->texture_st_add(glm::vec2(q.s0, q.t0));
       mesh->texture_st_add(glm::vec2(q.s0, q.t1));
       mesh->texture_st_add(glm::vec2(q.s1, q.t1));
-
-      /*
-      std::cout << "char: " << c << std::endl;
-      std::cout << "x, y = " << x << ", " << y << std::endl;
-      */
     }
     ++text;
   }
@@ -172,10 +165,29 @@ void Text::string_append(const std::string s)
 }
 
 
+void Text::string_erase_last()
+{
+  input = input.substr(0, input.size() - 1);
+}
+
+
+std::string &Text::string_get()
+{
+  return input;
+}
+
+
+unsigned int Text::string_len()
+{
+  return input.size();
+}
+
+
 void Text::string_set(std::string input)
 {
   this->input = input;
 }
+
 
 /**************************************************/
 /*************** STATIC FUNCTIONS *****************/

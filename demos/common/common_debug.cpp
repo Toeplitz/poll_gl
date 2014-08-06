@@ -12,9 +12,17 @@ static void common_debug_keyboard_pressed_cb(SDL_Keysym *keysym)
 
 
   switch (keysym->sym) {
-    case 96:
+    case SDLK_RETURN:
       console.toggle();
       break;
+    default:
+      break;
+  }
+
+  if (console.active()) 
+    return;
+
+  switch (keysym->sym) {
     case SDLK_f:
       physics.pause();
       break;

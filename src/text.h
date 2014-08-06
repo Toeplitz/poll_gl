@@ -38,10 +38,13 @@ class Text
     Text();
     ~Text();
 
-    void   bake_coords(Mesh *mesh, float x, float y);
-    Font  *font_get();
-    void   font_set(Font *font);
-    void   string_append(const std::string s);
-    void   string_set(std::string input);
+    void          bake_coords(Mesh *mesh, float x, float y);
+    Font         *font_get();
+    void          font_set(Font *font);
+    void          string_append(const std::string s);
+    void          string_erase_last();
+    std::string  &string_get();
+    unsigned int  string_len();
+    void          string_set(std::string input);
 
 };

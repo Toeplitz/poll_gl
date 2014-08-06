@@ -77,6 +77,10 @@ static void common_fpcamera_event_cb(SDL_Event *event)
 static void common_fpcamera_keyboard_pressed_cb(SDL_Keysym *keysym)
 {
   Window &window = f->window_get();
+  Console &console = f->console_get();
+
+  if (console.active()) 
+    return;
 
   switch (keysym->sym) {
     case SDLK_w:
@@ -103,6 +107,11 @@ static void common_fpcamera_keyboard_pressed_cb(SDL_Keysym *keysym)
 
 static void common_fpcamera_keyboard_released_cb(SDL_Keysym *keysym)
 {
+  Console &console = f->console_get();
+
+  if (console.active()) 
+    return;
+
   switch (keysym->sym) {
     case SDLK_w:
       common_fpcamera_move_delete(FORWARD);

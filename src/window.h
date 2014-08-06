@@ -43,7 +43,6 @@ class Window {
 
     bool  init(const std::string &title);
     float joystick_angle_get(float x, float y, float *radius);
-    void  debug_toggle();
     bool  poll_events();
     void  mouse_cursor_center();
     void  mouse_cursor_toggle();

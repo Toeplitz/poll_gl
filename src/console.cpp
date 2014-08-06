@@ -1,5 +1,13 @@
 #include "console.h"
+#include <algorithm>
+#include <iterator>
+#include <string>
+#include <sstream>
+#include <vector>
 #include <glm/gtx/string_cast.hpp>
+
+
+using namespace std::placeholders;
 
 
 /**************************************************/
@@ -10,7 +18,7 @@
 Console::Console():
   flag_toggle(false)
 {
-
+  command_defaults_set();
 }
 
 
@@ -46,7 +54,7 @@ void Console::init(Scene &scene, GLcontext &glcontext, Window &window)
   Text *text = node_text->text_create(&font, scene.assets_get());
   Mesh *text_mesh = node_text->mesh_get();
 
-  text->string_set("Martin lol");
+  text->string_set("Fragmic");
   text->bake_coords(node_text->mesh_get(), 10, 10);
   glcontext.vertex_buffers_mesh_create(text_mesh, 1048 * sizeof(glm::vec3));
 }
@@ -75,24 +83,116 @@ void Console::keyboard_pressed_cb(SDL_Keysym *keysym)
   text = node_text->text_get();
   mesh = node_text->mesh_get();
 
-  text->string_append("o");
-  text->bake_coords(mesh, 10, 10);
-  glcontext->vertex_buffers_mesh_update(mesh);
-
-  std::cout << "Vertices: " << mesh->num_vertices_get() << std::endl;
-  
   switch (keysym->sym) {
-
+    case SDLK_RETURN:
+      break;
+    case SDLK_SPACE:
+      text->string_append(" ");
+      text->bake_coords(mesh, 10, 10);
+      glcontext->vertex_buffers_mesh_update(mesh);
+      break;
+    case SDLK_BACKSPACE:
+      if (text->string_len() > 2) {
+        text->string_erase_last();
+        text->bake_coords(mesh, 10, 10);
+        glcontext->vertex_buffers_mesh_update(mesh);
+      }
+      break;
     default:
+
+      if((keysym->sym >= SDLK_a && keysym->sym <= SDLK_z) ||
+          (keysym->sym >= SDLK_0 && keysym->sym <= SDLK_9) ||
+          keysym->sym == SDLK_PERIOD) {
+        std::string key_input(SDL_GetKeyName(keysym->sym));
+        std::transform(key_input.begin(), key_input.end(), key_input.begin(), ::tolower);
+        text->string_append(key_input);
+        text->bake_coords(mesh, 10, 10);
+        glcontext->vertex_buffers_mesh_update(mesh);
+      } 
+
       break;
   }
+
 
 }
 
 
 void Console::toggle()
 {
+  Text *text;
+  Mesh *mesh;
+
+  text = node_text->text_get();
+  mesh = node_text->mesh_get();
+
+  if (flag_toggle) {
+    std::string &cmd_full = text->string_get();
+    std::string cmd = cmd_full.substr(2, cmd_full.size());
+    command_parse(cmd);
+
+
+  } else {
+    text->string_set("> ");
+    text->bake_coords(mesh, 10, 10);
+    glcontext->vertex_buffers_mesh_update(mesh);
+  }
+
   flag_toggle = !flag_toggle;
+
 }
 
 
+bool Console::active()
+{
+  return flag_toggle;
+}
+
+
+/**************************************************/
+/***************** PRIVATE METHODS ****************/
+/**************************************************/
+
+
+void Console::callback_camera_fov_set(const float val)
+{
+  std::cout << "Setting fov: " << val << std::endl;
+
+
+}
+
+
+void Console::command_defaults_set()
+{
+  commands["fov"] = std::bind(&Console::callback_camera_fov_set, this, _1);
+}
+
+
+
+void Console::command_exec(const std::string &key, const std::string &value)
+{
+  float num = ::atof(value.c_str());
+
+  if (commands.find(key) != commands.end()) {
+    commands.at(key)(num);
+  } else {
+    std::cout << "Unknown command: '" << key << "'" << std::endl;
+  }
+
+}
+
+void Console::command_parse(std::string &cmd_full)
+{
+  std::istringstream iss(cmd_full);
+  std::vector<std::string> tokens{std::istream_iterator<std::string>{iss},
+                                  std::istream_iterator<std::string>{}};
+
+  if (tokens.size() > 1) {
+    command_exec(tokens[0], tokens[1]);
+  }
+
+  /*
+  std::cout << "Parsing command: '" << cmd_full << "'" << std::endl;
+  std::cout << "Command: '" << tokens[0] << "'" << std::endl;
+  std::cout << "Argument: '" << tokens[1] << "'" << std::endl;
+  */
+}

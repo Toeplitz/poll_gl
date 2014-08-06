@@ -94,6 +94,11 @@ static void joystick_button_released_cb(SDL_JoyButtonEvent *ev)
 
 static void keyboard_pressed_cb(SDL_Keysym *keysym)
 {
+  Console &console = f->console_get();
+
+  if (console.active()) 
+    return;
+
   switch (keysym->sym) {
     case SDLK_SPACE:
       character->jump();
@@ -135,6 +140,12 @@ static void keyboard_pressed_cb(SDL_Keysym *keysym)
 
 static void keyboard_released_cb(SDL_Keysym *keysym)
 {
+  Console &console = f->console_get();
+
+  if (console.active()) 
+    return;
+
+
   switch (keysym->sym) {
     case SDLK_UP:
       direction &= ~PHYSICS_DIRECTION_FORWARD;
