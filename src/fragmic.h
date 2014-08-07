@@ -2,6 +2,7 @@
 
 #include <SDL2/SDL_stdinc.h>            // for Uint32
 #include <string>
+#include "config.h"
 #include "console.h"
 #include "camera.h"                     
 #include "glcontext.h"                  
@@ -11,8 +12,11 @@
 #include "window.h"                     
 
 
+#define GLOBAL_CONFIG "./fragmic.conf"
+
 class Fragmic {
   private:
+    Config config;
     Console console;
     Physics physics;
     GLshader glshader_geometry;
@@ -22,7 +26,6 @@ class Fragmic {
     Window window;
 
     double       delta_time_get();
-    void         draw_standard_post_proc(const double dt);
     void         profile_fps(const double dt);
 
   public:
@@ -32,6 +35,7 @@ class Fragmic {
     void       run();
     void       term();
     Assets    &assets_get();
+    Config    &config_get();
     Console   &console_get();
     GLcontext &glcontext_get();
     Physics   &physics_get();

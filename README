@@ -6,6 +6,8 @@ Required libs:
 - Assimp
 - SDL2
 - Glew
+- Jsoncpp
+
 
 mkdir build
 

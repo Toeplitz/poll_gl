@@ -17,7 +17,7 @@ layout(std140) uniform Light
   mat4 light_transform;
 };
 
-const int sample_count = 16;
+const int sample_count = 32;
 const vec2 poisson16[] = vec2[](    // These are the Poisson Disk Samples
                                 vec2( -0.94201624,  -0.39906216 ),
                                 vec2(  0.94558609,  -0.76890725 ),
@@ -140,9 +140,9 @@ void main ()
 
   float occlusion = ssoa(st, d_texel, pos_eye, n_texel.rgb);
 
-  frag_color.rgb = occlusion * phong(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel));
+  //frag_color.rgb = occlusion * phong(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel));
   //frag_color.rgb = occlusion * phong(pos_eye, normalize(n_texel.rgb), vec3(0.5, 0.5, 0.5));
-  //frag_color.rgb = vec3(occlusion, occlusion, occlusion);
+  frag_color.rgb = vec3(occlusion, occlusion, occlusion);
 
   frag_color.a = 1.0;
 }
