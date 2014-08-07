@@ -164,7 +164,7 @@ void Console::callback_light_create(const float val)
   Camera *camera = scene->camera_get();
   const glm::vec3 position = camera->position_get();
 
-  Node *sphere = &scene->model_load("data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
+  Node *sphere = &scene->load(*glcontext, "data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
 
   Node *node = scene->node_create("light_added");
   Light *light = node->light_create(assets, position, sphere);

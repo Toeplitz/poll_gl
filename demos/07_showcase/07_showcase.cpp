@@ -8,7 +8,7 @@ Fragmic fragmic("Showcase", 1280, 720);
 int main() 
 {
   Scene &scene = fragmic.scene_get();
-  Assets &assets = scene.assets_get();
+  GLcontext glcontext = fragmic.glcontext_get();
 
   {
     Node *camera_node = scene.node_camera_get();
@@ -34,7 +34,7 @@ int main()
   }
   */
 
-  Node &node = scene.model_load("demos/07_showcase/assets/", "scene.dae", MODEL_IMPORT_OPTIMIZED);
+  Node &node = scene.load(glcontext, "demos/07_showcase/assets/", "scene.dae", MODEL_IMPORT_OPTIMIZED);
 
   scene.scene_graph_print(false);
   //scene.assets_get().print_all(scene.node_root_get());

@@ -10,6 +10,7 @@ int main()
 {
   Scene &scene = fragmic.scene_get();
   Physics &physics = fragmic.physics_get();
+  GLcontext glcontext = fragmic.glcontext_get();
 
   {
     Node *camera_node = scene.node_camera_get();
@@ -18,13 +19,13 @@ int main()
     common_debug_use();
   }
 
-  Node &crate =scene.model_load("data/normal_map/", "crate.dae", MODEL_IMPORT_OPTIMIZED);
+  Node &crate = scene.load(glcontext, "data/normal_map/", "crate.dae", MODEL_IMPORT_OPTIMIZED);
   physics.collision_shape_add(crate, PHYSICS_COLLISION_TRIANGLE_MESH, true, 1);
 
-  Node &box = scene.model_load("data/normal_map/", "box_simple.dae", MODEL_IMPORT_OPTIMIZED);
+  Node &box = scene.load(glcontext, "data/normal_map/", "box_simple.dae", MODEL_IMPORT_OPTIMIZED);
   physics.collision_shape_add(box, PHYSICS_COLLISION_CONVEX_HULL, true, 1);
 
-  Node &floor = scene.model_load("data/normal_map/", "wood_floor.dae", MODEL_IMPORT_OPTIMIZED);
+  Node &floor = scene.load(glcontext, "data/normal_map/", "wood_floor.dae", MODEL_IMPORT_OPTIMIZED);
   physics.collision_shape_add(floor, PHYSICS_COLLISION_CONVEX_HULL, true, 0);
 
   scene.scene_graph_print(true);

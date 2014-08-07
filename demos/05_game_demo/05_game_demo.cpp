@@ -204,7 +204,7 @@ int main()
   Assets &assets = scene.assets_get();
   Window &window = fragmic.window_get();
   Physics &physics = fragmic.physics_get();
-  GLcontext glcontext = window.glcontext_get();
+  GLcontext glcontext = fragmic.glcontext_get();
 
   window.joystick_axis_motion_callback_set(joystick_axis_motion_cb);
   window.joystick_pressed_callback_set(joystick_button_pressed_cb);
@@ -221,13 +221,13 @@ int main()
   }
 
   /* Setup room */
-  room = &scene.model_load("data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_LIGHTS);
+  room = &scene.load(glcontext, "data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_LIGHTS);
   physics.collision_shape_add(*room, PHYSICS_COLLISION_TRIANGLE_MESH, true, 0);
 
   /* Setup panda character */
   {
-    Node &panda_root = scene.model_load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
-    Node &panda_collision_root = scene.model_load("data/game_assets/characters/panda/", 
+    Node &panda_root = scene.load(glcontext, "data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
+    Node &panda_collision_root = scene.load(glcontext, "data/game_assets/characters/panda/", 
         "Panda_convex_hull.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
     panda = scene.node_find(&panda_root, "Panda");
     Node *panda_collision = scene.node_find(&panda_collision_root, "Panda_convex_hull");
@@ -247,7 +247,7 @@ int main()
 
 
   /* Setup lights */
-  Node *sphere = &scene.model_load("data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
+  Node *sphere = &scene.load(glcontext, "data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
 
   {
     glm::vec3 light_positions[5] = {

@@ -67,6 +67,7 @@ class Node: public Animated {
     Node(const std::string &node_name);
     ~Node();
 
+    Armature           *armature_get();
     void                armature_set(Armature *armature);
     Camera             *camera_create(Assets &assets);
     Camera             *camera_get();

@@ -1,4 +1,5 @@
 #include "scene.h"
+#include "glcontext.h"
 #include "utils.h"
 #include <glm/gtx/string_cast.hpp>
 
@@ -98,12 +99,12 @@ const std::vector<Node *> &Scene::mesh_nodes_get() const
 }
 
 
-Node &Scene::model_load(const std::string &prefix, const std::string &filename, const unsigned int options) 
+Node &Scene::load(GLcontext &glcontext, const std::string &prefix, const std::string &filename, const unsigned int options) 
 {
   Model model;
   std::cout << prefix + filename << std::endl;
   Node *root_ptr = model.load(assets, root, prefix, filename, options);
-  state_update_recursive(*root_ptr);
+  node_state_recursive_update(*root_ptr);
 
   /*
   std::cout << "Matrices for node: " << root_ptr->name << std::endl;
@@ -117,7 +118,7 @@ Node &Scene::model_load(const std::string &prefix, const std::string &filename, 
 
   root_ptr->transform_update_global_recursive(root);
   if (!(options & MODEL_IMPORT_NO_DRAW)) {
-    upload_queue_add(*root_ptr);
+    node_recursive_init(glcontext, *root_ptr);
   }
 
   return *root_ptr;
@@ -234,7 +235,7 @@ Node &Scene::node_root_get()
 }
 
 
-void Scene::state_update_recursive(Node &node)
+void Scene::node_state_recursive_update(Node &node)
 {
   if (node.armature) {
     node.state.animated = true;
@@ -265,48 +266,36 @@ void Scene::state_update_recursive(Node &node)
   }
 
   for (auto &child : node.children) {
-    state_update_recursive(*child);
+    node_state_recursive_update(*child);
   }
 }
 
 
-void Scene::upload_queue_add(Node &node) 
+void Scene::node_recursive_init(GLcontext &glcontext, Node &node) 
 {
-  if (node.armature) {
+  Armature *armature = node.armature_get();
+  Mesh *mesh = node.mesh_get();
+  Material *material = node.material_get();
+
+  if (armature) {
     animated_nodes_add(node);
   }
 
-  if (node.light_get()) {
-    upload_queue.push_back(&node);
-  }
-
-  if (node.mesh) {
-    upload_queue.push_back(&node);
+  if (mesh) {
     mesh_nodes_add(node);
+    glcontext.vertex_buffers_mesh_create(mesh);
   } 
+
+
+  if (material) {
+    glcontext.texture_materials_create(material);
+  }
   
-  state_update_recursive(node);
+  node_state_recursive_update(node);
 
   for (auto &child : node.children) {
-    upload_queue_add(*child);
+    node_recursive_init(glcontext, *child);
   }
-}
-
-
-Node *Scene::upload_queue_pop()
-{
-  if (upload_queue.empty()) {
-    return nullptr;
-  }
-
-  Node *node = upload_queue.back();
-  if (!node) {
-    std::cout << "No item left in vector" << std::endl;
-  }
-
-  upload_queue.pop_back();
-
-  return node;
 }
 
 

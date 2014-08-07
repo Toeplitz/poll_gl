@@ -9,7 +9,7 @@ int main()
 {
   Physics &physics = fragmic.physics_get();
   Scene &scene = fragmic.scene_get();
-  Assets &assets= scene.assets_get();
+  GLcontext glcontext = fragmic.glcontext_get();
 
   {
     Node *camera_node = scene.node_camera_get();
@@ -54,11 +54,11 @@ int main()
   */
 
 
-  Node &plane = scene.model_load("data/game_assets/", "Room_no_slope.dae", MODEL_IMPORT_OPTIMIZED);
+  Node &plane = scene.load(glcontext, "data/game_assets/", "Room_no_slope.dae", MODEL_IMPORT_OPTIMIZED);
   physics.collision_shape_add(plane, PHYSICS_COLLISION_CONVEX_HULL, true, 1.f);
   physics.pause();
 
-  Node &bob= scene.model_load("data/bob/", "Bob_with_lamp.dae", MODEL_IMPORT_OPTIMIZED);
+  Node &bob= scene.load(glcontext, "data/bob/", "Bob_with_lamp.dae", MODEL_IMPORT_OPTIMIZED);
   bob.scale(glm::vec3(25, 25, 25));
   bob.translate(glm::vec3(0, -1.25, 0));
   scene.scene_graph_print(true);

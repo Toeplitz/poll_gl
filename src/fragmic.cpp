@@ -70,7 +70,7 @@ Fragmic::~Fragmic()
 void Fragmic::run()
 {
   GLcontext &glcontext = window.glcontext_get();
-  const Assets &assets = scene.assets_get();
+  const Assets &assets = assets_get();
 
   for (;;) {
     double dt = delta_time_get();
@@ -79,22 +79,6 @@ void Fragmic::run()
     if (!window.poll_events()) {
       std::cout << "Fragmic exiting..." << std::endl;
       return;
-    }
-
-    /* Upload new nodes */
-    Node *upload_node = scene.upload_queue_pop();
-    while (upload_node) {
-      Material *material = upload_node->material_get();
-      Mesh *mesh = upload_node->mesh_get();
-      Light *light = upload_node->light_get();
-
-      if (light) {
-        glcontext.vertex_buffers_light_create(light);
-      }
-
-      glcontext.vertex_buffers_mesh_create(mesh);
-      glcontext.texture_materials_create(material);
-      upload_node = scene.upload_queue_pop();
     }
 
     /* Update animations */
@@ -142,10 +126,23 @@ void Fragmic::term()
   window.term();
 }
 
+
+Assets &Fragmic::assets_get()
+{
+  return scene_get().assets_get();
+}
+
 Console &Fragmic::console_get() 
 {
   return console;
 }
+
+
+GLcontext &Fragmic::glcontext_get()
+{
+  return window_get().glcontext_get();
+}
+
 
 Physics &Fragmic::physics_get() 
 {

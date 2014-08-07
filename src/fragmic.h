@@ -31,12 +31,14 @@ class Fragmic {
     Fragmic(const std::string &title, const int &width, const int &height);
     ~Fragmic();
 
-    void     run();
-    void     term();
-    Console &console_get();
-    Physics &physics_get();
-    Scene   &scene_get();
-    Window  &window_get();
+    void       run();
+    void       term();
+    Assets    &assets_get();
+    Console   &console_get();
+    GLcontext &glcontext_get();
+    Physics   &physics_get();
+    Scene     &scene_get();
+    Window    &window_get();
 };
 
 

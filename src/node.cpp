@@ -44,6 +44,10 @@ Node::~Node()
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
 
+Armature *Node::armature_get()
+{
+  return armature;
+}
 
 void Node::armature_set(Armature *armature)
 {
