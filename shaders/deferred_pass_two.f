@@ -17,6 +17,26 @@ layout(std140) uniform Light
   mat4 light_transform;
 };
 
+const int sample_count = 16;
+const vec2 poisson16[] = vec2[](    // These are the Poisson Disk Samples
+                                vec2( -0.94201624,  -0.39906216 ),
+                                vec2(  0.94558609,  -0.76890725 ),
+                                vec2( -0.094184101, -0.92938870 ),
+                                vec2(  0.34495938,   0.29387760 ),
+                                vec2( -0.91588581,   0.45771432 ),
+                                vec2( -0.81544232,  -0.87912464 ),
+                                vec2( -0.38277543,   0.27676845 ),
+                                vec2(  0.97484398,   0.75648379 ),
+                                vec2(  0.44323325,  -0.97511554 ),
+                                vec2(  0.53742981,  -0.47373420 ),
+                                vec2( -0.26496911,  -0.41893023 ),
+                                vec2(  0.79197514,   0.19090188 ),
+                                vec2( -0.24188840,   0.99706507 ),
+                                vec2( -0.81409955,   0.91437590 ),
+                                vec2(  0.19984126,   0.78641367 ),
+                                vec2(  0.14383161,  -0.14100790 )
+                               );
+
 
 uniform sampler2D normal_tex;
 uniform sampler2D diffuse_tex;
@@ -72,6 +92,38 @@ vec3 reconstruct_position(float depth, vec2 tex_coord)
 }
 
 
+float ssoa(vec2 st, float d_texel, vec3 pos_eye, vec3 n_texel)
+{
+  float distanceThreshold = 5;
+  vec2 filterRadius = vec2(10.0 / 1280 , 10.0 / 720);
+  float ambientOcclusion = 0;
+
+  for (int i = 0; i < sample_count; ++i)
+  {
+      // sample at an offset specified by the current Poisson-Disk sample and scale it by a radius (has to be in Texture-Space)
+      vec2 sampleTexCoord = st + (poisson16[i] * (filterRadius));
+      float sampleDepth = texture(depth_tex, sampleTexCoord).r;
+
+      vec3 samplePos = vec3(view * vec4(reconstruct_position(sampleDepth, sampleTexCoord), 1.0));
+      vec3 sampleDir = normalize(samplePos - pos_eye);
+
+      // angle between SURFACE-NORMAL and SAMPLE-DIRECTION (vector from SURFACE-POSITION to SAMPLE-POSITION)
+      float NdotS = max(dot(n_texel, sampleDir), 0);
+      // distance between SURFACE-POSITION and SAMPLE-POSITION
+      float VPdistSP = distance(pos_eye, samplePos);
+
+      // a = distance function
+      float a = 1.0 - smoothstep(distanceThreshold, distanceThreshold * 2, VPdistSP);
+      // b = dot-Product
+      float b = NdotS;
+
+      ambientOcclusion += (a * b);
+  }
+
+  return 1 - ambientOcclusion / sample_count;
+}
+
+
 void main () 
 {
 
@@ -86,12 +138,11 @@ void main ()
   vec3 p_texel = reconstruct_position(d_texel, st);
   vec3 pos_eye = vec3(view * vec4(p_texel.rgb, 1.0));
 
- // frag_color.rgb = p_texel;
- // frag_color.rgb =  vec3(n_texel);
- // frag_color.rgb = vec3(diffuse_texel);
- // frag_color.rgb =  vec3(d_texel, d_texel, d_texel);
- // frag_color.rgb = vec3(0, 1, 0);
-  frag_color.rgb = phong(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel));
+  float occlusion = ssoa(st, d_texel, pos_eye, n_texel.rgb);
+
+  frag_color.rgb = occlusion * phong(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel));
+  //frag_color.rgb = occlusion * phong(pos_eye, normalize(n_texel.rgb), vec3(0.5, 0.5, 0.5));
+  //frag_color.rgb = vec3(occlusion, occlusion, occlusion);
 
   frag_color.a = 1.0;
 }
