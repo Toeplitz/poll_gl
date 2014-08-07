@@ -11,7 +11,6 @@
 
 Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   physics(),
-  glshader(), 
   glshader_geometry(), 
   glshader_light(), 
   scene(), 
@@ -31,7 +30,6 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   cam_node->camera_get()->transform_perspective_create(window.width, window.height);
   scene.node_camera_set(cam_node);
 
-  glshader_screen.load("shaders/post_proc.v", "shaders/post_proc.f");
 
   // SETUP FOR DEFERRED SHADING
   glshader_geometry.load("shaders/deferred_pass_one.v", "shaders/deferred_pass_one.f");
@@ -98,7 +96,7 @@ void Fragmic::run()
     glcontext.uniform_buffers_update_camera(camera);
 
     /* Draw scene */
-    glcontext.framebuffer_draw_scene(scene.assets_get(), scene, glshader_geometry, glshader_stencil, glshader_light);
+    glcontext.framebuffer_draw_scene(scene, glshader_geometry, glshader_stencil, glshader_light);
 
     /* Step physics simulation */
     physics.step(dt);
@@ -114,6 +112,9 @@ void Fragmic::run()
 
 void Fragmic::term()
 {
+  console.term();
+  physics.term();
+
   GLcontext &glcontext = window.glcontext_get();
   glcontext.uniform_buffers_delete();
   for (auto &node: scene.mesh_nodes_get()) {
@@ -122,7 +123,9 @@ void Fragmic::term()
     glcontext.vertex_buffers_mesh_delete(mesh);
     glcontext.texture_materials_delete(material);
   }
-  glshader.term();
+  glshader_geometry.term();
+  glshader_light.term();
+  glshader_stencil.term();
   window.term();
 }
 

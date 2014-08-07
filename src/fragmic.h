@@ -15,10 +15,8 @@ class Fragmic {
   private:
     Console console;
     Physics physics;
-    GLshader glshader;
     GLshader glshader_geometry;
     GLshader glshader_light;
-    GLshader glshader_screen;
     GLshader glshader_stencil;
     Scene scene;
     Window window;

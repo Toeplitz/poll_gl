@@ -124,5 +124,6 @@ class Physics
     void                                      init();
     void                                      pause();
     void                                      step(const double dt);
+    void                                      term();
 };
 

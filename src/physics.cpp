@@ -100,7 +100,7 @@ void Physics::collision_shape_add(Node &node, const Physics_Collision_Shape shap
 
 
   if (!node.mesh) {
-    std::cout << "No mesh for node: '" << node.name << "', skipping ..." << std::endl;
+  //  std::cout << "No mesh for node: '" << node.name << "', skipping ..." << std::endl;
   } else if (node.light_get()) {
     std::cout << "Light node: '" << node.name << "', skipping ..." << std::endl;
   } else {
@@ -152,6 +152,12 @@ void Physics::step(const double dt)
     custom_step_callback();
 
   bullet_step(dt);
+}
+
+
+void Physics::term()
+{
+  glshader.term();
 }
 
 

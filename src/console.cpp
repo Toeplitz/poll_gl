@@ -32,6 +32,12 @@ Console::~Console()
 /**************************************************/
 
 
+bool Console::active()
+{
+  return flag_toggle;
+}
+
+
 void Console::init(Scene &scene, GLcontext &glcontext, Window &window)
 {
   this->scene = &scene;
@@ -136,14 +142,14 @@ void Console::toggle()
   }
 
   flag_toggle = !flag_toggle;
-
 }
 
 
-bool Console::active()
+void Console::term()
 {
-  return flag_toggle;
+  glshader_console.term();
 }
+
 
 
 /**************************************************/
@@ -171,7 +177,6 @@ void Console::callback_light_create(const float val)
   light->scale(glm::vec3(20, 20, 20));
 
   glcontext->vertex_buffers_light_create(light);
-  std::cout << "Adding light at position: " << glm::to_string(position) << std::endl;
 }
 
 

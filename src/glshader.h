@@ -17,6 +17,7 @@ class GLshader {
     GLuint vs;
     GLuint fs;
     GLuint gs;
+    std::vector<GLuint> shader_objects;
 
     void    compile();
     GLuint  create_shader(std::string fileName, GLenum type);

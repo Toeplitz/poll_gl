@@ -42,4 +42,5 @@ class Console
     void draw();
     void keyboard_pressed_cb(SDL_Keysym *keysym);
     void toggle();
+    void term();
 };

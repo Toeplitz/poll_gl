@@ -215,10 +215,6 @@ Mesh *Node::mesh_create(Assets &assets)
 
 Mesh *Node::mesh_get()
 {
-  if (!mesh) {
-    std::cout << "Node: '" << name << "' does not have any mesh attached" << std::endl;
-  }
-
   return mesh;
 }
 

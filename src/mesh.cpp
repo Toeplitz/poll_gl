@@ -13,6 +13,7 @@ Mesh::Mesh():
   model(glm::mat4(1.f))
 {
   mode = GL_TRIANGLES;
+  gl_vao = 0;
 }
 
 Mesh::~Mesh(void)

@@ -38,19 +38,16 @@ Font::~Font()
 
 void Font::bake()
 {
-  unsigned char *bitmap;
-
-  bitmap = new unsigned char[512 * 512];
+  auto bitmap = std::unique_ptr<unsigned char [] >(new unsigned char[512 * 512]);
 
   if (!buffer) {
     std::cout << "Error: no font loaded" << std::endl;
-    delete bitmap;
     return;
   }
 
-  stbtt_BakeFontBitmap(buffer, 0, 20.0, bitmap, 512, 512, 32, 96, cdata);
+  stbtt_BakeFontBitmap(buffer, 0, 20.0, bitmap.get(), 512, 512, 32, 96, cdata);
   Image &image = texture.image_get();
-  image.data_set(bitmap, 512, 512);
+  image.data_copy(bitmap.get(), 512, 512);
 }
 
 

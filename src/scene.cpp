@@ -102,7 +102,6 @@ const std::vector<Node *> &Scene::mesh_nodes_get() const
 Node &Scene::load(GLcontext &glcontext, const std::string &prefix, const std::string &filename, const unsigned int options) 
 {
   Model model;
-  std::cout << prefix + filename << std::endl;
   Node *root_ptr = model.load(assets, root, prefix, filename, options);
   node_state_recursive_update(*root_ptr);
 

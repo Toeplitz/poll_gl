@@ -53,8 +53,8 @@ class GLcontext {
     void framebuffer_check_status();
     void framebuffer_create(const int width, const int height);
     void framebuffer_delete();
-    void framebuffer_draw_scene(const Assets &assets, Scene &scene, GLshader shader_geometry,  
-                                              GLshader &shader_stencil, GLshader &shader_light);
+    void framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  
+                                GLshader &shader_stencil, GLshader &shader_light);
     void framebuffer_node_create(Node &node);
     void texture_single_channel_create(Texture &texture);
     void texture_materials_create(Material *material);

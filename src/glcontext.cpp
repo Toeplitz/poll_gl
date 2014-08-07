@@ -223,8 +223,9 @@ void GLcontext::framebuffer_create(const int width, const int height)
 }
 
 
-void GLcontext::framebuffer_draw_scene(const Assets &assets, Scene &scene, GLshader shader_geometry,  GLshader &shader_stencil, GLshader &shader_light)
+void GLcontext::framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  GLshader &shader_stencil, GLshader &shader_light)
 {
+  Assets &assets = scene.assets_get();
   auto &lights = assets.light_active_get();
 
   GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb));
@@ -808,10 +809,8 @@ void GLcontext::texture_create(Texture &texture, GLenum active_texture, GLint fi
     GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap));
   }
 
-  std::cout << "Uploading texture: " << texture.image->width << " x " << texture.image->height << std::endl;
-
   GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, internal_format, texture.image->width, texture.image->height,
-      0, format, GL_UNSIGNED_BYTE, texture.image->data));
+      0, format, GL_UNSIGNED_BYTE, &texture.image->data_get()));
 }
 
 
@@ -819,7 +818,7 @@ void GLcontext::texture_cubemap_create(Cubemap_Item &item)
 {
   // glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   GL_ASSERT(glTexImage2D(item.target, 0, GL_RGB, item.texture.image->width, item.texture.image->height,
-                         0, GL_RGB, GL_UNSIGNED_BYTE, item.texture.image->data));
+                         0, GL_RGB, GL_UNSIGNED_BYTE, &item.texture.image->data_get()));
 
   GL_ASSERT(glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
   GL_ASSERT(glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR));

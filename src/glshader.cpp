@@ -32,11 +32,11 @@ void GLshader::compile()
     return;
 
   program = glCreateProgram();
-  glAttachShader(program, vs);
-  glAttachShader(program, fs);
+  GL_ASSERT(glAttachShader(program, vs));
+  GL_ASSERT(glAttachShader(program, fs));
 
-  glLinkProgram(program);
-  glGetProgramiv(program, GL_LINK_STATUS, &link_ok);
+  GL_ASSERT(glLinkProgram(program));
+  GL_ASSERT(glGetProgramiv(program, GL_LINK_STATUS, &link_ok));
   if (!link_ok) {
     std::cout << "glLinkProgram: ";
     print_log(program);
@@ -75,12 +75,12 @@ GLuint GLshader::create_shader(std::string filename, GLenum type)
     source
   };
 
-  glShaderSource(shaderObject, 3, sources, NULL);
+  GL_ASSERT(glShaderSource(shaderObject, 3, sources, NULL));
   free((void *) source);
 
-  glCompileShader(shaderObject);
+  GL_ASSERT(glCompileShader(shaderObject));
   GLint compile_ok = GL_FALSE;
-  glGetShaderiv(shaderObject, GL_COMPILE_STATUS, &compile_ok);
+  GL_ASSERT(glGetShaderiv(shaderObject, GL_COMPILE_STATUS, &compile_ok));
 
   if (compile_ok == GL_FALSE) {
     std::cout << "Fragmic ERROR: could not compile shader: " << filename << std::endl;
@@ -89,6 +89,8 @@ GLuint GLshader::create_shader(std::string filename, GLenum type)
     exit(-1);
     return 0;
   }
+
+  shader_objects.push_back(shaderObject);
 
   return shaderObject;
 }
@@ -270,15 +272,18 @@ void GLshader::print_block_names()
 
 void GLshader::term()
 {
-  std::cout << "Detatching and deleting GLshader object" << std::endl;
+  std::cout << "Detatching and deleting GLshader: " << vertexShaderFile << std::endl;
 
-  glDetachShader(program, vs);
-  glDetachShader(program, fs);
-  glDeleteShader(program);
+  GL_ASSERT(glDetachShader(program, vs));
+  GL_ASSERT(glDetachShader(program, fs));
+
+  for (auto s : shader_objects) {
+    GL_ASSERT(glDeleteShader(s));
+  }
 }
 
 
 void GLshader::use()
 {
-  glUseProgram(program);
+  GL_ASSERT(glUseProgram(program));
 }
