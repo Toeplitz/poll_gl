@@ -29,7 +29,7 @@ void Config::init(const std::string &global_file)
   this->global_file = global_file;
 
   if (!file_exists(global_file)) {
-    std::cout << "No global config file, creating one ..." << std::endl;
+    std::cout << "No global config file, creating: '" << global_file << "'" << std::endl;
     write_default();
   }
 
@@ -40,6 +40,11 @@ void Config::init(const std::string &global_file)
 void Config::write_default()
 {
   Json::Value conf;
+
+  if (global_file.empty()) {
+    std::cout << "Error: config needs to be initialized with a config file" << std::endl;
+    return;
+  }
 
   conf[CONF_GLOBAL][CONF_GLOBAL_VIEWPORT][CONF_GLOBAL_VIEWPORT_WIDTH]     = 1280;
   conf[CONF_GLOBAL][CONF_GLOBAL_VIEWPORT][CONF_GLOBAL_VIEWPORT_HEIGHT]    = 720;
@@ -58,6 +63,11 @@ void Config::write_default()
 
 const Conf_Global &Config::parse_global()
 {
+  if (global_file.empty()) {
+    std::cout << "Error: config needs to be initialized with a config file" << std::endl;
+    return conf_global;
+  } 
+
   std::ifstream t(global_file);
   std::string str((std::istreambuf_iterator<char>(t)),
                    std::istreambuf_iterator<char>());
