@@ -1,5 +1,7 @@
 #include "config.h"
 #include "utils.h"
+#include <fstream>
+#include <streambuf>
 
 
 /**************************************************/
@@ -27,30 +29,55 @@ void Config::init(const std::string &global_file)
   this->global_file = global_file;
 
   if (!file_exists(global_file)) {
+    std::cout << "No global config file, creating one ..." << std::endl;
     write_default();
   }
+
+  parse_global();
 }
 
 
 void Config::write_default()
 {
-  Json::Value fromScratch;
+  Json::Value conf;
 
-  fromScratch["global_fileig"]["viewport"]["width"] = 1280;
-  fromScratch["global_fileig"]["viewport"]["height"] = 720;
-  fromScratch["global_fileig"]["camera"]["fov"] = 45;
-  fromScratch["global_fileig"]["ssao"]["sample_count"] = 16;
-  fromScratch["global_fileig"]["ssao"]["distance_threshold"] = 5;
-  fromScratch["global_fileig"]["ssao"]["filter_radius"] = 10;
+  conf[CONF_GLOBAL][CONF_GLOBAL_VIEWPORT][CONF_GLOBAL_VIEWPORT_WIDTH]     = 1280;
+  conf[CONF_GLOBAL][CONF_GLOBAL_VIEWPORT][CONF_GLOBAL_VIEWPORT_HEIGHT]    = 720;
+  conf[CONF_GLOBAL][CONF_GLOBAL_CAMERA][CONF_GLOBAL_CAMERA_FOV]           = 45.0;
+  conf[CONF_GLOBAL][CONF_GLOBAL_SSAO][CONF_GLOBAL_SSAO_SAMPLECOUNT]       = 16;
+  conf[CONF_GLOBAL][CONF_GLOBAL_SSAO][CONF_GLOBAL_SSAO_DISTANCETHRESHOLD] = 5;
+  conf[CONF_GLOBAL][CONF_GLOBAL_SSAO][CONF_GLOBAL_SSAO_FILTERRADIUS]      = 10;
 
-  output(fromScratch);
-
-  Json::StyledWriter styledWriter;
-  std::cout << styledWriter.write(fromScratch);
+  std::ofstream file;
+  file.open(global_file);
+  Json::StyledWriter writer;
+  file << writer.write(conf);
+  file.close();
 }
 
 
-void Config::output(const Json::Value & value)
+const Conf_Global &Config::parse_global()
 {
-    //std::cout << value["global_fileig"]["camera"];
+  std::ifstream t(global_file);
+  std::string str((std::istreambuf_iterator<char>(t)),
+                   std::istreambuf_iterator<char>());
+
+  Json::Value parsed;
+  Json::Reader reader;
+
+  bool ret = reader.parse(str, parsed);
+  if (ret) {
+    Json::StyledWriter writer;
+    //std::cout << writer.write(parsed) << std::endl;
+    conf_global.camera.fov              = parsed[CONF_GLOBAL][CONF_GLOBAL_CAMERA][CONF_GLOBAL_CAMERA_FOV].asFloat();
+    conf_global.viewport.width          = parsed[CONF_GLOBAL][CONF_GLOBAL_VIEWPORT][CONF_GLOBAL_VIEWPORT_WIDTH].asInt();
+    conf_global.viewport.height         = parsed[CONF_GLOBAL][CONF_GLOBAL_VIEWPORT][CONF_GLOBAL_VIEWPORT_HEIGHT].asInt();
+    conf_global.ssao.sample_count       = parsed[CONF_GLOBAL][CONF_GLOBAL_SSAO][CONF_GLOBAL_SSAO_SAMPLECOUNT].asInt();
+    conf_global.ssao.distance_threshold = parsed[CONF_GLOBAL][CONF_GLOBAL_SSAO][CONF_GLOBAL_SSAO_DISTANCETHRESHOLD].asFloat();
+    conf_global.ssao.filter_radius      = parsed[CONF_GLOBAL][CONF_GLOBAL_SSAO][CONF_GLOBAL_SSAO_FILTERRADIUS].asFloat();
+  }
+
+  return conf_global;
 }
+
+

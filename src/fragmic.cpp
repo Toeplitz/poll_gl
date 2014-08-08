@@ -31,6 +31,8 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   cam_node->camera_create(scene.assets_get());
   cam_node->camera_get()->transform_perspective_create(window.width, window.height);
   scene.node_camera_set(cam_node);
+  Camera *camera = scene.camera_get();
+  camera->config_set(config);
 
 
   // SETUP FOR DEFERRED SHADING
