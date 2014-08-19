@@ -9,27 +9,27 @@
 /**************************************************/
 
 
-Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
+Fragmic::Fragmic():
   physics(),
   glshader_geometry(), 
   glshader_light(), 
   scene(), 
-  window(width, height)
+  window()
 {
   GLcontext &glcontext = window.glcontext_get();
+  config.init(GLOBAL_CONFIG);
 
-  window.init(title);
+  window.init(config, "Fragmic");
   window.swap_interval_set(1);
-  if (!glcontext.init(window.width, window.height)) {
+  if (!glcontext.init(window.width_get(), window.height_get())) {
     exit(-1);
   }
   glcontext.check_error();
 
-  config.init(GLOBAL_CONFIG);
 
   Node *cam_node = scene.node_create("camera");
   cam_node->camera_create(scene.assets_get());
-  cam_node->camera_get()->transform_perspective_create(window.width, window.height);
+  cam_node->camera_get()->transform_perspective_create(window.width_get(), window.height_get());
   scene.node_camera_set(cam_node);
   Camera *camera = scene.camera_get();
   camera->config_set(config);
@@ -51,7 +51,7 @@ Fragmic::Fragmic(const std::string &title, const int &width, const int &height):
   node.mesh_create(scene.assets_get());
   node.mesh->quad_generate(1.f);
   */
-  glcontext.framebuffer_create(window.width, window.height);
+  glcontext.framebuffer_create(window.width_get(), window.height_get());
   //glcontext.framebuffer_node_create(node);
 
   console.init(scene, glcontext, window);

@@ -230,7 +230,7 @@ static void common_fpcamera_mouse_motion(SDL_MouseMotionEvent *ev)
   if (!last_y)
     last_y = ev->y;
 
-  common_fpcamera_mouse_update(ev->x, ev->y, window.width, window.height);
+  common_fpcamera_mouse_update(ev->x, ev->y, window.width_get(), window.height_get());
   window.mouse_cursor_center();
 
   last_x = ev->x;

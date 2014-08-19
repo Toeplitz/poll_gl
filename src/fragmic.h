@@ -29,7 +29,7 @@ class Fragmic {
     void         profile_fps(const double dt);
 
   public:
-    Fragmic(const std::string &title, const int &width, const int &height);
+    Fragmic();
     ~Fragmic();
 
     void       run();

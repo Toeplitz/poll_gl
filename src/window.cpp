@@ -14,14 +14,12 @@
 /**************************************************/
 
 
-Window::Window(const int &width, const int &height): 
+Window::Window(): 
   polygon_view_toggle(false),
   glcontext()
 {
   this->debug = 0;
   this->gamepad = nullptr;
-  this->width = width;
-  this->height = height;
 }
 
 
@@ -35,8 +33,13 @@ Window::~Window()
 /**************************************************/
 
 
-bool Window::init(const std::string &title)
+bool Window::init(Config &config, const std::string &title)
 {
+  const Conf_Global &conf_global = config.parse_global();
+  width = conf_global.viewport.width;
+  height = conf_global.viewport.height;
+
+
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0) {
     std::cout << "Window error: failed to initialize SDL: " << SDL_GetError() << std::endl;
     return false;
@@ -164,6 +167,18 @@ bool Window::poll_events()
 GLcontext &Window::glcontext_get()
 {
   return glcontext;
+}
+
+
+unsigned int Window::height_get() const
+{
+  return height;
+}
+
+
+unsigned int Window::width_get() const
+{
+  return width;
 }
 
 

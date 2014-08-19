@@ -4,7 +4,7 @@
 #include <iostream>
 
 
-Fragmic fragmic("Demo 4", 1280, 720);
+Fragmic fragmic;
 Physics_Character_Controller *character;
 unsigned int direction = 0;
 Armature *armature = nullptr;

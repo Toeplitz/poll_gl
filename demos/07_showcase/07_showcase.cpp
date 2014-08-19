@@ -2,7 +2,7 @@
 #include "common.h"
 #include <iostream>
 
-Fragmic fragmic("Showcase", 1280, 720);
+Fragmic fragmic;
 
 
 int main() 

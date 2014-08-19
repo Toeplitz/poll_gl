@@ -2,7 +2,7 @@
 #include "common.h"
 #include <iostream>
 
-Fragmic fragmic("Skeletal demo", 1280, 720);
+Fragmic fragmic;
 
 
 int main() 

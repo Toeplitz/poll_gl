@@ -5,6 +5,7 @@
 #include <SDL2/SDL_video.h>             // for SDL_GLContext, SDL_Window
 #include <string>                       // for string
 #include <functional>
+#include "config.h"
 #include "glcontext.h"
 
 
@@ -12,11 +13,13 @@ using namespace std::placeholders;
 
 class Window {
   private:
-    bool           polygon_view_toggle;
-    SDL_Window    *window;
-    SDL_Joystick  *gamepad;
-    SDL_GLContext  gl_sdl_context;
-    GLcontext      glcontext;
+    unsigned int width;
+    unsigned int height;
+    bool polygon_view_toggle;
+    SDL_Window *window;
+    SDL_Joystick *gamepad;
+    SDL_GLContext gl_sdl_context;
+    GLcontext glcontext;
 
     void check_error();
     void joystick_axis_motion(SDL_JoyAxisEvent *ev);
@@ -35,13 +38,11 @@ class Window {
 
     std::function <void (SDL_Event *)> custom_event_callback;
   public:
-    int  width;
-    int  height;
 
-    Window(const int &width, const int &height);
+    Window();
     ~Window();
 
-    bool  init(const std::string &title);
+    bool  init(Config &config, const std::string &title);
     float joystick_angle_get(float x, float y, float *radius);
     bool  poll_events();
     void  mouse_cursor_center();
@@ -50,6 +51,8 @@ class Window {
     void  swap();
     void  term();
     int   debug;
+    unsigned int height_get() const;
+    unsigned int width_get() const;
 
     GLcontext &glcontext_get();
 
