@@ -9,6 +9,7 @@
 #include <string>
 #include <stdexcept>
 
+#include "config.h"
 #include "camera.h"
 #include "gldefaults.h"
 #include "glshader.h"
@@ -18,12 +19,13 @@
 
 class GLcontext {
   private:
-    GLuint gl_buffer_globalmatrices;
-    GLuint gl_buffer_matrices;
     GLuint gl_buffer_armature;
+    GLuint gl_buffer_config;
+    GLuint gl_buffer_globalmatrices;
+    GLuint gl_buffer_light;
+    GLuint gl_buffer_matrices;
     GLuint gl_buffer_material;
     GLuint gl_buffer_state;
-    GLuint gl_buffer_light;
 
     GLuint gl_fb;
     GLuint gl_fb_tex_normal;
@@ -60,7 +62,7 @@ class GLcontext {
     void texture_materials_create(Material *material);
     void texture_materials_delete(Material *material);
     void uniform_buffers_block_bind(GLshader &shader);
-    void uniform_buffers_create();
+    void uniform_buffers_create(Config &config);
     void uniform_buffers_delete();
     void uniform_buffers_update_armature(const Armature &armature);
     void uniform_buffers_update_camera(Camera &camera);

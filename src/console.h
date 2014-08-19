@@ -22,6 +22,7 @@ class Console
     Node *node_text;
 
     std::map<std::string, std::function<void (const float)>> commands;
+    std::vector<std::string> history;
 
     void callback_camera_fov_set(const float val);
     void callback_light_create(const float val);
@@ -29,8 +30,6 @@ class Console
     void command_defaults_set();
     void command_exec(const std::string &key, const std::string &value);
     void command_parse(std::string &cmd_full);
-
-    void foo();
 
   public:
 

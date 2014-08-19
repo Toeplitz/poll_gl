@@ -40,7 +40,7 @@ Fragmic::Fragmic(const std::string &config_file)
   glshader_light.load("shaders/deferred_pass_two.v", "shaders/deferred_pass_two.f");
   glcontext.uniform_locations_geometry_init(glshader_geometry);
   glcontext.uniform_locations_lighting_init(glshader_light);
-  glcontext.uniform_buffers_create();
+  glcontext.uniform_buffers_create(config);
   glcontext.uniform_buffers_block_bind(glshader_geometry);
   glcontext.uniform_buffers_block_bind(glshader_light);
   glcontext.uniform_buffers_block_bind(glshader_stencil);

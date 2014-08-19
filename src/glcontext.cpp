@@ -385,7 +385,7 @@ void GLcontext::uniform_buffers_block_bind(GLshader &shader)
 }
 
 
-void GLcontext::uniform_buffers_create()
+void GLcontext::uniform_buffers_create(Config &config)
 {
   GLenum target = GL_UNIFORM_BUFFER;
   GLuint bind_index;
@@ -464,6 +464,30 @@ void GLcontext::uniform_buffers_create()
     GL_ASSERT(glBindBufferBase(target, bind_index, gl_buffer_light));
     GL_ASSERT(glBindBuffer(target, 0));
   }
+
+  {
+
+    struct {
+      glm::vec4 ssoa;
+      glm::ivec4 viewport;
+    } p;
+
+    const Conf_Global &conf_global = config.parse_global();
+
+    p.ssoa.x = conf_global.ssao.distance_threshold;
+    p.ssoa.y = conf_global.ssao.filter_radius;
+    p.ssoa.z = conf_global.ssao.sample_count;
+
+    p.viewport.x = conf_global.viewport.width;
+    p.viewport.y = conf_global.viewport.height;
+
+    bind_index = UB_CONFIG;
+    GL_ASSERT(glGenBuffers(1, &gl_buffer_config));
+    GL_ASSERT(glBindBuffer(target, gl_buffer_config));
+    GL_ASSERT(glBufferData(target, sizeof(p), &p, GL_STREAM_DRAW));
+    GL_ASSERT(glBindBufferBase(target, bind_index, gl_buffer_config));
+    GL_ASSERT(glBindBuffer(target, 0));
+  }
 }
 
 
@@ -474,6 +498,8 @@ void GLcontext::uniform_buffers_delete()
   GL_ASSERT(glDeleteBuffers(1, &gl_buffer_armature));
   GL_ASSERT(glDeleteBuffers(1, &gl_buffer_material));
   GL_ASSERT(glDeleteBuffers(1, &gl_buffer_state));
+  GL_ASSERT(glDeleteBuffers(1, &gl_buffer_light));
+  GL_ASSERT(glDeleteBuffers(1, &gl_buffer_config));
 }
 
 

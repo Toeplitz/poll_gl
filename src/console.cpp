@@ -105,6 +105,16 @@ void Console::keyboard_pressed_cb(SDL_Keysym *keysym)
         glcontext->vertex_buffers_mesh_update(mesh);
       }
       break;
+    case SDLK_UP:
+
+      if (history.size() > 0) {
+        text->string_set("> " + history.back());
+        text->bake_coords(mesh, 10, 10);
+        glcontext->vertex_buffers_mesh_update(mesh);
+        history.pop_back();
+      }
+
+      break;
     default:
       if((keysym->sym >= SDLK_a && keysym->sym <= SDLK_z) ||
           (keysym->sym >= SDLK_0 && keysym->sym <= SDLK_9) ||
@@ -208,6 +218,8 @@ void Console::command_parse(std::string &cmd_full)
 
   if (tokens.size() > 1) {
     command_exec(tokens[0], tokens[1]);
+    history.push_back(cmd_full);
+    std::cout << "Commands in history: " << history.size() << std::endl;
   }
 
 }
