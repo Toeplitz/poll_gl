@@ -14,8 +14,10 @@
 
 #define GLOBAL_CONFIG "./fragmic.conf"
 
+
 class Fragmic {
   private:
+
     Config config;
     Console console;
     Physics physics;
@@ -29,17 +31,17 @@ class Fragmic {
     void         profile_fps(const double dt);
 
   public:
-    Fragmic();
-    ~Fragmic();
+    Fragmic(const std::string &config_file = ""); 
+    ~Fragmic(); 
 
-    void       run();
-    void       term();
     Assets    &assets_get();
     Config    &config_get();
     Console   &console_get();
     GLcontext &glcontext_get();
     Physics   &physics_get();
+    void       run();
     Scene     &scene_get();
+    void       term();
     Window    &window_get();
 };
 

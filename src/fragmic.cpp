@@ -9,15 +9,14 @@
 /**************************************************/
 
 
-Fragmic::Fragmic():
-  physics(),
-  glshader_geometry(), 
-  glshader_light(), 
-  scene(), 
-  window()
+Fragmic::Fragmic(const std::string &config_file)
 {
   GLcontext &glcontext = window.glcontext_get();
-  config.init(GLOBAL_CONFIG);
+
+  if (config_file.empty()) 
+    config.init(GLOBAL_CONFIG);
+  else
+    config.init(config_file);
 
   window.init(config, "Fragmic");
   window.swap_interval_set(1);
