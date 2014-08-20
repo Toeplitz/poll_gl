@@ -8,11 +8,8 @@ out vec4 frag_color;
 
 void main()
 {
-  vec3 out_color = vec3(0, 1, 0);
   float texel = texture(bitmap_texture, st).r;
-  //frag_color.rgb = out_color;
   frag_color.rgb = vec3(1, 1, 1);
-  
   frag_color.a = texel; 
 }
 

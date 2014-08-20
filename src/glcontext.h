@@ -40,7 +40,6 @@ class GLcontext {
     void texture_create(Texture &texture, GLenum active_texture, GLint filter,
                         GLint wrap, GLint internal_format, GLenum format,
                         const bool unpack_align);
-    void texture_delete(Texture &texture);
 
   public:
     GLcontext();
@@ -58,6 +57,7 @@ class GLcontext {
     void framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  
                                 GLshader &shader_stencil, GLshader &shader_light);
     void framebuffer_node_create(Node &node);
+    void texture_delete(Texture &texture);
     void texture_single_channel_create(Texture &texture);
     void texture_materials_create(Material *material);
     void texture_materials_delete(Material *material);

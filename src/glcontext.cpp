@@ -21,12 +21,11 @@ GLcontext::~GLcontext()
 
 /**************************************************/
 /***************** PUBLIC METHODS *****************/
-/**************************************************/
 
 
 void GLcontext::check_error()
 {
-  GLenum gl_error = glGetError();
+   GLenum gl_error = glGetError();
   if (GL_NO_ERROR != gl_error) {
     std::cout << "OpenGL error: " << gluErrorString(gl_error) << std::endl;   
   }
@@ -297,6 +296,13 @@ void GLcontext::framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  
   GL_ASSERT(glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_fb));
   GL_ASSERT(glReadBuffer(GL_COLOR_ATTACHMENT2));
   GL_ASSERT(glBlitFramebuffer(0, 0, 1280, 720, 0, 0, 1280, 720, GL_COLOR_BUFFER_BIT, GL_NEAREST));
+}
+
+
+void GLcontext::texture_delete(Texture &texture)
+{
+  if (!glIsTexture(texture.gl_texture)) return;
+  GL_ASSERT(glDeleteTextures(1, &texture.gl_texture));
 }
 
 
@@ -592,8 +598,8 @@ void GLcontext::uniform_locations_lighting_init(GLshader &shader)
   GL_ASSERT(glUniform1i(location, 1));
   location = glGetUniformLocation(program, "depth_tex");
   GL_ASSERT(glUniform1i(location, 2));
-
 }
+
 
 void GLcontext::uniform_locations_geometry_init(GLshader &shader)
 {
@@ -775,6 +781,7 @@ void GLcontext::vertex_buffers_mesh_update(Mesh *mesh)
 
 }
 
+
 void GLcontext::vertex_buffers_mesh_delete(Mesh *mesh)
 {
 
@@ -856,19 +863,8 @@ void GLcontext::texture_cubemap_create(Cubemap_Item &item)
 
 void GLcontext::texture_cubemap_delete(Cubemap &cubemap)
 {
-  if (glIsTexture(cubemap.gl_texture)) {
-    std::cout << "Deleting opengl cubemap texture buffer" << std::endl;
-    GL_ASSERT(glDeleteTextures(1, &cubemap.gl_texture));
-  }
-}
-
-
-void GLcontext::texture_delete(Texture &texture)
-{
-  if (glIsTexture(texture.gl_texture)) {
-    std::cout << "Deleting opengl texture buffer: " << texture.filename << "'" <<  std::endl;
-    GL_ASSERT(glDeleteTextures(1, &texture.gl_texture));
-  } 
+  if (!glIsTexture(cubemap.gl_texture)) return;
+  GL_ASSERT(glDeleteTextures(1, &cubemap.gl_texture));
 }
 
 
