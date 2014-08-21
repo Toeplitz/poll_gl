@@ -182,7 +182,10 @@ void Console::command_defaults_set()
 
 void Console::command_exec(const std::string &prim, const std::string &sec, const std::string &value)
 {
-  float num = ::atof(value.c_str());
+  float num = 0;
+
+  if (value.size() > 0)
+    num = ::atof(value.c_str());
 
   if (commands.find(std::make_pair(prim, sec)) != commands.end()) {
     commands.at(std::make_pair(prim, sec))(num);
@@ -307,10 +310,13 @@ void Console::command_parse(std::string &cmd_full)
   std::vector<std::string> tokens{std::istream_iterator<std::string>{iss},
     std::istream_iterator<std::string>{}};
 
-  if (tokens.size() >= 2) {
+  if (tokens.size() == 2) {
+    command_exec(tokens[0], tokens[1], "");
+  } else if (tokens.size() == 3) {
     command_exec(tokens[0], tokens[1], tokens[2]);
-    command_history_add(cmd_full);
   }
+
+  command_history_add(cmd_full);
 }
 
 
@@ -342,7 +348,7 @@ void Console::text_bake()
     return;
   }
 
-  text->bake_coords(mesh, 10, 10);
+  text->bake(mesh, 10, 10);
   glcontext->vertex_buffers_mesh_update(mesh);
 }
 
@@ -356,8 +362,8 @@ void Console::text_create(Scene &scene, Node *node)
 
   Text *text = node->text_create(&font, scene.assets_get());
   Mesh *text_mesh = node_text->mesh_get();
-  text->string_set("Fragmic");
-  text->bake_coords(node_text->mesh_get(), 10, 10);
+  text->string_set("default");
+  text->bake(node_text->mesh_get(), 10, 10);
   glcontext->vertex_buffers_mesh_create(text_mesh, 1048 * sizeof(glm::vec3));
 }
 

@@ -103,7 +103,7 @@ Text::~Text()
 
 
 
-void Text::bake_coords(Mesh *mesh, float x, float y) 
+void Text::bake(Mesh *mesh, float x, float y) 
 {
   char *text = new char[input.size() + 1];
   std::copy(input.begin(), input.end(), text);

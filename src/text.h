@@ -38,7 +38,7 @@ class Text
     Text();
     ~Text();
 
-    void          bake_coords(Mesh *mesh, float x, float y);
+    void          bake(Mesh *mesh, float x, float y);
     Font         *font_get();
     void          font_set(Font *font);
     void          string_append(const std::string s);
