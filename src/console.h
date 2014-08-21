@@ -16,17 +16,36 @@
 typedef std::map<std::pair<std::string, std::string>, std::function<void (const float)>>  Command_Map;
 
 
+template <typename T>
+class Command
+{
+  private:
+    std::string &primary;
+    std::string &secondary;
+    std::function<void (const float)> func;
+    T value;
+
+  public:
+    Command(const std::string &prim, const std::string &sec, std::function<void (const float)>, T value);
+    ~Command();
+
+    void          exec();
+    std::string  &primary_get() const;
+    std::string  &secondary_get() const;
+};
+
+
+
+
 class Console
 {
   private:
-
     bool flag_toggle = false;
     GLshader glshader_console;
     GLcontext *glcontext;
     Scene *scene;
     Font font;
     Node *node_text;
-
     Command_Map commands;
     std::vector<std::string> history;
     unsigned int history_location = 0;
@@ -51,7 +70,6 @@ class Console
     void        text_bake();
 
   public:
-
     Console();
     ~Console();
 
