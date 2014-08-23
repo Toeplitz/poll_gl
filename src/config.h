@@ -5,6 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <jsoncpp/json/json.h>
+#include <functional>
 
 
 #define CONF_GLOBAL                            "global"
@@ -17,6 +18,11 @@
 #define CONF_GLOBAL_SSAO_SAMPLECOUNT           "sample_count"
 #define CONF_GLOBAL_SSAO_DISTANCETHRESHOLD     "distance_threshold"
 #define CONF_GLOBAL_SSAO_FILTERRADIUS          "filter_radius"
+
+
+class Console;
+class Scene;
+class GLcontext;
 
 
 struct Conf_Global
@@ -53,17 +59,34 @@ class Config
 {
   private:
     std::string global_file;
+    Console *console;
+    Scene *scene;
+    GLcontext *glcontext;
+
     Conf_Global conf_global;
-    Conf_Scene conf_scene;
+    Json::Value conf_global_json;
+
+    template <typename T>
+    void  add(Json::Value &conf, const std::string &root, const std::string &prim, const std::string &sec, const T &value);
+    void  callback_conf_global_value_set(const std::string &prim, const std::string &sec, const std::string &val);
+    void  conf_global_parse();
+    void  conf_global_console_add(const std::string &prim, const std::string &sec);
+    template <typename T>
+    void conf_global_init(T &local, const std::string &prim, const std::string &sec, bool console_add);
+    template <typename T>
+    void  conf_global_set(T &local, const std::string &prim, const std::string &sec);
+    void  conf_global_set_all(bool console_add = false);
+    void  write(Json::Value &conf);
+    void  write_defaults();
 
   public:
 
     Config();
     ~Config();
 
-
-    void                init(const std::string &global_file);
-    void                write_default();
-    const Conf_Global  &parse_global();
+    void                init(Console &console, Scene &scene, GLcontext &glcontext, const std::string &global_file);
+    void                conf_global_apply();
+    void                conf_global_apply(const std::string &prim);
+    const Conf_Global  &conf_global_get();
 
 };

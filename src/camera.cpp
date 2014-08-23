@@ -23,13 +23,6 @@ Camera::~Camera()
 /**************************************************/
 
 
-void Camera::config_set(Config &config)
-{
-  const Conf_Global &conf_global = config.parse_global();
-  fov_set(conf_global.camera.fov);
-}
-
-
 void Camera::fov_set(const float fov)
 {
   this->fov = fov;

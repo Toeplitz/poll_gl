@@ -32,7 +32,6 @@ class Camera
       }
 
 
-    void               config_set(Config &config);
     void               fov_set(const float val);
     const glm::vec3   &position_get();
     void               transform_perspective_create(const int width, const int height);

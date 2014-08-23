@@ -35,7 +35,7 @@ Window::~Window()
 
 bool Window::init(Config &config, const std::string &title)
 {
-  const Conf_Global &conf_global = config.parse_global();
+  const Conf_Global &conf_global = config.conf_global_get();
   width = conf_global.viewport.width;
   height = conf_global.viewport.height;
 

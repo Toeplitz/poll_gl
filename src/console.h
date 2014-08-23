@@ -13,29 +13,8 @@
 #define CONSOLE_FONT   "data/fonts/Vera.ttf"
 
 
-typedef std::map<std::pair<std::string, std::string>, std::function<void (const float)>>  Command_Map;
-
-
-template <typename T>
-class Command
-{
-  private:
-    std::string &primary;
-    std::string &secondary;
-    std::function<void (const float)> func;
-    T value;
-
-  public:
-    Command(const std::string &prim, const std::string &sec, std::function<void (const float)>, T value);
-    ~Command();
-
-    void          exec();
-    std::string  &primary_get() const;
-    std::string  &secondary_get() const;
-};
-
-
-
+typedef std::map<std::pair<std::string, std::string>, 
+        std::function<void (const std::string &, const std::string &, const std::string &)>> Command_Map;
 
 class Console
 {
@@ -50,10 +29,8 @@ class Console
     std::vector<std::string> history;
     unsigned int history_location = 0;
 
-    void        callback_camera_fov_set(const float val);
-    void        callback_light_create(const float val);
-    void        callback_light_list(const float val);
-    void        command_add(const std::string &key, std::function<void (const float)> cb);
+    void        callback_light_create(const std::string &prim, const std::string &sec, const std::string &val);
+    void        callback_light_list(const std::string &prim, const std::string &sec, const std::string &val);
     void        command_defaults_set();
     void        command_exec(const std::string &prim, const std::string &sec, const std::string &value);
     void        command_history_add(const std::string &cmd);
@@ -74,6 +51,8 @@ class Console
     ~Console();
 
     bool active();
+    void command_add(const std::string &prim, const std::string &sec, 
+                    std::function<void (const std::string &, const std::string &, const std::string &)> cb);
     void init(Scene &scene, GLcontext &glcontext, Window &window);
     void draw();
     void keyboard_pressed_cb(SDL_Keysym *keysym);

@@ -25,7 +25,7 @@ GLcontext::~GLcontext()
 
 void GLcontext::check_error()
 {
-   GLenum gl_error = glGetError();
+  GLenum gl_error = glGetError();
   if (GL_NO_ERROR != gl_error) {
     std::cout << "OpenGL error: " << gluErrorString(gl_error) << std::endl;   
   }
@@ -230,7 +230,7 @@ void GLcontext::framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  
   GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb));
   GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
   GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT));
-  
+
   /* GEOMETRY PASS */
   shader_geometry.use();
   GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb));
@@ -478,7 +478,7 @@ void GLcontext::uniform_buffers_create(Config &config)
       glm::ivec4 viewport;
     } p;
 
-    const Conf_Global &conf_global = config.parse_global();
+    const Conf_Global &conf_global = config.conf_global_get();
 
     p.ssoa.x = conf_global.ssao.distance_threshold;
     p.ssoa.y = conf_global.ssao.filter_radius;
@@ -514,7 +514,7 @@ void GLcontext::uniform_buffers_update_armature(const Armature &armature)
   GLenum target = GL_UNIFORM_BUFFER;
   GL_ASSERT(glBindBuffer(target, gl_buffer_armature));
   GL_ASSERT(glBufferSubData(target, 0, armature.skinning_matrices.size() * sizeof(armature.skinning_matrices[0]), 
-      armature.skinning_matrices.data()));
+        armature.skinning_matrices.data()));
   GL_ASSERT(glBindBuffer(target, 0));
 }
 
@@ -527,6 +527,28 @@ void GLcontext::uniform_buffers_update_camera(Camera &camera)
   data[2] = camera.transform_view_get();
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_globalmatrices));
   GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(data), &data));
+  GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, 0));
+}
+
+
+void GLcontext::uniform_buffers_update_config(Config &config)
+{
+  struct {
+    glm::vec4 ssoa;
+    glm::ivec4 viewport;
+  } p;
+
+  const Conf_Global &conf_global = config.conf_global_get();
+
+  p.ssoa.x = conf_global.ssao.distance_threshold;
+  p.ssoa.y = conf_global.ssao.filter_radius;
+  p.ssoa.z = conf_global.ssao.sample_count;
+
+  p.viewport.x = conf_global.viewport.width;
+  p.viewport.y = conf_global.viewport.height;
+
+  GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_config));
+  GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(p), &p));
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 }
 
@@ -820,8 +842,8 @@ bool GLcontext::check_version(const int &major)
 
 
 void GLcontext::texture_create(Texture &texture, GLenum active_texture, GLint filter,
-                               GLint wrap, GLint internal_format, GLenum format,  
-                               const bool unpack_align) 
+    GLint wrap, GLint internal_format, GLenum format,  
+    const bool unpack_align) 
 {
   if (glIsTexture(texture.gl_texture)) {
     return;
@@ -843,7 +865,7 @@ void GLcontext::texture_create(Texture &texture, GLenum active_texture, GLint fi
   }
 
   GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, internal_format, texture.image->width, texture.image->height,
-      0, format, GL_UNSIGNED_BYTE, &texture.image->data_get()));
+        0, format, GL_UNSIGNED_BYTE, &texture.image->data_get()));
 }
 
 
@@ -851,7 +873,7 @@ void GLcontext::texture_cubemap_create(Cubemap_Item &item)
 {
   // glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   GL_ASSERT(glTexImage2D(item.target, 0, GL_RGB, item.texture.image->width, item.texture.image->height,
-                         0, GL_RGB, GL_UNSIGNED_BYTE, &item.texture.image->data_get()));
+        0, GL_RGB, GL_UNSIGNED_BYTE, &item.texture.image->data_get()));
 
   GL_ASSERT(glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
   GL_ASSERT(glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR));

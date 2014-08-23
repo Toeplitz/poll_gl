@@ -14,9 +14,9 @@ Fragmic::Fragmic(const std::string &config_file)
   GLcontext &glcontext = window.glcontext_get();
 
   if (config_file.empty()) 
-    config.init(GLOBAL_CONFIG);
+    config.init(console, scene, glcontext, GLOBAL_CONFIG);
   else
-    config.init(config_file);
+    config.init(console, scene, glcontext, config_file);
 
   window.init(config, "Fragmic");
   window.swap_interval_set(1);
@@ -30,8 +30,7 @@ Fragmic::Fragmic(const std::string &config_file)
   cam_node->camera_create(scene.assets_get());
   cam_node->camera_get()->transform_perspective_create(window.width_get(), window.height_get());
   scene.node_camera_set(cam_node);
-  Camera *camera = scene.camera_get();
-  camera->config_set(config);
+
 
 
   // SETUP FOR DEFERRED SHADING
@@ -55,6 +54,8 @@ Fragmic::Fragmic(const std::string &config_file)
 
   console.init(scene, glcontext, window);
   physics.init();
+
+  config.conf_global_apply(CONF_GLOBAL);
 }
 
 

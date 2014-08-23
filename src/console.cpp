@@ -37,6 +37,13 @@ bool Console::active()
 }
 
 
+void Console::command_add(const std::string &prim, const std::string &sec, 
+    std::function<void (const std::string &, const std::string &, const std::string &)> cb)
+{
+  commands[std::make_pair(prim, sec)] = std::bind(cb, _1, _2, _3);
+}
+
+
 void Console::init(Scene &scene, GLcontext &glcontext, Window &window)
 {
   this->scene = &scene;
@@ -59,7 +66,6 @@ void Console::draw()
 
   glshader_console.use();
   glcontext->draw_text(*node_text);
-
 }
 
 
@@ -140,14 +146,7 @@ void Console::term()
 /**************************************************/
 
 
-void Console::callback_camera_fov_set(const float val)
-{
-  Camera *camera = scene->camera_get();
-  camera->fov_set(val);
-}
-
-
-void Console::callback_light_create(const float val)
+void Console::callback_light_create(const std::string &prim, const std::string &sec, const std::string &val)
 {
   Assets &assets = scene->assets_get();
   Camera *camera = scene->camera_get();
@@ -163,7 +162,7 @@ void Console::callback_light_create(const float val)
 }
 
 
-void Console::callback_light_list(const float val)
+void Console::callback_light_list(const std::string &prim, const std::string &sec, const std::string &val)
 {
   Assets &assets = scene->assets_get();
   Node &root = scene->node_root_get();
@@ -173,22 +172,15 @@ void Console::callback_light_list(const float val)
 
 void Console::command_defaults_set()
 {
-  commands[std::make_pair("fov", "set")] = std::bind(&Console::callback_camera_fov_set, this, _1);
-  commands[std::make_pair("light", "add")] = std::bind(&Console::callback_light_create, this, _1);
-  commands[std::make_pair("light", "list")] = std::bind(&Console::callback_light_list, this, _1);
+  command_add("light", "add", std::bind(&Console::callback_light_create, this, _1, _2, _3));
+  command_add("light", "list", std::bind(&Console::callback_light_list, this, _1, _2, _3));
 }
-
 
 
 void Console::command_exec(const std::string &prim, const std::string &sec, const std::string &value)
 {
-  float num = 0;
-
-  if (value.size() > 0)
-    num = ::atof(value.c_str());
-
   if (commands.find(std::make_pair(prim, sec)) != commands.end()) {
-    commands.at(std::make_pair(prim, sec))(num);
+    commands.at(std::make_pair(prim, sec))(prim, sec, value);
   } else {
     std::cout << "Unknown command: '" << prim << " " << sec << "'" << std::endl;
   }
