@@ -36,6 +36,7 @@ class Assets {
     void                                  light_activate(Light *light);
     void                                  light_active_add(std::unique_ptr<Light> &&light); 
     Light_Unique_Ptr_List          const &light_active_get() const;
+    Light                                *light_ith_get(const int i);
     void                                  light_deactivate(Light *light);
     void                                  light_inactive_add(std::unique_ptr<Light> &&light);
     bool                                  light_is_active(Light *light);

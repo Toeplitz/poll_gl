@@ -214,7 +214,6 @@ void Fragmic::profile_fps(const double dt)
     char buf[30];
     sprintf(buf, "%d frames/sec %.2f ms/frame", numFrames, 1000.0 / numFrames);
     fps_text = std::string(buf);
-    std::cout << fps_text << std::endl;
     t = 0;
     numFrames = 0;
   }

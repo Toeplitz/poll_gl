@@ -29,6 +29,9 @@ void Ui::init(Console &console, GLcontext &glcontext, Scene &scene)
   this->glcontext = &glcontext;
 
   console.command_add("light", "add", std::bind(&Ui::callback_light_create, this, _1, _2, _3));
+  console.command_add("light", "select", std::bind(&Ui::callback_light_select, this, _1, _2, _3));
+  console.command_add("light", "disable", std::bind(&Ui::callback_light_disable, this, _1, _2, _3));
+  console.command_add("light", "enable", std::bind(&Ui::callback_light_enable, this, _1, _2, _3));
   console.command_add("light", "list", std::bind(&Ui::callback_light_list, this, _1, _2, _3));
 
   Font *font = console.font_get();
@@ -98,6 +101,52 @@ void Ui::callback_light_create(const std::string &prim, const std::string &sec, 
   light->scale(glm::vec3(20, 20, 20));
 
   glcontext->vertex_buffers_light_create(light);
+
+  light_active = light;
+  callback_light_list(prim, sec, val);
+}
+
+
+void Ui::callback_light_disable(const std::string &prim, const std::string &sec, const std::string &val)
+{
+  Assets &assets = scene->assets_get();
+
+  if (!light_active)
+    return;
+
+  assets.light_deactivate(light_active);
+  callback_light_list(prim, sec, val);
+}
+
+
+void Ui::callback_light_enable(const std::string &prim, const std::string &sec, const std::string &val)
+{
+  Assets &assets = scene->assets_get();
+
+  if (!light_active)
+    return;
+
+  assets.light_activate(light_active);
+  callback_light_list(prim, sec, val);
+}
+
+
+void Ui::callback_light_select(const std::string &prim, const std::string &sec, const std::string &val)
+{
+  if (val.size() <= 0)
+    return;
+
+  int light_num = ::atoi(val.c_str());
+  Light *light = scene->assets_get().light_ith_get(light_num);
+
+  if (!light) {
+    std::cout << "No light with index: " << light_num << std::endl;
+    light_active = nullptr;
+    return;
+  }
+
+  light_active = light;
+  callback_light_list(prim, sec, val);
 }
 
 
@@ -106,6 +155,7 @@ void Ui::callback_light_list(const std::string &prim, const std::string &sec, co
   Assets &assets = scene->assets_get();
   Node &root = scene->node_root_get();
   assets.light_print_all(root);
+  std::cout << "\tCurrent selected light: " << light_active << std::endl;
 }
 
 

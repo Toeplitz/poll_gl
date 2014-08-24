@@ -67,16 +67,20 @@ void Assets::camera_print_all(const Node &node) const
 
 void Assets::light_activate(Light *light)
 {
+  bool flag = false;
   std::vector<std::unique_ptr<Light>>::iterator found;
 
   for (auto it = inactive_lights.begin(); it != inactive_lights.end(); ++it) {
     if (it->get() == light) {
       active_lights.push_back(std::move(*it));
       found = it;
+      flag = true;
+      break;
     }
   }
 
-  inactive_lights.erase(found);
+  if (flag)
+    inactive_lights.erase(found);
 }
 
 
@@ -89,6 +93,23 @@ void Assets::light_active_add(std::unique_ptr<Light> &&light)
 Light_Unique_Ptr_List const &Assets::light_active_get() const
 {
   return active_lights;
+} 
+
+
+Light *Assets::light_ith_get(const int i)
+{
+  unsigned int total_count = active_lights.size() + inactive_lights.size();
+  if (i < 0 || static_cast<unsigned int>(i) >= total_count) {
+    return nullptr;
+  }
+
+  if (!active_lights.size()) {
+    return inactive_lights[i].get();
+  } else if (static_cast<unsigned int>(i) > active_lights.size() - 1) {
+    return inactive_lights[i - active_lights.size()].get();
+  } else {
+    return active_lights[i].get();
+  }
 } 
 
 
@@ -112,6 +133,7 @@ bool Assets::light_is_active(Light *light)
 
 void Assets::light_deactivate(Light *light)
 {
+  bool flag = false;
   std::vector<std::unique_ptr<Light>>::iterator found;
 
   for (std::vector<std::unique_ptr<Light>>::iterator it = active_lights.begin();
@@ -119,10 +141,13 @@ void Assets::light_deactivate(Light *light)
     if (it->get() == light) {
       inactive_lights.push_back(std::move(*it));
       found = it;
+      flag = true;
       break;
     } 
   }
-  active_lights.erase(found);
+
+  if (flag)
+    active_lights.erase(found);
 }
 
 
@@ -132,18 +157,27 @@ void Assets::light_print_all(const Node &node) const
   std::cout << "\nLights: " << std::endl;
 
   std::cout << "\tactive: " << std::endl;
+  int count = 0;
   for (auto &light: active_lights) {
-    std::cout << "\t(" << light.get() << ") ";
+    std::cout << "\t[" << count << "] (" << light.get() << ") ";
 
     if (light->volume_mesh_get()) {
       std::cout << "(volume mesh) ";
     }
 
     std::cout << std::endl;
+    count++;
   }
   std::cout << "\tinactive: " << std::endl;
   for (auto &light: inactive_lights) {
-    std::cout << "\t(" << light.get() << ")" << std::endl;
+    std::cout << "\t[" << count << "] (" << light.get() << ") ";
+
+    if (light->volume_mesh_get()) {
+      std::cout << "(volume mesh) ";
+    }
+
+    std::cout << std::endl;
+    count++;
   }
 }
 
