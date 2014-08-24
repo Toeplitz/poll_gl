@@ -58,12 +58,12 @@ struct Conf_Scene
 class Config
 {
   private:
-    std::string global_file;
     Console *console;
     Scene *scene;
     GLcontext *glcontext;
 
     Conf_Global conf_global;
+    std::string conf_global_file;
     Json::Value conf_global_json;
 
     template <typename T>
@@ -84,8 +84,7 @@ class Config
     Config();
     ~Config();
 
-    void                init(Console &console, Scene &scene, GLcontext &glcontext, const std::string &global_file);
-    void                conf_global_apply();
+    void                init(Console &console, Scene &scene, GLcontext &glcontext, const std::string &conf_global_file);
     void                conf_global_apply(const std::string &prim);
     const Conf_Global  &conf_global_get();
 

@@ -68,15 +68,15 @@ void Config::conf_global_apply(const std::string &prim)
 }
 
 
-void Config::init(Console &console, Scene &scene, GLcontext &glcontext, const std::string &global_file)
+void Config::init(Console &console, Scene &scene, GLcontext &glcontext, const std::string &conf_global_file)
 {
   this->console = &console;
   this->scene = &scene;
   this->glcontext = &glcontext;
-  this->global_file = global_file;
+  this->conf_global_file = conf_global_file;
 
-  if (!file_exists(global_file)) {
-    std::cout << "No global config file, creating: '" << global_file << "'" << std::endl;
+  if (!file_exists(conf_global_file)) {
+    std::cout << "No global config file, creating: '" << conf_global_file << "'" << std::endl;
     write_defaults();
   }
 
@@ -156,12 +156,12 @@ void Config::conf_global_init(T &local, const std::string &prim, const std::stri
 
 void Config::conf_global_parse()
 {
-  if (global_file.empty()) {
+  if (conf_global_file.empty()) {
     std::cout << "Error: config needs to be initialized with a config file" << std::endl;
     return;
   } 
 
-  std::ifstream t(global_file);
+  std::ifstream t(conf_global_file);
   std::string str((std::istreambuf_iterator<char>(t)),
                    std::istreambuf_iterator<char>());
 
@@ -179,13 +179,13 @@ void Config::conf_global_parse()
 
 void Config::write(Json::Value &conf)
 {
-  if (global_file.empty()) {
+  if (conf_global_file.empty()) {
     std::cout << "Error: config needs to be initialized with a config file" << std::endl;
     return;
   }
 
   std::ofstream file;
-  file.open(global_file);
+  file.open(conf_global_file);
   Json::StyledWriter writer;
   file << writer.write(conf);
   file.close();
