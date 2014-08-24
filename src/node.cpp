@@ -13,6 +13,7 @@ Node::Node(const std::string &node_name):
   light(nullptr),
   rigidbody(nullptr),
   text(nullptr),
+  manipulator(nullptr),
   armature(nullptr),
   material(nullptr),
   mesh(nullptr),
@@ -103,6 +104,7 @@ Light *Node::light_create(Assets &assets, const glm::vec3 position, Node *node_v
   light_ptr->properties_position_set(position);
   light_volume_mesh_create_from_node(node_volume);
 
+
   return light_ptr;
 }
 
@@ -137,8 +139,7 @@ Mesh *Node::light_volume_mesh_create_from_node(Node *node)
   glm::vec3 t = glm::vec3(light->properties_position_get());
   t.y = 0;
   light->translate(t);
-
-  light->volume = node->mesh;
+  light->volume_mesh_set(node->mesh);
 
   return light->volume_mesh_get();
 }
@@ -178,6 +179,28 @@ Physics_Rigidbody  *Node::physics_rigidbody_get()
 void Node::physics_rigidbody_set(Physics_Rigidbody *rigidbody)
 {
   this->rigidbody = rigidbody;
+}
+
+
+Manipulator *Node::manipulator_create(Assets &assets)
+{
+  std::unique_ptr<Manipulator> manipulator(new Manipulator());
+  Manipulator *manipulator_ptr = manipulator.get();
+  manipulator_set(manipulator_ptr);
+  assets.manipulator_add(std::move(manipulator));
+  return manipulator_ptr;
+}
+
+
+Manipulator *Node::manipulator_get()
+{
+  return manipulator;
+}
+
+
+void Node::manipulator_set(Manipulator *manipulator)
+{
+  this->manipulator= manipulator;
 }
 
 

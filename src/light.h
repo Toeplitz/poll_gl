@@ -4,6 +4,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <memory>
+
 #include "mesh.h"
 
 class Node;
@@ -39,6 +40,8 @@ struct Light_Properties
 };
 
 
+
+
 class Light
 {
   private:
@@ -46,13 +49,11 @@ class Light
     glm::mat4 transform_scale;
     glm::mat4 transform_translate;
 
-    glm::vec3 position_diff;
-
-    glm::vec3 bias;
-    Node *follow;
+    glm::vec3 bias = glm::vec3(0.f, 0.f, 0.f);
+    Node *follow = nullptr;
+    Mesh *volume = nullptr;
 
   public:
-    Mesh *volume;
 
     Light();
     ~Light();
@@ -74,5 +75,6 @@ class Light
     void                    translate(const glm::vec3 &v);
     const glm::mat4        &transform_scale_get();
     const glm::mat4        &transform_translate_get();
+    void                    volume_mesh_set(Mesh *mesh);
     Mesh                   *volume_mesh_get();
 };

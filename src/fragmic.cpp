@@ -26,6 +26,8 @@ Fragmic::Fragmic(const std::string &config_file)
   }
   glcontext.check_error();
 
+  scene.init(glcontext);
+
   Node *cam_node = scene.node_create("camera");
   cam_node->camera_create(scene.assets_get());
   cam_node->camera_get()->transform_perspective_create(window.width_get(), window.height_get());

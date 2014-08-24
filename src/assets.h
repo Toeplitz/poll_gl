@@ -6,6 +6,7 @@
 #include "camera.h"
 #include "light.h"
 #include "physics_rigidbody.h"
+#include "manipulator.h"
 #include "material.h"
 #include "mesh.h"
 
@@ -20,6 +21,7 @@ class Assets {
     std::vector<std::unique_ptr<Light>> active_lights;
     std::vector<std::unique_ptr<Light>> inactive_lights;
     std::vector<std::unique_ptr<Physics_Rigidbody>> rigidbodies;
+    std::vector<std::unique_ptr<Manipulator>> manipulators;
     std::vector<std::unique_ptr<Material>> materials;
     std::vector<std::unique_ptr<Mesh>> meshes;
     std::vector<std::unique_ptr<Text>> texts;
@@ -43,6 +45,8 @@ class Assets {
     void                                  light_print_all(const Node &node) const;
     void                                  print_all(const Node &node) const;
     void                                  physics_rigidbody_add(std::unique_ptr<Physics_Rigidbody> &&rigidbody);
+    void                                  manipulator_print_all(const Node &node) const;
+    void                                  manipulator_add(std::unique_ptr<Manipulator> &&manipulator);
     void                                  material_add(std::unique_ptr<Material> &&material);
     unsigned int                          material_node_lookup(const Material *material, const Node &node) const;
     void                                  material_print_all(const Node &node) const;

@@ -1,3 +1,4 @@
+#include "manipulator.h"
 #include "scene.h"
 #include "glcontext.h"
 #include "utils.h"
@@ -87,15 +88,11 @@ Camera *Scene::camera_get()
 }
 
 
-void Scene::mesh_nodes_add(Node &node) 
+void Scene::init(GLcontext &glcontext)
 {
-  mesh_nodes.push_back(&node);
-}
+  manipulator_disk = root.manipulator_create(assets);
+  manipulator_disk->create_disk(glcontext, assets);
 
-
-const std::vector<Node *> &Scene::mesh_nodes_get() const
-{
-  return mesh_nodes;
 }
 
 
@@ -122,6 +119,30 @@ Node &Scene::load(GLcontext &glcontext, const std::string &prefix, const std::st
 
   return *root_ptr;
 }
+
+
+void Scene::manipulator_toggle(Node *node)
+{
+  Manipulator *m = node->manipulator_get();
+
+  if (m)
+    node->manipulator_set(nullptr);
+  else
+    node->manipulator_set(manipulator_disk);
+}
+
+
+void Scene::mesh_nodes_add(Node &node) 
+{
+  mesh_nodes.push_back(&node);
+}
+
+
+const std::vector<Node *> &Scene::mesh_nodes_get() const
+{
+  return mesh_nodes;
+}
+
 
 
 Node *Scene::node_find(Node *root_ptr, const std::string &name)
@@ -156,7 +177,10 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
   if (node.keyframe_total_num_get() > 0) {
     std::cout << " (" << node.keyframe_total_num_get() << " keyframes)";
   }
-  if (node.material) {
+  if (node.manipulator_get()) {
+    std::cout << " (manipulator)";
+  }
+  if (node.material_get()) {
     std::cout << " (material)";
   }
   if (node.mesh) {
@@ -223,6 +247,8 @@ Node *Scene::node_create(const std::string &name, Node *parent)
     root.child_add(std::move(node), root.tree_level + 1);
   else 
     parent->child_add(std::move(node), parent->tree_level + 1);
+
+  //node_ptr->manipulator_set(manipulator_disk);
 
   return node_ptr;
 }

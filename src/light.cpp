@@ -2,6 +2,7 @@
 #include "utils.h"
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
+#include "manipulator.h"
 
 
 /**************************************************/
@@ -9,13 +10,8 @@
 /**************************************************/
 
 
-Light::Light():
-  position_diff(0.f, 0.f, 0.f)
+Light::Light()
 {
-  //properties.type = LIGHT_UNDEFINED;
-  bias = glm::vec3(0.f, 0.f, 0.f);
-  follow = nullptr;
-  volume = nullptr;
   properties_transform_set(glm::mat4(1.f));
 }
 
@@ -28,6 +24,12 @@ Light::~Light()
 /**************************************************/
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
+
+
+void Light::bias_set(const glm::vec3 &bias)
+{
+  this->bias = bias;
+}
 
 
 void Light::print(const int indent_level)
@@ -82,12 +84,6 @@ void Light::properties_set(const glm::vec3 ambient, const glm::vec3 diffuse, con
 void Light::properties_direction_set(const glm::vec3 &direction)
 {
   //properties.direction = glm::vec4(direction, 0);
-}
-
-
-void Light::bias_set(const glm::vec3 &bias)
-{
-  this->bias = bias;
 }
 
 
@@ -158,6 +154,12 @@ const glm::mat4 &Light::transform_scale_get()
 const glm::mat4 &Light::transform_translate_get()
 {
   return transform_translate;
+}
+
+
+void Light::volume_mesh_set(Mesh *mesh)
+{
+  volume = mesh;
 }
 
 

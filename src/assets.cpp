@@ -188,10 +188,27 @@ void Assets::print_all(const Node &node) const
   armature_print_all();
   camera_print_all(node);
   light_print_all(node);
+  manipulator_print_all(node);
   material_print_all(node);
   mesh_print_all(node);
   text_print_all(node);
   std::cout << "==================================================" << std::endl;
+}
+
+
+void Assets::manipulator_add(std::unique_ptr<Manipulator> &&manipulator) 
+{
+  manipulators.push_back(std::move(manipulator));
+}
+
+
+void Assets::manipulator_print_all(const Node &node) const
+{
+  std::cout << "\nManipulators: " << std::endl;
+
+  for (auto &manipulator: manipulators) {
+    std::cout << "\t(" << manipulator.get() << ")" << std::endl;
+  }
 }
 
 

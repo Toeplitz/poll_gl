@@ -12,6 +12,7 @@
 #include "camera.h"
 #include "light.h"
 #include "physics_rigidbody.h"
+#include "manipulator.h"
 #include "material.h"
 #include "mesh.h"
 #include "text.h"
@@ -46,12 +47,14 @@ class Node: public Animated {
     Light              *light;
     Physics_Rigidbody  *rigidbody;
     Text               *text;
+    Manipulator        *manipulator;
 
   public:
     Armature           *armature;
     Material           *material;
     Mesh               *mesh;
     Node               *parent;
+
     std::string         name;
     glm::mat4           transform_global;
     glm::mat4           transform_local_current;
@@ -83,6 +86,9 @@ class Node: public Animated {
     Physics_Rigidbody  *physics_rigidbody_create(Assets &assets);
     Physics_Rigidbody  *physics_rigidbody_get();
     void                physics_rigidbody_set(Physics_Rigidbody *rigidbody);
+    Manipulator        *manipulator_create(Assets &assets);
+    Manipulator        *manipulator_get();
+    void                manipulator_set(Manipulator *manipulator);
     Material           *material_create(Assets &assets);
     Material           *material_get();
     void                material_set(Material *material);

@@ -28,13 +28,17 @@ void Ui::init(Console &console, GLcontext &glcontext, Scene &scene)
   this->scene = &scene;
   this->glcontext = &glcontext;
 
+  console.command_add("asset", "list", std::bind(&Ui::callback_asset_list, this, _1, _2, _3));
   console.command_add("light", "add", std::bind(&Ui::callback_light_create, this, _1, _2, _3));
   console.command_add("light", "select", std::bind(&Ui::callback_light_select, this, _1, _2, _3));
   console.command_add("light", "disable", std::bind(&Ui::callback_light_disable, this, _1, _2, _3));
   console.command_add("light", "enable", std::bind(&Ui::callback_light_enable, this, _1, _2, _3));
   console.command_add("light", "list", std::bind(&Ui::callback_light_list, this, _1, _2, _3));
+  console.command_add("node", "manipulator", std::bind(&Ui::callback_node_manipulator, this, _1, _2, _3));
+  console.command_add("scene", "list", std::bind(&Ui::callback_scene_list, this, _1, _2, _3));
 
   Font *font = console.font_get();
+
   { 
     node_label_cam = scene.node_create("ui_label_cam");
     Text *text = node_label_cam->text_create(font, scene.assets_get());
@@ -86,6 +90,13 @@ void Ui::term()
 /**************************************************/
 /***************** PRIVATE METHODS ****************/
 /**************************************************/
+
+
+void Ui::callback_asset_list(const std::string &prim, const std::string &sec, const std::string &val)
+{
+  Assets &assets = scene->assets_get();
+  assets.print_all(scene->node_root_get());
+}
 
 
 void Ui::callback_light_create(const std::string &prim, const std::string &sec, const std::string &val)
@@ -158,4 +169,27 @@ void Ui::callback_light_list(const std::string &prim, const std::string &sec, co
   std::cout << "\tCurrent selected light: " << light_active << std::endl;
 }
 
+
+void Ui::callback_node_manipulator(const std::string &prim, const std::string &sec, const std::string &val)
+{
+  int toggle = 0;
+
+  if (val.size() > 0)
+    toggle = ::atoi(val.c_str());
+
+  //scene->manipulator_toggle
+ 
+}
+
+
+void Ui::callback_scene_list(const std::string &prim, const std::string &sec, const std::string &val)
+{
+  int compact = 0;
+
+  if (val.size() > 0)
+    compact = ::atoi(val.c_str());
+
+  scene->scene_graph_print(compact);
+ 
+}
 
