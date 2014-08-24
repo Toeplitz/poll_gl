@@ -205,7 +205,6 @@ void GLcontext::framebuffer_create(const int width, const int height)
   framebuffer_check_status();
 
   GL_ASSERT(glGenTextures(1, &gl_fb_tex_depth));
-  GL_ASSERT(glActiveTexture(GL_TEXTURE0));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_depth));
   GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
   GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
