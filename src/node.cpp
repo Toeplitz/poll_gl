@@ -1,6 +1,7 @@
 #include "assets.h"
 #include "node.h"
 #include "utils.h"
+#include <glm/gtx/string_cast.hpp>
 
 
 /**************************************************/
@@ -95,15 +96,13 @@ void Node::child_add(std::unique_ptr<Node> &&node, int level)
 }
 
 
-Light *Node::light_create(Assets &assets, const glm::vec3 position, Node *node_volume)
+Light *Node::light_create(Assets &assets, Node *node_volume)
 {
   std::unique_ptr<Light> light(new Light());
   Light *light_ptr = light.get();
+  mesh_set(node_volume->mesh_get());
   light_set(light_ptr);
   assets.light_active_add(std::move(light));
-  light_ptr->properties_position_set(position);
-  light_volume_mesh_create_from_node(node_volume);
-
 
   return light_ptr;
 }
@@ -117,31 +116,11 @@ Light *Node::light_get()
 
 void Node::light_set(Light *light)
 {
-  if (light && mesh) {
-    light->properties_position_set(glm::vec3(mesh->model * glm::vec4(original_position, 1.0)));
-  }
+  if (light)
+    light->node_ptr_set(this);
+
+
   this->light = light;
-}
-
-
-Mesh *Node::light_volume_mesh_create_from_node(Node *node)
-{
-  if (!light) {
-    std::cout << "Error: no light attached to node: " << name << std::endl;
-    return nullptr;
-  }
-
-  if (!node->mesh) {
-    std::cout << "Error: no mesh attached to the node, cannot copy" << std::endl;
-    return nullptr;
-  }
-
-  glm::vec3 t = glm::vec3(light->properties_position_get());
-  t.y = 0;
-  light->translate(t);
-  light->volume_mesh_set(node->mesh);
-
-  return light->volume_mesh_get();
 }
 
 
@@ -260,8 +239,12 @@ void Node::scale(const glm::vec3 &v)
 {
   glm::mat4 m = glm::scale(glm::mat4(1.f), v);
 
-  if (mesh) 
+  if (mesh) {
     mesh->model = mesh->model * m;
+
+    std::cout << glm::to_string(mesh->model) << std::endl;
+    std::cout << std::endl;
+  }
 }
 
 

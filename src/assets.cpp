@@ -160,22 +160,12 @@ void Assets::light_print_all(const Node &node) const
   int count = 0;
   for (auto &light: active_lights) {
     std::cout << "\t[" << count << "] (" << light.get() << ") ";
-
-    if (light->volume_mesh_get()) {
-      std::cout << "(volume mesh) ";
-    }
-
     std::cout << std::endl;
     count++;
   }
   std::cout << "\tinactive: " << std::endl;
   for (auto &light: inactive_lights) {
     std::cout << "\t[" << count << "] (" << light.get() << ") ";
-
-    if (light->volume_mesh_get()) {
-      std::cout << "(volume mesh) ";
-    }
-
     std::cout << std::endl;
     count++;
   }

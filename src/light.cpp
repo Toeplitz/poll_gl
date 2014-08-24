@@ -89,25 +89,21 @@ void Light::properties_direction_set(const glm::vec3 &direction)
 
 void Light::properties_position_set(const glm::vec3 &position)
 {
-  properties.position = glm::vec4(position + bias, 1.f);
 }
 
 
 const glm::vec4 &Light::properties_position_get() const
 {
-  return properties.position;
 }
 
 
 void Light::properties_transform_set(const glm::mat4 transform)
 {
-  properties.transform = transform;
 }
 
 
 const glm::mat4 &Light::properties_transform_get()
 {
-  return properties.transform;
 }
 
 
@@ -117,53 +113,14 @@ void Light::properties_type_set(const unsigned int type)
 }
 
 
-void Light::node_follow_set(Node *node)
+Node *Light::node_ptr_get()
 {
-  follow = node;
+  return this->node_ptr;
+}
+ 
+
+void Light::node_ptr_set(Node *node)
+{
+  this->node_ptr = node;
 }
 
-
-Node *Light::node_follow_get()
-{
-  return follow;
-}
-
-
-void Light::scale(const glm::vec3 &v)
-{
-  glm::mat4 transform = properties_transform_get();
-  transform_scale = glm::scale(transform, v);
-  properties_transform_set(transform_scale);
-}
-
-
-void Light::translate(const glm::vec3 &v)
-{
-  glm::mat4 transform = properties_transform_get();
-  transform_translate = glm::translate(transform, v);
-  properties_transform_set(transform_translate);
-}
-
-
-const glm::mat4 &Light::transform_scale_get()
-{
-  return transform_scale;
-}
-
-
-const glm::mat4 &Light::transform_translate_get()
-{
-  return transform_translate;
-}
-
-
-void Light::volume_mesh_set(Mesh *mesh)
-{
-  volume = mesh;
-}
-
-
-Mesh *Light::volume_mesh_get()
-{
-  return volume;
-}

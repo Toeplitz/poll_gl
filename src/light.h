@@ -34,9 +34,9 @@ struct Light_Properties
   glm::vec4 diffuse;
   glm::vec4 specular;
   glm::vec4 direction;
-  */
   glm::vec4 position;
   glm::mat4 transform;
+  */
 };
 
 
@@ -46,12 +46,8 @@ class Light
 {
   private:
     Light_Properties properties;
-    glm::mat4 transform_scale;
-    glm::mat4 transform_translate;
-
     glm::vec3 bias = glm::vec3(0.f, 0.f, 0.f);
-    Node *follow = nullptr;
-    Mesh *volume = nullptr;
+    Node *node_ptr = nullptr;
 
   public:
 
@@ -69,12 +65,6 @@ class Light
     void                    properties_transform_set(const glm::mat4 transform);
     const glm::mat4        &properties_transform_get();
     void                    properties_type_set(const unsigned int type);
-    void                    node_follow_set(Node *node);
-    Node                   *node_follow_get();
-    void                    scale(const glm::vec3 &v);
-    void                    translate(const glm::vec3 &v);
-    const glm::mat4        &transform_scale_get();
-    const glm::mat4        &transform_translate_get();
-    void                    volume_mesh_set(Mesh *mesh);
-    Mesh                   *volume_mesh_get();
+    Node                   *node_ptr_get();
+    void                    node_ptr_set(Node *node);
 };

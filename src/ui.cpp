@@ -108,8 +108,8 @@ void Ui::callback_light_create(const std::string &prim, const std::string &sec, 
   Node *sphere = &scene->load(*glcontext, "data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
 
   Node *node = scene->node_create("light_added");
-  Light *light = node->light_create(assets, position, sphere);
-  light->scale(glm::vec3(20, 20, 20));
+  node->translate(position);
+  Light *light = node->light_create(assets, sphere);
 
   glcontext->vertex_buffers_light_create(light);
 

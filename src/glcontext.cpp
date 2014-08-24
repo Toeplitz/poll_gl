@@ -54,22 +54,22 @@ bool GLcontext::init(const int width, const int height)
 
 void GLcontext::draw_light(Light *light)
 {
-  Mesh *mesh = light->volume_mesh_get();
-  Node *follow = light->node_follow_get();
-
-  if (!mesh) {
-    std::cout << "Error: no mesh attached to light" << std::endl;
+  Node *node = light->node_ptr_get();
+  if (!node) {
+    std::cout << "Error: missing node pointer for light" << std::endl;
     return;
   }
 
-  if (follow) {
-    Mesh *mesh = follow->mesh_get();
-    light->properties_transform_set(mesh->model * light->transform_scale_get());
-    glm::vec3 position = glm::vec3(mesh->model * glm::vec4(follow->original_position, 1.f));
-    light->properties_position_set(position);
+  Mesh *mesh = node->mesh_get();
+  if (!mesh) {
+    std::cout << "Error: no mesh attached to the light" << std::endl;
+    return;
   }
 
-  uniform_buffers_update_light(*light);
+ // std::cout << glm::to_string(mesh->model) << std::endl;
+ // std::cout << std::endl;
+
+  uniform_buffers_update_mesh(*mesh);
   draw_mesh(*mesh);
 }
 
@@ -246,8 +246,15 @@ void GLcontext::framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  
   /* STENCIL AND LIGHT PASS*/
   GL_ASSERT(glEnable(GL_STENCIL_TEST));
   for (auto &light: lights) {
-    if (!light->volume_mesh_get()) {
-      std::cout << "No mesh attached to light: " << light.get() << std::endl;
+    Node *node = light->node_ptr_get();
+    if (!node) {
+      std::cout << "Error: missing node pointer for light" << std::endl;
+      continue;
+    }
+
+    Mesh *mesh = node->mesh_get();
+    if (!mesh) {
+      std::cout << "Error: no mesh attached to the light" << std::endl;
       continue;
     }
 
@@ -592,6 +599,8 @@ void GLcontext::uniform_buffers_update_mesh(Mesh &mesh)
   glm::mat4 m;
   m = mesh.model;
 
+  //std::cout << glm::to_string(m) << std::endl;
+
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_matrices));
   GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(m), &m));
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, 0));
@@ -652,13 +661,16 @@ void GLcontext::uniform_locations_text_init(GLshader &shader)
 
 void GLcontext::vertex_buffers_light_create(Light *light)
 {
-  Mesh *mesh;
-
   if (!light) 
     return;
 
-  mesh = light->volume_mesh_get();
+  Node *node = light->node_ptr_get();
+  if (!node) {
+    std::cout << "Error: missing node pointer for light" << std::endl;
+    return;
+  }
 
+  Mesh *mesh = node->mesh_get();
   if (!mesh) {
     std::cout << "Error: no mesh attached to the light" << std::endl;
     return;

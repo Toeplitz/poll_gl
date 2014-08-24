@@ -251,7 +251,7 @@ int main()
 
   {
     glm::vec3 light_positions[5] = {
-      glm::vec3(0, 20, 0),
+      glm::vec3(0, 2, 0),
       glm::vec3(-50, 20, 45),
       glm::vec3(-50, 20, -45),
       glm::vec3(50, 20, 45),
@@ -260,8 +260,9 @@ int main()
 
     for (int i = 0; i < 5; i++) {
       Node *node = scene.node_create("Light_Directional");
-      Light *light = node->light_create(assets, light_positions[i], sphere);
-      light->scale(glm::vec3(20, 20, 20));
+      Light *light = node->light_create(assets, sphere);
+     // node->translate(light_positions[i]);
+      node->scale(glm::vec3(20, 20, 20));
       glcontext.vertex_buffers_light_create(light);
     }
   }
