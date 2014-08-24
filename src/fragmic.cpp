@@ -2,6 +2,7 @@
 #include <SDL2/SDL_timer.h> 
 #include <iostream>
 #include <chrono>
+#include <iomanip>      // std::setprecision
 
 
 /**************************************************/
@@ -25,13 +26,10 @@ Fragmic::Fragmic(const std::string &config_file)
   }
   glcontext.check_error();
 
-
   Node *cam_node = scene.node_create("camera");
   cam_node->camera_create(scene.assets_get());
   cam_node->camera_get()->transform_perspective_create(window.width_get(), window.height_get());
   scene.node_camera_set(cam_node);
-
-
 
   // SETUP FOR DEFERRED SHADING
   glshader_geometry.load("shaders/deferred_pass_one.v", "shaders/deferred_pass_one.f");
@@ -44,6 +42,8 @@ Fragmic::Fragmic(const std::string &config_file)
   glcontext.uniform_buffers_block_bind(glshader_light);
   glcontext.uniform_buffers_block_bind(glshader_stencil);
 
+  glshader_text.load("shaders/text.v", "shaders/text.f"); 
+  glcontext.uniform_locations_text_init(glshader_text);
   /*
   Node &node = *scene.node_create("fb_quad");
   node.mesh_create(scene.assets_get());
@@ -52,7 +52,8 @@ Fragmic::Fragmic(const std::string &config_file)
   glcontext.framebuffer_create(window.width_get(), window.height_get());
   //glcontext.framebuffer_node_create(node);
 
-  console.init(scene, glcontext, window);
+  console.init(glcontext, scene, window);
+  ui.init(console, glcontext, scene);
   physics.init();
 
   config.conf_global_apply(CONF_GLOBAL);
@@ -105,8 +106,10 @@ void Fragmic::run()
     /* Step physics simulation */
     physics.step(dt);
 
-    /* Draw console if toggled */
+    /* Draw console and ui */
+    glshader_text.use();
     console.draw();
+    ui.draw(fps_text_get());
 
     glcontext.check_error();
     window.swap();
@@ -117,6 +120,7 @@ void Fragmic::run()
 void Fragmic::term()
 {
   console.term();
+  ui.term();
   physics.term();
 
   GLcontext &glcontext = window.glcontext_get();
@@ -130,6 +134,7 @@ void Fragmic::term()
   glshader_geometry.term();
   glshader_light.term();
   glshader_stencil.term();
+  glshader_text.term();
   window.term();
 }
 
@@ -191,6 +196,11 @@ double Fragmic::delta_time_get()
   return dt;
 }
 
+std::string &Fragmic::fps_text_get()
+{
+  return fps_text;
+}
+
 
 void Fragmic::profile_fps(const double dt)
 {
@@ -201,8 +211,10 @@ void Fragmic::profile_fps(const double dt)
   t += dt; 
 
   if (t >= 1) {
-    std::cout << numFrames << " frames/sec, " << 1000.0 /
-      numFrames << " ms/frame" << std::endl;
+    char buf[30];
+    sprintf(buf, "%d frames/sec %.2f ms/frame", numFrames, 1000.0 / numFrames);
+    fps_text = std::string(buf);
+    std::cout << fps_text << std::endl;
     t = 0;
     numFrames = 0;
   }

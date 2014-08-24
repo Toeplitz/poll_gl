@@ -10,6 +10,9 @@
 #include "texture.h"
 
 
+class GLcontext;
+
+
 class Font
 {
   private:
@@ -38,7 +41,7 @@ class Text
     Text();
     ~Text();
 
-    void          bake(Mesh *mesh, float x, float y);
+    void          bake(GLcontext *glcontext, Mesh *mesh, float x, float y);
     Font         *font_get();
     void          font_set(Font *font);
     void          string_append(const std::string s);

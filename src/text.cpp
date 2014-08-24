@@ -1,3 +1,4 @@
+#include "glcontext.h"
 #include "text.h"
 #include <stdio.h>
 #include <vector>
@@ -103,7 +104,7 @@ Text::~Text()
 
 
 
-void Text::bake(Mesh *mesh, float x, float y) 
+void Text::bake(GLcontext *glcontext, Mesh *mesh, float x, float y) 
 {
   char *text = new char[input.size() + 1];
   std::copy(input.begin(), input.end(), text);
@@ -141,6 +142,9 @@ void Text::bake(Mesh *mesh, float x, float y)
   
   this->input = input;
   delete [] ptr;
+
+  if (glcontext)
+    glcontext->vertex_buffers_mesh_update(mesh);
 }
 
 

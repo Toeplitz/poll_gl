@@ -638,7 +638,7 @@ void GLcontext::uniform_locations_geometry_init(GLshader &shader)
 }
 
 
-void GLcontext::uniform_locations_console_init(GLshader &shader)
+void GLcontext::uniform_locations_text_init(GLshader &shader)
 {
   GLint location;
   GLuint program = shader.program;

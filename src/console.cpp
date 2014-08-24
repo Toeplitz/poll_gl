@@ -17,7 +17,6 @@ using namespace std::placeholders;
 
 Console::Console()
 {
-  command_defaults_set();
 }
 
 
@@ -44,28 +43,35 @@ void Console::command_add(const std::string &prim, const std::string &sec,
 }
 
 
-void Console::init(Scene &scene, GLcontext &glcontext, Window &window)
-{
-  this->scene = &scene;
-  this->glcontext = &glcontext;
-
-  window.keyboard_pressed_callback_set(this, &Console::keyboard_pressed_cb);
-  glshader_console.load("shaders/console.v", "shaders/console.f"); 
-  glcontext.uniform_locations_console_init(glshader_console);
-
-  node_text = scene.node_create("entry_box");
-  font_create(CONSOLE_FONT);
-  text_create(scene, node_text);
-}
-
-
 void Console::draw()
 {
   if (!flag_toggle)
     return;
 
-  glshader_console.use();
   glcontext->draw_text(*node_text);
+}
+
+
+Font *Console::font_get() 
+{
+  return &font;
+}
+
+
+void Console::init(GLcontext &glcontext, Scene &scene, Window &window)
+{
+  this->scene = &scene;
+  this->glcontext = &glcontext;
+
+  window.keyboard_pressed_callback_set(this, &Console::keyboard_pressed_cb);
+
+  font_create(CONSOLE_FONT);
+
+  node_text = scene.node_create("entry_box");
+  Text *text = node_text->text_create(&font, scene.assets_get());
+  text->string_set("default");
+  text->bake(nullptr, node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
+  glcontext.vertex_buffers_mesh_create(node_text->mesh_get(), 1048 * sizeof(glm::vec3));
 }
 
 
@@ -83,12 +89,12 @@ void Console::keyboard_pressed_cb(SDL_Keysym *keysym)
       break;
     case SDLK_SPACE:
       text->string_append(" ");
-      text_bake();
+      text->bake(glcontext, node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
       break;
     case SDLK_BACKSPACE:
       if (text->string_len() > 2) {
         text->string_erase_last();
-        text_bake();
+        text->bake(glcontext, node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
       }
       break;
     case SDLK_TAB:
@@ -107,7 +113,7 @@ void Console::keyboard_pressed_cb(SDL_Keysym *keysym)
         std::string key_input(SDL_GetKeyName(keysym->sym));
         std::transform(key_input.begin(), key_input.end(), key_input.begin(), ::tolower);
         text->string_append(key_input);
-        text_bake();
+        text->bake(glcontext, node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
       } 
       break;
   }
@@ -126,7 +132,7 @@ void Console::toggle()
     command_parse(cmd);
   } else {
     text->string_set(CONSOLE_PREFIX);
-    text_bake();
+    text->bake(glcontext, node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
   }
 
   flag_toggle = !flag_toggle;
@@ -135,7 +141,6 @@ void Console::toggle()
 
 void Console::term()
 {
-  glshader_console.term();
   font_delete();
 }
 
@@ -144,37 +149,6 @@ void Console::term()
 /**************************************************/
 /***************** PRIVATE METHODS ****************/
 /**************************************************/
-
-
-void Console::callback_light_create(const std::string &prim, const std::string &sec, const std::string &val)
-{
-  Assets &assets = scene->assets_get();
-  Camera *camera = scene->camera_get();
-  const glm::vec3 position = camera->position_get();
-
-  Node *sphere = &scene->load(*glcontext, "data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
-
-  Node *node = scene->node_create("light_added");
-  Light *light = node->light_create(assets, position, sphere);
-  light->scale(glm::vec3(20, 20, 20));
-
-  glcontext->vertex_buffers_light_create(light);
-}
-
-
-void Console::callback_light_list(const std::string &prim, const std::string &sec, const std::string &val)
-{
-  Assets &assets = scene->assets_get();
-  Node &root = scene->node_root_get();
-  assets.light_print_all(root);
-}
-
-
-void Console::command_defaults_set()
-{
-  command_add("light", "add", std::bind(&Console::callback_light_create, this, _1, _2, _3));
-  command_add("light", "list", std::bind(&Console::callback_light_list, this, _1, _2, _3));
-}
 
 
 void Console::command_exec(const std::string &prim, const std::string &sec, const std::string &value)
@@ -228,7 +202,7 @@ void Console::command_history_show(const int loc)
 
   text = node_text->text_get();
   text->string_set(CONSOLE_PREFIX + history[loc]);
-  text_bake();
+  text->bake(glcontext, node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
 }
 
 
@@ -283,12 +257,12 @@ void Console::command_tab_complete(const std::string &cmd_full)
     case 2:
       match = command_tab_complete_find_prim_match(tokens[1]);
       text->string_set(CONSOLE_PREFIX + match + " ");
-      text_bake();
+      text->bake(glcontext, node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
       break;
     case 3:
       match = command_tab_complete_find_sec_match(tokens[1], tokens[2]);
       text->string_set(CONSOLE_PREFIX + tokens[1] + " " + match + " ");
-      text_bake();
+      text->bake(glcontext, node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
     default:
       break;
   }
@@ -321,42 +295,10 @@ void Console::font_create(const std::string &font_file)
 }
 
 
+
 void Console::font_delete()
 {
   glcontext->texture_delete(font.texture_get());
-}
-
-
-void Console::text_bake()
-{
-  Text *text;
-  Mesh *mesh;
-
-  text = node_text->text_get();
-  mesh = node_text->mesh_get();
-
-  if (!text && !mesh) {
-    std::cout << "Error: text or mesh is a null poiner" << std::endl;
-    return;
-  }
-
-  text->bake(mesh, 10, 10);
-  glcontext->vertex_buffers_mesh_update(mesh);
-}
-
-
-void Console::text_create(Scene &scene, Node *node)
-{
-  if (!node) {
-    std::cout << "Error: node is null" << std::endl;
-    return;
-  }
-
-  Text *text = node->text_create(&font, scene.assets_get());
-  Mesh *text_mesh = node_text->mesh_get();
-  text->string_set("default");
-  text->bake(node_text->mesh_get(), 10, 10);
-  glcontext->vertex_buffers_mesh_create(text_mesh, 1048 * sizeof(glm::vec3));
 }
 
 
