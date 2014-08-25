@@ -247,29 +247,23 @@ int main()
 
 
   /* Setup lights */
-  Node *sphere = &scene.load(glcontext, "data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
-
   {
     glm::vec3 light_positions[5] = {
       glm::vec3(0, 2, 0),
-      glm::vec3(-50, 20, 45),
-      glm::vec3(-50, 20, -45),
-      glm::vec3(50, 20, 45),
-      glm::vec3(50, 20, -45)
+      glm::vec3(-50, 2, 45),
+      glm::vec3(-50, 2, -45),
+      glm::vec3(50, 2, 45),
+      glm::vec3(50, 2, -45)
     };
 
     for (int i = 0; i < 5; i++) {
       Node *node = scene.node_create("Light_Directional");
-      Light *light = node->light_create(assets, sphere);
-     // node->translate(light_positions[i]);
+      node->light_create(assets);
+      node->translate(light_positions[i]);
       node->scale(glm::vec3(20, 20, 20));
-      glcontext.vertex_buffers_light_create(light);
     }
   }
 
-
- // scene.scene_graph_print(true);
- // scene.assets_get().print_all(scene.node_root_get());
 
   fragmic.run();
   fragmic.term();

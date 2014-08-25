@@ -6,12 +6,17 @@
 #include "camera.h"
 #include "light.h"
 #include "physics_rigidbody.h"
+#include "model.h"
 #include "manipulator.h"
 #include "material.h"
 #include "mesh.h"
 
 typedef std::vector<std::unique_ptr<Armature>> Armature_Unique_Ptr_List;
 typedef std::vector<std::unique_ptr<Light>> Light_Unique_Ptr_List;
+
+class GLcontext;
+class Scene;
+
 
 class Assets {
 
@@ -25,6 +30,11 @@ class Assets {
     std::vector<std::unique_ptr<Material>> materials;
     std::vector<std::unique_ptr<Mesh>> meshes;
     std::vector<std::unique_ptr<Text>> texts;
+
+    Node *node_light_sphere;
+    Node *node_symbol_diamond;
+    Node *node_symbol_disk;
+
 
   public:
     Assets();
@@ -43,6 +53,9 @@ class Assets {
     void                                  light_inactive_add(std::unique_ptr<Light> &&light);
     bool                                  light_is_active(Light *light);
     void                                  light_print_all(const Node &node) const;
+    void                                  light_sphere_create(GLcontext &glcontext, Scene &scene);
+    Node                                 *light_sphere_get();
+    void                                  light_sphere_set(Node *node);
     void                                  print_all(const Node &node) const;
     void                                  physics_rigidbody_add(std::unique_ptr<Physics_Rigidbody> &&rigidbody);
     void                                  manipulator_print_all(const Node &node) const;

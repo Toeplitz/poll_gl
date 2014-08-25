@@ -9,8 +9,7 @@
 /**************************************************/
 
 
-Mesh::Mesh():
-  model(glm::mat4(1.f))
+Mesh::Mesh()
 {
   mode = GL_TRIANGLES;
   gl_vao = 0;
@@ -24,26 +23,6 @@ Mesh::~Mesh(void)
 /**************************************************/
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
-
-void Mesh::aabb_generate_bounding() 
-{
-
-  glm::vec3 minimum(std::numeric_limits<float>::max());
-  glm::vec3 maximum(std::numeric_limits<float>::min());
-
-  for (auto &v : positions) {
-    glm::vec3 p = glm::vec3(model * glm::vec4(v, 1.f));
-    //  std::cout << glm::to_string(p) << std::endl;
-    minimum = glm::min(minimum, p);
-    maximum = glm::max(maximum, p);
-  }
-
-  // std::cout << "minimum: " << minimum.x << ", " << minimum.y << ", " << minimum.z << std::endl;
-  // std::cout << "maximum: " << maximum.x << ", " << maximum.y << ", " << maximum.z << std::endl;
-
-  aabb.setBounds(minimum.x, minimum.y, minimum.z,
-      maximum.x, maximum.y, maximum.z);
-}
 
 
 const std::vector<glm::vec3> &Mesh::bone_weights_get() const

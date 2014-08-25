@@ -19,7 +19,6 @@ class Ui
     Light *light_active = nullptr;
     Node *node_label_cam = nullptr;
     Node *node_label_fps = nullptr;
-    GLshader glshader_ui;
 
     void callback_asset_list(const std::string &prim, const std::string &sec, const std::string &val);
     void callback_light_create(const std::string &prim, const std::string &sec, const std::string &val);
@@ -29,6 +28,8 @@ class Ui
     void callback_light_list(const std::string &prim, const std::string &sec, const std::string &val);
     void callback_node_manipulator(const std::string &prim, const std::string &sec, const std::string &val);
     void callback_scene_list(const std::string &prim, const std::string &sec, const std::string &val);
+
+    void light_active_set(Light *light);
 
   public:
     Ui();

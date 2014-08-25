@@ -13,6 +13,7 @@
 Fragmic::Fragmic(const std::string &config_file)
 {
   GLcontext &glcontext = window.glcontext_get();
+  Assets &assets = assets_get();
 
   if (config_file.empty()) 
     config.init(console, scene, glcontext, GLOBAL_CONFIG);
@@ -26,7 +27,9 @@ Fragmic::Fragmic(const std::string &config_file)
   }
   glcontext.check_error();
 
+
   scene.init(glcontext);
+  assets.light_sphere_create(glcontext, scene);
 
   Node *cam_node = scene.node_create("camera");
   cam_node->camera_create(scene.assets_get());

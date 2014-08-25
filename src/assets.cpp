@@ -1,5 +1,7 @@
 #include "assets.h"
+#include "glcontext.h"
 #include "utils.h"
+#include "scene.h"
 #include <memory>
 #include <algorithm> 
 
@@ -169,6 +171,26 @@ void Assets::light_print_all(const Node &node) const
     std::cout << std::endl;
     count++;
   }
+}
+
+  
+void Assets::light_sphere_create(GLcontext &glcontext, Scene &scene)
+{
+  Node *sphere = &scene.load(glcontext, "data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
+  light_sphere_set(sphere);
+  glcontext.vertex_buffers_mesh_create(sphere->mesh_get());
+}
+
+
+Node *Assets::light_sphere_get()
+{
+  return node_light_sphere;
+}
+
+
+void Assets::light_sphere_set(Node *node)
+{
+  node_light_sphere = node;
 }
 
 

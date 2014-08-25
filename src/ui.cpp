@@ -105,15 +105,11 @@ void Ui::callback_light_create(const std::string &prim, const std::string &sec, 
   Camera *camera = scene->camera_get();
   const glm::vec3 position = camera->position_get();
 
-  Node *sphere = &scene->load(*glcontext, "data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
-
   Node *node = scene->node_create("light_added");
   node->translate(position);
-  Light *light = node->light_create(assets, sphere);
-
-  glcontext->vertex_buffers_light_create(light);
-
-  light_active = light;
+  node->scale(glm::vec3(20, 20, 20));
+  Light *light = node->light_create(assets);
+  light_active_set(light);
   callback_light_list(prim, sec, val);
 }
 
@@ -152,11 +148,11 @@ void Ui::callback_light_select(const std::string &prim, const std::string &sec, 
 
   if (!light) {
     std::cout << "No light with index: " << light_num << std::endl;
-    light_active = nullptr;
+    light_active_set(nullptr);
     return;
   }
 
-  light_active = light;
+  light_active_set(light);
   callback_light_list(prim, sec, val);
 }
 
@@ -193,3 +189,9 @@ void Ui::callback_scene_list(const std::string &prim, const std::string &sec, co
  
 }
 
+
+void Ui::light_active_set(Light *light)
+{
+  light_active = light;
+
+}

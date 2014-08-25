@@ -10,20 +10,10 @@
 
 
 Node::Node(const std::string &node_name):
-  camera(nullptr),
-  light(nullptr),
-  rigidbody(nullptr),
-  text(nullptr),
-  manipulator(nullptr),
-  armature(nullptr),
-  material(nullptr),
-  mesh(nullptr),
-  parent(nullptr),
   name(node_name),
   transform_global(1),
   transform_local_current(1),
-  transform_local_original(1), 
-  tree_level(0) 
+  transform_local_original(1)
 {
   state.animated = false;
   state.debug = false;
@@ -96,11 +86,12 @@ void Node::child_add(std::unique_ptr<Node> &&node, int level)
 }
 
 
-Light *Node::light_create(Assets &assets, Node *node_volume)
+Light *Node::light_create(Assets &assets)
 {
+
   std::unique_ptr<Light> light(new Light());
   Light *light_ptr = light.get();
-  mesh_set(node_volume->mesh_get());
+  mesh_set(assets.light_sphere_get()->mesh_get());
   light_set(light_ptr);
   assets.light_active_add(std::move(light));
 
@@ -237,14 +228,8 @@ void Node::rotate(const float angle, const glm::vec3 &v)
 
 void Node::scale(const glm::vec3 &v)
 {
-  glm::mat4 m = glm::scale(glm::mat4(1.f), v);
-
-  if (mesh) {
-    mesh->model = mesh->model * m;
-
-    std::cout << glm::to_string(mesh->model) << std::endl;
-    std::cout << std::endl;
-  }
+  glm::mat4 m = glm::scale(transform_model_get(), v);
+  transform_model_set(m);
 }
 
 
@@ -277,10 +262,8 @@ void Node::text_set(Text *text)
 
 void Node::translate(const glm::vec3 &v) 
 {
-  glm::mat4 m = glm::translate(glm::mat4(1.f), v);
-
-  if (mesh) 
-    mesh->model = mesh->model * m;
+  glm::mat4 m = glm::translate(transform_model_get(), v);
+  transform_model_set(m);
 }
 
 
@@ -294,6 +277,19 @@ void Node::transform_local_original_set(const glm::mat4 &transform)
 {
   transform_local_original = transform;
 }
+
+
+glm::mat4 &Node::transform_model_get()
+{
+  return transform_model; 
+}
+
+
+void Node::transform_model_set(const glm::mat4 &transform)
+{
+  transform_model = transform;
+}
+
 
 
 void Node::transform_update_global_recursive(Node &node)

@@ -203,7 +203,7 @@ btRigidBody *Physics::bullet_collision_rigidbody_create(Node &node, Physics_Coll
   t.setOrigin(btVector3(position.x, position.y, position.z));
   t.setRotation(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
   btTransform t2;
-  t2.setFromOpenGLMatrix((btScalar *) &node.mesh->model);
+  t2.setFromOpenGLMatrix((btScalar *) &node.transform_model_get());
 
   Physics_Motion_State *motion_state = new Physics_Motion_State(t2, node);
 
@@ -312,7 +312,7 @@ Physics_Character_Controller *Physics::bullet_kinematic_character_controller_cre
 
   btTransform startTransform;
   startTransform.setIdentity();
-  startTransform.setFromOpenGLMatrix((btScalar *) &node.mesh->model);
+  startTransform.setFromOpenGLMatrix((btScalar *) &node.transform_model_get());
 
   btPairCachingGhostObject *actorGhost = new btPairCachingGhostObject();
   actorGhost->setUserPointer((void*) &node);
@@ -394,7 +394,7 @@ void Physics::bullet_world_delete(Physics_Node &p_node)
 Physics_Motion_State::Physics_Motion_State(const btTransform &start_position, Node &node)
 {
   glm::mat4 scale_matrix = glm::scale(glm::mat4(1.f), node.original_scaling);
-  glm::mat4 model_no_scaling = node.mesh->model * glm::inverse(scale_matrix);
+  glm::mat4 model_no_scaling = node.transform_model_get() * glm::inverse(scale_matrix);
   this->transform.setFromOpenGLMatrix((btScalar *) &model_no_scaling);
   //this->transform = start_position;
   this->node = &node;
@@ -416,7 +416,8 @@ void Physics_Motion_State::setWorldTransform(const btTransform &t)
   //  glm::mat4 m = bullet_convert_glm(t);
   t.getOpenGLMatrix((btScalar *) &m);
   //print_matrix(std::cout, m, 0);
-  node->mesh->model = m * glm::scale(glm::mat4(1.f), node->original_scaling);
+  glm::mat4 model = m * glm::scale(glm::mat4(1.f), node->original_scaling);
+  node->transform_model_set(model);
   //node->mesh->model = m;
   // node->mesh->physics_matrix = right_handed_to_left_handed(m);
 }

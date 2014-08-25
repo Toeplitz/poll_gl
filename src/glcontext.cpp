@@ -66,10 +66,7 @@ void GLcontext::draw_light(Light *light)
     return;
   }
 
- // std::cout << glm::to_string(mesh->model) << std::endl;
- // std::cout << std::endl;
-
-  uniform_buffers_update_mesh(*mesh);
+  uniform_buffers_update_matrices(*node);
   draw_mesh(*mesh);
 }
 
@@ -84,7 +81,7 @@ void GLcontext::draw_node(Node &node)
   }
 
   uniform_buffers_update_state(node);
-  uniform_buffers_update_mesh(*mesh);
+  uniform_buffers_update_matrices(node);
 
   { 
     Material *material = node.material_get();
@@ -594,12 +591,10 @@ void GLcontext::uniform_buffers_update_material(const Material &material)
 }
 
 
-void GLcontext::uniform_buffers_update_mesh(Mesh &mesh)
+void GLcontext::uniform_buffers_update_matrices(Node &node)
 {
   glm::mat4 m;
-  m = mesh.model;
-
-  //std::cout << glm::to_string(m) << std::endl;
+  m = node.transform_model_get();
 
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_matrices));
   GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(m), &m));

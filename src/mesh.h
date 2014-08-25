@@ -26,14 +26,13 @@ class Mesh {
     std::vector<glm::vec3> bone_weights;
     std::vector<glm::ivec3> bone_indices;
 
-    glm::mat4 model;
+  //  glm::mat4 model;
     glm::mat4 scale_matrix;
     unsigned int num_faces;
 
     Mesh();
     ~Mesh();
 
-    void                            aabb_generate_bounding();
     const std::vector<glm::vec3>   &bitangents_get() const;
     const std::vector<glm::ivec3>  &bone_indices_get() const;
     const std::vector<glm::vec3>   &bone_weights_get() const;

@@ -32,28 +32,32 @@ void Physics_Character_Controller::bullet_character_step(const double dt)
     return;
   
   ghost->getWorldTransform().getOpenGLMatrix((btScalar *) &m);
-  node->mesh->model = m;
+  node->transform_model_set(m);
 
   btScalar walkVelocity = 15.0;
   btScalar walkSpeed = walkVelocity * dt;
   float rotation_speed = 3.f * (float) dt;
 
   if (direction & PHYSICS_DIRECTION_LEFT) {
-    node->mesh->model = glm::rotate(node->mesh->model, rotation_speed, glm::vec3(0, 1, 0));
+    glm::mat4 model = glm::rotate(node->transform_model_get(), rotation_speed, glm::vec3(0, 1, 0));
+    node->transform_model_set(model);
     rotation_angle += rotation_speed;
   }
   if (direction & PHYSICS_DIRECTION_RIGHT) {
-    node->mesh->model = glm::rotate(node->mesh->model, -rotation_speed, glm::vec3(0, 1, 0));
+    glm::mat4 model = glm::rotate(node->transform_model_get(), -rotation_speed, glm::vec3(0, 1, 0));
+    node->transform_model_set(model);
     rotation_angle -= rotation_speed;
   }
 
   if (direction & PHYSICS_DIRECTION_ROTATE) {
-    node->mesh->model = glm::rotate(node->mesh->model, -rotation_angle + angle_joystick, glm::vec3(0, 1, 0));
+    glm::mat4 model = glm::rotate(node->transform_model_get(), -rotation_angle + angle_joystick, glm::vec3(0, 1, 0));
+    node->transform_model_set(model);
     rotation_angle = angle_joystick;
   }
 
-  glm::vec3 forward = glm::vec3(node->mesh->model[2]);
-  glm::vec3 strafe = glm::vec3(node->mesh->model[0]);
+  glm::mat4 model = node->transform_model_get();
+  glm::vec3 forward = glm::vec3(model[2]);
+  glm::vec3 strafe = glm::vec3(model[0]);
   glm::vec3 v(0.f, 0.f, 0.f);
 
   if (direction & PHYSICS_DIRECTION_FORWARD) {
@@ -72,7 +76,7 @@ void Physics_Character_Controller::bullet_character_step(const double dt)
 
   btVector3 walkDirection(v.x, v.y, v.z);
   setWalkDirection(walkDirection * walkSpeed);
-  ghost->getWorldTransform().setFromOpenGLMatrix((btScalar *) &node->mesh->model);
+  ghost->getWorldTransform().setFromOpenGLMatrix((btScalar *) &node->transform_model_get());
 }
 
 

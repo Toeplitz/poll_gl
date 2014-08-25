@@ -530,13 +530,17 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
       // mesh.model = mesh.skeletonNode->transform_global * mesh.skeletonTransform
       // We can set mesh.skeletonNode to mesh.node and mesh.skeletonTransform
       // to identity if the mesh has no bones.
-      m.model = bone->skinning_matrix_update();
+      glm::mat4 m = bone->skinning_matrix_update();
+      mesh_node->transform_model_set(m);
+
+
       //m.model = bone->joint_node->transform_global * bone->offset_matrix;
     }
 
     if (!assimpMesh->mNumBones) {
       //      m.model = glm::rotate(mesh_node->transform_global, -90.f, glm::vec3(1.f, 0.f, 0.f));
-      m.model = mesh_node->transform_global;
+      glm::mat4 m = mesh_node->transform_global;
+      mesh_node->transform_model_set(m);
       //m.model = right_handed_to_left_handed(mesh_node->transform_global);
     }
 
@@ -592,9 +596,7 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
       }
     }
 
-    //std::cout << "vertices / indices: " << m.vertices.size() << " / " << m.indices.size() << std::endl;
     m.scale_matrix = glm::scale(glm::mat4(1.0f), mesh_node->original_scaling);
-    m.aabb_generate_bounding();
     mesh_node->mesh = mesh_ptr.get();
     mesh_node->armature_set(armature_ptr);
     if (node.mNumMeshes > 1) {

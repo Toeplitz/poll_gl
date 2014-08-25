@@ -55,7 +55,6 @@ void Config::conf_global_apply(const std::string &prim)
 {
   if (!prim.compare(CONF_GLOBAL) || !prim.compare(CONF_GLOBAL_CAMERA))
   {
-    std::cout << "Updating fov" << std::endl;
     Camera *camera = scene->camera_get();
     camera->fov_set(conf_global.camera.fov);
   }

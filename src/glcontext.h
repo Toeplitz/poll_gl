@@ -69,7 +69,7 @@ class GLcontext {
     void uniform_buffers_update_config(Config &config);
     void uniform_buffers_update_light(Light &light);
     void uniform_buffers_update_material(const Material &material);
-    void uniform_buffers_update_mesh(Mesh &mesh);
+    void uniform_buffers_update_matrices(Node &node);
     void uniform_buffers_update_state(Node &node);
     void uniform_locations_geometry_init(GLshader &shader);
     void uniform_locations_lighting_init(GLshader &shader);

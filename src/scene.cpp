@@ -203,7 +203,7 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
     if (node.mesh) {
       node.mesh->print(node.tree_level);
       std::cout << "model: " << std::endl;
-      print_matrix(std::cout, node.mesh->model, 0);
+      print_matrix(std::cout, node.transform_model_get(), 0);
 
     }
     if (node.material) {

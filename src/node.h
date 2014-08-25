@@ -43,28 +43,29 @@ typedef std::vector<std::unique_ptr<Node>> Node_List;
 class Node: public Animated {
 
   private:
-    Camera             *camera;
-    Light              *light;
-    Physics_Rigidbody  *rigidbody;
-    Text               *text;
-    Manipulator        *manipulator;
+    Camera             *camera = nullptr;
+    Light              *light = nullptr;
+    Physics_Rigidbody  *rigidbody = nullptr;
+    Text               *text = nullptr;
+    Manipulator        *manipulator = nullptr;
 
   public:
-    Armature           *armature;
-    Material           *material;
-    Mesh               *mesh;
-    Node               *parent;
+    Armature           *armature = nullptr;
+    Material           *material = nullptr;
+    Mesh               *mesh = nullptr;
+    Node               *parent = nullptr;
 
     std::string         name;
     glm::mat4           transform_global;
     glm::mat4           transform_local_current;
     glm::mat4           transform_local_original;
+    glm::mat4           transform_model = glm::mat4(1.f);
 
     glm::vec3           original_scaling;
     glm::vec3           original_position;
     glm::quat           original_rotation;
     Node_List           children;
-    int                 tree_level;
+    int                 tree_level = 0;
     Node_State          state;
 
     Node(const std::string &node_name);
@@ -77,7 +78,7 @@ class Node: public Animated {
     void                camera_set(Camera *camera);
     void                copy_transform_data(Node &node);
     void                child_add(std::unique_ptr<Node> &&node, int level);
-    Light              *light_create(Assets &assets, Node *node_volume);
+    Light              *light_create(Assets &assets);
     Light              *light_get();
     void                light_set(Light *light);
     void                print_state(int indent_level);
@@ -101,5 +102,7 @@ class Node: public Animated {
     void                translate(const glm::vec3 &v);
     void                transform_local_current_set(const glm::mat4 &transform);
     void                transform_local_original_set(const glm::mat4 &transform);
+    glm::mat4          &transform_model_get();
+    void                transform_model_set(const glm::mat4 &transform);
     void                transform_update_global_recursive(Node &node);
 };
