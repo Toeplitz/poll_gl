@@ -30,10 +30,11 @@ void Ui::init(Console &console, GLcontext &glcontext, Scene &scene)
 
   console.command_add("asset", "list", std::bind(&Ui::callback_asset_list, this, _1, _2, _3));
   console.command_add("light", "add", std::bind(&Ui::callback_light_create, this, _1, _2, _3));
-  console.command_add("light", "select", std::bind(&Ui::callback_light_select, this, _1, _2, _3));
   console.command_add("light", "disable", std::bind(&Ui::callback_light_disable, this, _1, _2, _3));
   console.command_add("light", "enable", std::bind(&Ui::callback_light_enable, this, _1, _2, _3));
   console.command_add("light", "list", std::bind(&Ui::callback_light_list, this, _1, _2, _3));
+  console.command_add("light", "print", std::bind(&Ui::callback_light_print, this, _1, _2, _3));
+  console.command_add("light", "select", std::bind(&Ui::callback_light_select, this, _1, _2, _3));
   console.command_add("node", "manipulator", std::bind(&Ui::callback_node_manipulator, this, _1, _2, _3));
   console.command_add("scene", "list", std::bind(&Ui::callback_scene_list, this, _1, _2, _3));
 
@@ -102,7 +103,7 @@ void Ui::callback_light_create(const std::string &prim, const std::string &sec, 
 
   Node *node = scene->node_create("light_added");
   node->translate(position);
-  node->scale(glm::vec3(20, 20, 20));
+  node->scale(glm::vec3(30, 30, 30));
   Light *light = node->light_create(assets, Light::POINT);
   light_active_set(light);
   callback_light_list(prim, sec, val);
@@ -130,6 +131,15 @@ void Ui::callback_light_enable(const std::string &prim, const std::string &sec, 
 
   assets.light_activate(light_active);
   callback_light_list(prim, sec, val);
+}
+
+
+void Ui::callback_light_print(const std::string &prim, const std::string &sec, const std::string &val)
+{
+  if (!light_active)
+    return;
+
+  light_active->print(0);
 }
 
 

@@ -74,7 +74,6 @@ class GLcontext {
     void uniform_locations_geometry_init(GLshader &shader);
     void uniform_locations_lighting_init(GLshader &shader);
     void uniform_locations_text_init(GLshader &shader);
-    void vertex_buffers_light_create(Light *light);
     void vertex_buffers_mesh_create(Mesh *mesh, const size_t max_size = 0);
     void vertex_buffers_mesh_update(Mesh *mesh);
     void vertex_buffers_mesh_delete(Mesh *mesh);

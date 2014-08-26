@@ -43,13 +43,8 @@ void Light::print(const int indent_level)
   }
   std::cout << std::endl;
   std::cout << "\tDirection: " <<  glm::to_string(properties.direction) << std::endl;
+  std::cout << "\tPosition: " <<  glm::to_string(properties.position) << std::endl;
   std::cout << "\tColor: " <<  glm::to_string(properties.color) << std::endl;
-}
-
-
-void Light::properties_bias_set(const glm::vec3 &bias)
-{
-  properties.position_bias = glm::vec4(bias, 0);
 }
 
 
@@ -69,6 +64,15 @@ void Light::properties_direction_set(const glm::vec3 &direction)
 {
   properties.direction = glm::vec4(direction, 0);
 }
+
+
+void Light::properties_position_set(const glm::vec3 &position)
+{
+  properties.position.x = position.x;
+  properties.position.y = position.y;
+  properties.position.z = position.z;
+}
+
 
 void Light::properties_type_set(const unsigned int type)
 {

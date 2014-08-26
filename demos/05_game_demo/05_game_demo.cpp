@@ -249,11 +249,11 @@ int main()
   /* Setup lights */
   {
     glm::vec3 light_positions[5] = {
-      glm::vec3(0, 2, 0),
-      glm::vec3(-50, 2, 45),
-      glm::vec3(-50, 2, -45),
-      glm::vec3(50, 2, 45),
-      glm::vec3(50, 2, -45)
+      glm::vec3(0, 21, 0),
+      glm::vec3(-50, 15, 45),
+      glm::vec3(-50, 15, -45),
+      glm::vec3(50, 15, 45),
+      glm::vec3(50, 15, -45)
     };
 
     glm::vec3 light_color[5] = {
@@ -269,7 +269,7 @@ int main()
       Light *light = node->light_create(assets, Light::POINT);
       light->properties_color_set(light_color[i]);
       node->translate(light_positions[i]);
-      node->scale(glm::vec3(20, 20, 20));
+      node->scale(glm::vec3(30, 30, 30));
     }
   }
 

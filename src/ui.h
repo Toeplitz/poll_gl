@@ -25,6 +25,7 @@ class Ui
     void callback_light_disable(const std::string &prim, const std::string &sec, const std::string &val);
     void callback_light_enable(const std::string &prim, const std::string &sec, const std::string &val);
     void callback_light_select(const std::string &prim, const std::string &sec, const std::string &val);
+    void callback_light_print(const std::string &prim, const std::string &sec, const std::string &val);
     void callback_light_list(const std::string &prim, const std::string &sec, const std::string &val);
     void callback_node_manipulator(const std::string &prim, const std::string &sec, const std::string &val);
     void callback_scene_list(const std::string &prim, const std::string &sec, const std::string &val);

@@ -244,6 +244,9 @@ void GLcontext::framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  
   GL_ASSERT(glEnable(GL_STENCIL_TEST));
   for (auto &light: lights) {
     Node *node = light->node_ptr_get();
+    glm::mat4 &model = node->transform_model_get();
+    light->properties_position_set(glm::vec3(model[3][0], model[3][1], model[3][2]));
+    uniform_buffers_update_light(*light);
     if (!node) {
       std::cout << "Error: missing node pointer for light" << std::endl;
       continue;
@@ -651,27 +654,6 @@ void GLcontext::uniform_locations_text_init(GLshader &shader)
 
   location = glGetUniformLocation(program, "bitmap_texture");
   GL_ASSERT(glUniform1i(location, 0));
-}
-
-
-void GLcontext::vertex_buffers_light_create(Light *light)
-{
-  if (!light) 
-    return;
-
-  Node *node = light->node_ptr_get();
-  if (!node) {
-    std::cout << "Error: missing node pointer for light" << std::endl;
-    return;
-  }
-
-  Mesh *mesh = node->mesh_get();
-  if (!mesh) {
-    std::cout << "Error: no mesh attached to the light" << std::endl;
-    return;
-  }
-
-  vertex_buffers_mesh_create(mesh);
 }
 
 

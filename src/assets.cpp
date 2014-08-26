@@ -24,7 +24,7 @@
 
   {
     node_symbol_pyramid = scene.node_create("stock_pyramid");
-    Mesh *mesh = node_symbol_disk->mesh_create(scene.assets_get());
+    Mesh *mesh = node_symbol_pyramid->mesh_create(scene.assets_get());
     mesh->generate_pyramid(1.f);
     glcontext.vertex_buffers_mesh_create(mesh);
   }
