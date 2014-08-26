@@ -1,6 +1,5 @@
 #pragma once
 
-#include <SDL2/SDL_stdinc.h>            // for Uint32
 #include <string>
 #include "config.h"
 #include "console.h"
@@ -16,7 +15,7 @@
 #define GLOBAL_CONFIG "./fragmic.conf"
 
 
-class Fragmic {
+class Poll {
   private:
 
     Config config;
@@ -37,8 +36,8 @@ class Fragmic {
     void         profile_fps(const double dt);
 
   public:
-    Fragmic(const std::string &config_file = ""); 
-    ~Fragmic(); 
+    Poll(const std::string &config_file = ""); 
+    ~Poll(); 
 
     Assets      &assets_get();
     Config      &config_get();

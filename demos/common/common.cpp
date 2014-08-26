@@ -1,8 +1,8 @@
 #include "common.h"
 
-Fragmic *f;
+Poll *p;
 
-void common_init(Fragmic &fragmic)
+void common_init(Poll &poll)
 {
-  f = &fragmic;
+  p = &poll;
 }

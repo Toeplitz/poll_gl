@@ -1,5 +1,5 @@
 #include "common.h"
-#include "fragmic.h"
+#include "poll.h"
 
 
 static void common_debug_keyboard_pressed_cb(SDL_Keysym *keysym);
@@ -7,8 +7,8 @@ static void common_debug_keyboard_pressed_cb(SDL_Keysym *keysym);
 
 static void common_debug_keyboard_pressed_cb(SDL_Keysym *keysym)
 {
-  Physics &physics = f->physics_get();
-  Console &console = f->console_get();
+  Physics &physics = p->physics_get();
+  Console &console = p->console_get();
 
 
   switch (keysym->sym) {
@@ -36,6 +36,6 @@ static void common_debug_keyboard_pressed_cb(SDL_Keysym *keysym)
 
 void common_debug_use()
 {
-  Window &window = f->window_get();
+  Window &window = p->window_get();
   window.keyboard_pressed_callback_set(common_debug_keyboard_pressed_cb);
 }

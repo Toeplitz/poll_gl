@@ -1,18 +1,18 @@
-#include "fragmic.h"
+#include "poll.h"
 #include "common.h"
 #include <iostream>
 
-Fragmic fragmic;
+Poll poll;
 
 
 int main() 
 {
-  Scene &scene = fragmic.scene_get();
-  GLcontext glcontext = fragmic.glcontext_get();
+  Scene &scene = poll.scene_get();
+  GLcontext glcontext = poll.glcontext_get();
 
   {
     Node *camera_node = scene.node_camera_get();
-    common_init(fragmic);
+    common_init(poll);
     common_fpcamera_use(camera_node);
     common_debug_use();
   }
@@ -26,8 +26,8 @@ int main()
   //scene.assets_get().print_all(scene.node_root_get());
 
 
-  fragmic.run();
-  fragmic.term();
+  poll.run();
+  poll.term();
 
   return true;
 }

@@ -34,6 +34,14 @@ layout(std140) uniform Config
   Config_Viewport config_viewport;
 };
 
+layout(std140) uniform Light
+{
+  vec4 position_bias;
+  vec4 color;
+  vec4 direction;
+  int type;
+};
+
 
 const vec2 poisson16[] = vec2[] (
   // Poisson Disk Samples

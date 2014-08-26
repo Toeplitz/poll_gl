@@ -1,10 +1,10 @@
-#include "fragmic.h"
+#include "poll.h"
 #include "common.h"
 #include "physics.h"
 #include <iostream>
 
 
-Fragmic fragmic;
+Poll poll;
 Physics_Character_Controller *character;
 unsigned int direction = 0;
 Armature *armature = nullptr;
@@ -20,7 +20,7 @@ Light *light_spot;
 
 static void light_toggle(Light *light)
 {
-  Scene &scene = fragmic.scene_get();
+  Scene &scene = poll.scene_get();
   Assets &assets = scene.assets_get();
 
   int r = assets.light_is_active(light);
@@ -37,7 +37,7 @@ static void joystick_axis_motion_cb(SDL_JoyAxisEvent *ev)
 {
   static int joystick_x = 0;
   static int joystick_y = 0;
-  Window &window = fragmic.window_get();
+  Window &window = poll.window_get();
   float r, angle;
 
   direction |= PHYSICS_DIRECTION_ROTATE;
@@ -94,7 +94,7 @@ static void joystick_button_released_cb(SDL_JoyButtonEvent *ev)
 
 static void keyboard_pressed_cb(SDL_Keysym *keysym)
 {
-  Console &console = f->console_get();
+  Console &console = p->console_get();
 
   if (console.active()) 
     return;
@@ -140,7 +140,7 @@ static void keyboard_pressed_cb(SDL_Keysym *keysym)
 
 static void keyboard_released_cb(SDL_Keysym *keysym)
 {
-  Console &console = f->console_get();
+  Console &console = p->console_get();
 
   if (console.active()) 
     return;
@@ -200,11 +200,11 @@ static void physics_update()
 
 int main() 
 {
-  Scene &scene = fragmic.scene_get();
+  Scene &scene = poll.scene_get();
   Assets &assets = scene.assets_get();
-  Window &window = fragmic.window_get();
-  Physics &physics = fragmic.physics_get();
-  GLcontext glcontext = fragmic.glcontext_get();
+  Window &window = poll.window_get();
+  Physics &physics = poll.physics_get();
+  GLcontext glcontext = poll.glcontext_get();
 
   window.joystick_axis_motion_callback_set(joystick_axis_motion_cb);
   window.joystick_pressed_callback_set(joystick_button_pressed_cb);
@@ -215,7 +215,7 @@ int main()
 
   {
     Node *camera_node = scene.node_camera_get();
-    common_init(fragmic);
+    common_init(poll);
     common_fpcamera_use(camera_node);
     common_debug_use();
   }
@@ -267,15 +267,15 @@ int main()
     for (int i = 0; i < 5; i++) {
       Node *node = scene.node_create("Light_Point");
       Light *light = node->light_create(assets, Light::POINT);
+      light->properties_color_set(light_color[i]);
       node->translate(light_positions[i]);
       node->scale(glm::vec3(20, 20, 20));
-      light->properties_color_set(light_color[i]);
     }
   }
 
 
-  fragmic.run();
-  fragmic.term();
+  poll.run();
+  poll.term();
 
   return true;
 }

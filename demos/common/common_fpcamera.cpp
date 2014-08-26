@@ -1,5 +1,5 @@
 #include "common.h"
-#include "fragmic.h"
+#include "poll.h"
 
 enum Camera_Move { FORWARD, BACKWARD, SIDESTEP_RIGHT, SIDESTEP_LEFT};
 
@@ -76,8 +76,8 @@ static void common_fpcamera_event_cb(SDL_Event *event)
 
 static void common_fpcamera_keyboard_pressed_cb(SDL_Keysym *keysym)
 {
-  Window &window = f->window_get();
-  Console &console = f->console_get();
+  Window &window = p->window_get();
+  Console &console = p->console_get();
 
   if (console.active()) 
     return;
@@ -107,7 +107,7 @@ static void common_fpcamera_keyboard_pressed_cb(SDL_Keysym *keysym)
 
 static void common_fpcamera_keyboard_released_cb(SDL_Keysym *keysym)
 {
-  Console &console = f->console_get();
+  Console &console = p->console_get();
 
   if (console.active()) 
     return;
@@ -220,7 +220,7 @@ static void common_fpcamera_mouse_button_up(SDL_MouseButtonEvent *ev)
 static void common_fpcamera_mouse_motion(SDL_MouseMotionEvent *ev)
 {
   static int last_x, last_y;
-  Window &window = f->window_get();
+  Window &window = p->window_get();
 
   if (!mouse_view_toggle)
     return;
@@ -246,7 +246,7 @@ static void common_fpcamera_update_cb()
 
 void common_fpcamera_use(Node *node)
 {
-  Window &window = f->window_get();
+  Window &window = p->window_get();
   n = node;
   camera = n->camera_get();
 

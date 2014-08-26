@@ -6,8 +6,6 @@
 
 
 class Node;
-class Light;
-
 
 
 struct Light_Properties

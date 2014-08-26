@@ -1,8 +1,6 @@
-#include "fragmic.h"
-#include <SDL2/SDL_timer.h> 
+#include "poll.h"
 #include <iostream>
 #include <chrono>
-#include <iomanip>      // std::setprecision
 
 
 /**************************************************/
@@ -10,7 +8,7 @@
 /**************************************************/
 
 
-Fragmic::Fragmic(const std::string &config_file)
+Poll::Poll(const std::string &config_file)
 {
   GLcontext &glcontext = window.glcontext_get();
   Assets &assets = assets_get();
@@ -20,7 +18,7 @@ Fragmic::Fragmic(const std::string &config_file)
   else
     config.init(console, scene, glcontext, config_file);
 
-  window.init(config, "Fragmic");
+  window.init(config, "Poll");
   window.swap_interval_set(1);
   if (!glcontext.init(window.width_get(), window.height_get())) {
     exit(-1);
@@ -63,7 +61,7 @@ Fragmic::Fragmic(const std::string &config_file)
 }
 
 
-Fragmic::~Fragmic() 
+Poll::~Poll() 
 {
 }
 
@@ -73,7 +71,7 @@ Fragmic::~Fragmic()
 /**************************************************/
 
 
-void Fragmic::run()
+void Poll::run()
 {
   GLcontext &glcontext = window.glcontext_get();
   const Assets &assets = assets_get();
@@ -83,7 +81,7 @@ void Fragmic::run()
     profile_fps(dt);
 
     if (!window.poll_events()) {
-      std::cout << "Fragmic exiting..." << std::endl;
+      std::cout << "Poll exiting..." << std::endl;
       return;
     }
 
@@ -120,7 +118,7 @@ void Fragmic::run()
 }
 
 
-void Fragmic::term()
+void Poll::term()
 {
   Assets &assets = assets_get();
   GLcontext &glcontext = window.glcontext_get();
@@ -138,42 +136,42 @@ void Fragmic::term()
 }
 
 
-Assets &Fragmic::assets_get()
+Assets &Poll::assets_get()
 {
   return scene_get().assets_get();
 }
 
 
-Config &Fragmic::config_get() 
+Config &Poll::config_get() 
 {
   return config;
 }
 
 
-Console &Fragmic::console_get() 
+Console &Poll::console_get() 
 {
   return console;
 }
 
 
-GLcontext &Fragmic::glcontext_get()
+GLcontext &Poll::glcontext_get()
 {
   return window_get().glcontext_get();
 }
 
 
-Physics &Fragmic::physics_get() 
+Physics &Poll::physics_get() 
 {
   return physics;
 }
 
-Scene &Fragmic::scene_get()
+Scene &Poll::scene_get()
 {
   return scene;
 }
 
 
-Window &Fragmic::window_get()
+Window &Poll::window_get()
 {
   return window;
 }
@@ -185,7 +183,7 @@ Window &Fragmic::window_get()
 
 
 // Return delta time in seconds.
-double Fragmic::delta_time_get()
+double Poll::delta_time_get()
 {
   static unsigned long long time_last = std::chrono::system_clock::now().time_since_epoch() /  std::chrono::microseconds(1);
   unsigned long long time_cur = std::chrono::system_clock::now().time_since_epoch() /  std::chrono::microseconds(1);
@@ -195,13 +193,13 @@ double Fragmic::delta_time_get()
   return dt;
 }
 
-std::string &Fragmic::fps_text_get()
+std::string &Poll::fps_text_get()
 {
   return fps_text;
 }
 
 
-void Fragmic::profile_fps(const double dt)
+void Poll::profile_fps(const double dt)
 {
   static int numFrames = 0;
   static double t;
