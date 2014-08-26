@@ -37,6 +37,5 @@ class Ui
 
     void init(Console &console, GLcontext &glcontext, Scene &scene);
     void draw(const std::string &fps_text);
-    void term();
 
 };

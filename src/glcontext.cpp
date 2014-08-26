@@ -73,7 +73,7 @@ void GLcontext::draw_light(Light *light)
 
 void GLcontext::draw_node(Node &node)
 {
-  Mesh *mesh = node.mesh;
+  Mesh *mesh = node.mesh_get();
 
   if (!mesh) {
     std::cout << "No mesh attached to node: '" << node.name << std::endl;

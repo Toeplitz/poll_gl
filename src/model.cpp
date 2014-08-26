@@ -6,22 +6,6 @@ static const Value &lookup_node(const Key &key, const std::map<Key, Value> &map)
 
 
 /**************************************************/
-/***************** CONSTRUCTORS *******************/
-/**************************************************/
-
-
-Model::Model(): armature_ptr(nullptr)
-{
-}
-
-
-Model::~Model()
-{
-}
-
-
-
-/**************************************************/
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
 
@@ -210,7 +194,7 @@ void Model::bone_map_create(Assets & assets, BoneForAssimpBone & boneForAssimpBo
 
   Node *armatureRoot = armature->find_toplevel_node();
   if (armatureRoot) {
-    armatureRoot->armature = armature.get();
+    armatureRoot->armature_set(armature.get());
   }
   armature_ptr = armature.get();
   assets.armature_add(std::move(armature));
@@ -485,7 +469,7 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
     }
 
     // Point the mesh to the existing material, corresponding to the index
-    mesh_node->material = materials[assimpMesh->mMaterialIndex];
+    mesh_node->material_set(materials[assimpMesh->mMaterialIndex]);
     //std::cout << "Node: " << mesh_node->name << " has material " << mesh_node->material << " and num faces/vertices: " << assimpMesh->mNumFaces << "/" << assimpMesh->mNumVertices << std::endl;
 
     m.num_faces = assimpMesh->mNumFaces;
@@ -550,36 +534,19 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
     }
 
     for (unsigned int iv = 0; iv < assimpMesh->mNumVertices; iv++) {
-      Vertex v;
-      v.position.x = assimpMesh->mVertices[iv].x;
-      v.position.y = assimpMesh->mVertices[iv].y;
-      v.position.z = assimpMesh->mVertices[iv].z;
-      m.positions.push_back(glm::vec3(v.position.x, v.position.y, v.position.z));
+      m.positions.push_back(glm::vec3(assimpMesh->mVertices[iv].x, assimpMesh->mVertices[iv].y, assimpMesh->mVertices[iv].z));
 
       if (assimpMesh->HasNormals()) {
-        v.normal.x = assimpMesh->mNormals[iv].x;
-        v.normal.y = assimpMesh->mNormals[iv].y;
-        v.normal.z = assimpMesh->mNormals[iv].z;
-        m.normals.push_back(glm::vec3(v.normal.x, v.normal.y, v.normal.z));
+        m.normals.push_back(glm::vec3(assimpMesh->mNormals[iv].x, assimpMesh->mNormals[iv].y, assimpMesh->mNormals[iv].z));
       }
       if (assimpMesh->HasTangentsAndBitangents()) {
-        v.tangent.x = assimpMesh->mTangents[iv].x;
-        v.tangent.y = assimpMesh->mTangents[iv].y;
-        v.tangent.z = assimpMesh->mTangents[iv].z;
-
-        v.bitangent.x = assimpMesh->mBitangents[iv].x;
-        v.bitangent.y = assimpMesh->mBitangents[iv].y;
-        v.bitangent.z = assimpMesh->mBitangents[iv].z;
-
-        m.tangents.push_back(glm::vec3(v.tangent.x, v.tangent.y, v.tangent.z));
-        m.bitangents.push_back(glm::vec3(v.bitangent.x, v.bitangent.y, v.bitangent.z));
+        m.tangents.push_back(glm::vec3(assimpMesh->mTangents[iv].x, assimpMesh->mTangents[iv].y,assimpMesh->mTangents[iv].z));
+        m.bitangents.push_back(glm::vec3(assimpMesh->mBitangents[iv].x, assimpMesh->mBitangents[iv].y, assimpMesh->mBitangents[iv].z));
       }
 
       unsigned int p = 0;
       while (assimpMesh->HasTextureCoords(p)) {
-        v.uv.x = assimpMesh->mTextureCoords[p][iv].x;
-        v.uv.y = assimpMesh->mTextureCoords[p][iv].y;
-        m.texture_st.push_back(glm::vec2(v.uv.x, v.uv.y));
+        m.texture_st.push_back(glm::vec2(assimpMesh->mTextureCoords[p][iv].x, assimpMesh->mTextureCoords[p][iv].y));
         if (p > 0) {
           std::cout << "Fragmic warning: more than one set of texture coordinates for one mesh" << std::endl;
           std::cout << "NOT CURRENTLY SUPPORTED!" << std::endl;
@@ -597,7 +564,7 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
     }
 
     m.scale_matrix = glm::scale(glm::mat4(1.0f), mesh_node->original_scaling);
-    mesh_node->mesh = mesh_ptr.get();
+    mesh_node->mesh_set(mesh_ptr.get());
     mesh_node->armature_set(armature_ptr);
     if (node.mNumMeshes > 1) {
       mesh_node->copy_transform_data(*parent_node);

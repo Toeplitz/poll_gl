@@ -48,7 +48,7 @@ class Model {
     NodeMap                  nodes;
     const aiScene           *scene;
     std::string              prefix;
-    Armature                *armature_ptr;
+    Armature                *armature_ptr = nullptr;
 
     void   assimp_material_add_texture(Material &material, aiMaterial &assimp_material, Model_Texture_Type type);
 
@@ -62,8 +62,6 @@ class Model {
     void   key_frames_parse(void);
 
   public:
-    Model();
-    ~Model();
 
     Node *load(Assets &assets, Node &root, const std::string &prefix, const std::string &filename, const unsigned int options); 
 };

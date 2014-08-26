@@ -3,20 +3,17 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "aabb.h"
 #include "gldefaults.h"
-#include "vertex.h"
 #include <vector>
 
 class Mesh {
   private:
 
   public:
-    GLenum mode;
-    GLuint gl_vao;
+    GLenum mode = GL_TRIANGLES;
+    GLuint gl_vao = 0;
     GLuint gl_vertex_buffers[8];
 
-    Aabb aabb;
     std::vector<GLshort> indices;
     std::vector<glm::vec3> positions;
     std::vector<glm::vec3> normals;
@@ -26,12 +23,8 @@ class Mesh {
     std::vector<glm::vec3> bone_weights;
     std::vector<glm::ivec3> bone_indices;
 
-  //  glm::mat4 model;
     glm::mat4 scale_matrix;
     unsigned int num_faces;
-
-    Mesh();
-    ~Mesh();
 
     const std::vector<glm::vec3>   &bitangents_get() const;
     const std::vector<glm::ivec3>  &bone_indices_get() const;

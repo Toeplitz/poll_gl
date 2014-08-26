@@ -232,7 +232,7 @@ int main()
     panda = scene.node_find(&panda_root, "Panda");
     Node *panda_collision = scene.node_find(&panda_collision_root, "Panda_convex_hull");
     if (panda && panda_collision) {
-      armature = panda->armature;
+      armature = panda->armature_get();
       character = physics.character_controller_add(*panda, *panda_collision);
       armature->keyframe_range_set("bind", 0, 0);
       armature->keyframe_range_set("idle", 1, 3);

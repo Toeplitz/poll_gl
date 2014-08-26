@@ -43,16 +43,16 @@ typedef std::vector<std::unique_ptr<Node>> Node_List;
 class Node: public Animated {
 
   private:
+    Armature           *armature = nullptr;
     Camera             *camera = nullptr;
     Light              *light = nullptr;
     Physics_Rigidbody  *rigidbody = nullptr;
     Text               *text = nullptr;
     Manipulator        *manipulator = nullptr;
-
-  public:
-    Armature           *armature = nullptr;
     Material           *material = nullptr;
     Mesh               *mesh = nullptr;
+
+  public:
     Node               *parent = nullptr;
 
     std::string         name;

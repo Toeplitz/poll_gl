@@ -1,23 +1,7 @@
-#include "aabb.h"
 #include "mesh.h"
 #include "utils.h"
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
-
-/**************************************************/
-/***************** CONSTRUCTORS *******************/
-/**************************************************/
-
-
-Mesh::Mesh()
-{
-  mode = GL_TRIANGLES;
-  gl_vao = 0;
-}
-
-Mesh::~Mesh(void)
-{
-}
 
 
 /**************************************************/

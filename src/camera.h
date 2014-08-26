@@ -11,8 +11,8 @@
 class Camera 
 {
   private:
-    float fov;
-    glm::vec3 up;
+    float fov = 45.f;
+    glm::vec3 up = glm::vec3(0, 1, 0);
     glm::mat4 perspective;
     glm::mat4 inv_perspective;
     glm::mat4 view;
@@ -22,9 +22,6 @@ class Camera
 
     std::function<void ()> update_callback;
   public: 
-
-    Camera();
-    ~Camera();
 
       void update_callback_set(const std::function<void ()> callback)
       {

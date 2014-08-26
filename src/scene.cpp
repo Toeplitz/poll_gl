@@ -165,7 +165,7 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
   indent(std::cout, node.tree_level);
   std::cout << node.tree_level << ": '" << node.name << "' " << &node << "";
 
-  if (node.armature) {
+  if (node.armature_get()) {
     std::cout << " (armature)";
   }
   if (node.camera_get()) {
@@ -183,7 +183,7 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
   if (node.material_get()) {
     std::cout << " (material)";
   }
-  if (node.mesh) {
+  if (node.mesh_get()) {
     std::cout << " (mesh)";
   }
   if (node.text_get()) {
@@ -200,14 +200,14 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
     print_matrix(std::cout, node.transform_global, 0);
     */
 
-    if (node.mesh) {
-      node.mesh->print(node.tree_level);
+    if (node.mesh_get()) {
+      node.mesh_get()->print(node.tree_level);
       std::cout << "model: " << std::endl;
       print_matrix(std::cout, node.transform_model_get(), 0);
 
     }
-    if (node.material) {
-      node.material->print(node.tree_level);
+    if (node.material_get()) {
+      node.material_get()->print(node.tree_level);
     }
 
     if (node.light_get()) {
@@ -262,23 +262,23 @@ Node &Scene::node_root_get()
 
 void Scene::node_state_recursive_update(Node &node)
 {
-  if (node.armature) {
+  if (node.armature_get()) {
     node.state.animated = true;
   }
 
-  if (node.material) {
-    if (node.material->diffuse && node.material->normal && node.material->specular ) {
+  if (node.material_get()) {
+    if (node.material_get()->diffuse && node.material_get()->normal && node.material_get()->specular ) {
       node.state.diffuse_specular_normal = true;
-    } else if (node.material->diffuse && node.material->normal) {
+    } else if (node.material_get()->diffuse && node.material_get()->normal) {
       node.state.diffuse_normal = true;
-    } else if (node.material->diffuse) {
+    } else if (node.material_get()->diffuse) {
       node.state.diffuse = true;
-    } else if (node.material->cubemap) {
+    } else if (node.material_get()->cubemap) {
       std::cout << "Updating material state" << std::endl;
-      if (node.material->cubemap->type == CUBEMAP_SKYBOX) {
+      if (node.material_get()->cubemap->type == CUBEMAP_SKYBOX) {
         node.state.cubemap_skybox = true;
         std::cout << "Found skybox" << std::endl;
-      } else if (node.material->cubemap->type == CUBEMAP_REFLECTION) {
+      } else if (node.material_get()->cubemap->type == CUBEMAP_REFLECTION) {
         std::cout << "Found reflection" << std::endl;
         node.state.cubemap_reflect = true;
       } else {

@@ -48,7 +48,7 @@ Physics::~Physics()
 
 Physics_Character_Controller *Physics::character_controller_add(Node &node, Node &collision_node)
 {
-  if (!node.mesh) {
+  if (!node.mesh_get()) {
     std::cout << "Error: no mesh for character controller creation (node: '" << node.name << "')" << std::endl;
     return nullptr;
   }
@@ -99,7 +99,7 @@ void Physics::collision_shape_add(Node &node, const Physics_Collision_Shape shap
   Physics_Node p_node;
 
 
-  if (!node.mesh) {
+  if (!node.mesh_get()) {
   //  std::cout << "No mesh for node: '" << node.name << "', skipping ..." << std::endl;
   } else if (node.light_get()) {
     std::cout << "Light node: '" << node.name << "', skipping ..." << std::endl;
@@ -227,7 +227,7 @@ void Physics::bullet_collision_rigidbody_delete(btRigidBody *rb)
 btCollisionShape *Physics::bullet_collision_shape_convex_hull_create(Node &node)
 {
   btCollisionShape *collision_shape = nullptr;
-  std::vector<glm::vec3> vertices = node.mesh->positions_get();
+  std::vector<glm::vec3> vertices = node.mesh_get()->positions_get();
   int n = vertices.size();
 
   collision_shape = new btConvexHullShape((btScalar *) vertices.data(), n, sizeof(glm::vec3));
@@ -239,7 +239,7 @@ btCollisionShape *Physics::bullet_collision_shape_convex_hull_create(Node &node)
 
 btCollisionShape *Physics::bullet_collision_shape_triangle_mesh_create(Node &node)
 {
-  Mesh *mesh = node.mesh;
+  Mesh *mesh = node.mesh_get();
   btCollisionShape *collision_shape = nullptr;
 
   if  (!mesh) {
@@ -250,10 +250,10 @@ btCollisionShape *Physics::bullet_collision_shape_triangle_mesh_create(Node &nod
   std::vector<glm::vec3> positions = mesh->positions_get();
   std::vector<GLshort> indices = mesh->indices_get();
 
-  assert(node.mesh->num_indices_get() % 3 == 0);
+  assert(node.mesh_get()->num_indices_get() % 3 == 0);
 
   btTriangleMesh* ptrimesh = new btTriangleMesh();
-  for (unsigned int i = 0; i < node.mesh->num_indices_get(); i = i + 3) {
+  for (unsigned int i = 0; i < node.mesh_get()->num_indices_get(); i = i + 3) {
     /*
     std::cout << "Triangle points (x, y, z) , (x, y, z) , (x, y, z): " << std::endl;
     std::cout << "(" << positions[indices[i]].x << ", " << positions[indices[i]].y << ", " << positions[indices[i]].z << ") ";

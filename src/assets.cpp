@@ -244,7 +244,7 @@ Material_List const &Assets::material_get_all() const
 }
 
 
-void Assets::material_print_all(const Node &node) const
+void Assets::material_print_all(Node &node) 
 {
   std::cout << "Materials: " << std::endl;
   for (auto &material: materials) {
@@ -274,11 +274,11 @@ void Assets::material_print_all(const Node &node) const
 
 
 
-unsigned int Assets::material_node_lookup(const Material *material, const Node &node) const
+unsigned int Assets::material_node_lookup(const Material *material, Node &node) 
 {
   unsigned int count = 0;
 
-  if (material == node.material) 
+  if (material == node.material_get()) 
     count++;
 
   for (auto &child : node.children) {
@@ -301,11 +301,11 @@ Mesh_List const &Assets::mesh_get_all() const
 }
 
 
-unsigned int Assets::mesh_node_lookup(const Mesh *mesh, const Node &node) const
+unsigned int Assets::mesh_node_lookup(const Mesh *mesh, Node &node) 
 {
   unsigned int count = 0;
 
-  if (mesh == node.mesh) 
+  if (mesh == node.mesh_get()) 
     count++;
 
   for (auto &child : node.children) {
@@ -316,7 +316,7 @@ unsigned int Assets::mesh_node_lookup(const Mesh *mesh, const Node &node) const
 }
 
 
-void Assets::mesh_print_all(const Node &node) const
+void Assets::mesh_print_all(Node &node) 
 {
   std::cout << "\nMeshes: " << std::endl;
   for (auto &mesh: meshes) {
@@ -335,7 +335,7 @@ void Assets::physics_rigidbody_add(std::unique_ptr<Physics_Rigidbody> &&rigidbod
 }
 
 
-void Assets::print_all(const Node &node) const
+void Assets::print_all(Node &node)
 {
   std::cout << "======== Current assets (owned by engine) ========" << std::endl;
   armature_print_all();

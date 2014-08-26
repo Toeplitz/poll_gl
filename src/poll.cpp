@@ -124,7 +124,6 @@ void Poll::term()
   GLcontext &glcontext = window.glcontext_get();
 
   console.term();
-  ui.term();
   physics.term();
   assets.term(glcontext);
   glcontext.uniform_buffers_delete();
