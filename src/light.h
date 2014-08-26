@@ -3,68 +3,43 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <memory>
 
-#include "mesh.h"
 
 class Node;
+class Light;
 
-
-enum Light_Type
-{
-  LIGHT_UNDEFINED = 0,
-  LIGHT_DIRECTIONAL = 1,
-  LIGHT_SPOT = 2,
-  LIGHT_POINT = 3,
-  LIGHT_SPHERE = 4
-};
-
-
-enum Light_Volume
-{
-  LIGHT_VOLUME_SPHERE = 0,
-  LIGHT_VOLUME_BOX = 1
-};
 
 
 struct Light_Properties
 {
-  /*
-  glm::vec4 ambient;
-  glm::vec4 diffuse;
-  glm::vec4 specular;
-  glm::vec4 direction;
-  glm::vec4 position;
-  glm::mat4 transform;
-  */
+  glm::vec4 position_bias = glm::vec4(0.f);
+  glm::vec4 color = glm::vec4(1.f);
+  glm::vec4 direction = glm::vec4(0, -1, 0, 0);
+  int type = 0;
 };
-
-
 
 
 class Light
 {
   private:
     Light_Properties properties;
-    glm::vec3 bias = glm::vec3(0.f, 0.f, 0.f);
     Node *node_ptr = nullptr;
 
   public:
+    enum Light_Type
+    {
+      UNDEFINED = 0,
+      DIRECTIONAL = 1,
+      SPOT = 2,
+      POINT = 3
+    };
 
-    Light();
-    ~Light();
-
-    void                    bias_set(const glm::vec3 &bias);
-    void                    print(const int indent_level);
-    const Light_Properties &properties_get() const;
-    void                    properties_set(const glm::vec3 ambient, 
-                                           const glm::vec3 diffuse, const glm::vec3 specular);
-    void                    properties_direction_set(const glm::vec3 &direction);
-    void                    properties_position_set(const glm::vec3 &position);
-    const glm::vec4        &properties_position_get() const;
-    void                    properties_transform_set(const glm::mat4 transform);
-    const glm::mat4        &properties_transform_get();
-    void                    properties_type_set(const unsigned int type);
     Node                   *node_ptr_get();
     void                    node_ptr_set(Node *node);
+    void                    print(const int indent_level);
+    void                    properties_bias_set(const glm::vec3 &bias);
+    void                    properties_color_set(const glm::vec3 &color);
+    void                    properties_direction_set(const glm::vec3 &direction);
+    const Light_Properties &properties_get() const;
+    void                    properties_type_set(const unsigned int type);
 };

@@ -87,13 +87,14 @@ void Node::child_add(std::unique_ptr<Node> &&node, int level)
 }
 
 
-Light *Node::light_create(Assets &assets)
+Light *Node::light_create(Assets &assets, const unsigned int type)
 {
   Stock_Nodes &stock_nodes = assets.stock_nodes_get();
   Mesh *light_volume = stock_nodes.sphere_get();
 
   std::unique_ptr<Light> light(new Light());
   Light *light_ptr = light.get();
+  light_ptr->properties_type_set(type);
   mesh_set(light_volume);
   light_set(light_ptr);
   assets.light_active_add(std::move(light));

@@ -256,11 +256,20 @@ int main()
       glm::vec3(50, 2, -45)
     };
 
+    glm::vec3 light_color[5] = {
+      glm::vec3(1, 1, 1),
+      glm::vec3(1, 0, 0),
+      glm::vec3(0, 1, 0),
+      glm::vec3(0, 0, 1),
+      glm::vec3(1, 0.5, 0)
+    };
+
     for (int i = 0; i < 5; i++) {
-      Node *node = scene.node_create("Light_Directional");
-      node->light_create(assets);
+      Node *node = scene.node_create("Light_Point");
+      Light *light = node->light_create(assets, Light::POINT);
       node->translate(light_positions[i]);
       node->scale(glm::vec3(20, 20, 20));
+      light->properties_color_set(light_color[i]);
     }
   }
 

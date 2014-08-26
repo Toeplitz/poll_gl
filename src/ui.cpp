@@ -108,7 +108,7 @@ void Ui::callback_light_create(const std::string &prim, const std::string &sec, 
   Node *node = scene->node_create("light_added");
   node->translate(position);
   node->scale(glm::vec3(20, 20, 20));
-  Light *light = node->light_create(assets);
+  Light *light = node->light_create(assets, Light::POINT);
   light_active_set(light);
   callback_light_list(prim, sec, val);
 }
