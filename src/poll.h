@@ -12,7 +12,7 @@
 #include "window.h"                     
 
 
-#define GLOBAL_CONFIG "./fragmic.conf"
+#define GLOBAL_CONFIG "./poll.conf"
 
 
 class Poll {
