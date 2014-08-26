@@ -64,10 +64,10 @@ Node *Armature::find_toplevel_node()
       }
     }
   }
-  if (!root->parent)
+  if (!root->parent_get())
     return root;
 
-  return root->parent;
+  return root->parent_get();
 }
 
 

@@ -133,6 +133,12 @@ void Node::print_state(int indent_level)
 }
 
 
+Node *Node::parent_get()
+{
+  return parent;
+}
+
+
 Physics_Rigidbody  *Node::physics_rigidbody_create(Assets &assets)
 {
   std::unique_ptr<Physics_Rigidbody> rigidbody(new Physics_Rigidbody());

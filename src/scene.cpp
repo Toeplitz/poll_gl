@@ -53,7 +53,7 @@ const std::vector <Node *> &Scene::animated_nodes_get() const
 void Scene::animated_nodes_update_transforms(Node &node, const double dt)
 {
   glm::mat4 transform = node.transform_local_current;
-  Node *parent = node.parent;
+  Node *parent = node.parent_get();
 
   if (node.keyframe_total_num_get()) {
     double factor = node.step_time(dt);

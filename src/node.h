@@ -51,9 +51,9 @@ class Node: public Animated {
     Manipulator        *manipulator = nullptr;
     Material           *material = nullptr;
     Mesh               *mesh = nullptr;
+    Node               *parent = nullptr;
 
   public:
-    Node               *parent = nullptr;
 
     std::string         name;
     glm::mat4           transform_global;
@@ -81,6 +81,7 @@ class Node: public Animated {
     Light              *light_create(Assets &assets, const unsigned int type);
     Light              *light_get();
     void                light_set(Light *light);
+    Node               *parent_get();
     void                print_state(int indent_level);
     Physics_Rigidbody  *physics_rigidbody_create(Assets &assets);
     Physics_Rigidbody  *physics_rigidbody_get();
