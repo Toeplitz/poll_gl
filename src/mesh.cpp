@@ -31,7 +31,7 @@ const std::vector<glm::vec3> &Mesh::bone_weights_get() const
 }
 
 
-void Mesh::cube_generate(const float &size)
+void Mesh::generate_cube(const float &size)
 {
   GLfloat cube_vertices[] = {
     // front
@@ -73,6 +73,40 @@ void Mesh::cube_generate(const float &size)
   }
   for (int i = 0; i < 12 * 3; i++) {
     indices.push_back(cube_elements[i]);
+  }
+}
+
+
+void Mesh::generate_pyramid(const float &size)
+{
+  positions_add(size * glm::vec3(0.0f, 1.f, 0.0f));
+  positions_add(size * glm::vec3(-1.0f, -1.0f, 1.0f));
+  positions_add(size * glm::vec3(1.0f, -1.0f, 1.0f));
+  positions_add(size * glm::vec3(0.0f, 1.0f, 0.0f));
+  positions_add(size * glm::vec3(-1.0f, -1.0f, 1.0f));
+  positions_add(size * glm::vec3(0.0f, -1.0f, -1.0f));
+  positions_add(size * glm::vec3(0.0f, 1.0f, 0.0f));
+  positions_add(size * glm::vec3(0.0f, -1.0f, -1.0f));
+  positions_add(size * glm::vec3(1.0f, -1.0f, 1.0f));
+  positions_add(size * glm::vec3(-1.0f, -1.0f, 1.0f));
+  positions_add(size * glm::vec3(0.0f, -1.0f, -1.0f));
+  positions_add(size * glm::vec3(1.0f, -1.0f, 1.0f));
+}
+
+void Mesh::generate_quad(const float &size)
+{
+  const int n_vertices = 6;
+  GLfloat quad_pos[] = {
+    -1.0, -1.0,
+     1.0, -1.0,
+     1.0,  1.0,
+     1.0,  1.0,
+    -1.0,  1.0,
+    -1.0, -1.0
+  };
+
+  for (int i = 0; i < n_vertices * 2; i = i + 2) {
+    positions_add(glm::vec3(quad_pos[i], quad_pos[i + 1], 0.0) * size);
   }
 }
 
@@ -150,25 +184,6 @@ const std::vector<glm::vec3> &Mesh::normals_get() const
 const std::vector<glm::vec3> &Mesh::tangents_get() const
 {
   return tangents;
-}
-
-
-void Mesh::quad_generate(const float &size)
-{
-  const int n_vertices = 6;
-  GLfloat quad_pos[] = {
-    -1.0, -1.0,
-     1.0, -1.0,
-     1.0,  1.0,
-     1.0,  1.0,
-    -1.0,  1.0,
-    -1.0, -1.0
-  };
-
-  for (int i = 0; i < n_vertices * 2; i = i + 2) {
-    positions_add(glm::vec3(quad_pos[i], quad_pos[i + 1], 0.0) * size);
-  }
-
 }
 
 

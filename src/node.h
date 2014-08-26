@@ -85,6 +85,7 @@ class Node: public Animated {
     Physics_Rigidbody  *physics_rigidbody_create(Assets &assets);
     Physics_Rigidbody  *physics_rigidbody_get();
     void                physics_rigidbody_set(Physics_Rigidbody *rigidbody);
+    void                name_set(const std::string &name);
     Manipulator        *manipulator_create(Assets &assets);
     Manipulator        *manipulator_get();
     void                manipulator_set(Manipulator *manipulator);

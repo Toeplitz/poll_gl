@@ -10,11 +10,12 @@
 
 
 Node::Node(const std::string &node_name):
-  name(node_name),
   transform_global(1),
   transform_local_current(1),
   transform_local_original(1)
 {
+
+  name_set(node_name);
   state.animated = false;
   state.debug = false;
   state.debug = false;
@@ -88,10 +89,12 @@ void Node::child_add(std::unique_ptr<Node> &&node, int level)
 
 Light *Node::light_create(Assets &assets)
 {
+  Stock_Nodes &stock_nodes = assets.stock_nodes_get();
+  Mesh *light_volume = stock_nodes.sphere_get();
 
   std::unique_ptr<Light> light(new Light());
   Light *light_ptr = light.get();
-  mesh_set(assets.light_sphere_get()->mesh_get());
+  mesh_set(light_volume);
   light_set(light_ptr);
   assets.light_active_add(std::move(light));
 
@@ -109,7 +112,6 @@ void Node::light_set(Light *light)
 {
   if (light)
     light->node_ptr_set(this);
-
 
   this->light = light;
 }
@@ -159,6 +161,12 @@ Manipulator *Node::manipulator_create(Assets &assets)
   manipulator_set(manipulator_ptr);
   assets.manipulator_add(std::move(manipulator));
   return manipulator_ptr;
+}
+
+
+void Node::name_set(const std::string &name)
+{
+  this->name = name;
 }
 
 
@@ -220,9 +228,8 @@ void Node::mesh_set(Mesh *mesh)
 
 void Node::rotate(const float angle, const glm::vec3 &v)
 {
-  glm::mat4 m = glm::rotate(glm::mat4(1.f), angle, v);
-  transform_local_current = transform_local_current * m;
-  transform_update_global_recursive(*this);
+  glm::mat4 m = glm::rotate(transform_model_get(), angle, v);
+  transform_model_set(m);
 }
 
 

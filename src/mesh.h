@@ -36,7 +36,9 @@ class Mesh {
     const std::vector<glm::vec3>   &bitangents_get() const;
     const std::vector<glm::ivec3>  &bone_indices_get() const;
     const std::vector<glm::vec3>   &bone_weights_get() const;
-    void                            cube_generate(const float &size);
+    void                            generate_cube(const float &size);
+    void                            generate_pyramid(const float &size);
+    void                            generate_quad(const float &size);
     const std::vector<GLshort>     &indices_get() const;
     void                            positions_add(const glm::vec3 &v);
     void                            positions_clear();
@@ -50,6 +52,5 @@ class Mesh {
     const std::vector<glm::vec2>   &texture_st_get() const;
     void                            texture_st_clear();
     void                            texture_st_add(const glm::vec2 &v);
-    void                            quad_generate(const float &size);
 };
 

@@ -5,21 +5,59 @@
 #include <memory>
 #include <algorithm> 
 
+/**************************************************/
+/***************** STOCK CLASS ********************/
+/**************************************************/
 
 /**************************************************/
-/***************** CONSTRUCTORS *******************/
+/***************** PUBLIC METHODS *****************/
 /**************************************************/
 
 
-Assets::Assets() 
+ void Stock_Nodes::init(GLcontext &glcontext, Scene &scene)
 {
-} 
+  {
+    node_light_sphere = &scene.load(glcontext, "data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
+    node_light_sphere->name_set("stock_sphere");
+    glcontext.vertex_buffers_mesh_create(node_light_sphere->mesh_get());
+  }
 
+  {
+    node_symbol_pyramid = scene.node_create("stock_pyramid");
+    Mesh *mesh = node_symbol_disk->mesh_create(scene.assets_get());
+    mesh->generate_pyramid(1.f);
+    glcontext.vertex_buffers_mesh_create(mesh);
+  }
 
-Assets::~Assets() 
-{
 }
 
+
+Mesh *Stock_Nodes::disk_get()
+{
+  return node_symbol_disk->mesh_get();
+}
+
+
+Mesh *Stock_Nodes::diamond_get()
+{
+  return node_symbol_diamond->mesh_get();;
+}
+
+
+Mesh *Stock_Nodes::pyramid_get()
+{
+  return node_symbol_pyramid->mesh_get();
+}
+
+Mesh *Stock_Nodes::sphere_get()
+{
+  return node_light_sphere->mesh_get();
+}
+
+
+/**************************************************/
+/***************** ASSETS CLASS *******************/
+/**************************************************/
 
 /**************************************************/
 /***************** PUBLIC METHODS *****************/
@@ -32,7 +70,7 @@ void Assets::armature_add(std::unique_ptr<Armature> &&armature)
 }
 
 
-Armature_Unique_Ptr_List const &Assets::armature_get_all() const
+Armature_List const &Assets::armature_get_all() const
 {
   return armatures;
 } 
@@ -66,6 +104,11 @@ void Assets::camera_print_all(const Node &node) const
 }
 
 
+void Assets::init(GLcontext &glcontext, Scene &scene)
+{
+  stock_nodes.init(glcontext, scene);
+}
+
 
 void Assets::light_activate(Light *light)
 {
@@ -92,7 +135,7 @@ void Assets::light_active_add(std::unique_ptr<Light> &&light)
 }
 
 
-Light_Unique_Ptr_List const &Assets::light_active_get() const
+Light_List const &Assets::light_active_get() const
 {
   return active_lights;
 } 
@@ -153,7 +196,6 @@ void Assets::light_deactivate(Light *light)
 }
 
 
-
 void Assets::light_print_all(const Node &node) const
 {
   std::cout << "\nLights: " << std::endl;
@@ -171,40 +213,6 @@ void Assets::light_print_all(const Node &node) const
     std::cout << std::endl;
     count++;
   }
-}
-
-  
-void Assets::light_sphere_create(GLcontext &glcontext, Scene &scene)
-{
-  Node *sphere = &scene.load(glcontext, "data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
-  light_sphere_set(sphere);
-  glcontext.vertex_buffers_mesh_create(sphere->mesh_get());
-}
-
-
-Node *Assets::light_sphere_get()
-{
-  return node_light_sphere;
-}
-
-
-void Assets::light_sphere_set(Node *node)
-{
-  node_light_sphere = node;
-}
-
-
-void Assets::print_all(const Node &node) const
-{
-  std::cout << "======== Current assets (owned by engine) ========" << std::endl;
-  armature_print_all();
-  camera_print_all(node);
-  light_print_all(node);
-  manipulator_print_all(node);
-  material_print_all(node);
-  mesh_print_all(node);
-  text_print_all(node);
-  std::cout << "==================================================" << std::endl;
 }
 
 
@@ -227,6 +235,12 @@ void Assets::manipulator_print_all(const Node &node) const
 void Assets::material_add(std::unique_ptr<Material> &&material) 
 {
   materials.push_back(std::move(material));
+}
+
+
+Material_List const &Assets::material_get_all() const
+{
+  return materials;
 }
 
 
@@ -259,11 +273,6 @@ void Assets::material_print_all(const Node &node) const
 }
 
 
-void Assets::physics_rigidbody_add(std::unique_ptr<Physics_Rigidbody> &&rigidbody)
-{
-  rigidbodies.push_back(std::move(rigidbody));
-}
-
 
 unsigned int Assets::material_node_lookup(const Material *material, const Node &node) const
 {
@@ -283,6 +292,12 @@ unsigned int Assets::material_node_lookup(const Material *material, const Node &
 void Assets::mesh_add(std::unique_ptr<Mesh> &&mesh) 
 {
   meshes.push_back(std::move(mesh));
+}
+
+
+Mesh_List const &Assets::mesh_get_all() const
+{
+  return meshes;
 }
 
 
@@ -314,6 +329,32 @@ void Assets::mesh_print_all(const Node &node) const
 }
 
 
+void Assets::physics_rigidbody_add(std::unique_ptr<Physics_Rigidbody> &&rigidbody)
+{
+  rigidbodies.push_back(std::move(rigidbody));
+}
+
+
+void Assets::print_all(const Node &node) const
+{
+  std::cout << "======== Current assets (owned by engine) ========" << std::endl;
+  armature_print_all();
+  camera_print_all(node);
+  light_print_all(node);
+  manipulator_print_all(node);
+  material_print_all(node);
+  mesh_print_all(node);
+  text_print_all(node);
+  std::cout << "==================================================" << std::endl;
+}
+
+
+Stock_Nodes &Assets::stock_nodes_get()
+{
+  return stock_nodes;
+}
+
+
 void Assets::text_add(std::unique_ptr<Text> &&text) 
 {
   texts.push_back(std::move(text));
@@ -327,4 +368,16 @@ void Assets::text_print_all(const Node &node) const
   for (auto &text: texts) {
     std::cout << "\t(" << text.get() << ")" << std::endl;
   }
+}
+
+
+void Assets::term(GLcontext &glcontext)
+{
+  for (auto &mesh: mesh_get_all()) {
+    glcontext.vertex_buffers_mesh_delete(mesh.get());
+  }
+  for (auto &material: material_get_all()) {
+    glcontext.texture_materials_delete(material.get());
+  }
+
 }

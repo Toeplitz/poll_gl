@@ -27,16 +27,14 @@ Fragmic::Fragmic(const std::string &config_file)
   }
   glcontext.check_error();
 
-
   scene.init(glcontext);
-  assets.light_sphere_create(glcontext, scene);
+  assets.init(glcontext, scene);
 
   Node *cam_node = scene.node_create("camera");
   cam_node->camera_create(scene.assets_get());
   cam_node->camera_get()->transform_perspective_create(window.width_get(), window.height_get());
   scene.node_camera_set(cam_node);
 
-  // SETUP FOR DEFERRED SHADING
   glshader_geometry.load("shaders/deferred_pass_one.v", "shaders/deferred_pass_one.f");
   glshader_stencil.load("shaders/stencil_pass.v", "shaders/stencil_pass.f");
   glshader_light.load("shaders/deferred_pass_two.v", "shaders/deferred_pass_two.f");
@@ -124,18 +122,14 @@ void Fragmic::run()
 
 void Fragmic::term()
 {
+  Assets &assets = assets_get();
+  GLcontext &glcontext = window.glcontext_get();
+
   console.term();
   ui.term();
   physics.term();
-
-  GLcontext &glcontext = window.glcontext_get();
+  assets.term(glcontext);
   glcontext.uniform_buffers_delete();
-  for (auto &node: scene.mesh_nodes_get()) {
-    Material *material = node->material_get();
-    Mesh *mesh = node->mesh_get();
-    glcontext.vertex_buffers_mesh_delete(mesh);
-    glcontext.texture_materials_delete(material);
-  }
   glshader_geometry.term();
   glshader_light.term();
   glshader_stencil.term();
