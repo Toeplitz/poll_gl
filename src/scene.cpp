@@ -52,7 +52,7 @@ const std::vector <Node *> &Scene::animated_nodes_get() const
 
 void Scene::animated_nodes_update_transforms(Node &node, const double dt)
 {
-  glm::mat4 transform = node.transform_local_current;
+  glm::mat4 transform = node.transform_local_current_get();
   Node *parent = node.parent_get();
 
   if (node.keyframe_total_num_get()) {
@@ -62,12 +62,12 @@ void Scene::animated_nodes_update_transforms(Node &node, const double dt)
   }
 
   if (parent) {
-    node.transform_global = parent->transform_global * transform;
+    node.transform_global_set(parent->transform_global_get() * transform);
   } else {
-    node.transform_global = transform;
+    node.transform_global_set(transform);
   }
 
-  for (auto &child : node.children) {
+  for (auto &child : node.children_get()) {
     animated_nodes_update_transforms(*child, dt);
   }
 }
@@ -85,14 +85,6 @@ Camera *Scene::camera_get()
   }
 
   return node_cur_camera->camera_get();
-}
-
-
-void Scene::init(GLcontext &glcontext)
-{
-  manipulator_disk = root.manipulator_create(assets);
-  manipulator_disk->create_disk(glcontext, assets);
-
 }
 
 
@@ -118,17 +110,6 @@ Node &Scene::load(GLcontext &glcontext, const std::string &prefix, const std::st
   }
 
   return *root_ptr;
-}
-
-
-void Scene::manipulator_toggle(Node *node)
-{
-  Manipulator *m = node->manipulator_get();
-
-  if (m)
-    node->manipulator_set(nullptr);
-  else
-    node->manipulator_set(manipulator_disk);
 }
 
 
@@ -162,8 +143,8 @@ void Scene::scene_graph_print(bool compact)
 
 void Scene::scene_graph_print_by_node(Node &node, bool compact)
 {
-  indent(std::cout, node.tree_level);
-  std::cout << node.tree_level << ": '" << node.name << "' " << &node << "";
+  indent(std::cout, node.tree_level_get());
+  std::cout << node.tree_level_get() << ": '" << node.name_get() << "' " << &node << "";
 
   if (node.armature_get()) {
     std::cout << " (armature)";
@@ -201,17 +182,17 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
     */
 
     if (node.mesh_get()) {
-      node.mesh_get()->print(node.tree_level);
+      node.mesh_get()->print(node.tree_level_get());
       std::cout << "model: " << std::endl;
       print_matrix(std::cout, node.transform_model_get(), 0);
 
     }
     if (node.material_get()) {
-      node.material_get()->print(node.tree_level);
+      node.material_get()->print(node.tree_level_get());
     }
 
     if (node.light_get()) {
-      node.light_get()->print(node.tree_level);
+      node.light_get()->print(node.tree_level_get());
     }
 
     //node.print_state(node.tree_level);
@@ -220,7 +201,7 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
   }
   std::cout << std::endl;
 
-  for (auto &child : node.children) {
+  for (auto &child : node.children_get()) {
     scene_graph_print_by_node(*child, compact);
   }
 }
@@ -244,11 +225,9 @@ Node *Scene::node_create(const std::string &name, Node *parent)
   std::unique_ptr<Node> node(new Node(name));
   Node *node_ptr  = node.get();
   if (!parent)
-    root.child_add(std::move(node), root.tree_level + 1);
+    root.child_add(std::move(node), root.tree_level_get() + 1);
   else 
-    parent->child_add(std::move(node), parent->tree_level + 1);
-
-  //node_ptr->manipulator_set(manipulator_disk);
+    parent->child_add(std::move(node), parent->tree_level_get() + 1);
 
   return node_ptr;
 }
@@ -262,35 +241,37 @@ Node &Scene::node_root_get()
 
 void Scene::node_state_recursive_update(Node &node)
 {
+  Node_State &state = node.state_get();
+
   if (node.armature_get()) {
-    node.state.animated = true;
+    state.animated = true;
   }
 
   if (node.material_get()) {
     if (node.material_get()->diffuse && node.material_get()->normal && node.material_get()->specular ) {
-      node.state.diffuse_specular_normal = true;
+      state.diffuse_specular_normal = true;
     } else if (node.material_get()->diffuse && node.material_get()->normal) {
-      node.state.diffuse_normal = true;
+      state.diffuse_normal = true;
     } else if (node.material_get()->diffuse) {
-      node.state.diffuse = true;
+      state.diffuse = true;
     } else if (node.material_get()->cubemap) {
       std::cout << "Updating material state" << std::endl;
       if (node.material_get()->cubemap->type == CUBEMAP_SKYBOX) {
-        node.state.cubemap_skybox = true;
+        state.cubemap_skybox = true;
         std::cout << "Found skybox" << std::endl;
       } else if (node.material_get()->cubemap->type == CUBEMAP_REFLECTION) {
         std::cout << "Found reflection" << std::endl;
-        node.state.cubemap_reflect = true;
+        state.cubemap_reflect = true;
       } else {
         std::cout << "Error: cubemap type not recognized" << std::endl;
       }
-      node.state.standard = false;
+      state.standard = false;
     } else {
-      node.state.standard = true;
+      state.standard = true;
     }
   }
 
-  for (auto &child : node.children) {
+  for (auto &child : node.children_get()) {
     node_state_recursive_update(*child);
   }
 }
@@ -318,7 +299,7 @@ void Scene::node_recursive_init(GLcontext &glcontext, Node &node)
   
   node_state_recursive_update(node);
 
-  for (auto &child : node.children) {
+  for (auto &child : node.children_get()) {
     node_recursive_init(glcontext, *child);
   }
 }
@@ -332,10 +313,10 @@ void Scene::node_recursive_init(GLcontext &glcontext, Node &node)
 Node *Scene::node_find_recursive(Node &node, const std::string &name)
 {
   Node *ret = nullptr;
-  if (!node.name.compare(name)) {
+  if (!node.name_get().compare(name)) {
     return &node;
   }
-  for (auto &child : node.children) {
+  for (auto &child : node.children_get()) {
     ret = node_find_recursive(*child, name);
     if (ret)
       return ret;

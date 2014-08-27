@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+using namespace glm;
 
 #include <iostream>
 #include <string>
@@ -42,12 +43,9 @@ class GLcontext {
                         const bool unpack_align);
 
   public:
-    GLcontext();
-    ~GLcontext();
-
+    
     void check_error();
     bool init(const int width, const int height);
-    void draw_light(Light *light);
     void draw_node(Node &node);
     void draw_mesh(Mesh &mesh);
     void draw_text(Node &node);
@@ -55,7 +53,7 @@ class GLcontext {
     void framebuffer_create(const int width, const int height);
     void framebuffer_delete();
     void framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  
-                                GLshader &shader_stencil, GLshader &shader_light);
+                                GLshader &shader_stencil, GLshader &shader_light, GLshader &shader_post_proc);
     void framebuffer_node_create(Node &node);
     void texture_delete(Texture &texture);
     void texture_single_channel_create(Texture &texture);
@@ -73,6 +71,7 @@ class GLcontext {
     void uniform_buffers_update_state(Node &node);
     void uniform_locations_geometry_init(GLshader &shader);
     void uniform_locations_lighting_init(GLshader &shader);
+    void uniform_locations_post_proc_init(GLshader &shader);
     void uniform_locations_text_init(GLshader &shader);
     void vertex_buffers_mesh_create(Mesh *mesh, const size_t max_size = 0);
     void vertex_buffers_mesh_update(Mesh *mesh);

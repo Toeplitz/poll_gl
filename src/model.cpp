@@ -47,7 +47,7 @@ Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const s
     exit(-1);
   }
 
-  Node *rootPtr = node_map_create(*scene->mRootNode, &root, root.tree_level);
+  Node *rootPtr = node_map_create(*scene->mRootNode, &root, root.tree_level_get());
   rootPtr->transform_update_global_recursive(*rootPtr);
   BoneForAssimpBone boneForAssimpBone;
   bone_map_create(assets, boneForAssimpBone);
@@ -282,9 +282,9 @@ Node *Model::node_map_create(const aiNode &node, Node *parent, int level)
   glm::vec3 scale_vec(scaling.x, scaling.y, scaling.z);
   glm::vec3 position_vec(position.x, position.y, -position.z);
   glm::quat rotation_quat(rotation.x, rotation.y, -rotation.z, rotation.w);
-  nodePtr->original_scaling = scale_vec;
-  nodePtr->original_position = position_vec;
-  nodePtr->original_rotation = rotation_quat;
+  nodePtr->original_scaling_set(scale_vec);
+  nodePtr->original_position_set(position_vec);
+  nodePtr->original_rotation_set(rotation_quat);
 
   //  glm::mat4 scale_matrix = glm::scale(glm::mat4(1.f), scale_vec);
   /*
@@ -523,7 +523,7 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
 
     if (!assimpMesh->mNumBones) {
       //      m.model = glm::rotate(mesh_node->transform_global, -90.f, glm::vec3(1.f, 0.f, 0.f));
-      glm::mat4 m = mesh_node->transform_global;
+      glm::mat4 m = mesh_node->transform_global_get();
       mesh_node->transform_model_set(m);
       //m.model = right_handed_to_left_handed(mesh_node->transform_global);
     }
@@ -563,12 +563,12 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
       }
     }
 
-    m.scale_matrix = glm::scale(glm::mat4(1.0f), mesh_node->original_scaling);
+    m.scale_matrix = glm::scale(glm::mat4(1.0f), mesh_node->original_scaling_get());
     mesh_node->mesh_set(mesh_ptr.get());
     mesh_node->armature_set(armature_ptr);
     if (node.mNumMeshes > 1) {
       mesh_node->copy_transform_data(*parent_node);
-      parent_node->child_add(std::move(sub_node), parent_node->tree_level + 1);
+      parent_node->child_add(std::move(sub_node), parent_node->tree_level_get() + 1);
     }
     assets.mesh_add(std::move(mesh_ptr));
     mesh_node = lookup_node(node_name, nodes);

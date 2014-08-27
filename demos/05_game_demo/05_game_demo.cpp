@@ -248,6 +248,10 @@ int main()
 
   /* Setup lights */
   {
+    Node *node = scene.node_create("Light_Point_Global");
+    node->light_create(assets, Light::POINT, Light::GLOBAL);
+    node->translate(glm::vec3(0, 40, 0));
+
     glm::vec3 light_positions[5] = {
       glm::vec3(0, 21, 0),
       glm::vec3(-50, 15, 45),

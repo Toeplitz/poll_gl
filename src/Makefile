@@ -2,7 +2,7 @@ PROJECT = libfragmic.so
 
 SRC := $(wildcard *.cpp) 
 OBJECTS = $(SRC:.cpp=.o)
-CFLAGS  = -I/usr/include/ -I/usr/include/bullet/ -I../external/include -fPIC -Wall -pedantic -g -std=c++11 -DGLM_FORCE_RADIANS
+CFLAGS  = -I/usr/include/ -I/usr/include/bullet/ -I../external/include -fPIC -Wall -pedantic -g -std=c++11 -DGLM_FORCE_RADIANS 
 
 all: $(PROJECT)
 

@@ -16,6 +16,7 @@
 
  void Stock_Nodes::init(GLcontext &glcontext, Scene &scene)
 {
+
   {
     node_light_sphere = &scene.load(glcontext, "data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
     node_light_sphere->name_set("stock_sphere");
@@ -26,6 +27,13 @@
     node_symbol_pyramid = scene.node_create("stock_pyramid");
     Mesh *mesh = node_symbol_pyramid->mesh_create(scene.assets_get());
     mesh->generate_pyramid(1.f);
+    glcontext.vertex_buffers_mesh_create(mesh);
+  }
+
+  {
+    node_screen_quad = scene.node_create("stock_screen_quad");
+    Mesh *mesh = node_screen_quad->mesh_create(scene.assets_get());
+    mesh->generate_quad(1.f);
     glcontext.vertex_buffers_mesh_create(mesh);
   }
 
@@ -48,6 +56,13 @@ Mesh *Stock_Nodes::pyramid_get()
 {
   return node_symbol_pyramid->mesh_get();
 }
+
+
+Mesh *Stock_Nodes::screen_quad_get() 
+{
+  return node_screen_quad->mesh_get();
+}
+
 
 Mesh *Stock_Nodes::sphere_get()
 {
@@ -81,7 +96,7 @@ void Assets::armature_print_all() const
   std::cout << "Armatures: " << std::endl;
   for (auto &armature: armatures) {
     std::cout << "\t(" << &armature << ") ";
-    std::cout << "node: '" << armature->find_toplevel_node()->name << "' ";
+    std::cout << "node: '" << armature->find_toplevel_node()->name_get() << "' ";
     std::cout << "bones: " << armature->bones_num_get() << std::endl;
   }
 
@@ -281,7 +296,7 @@ unsigned int Assets::material_node_lookup(const Material *material, Node &node)
   if (material == node.material_get()) 
     count++;
 
-  for (auto &child : node.children) {
+  for (auto &child : node.children_get()) {
     count += material_node_lookup(material, *child);
   }
 
@@ -308,7 +323,7 @@ unsigned int Assets::mesh_node_lookup(const Mesh *mesh, Node &node)
   if (mesh == node.mesh_get()) 
     count++;
 
-  for (auto &child : node.children) {
+  for (auto &child : node.children_get()) {
     count += mesh_node_lookup(mesh, *child);
   }
 

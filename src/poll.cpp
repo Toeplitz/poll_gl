@@ -25,7 +25,6 @@ Poll::Poll(const std::string &config_file)
   }
   glcontext.check_error();
 
-  scene.init(glcontext);
   assets.init(glcontext, scene);
 
   Node *cam_node = scene.node_create("camera");
@@ -34,35 +33,26 @@ Poll::Poll(const std::string &config_file)
   scene.node_camera_set(cam_node);
 
   glshader_geometry.load("shaders/deferred_pass_one.v", "shaders/deferred_pass_one.f");
-  glshader_stencil.load("shaders/stencil_pass.v", "shaders/stencil_pass.f");
   glshader_light.load("shaders/deferred_pass_two.v", "shaders/deferred_pass_two.f");
+  glshader_post_proc.load("shaders/post_proc.v", "shaders/post_proc.f");
+  glshader_stencil.load("shaders/stencil_pass.v", "shaders/stencil_pass.f");
+  glshader_text.load("shaders/text.v", "shaders/text.f"); 
   glcontext.uniform_locations_geometry_init(glshader_geometry);
   glcontext.uniform_locations_lighting_init(glshader_light);
+  glcontext.uniform_locations_post_proc_init(glshader_post_proc);
+  glcontext.uniform_locations_text_init(glshader_text);
   glcontext.uniform_buffers_create(config);
   glcontext.uniform_buffers_block_bind(glshader_geometry);
   glcontext.uniform_buffers_block_bind(glshader_light);
   glcontext.uniform_buffers_block_bind(glshader_stencil);
 
-  glshader_text.load("shaders/text.v", "shaders/text.f"); 
-  glcontext.uniform_locations_text_init(glshader_text);
-  /*
-  Node &node = *scene.node_create("fb_quad");
-  node.mesh_create(scene.assets_get());
-  node.mesh->quad_generate(1.f);
-  */
   glcontext.framebuffer_create(window.width_get(), window.height_get());
-  //glcontext.framebuffer_node_create(node);
 
   console.init(glcontext, scene, window);
   ui.init(console, glcontext, scene);
   physics.init();
 
   config.conf_global_apply(CONF_GLOBAL);
-}
-
-
-Poll::~Poll() 
-{
 }
 
 
@@ -102,7 +92,7 @@ void Poll::run()
     glcontext.uniform_buffers_update_camera(camera);
 
     /* Draw scene */
-    glcontext.framebuffer_draw_scene(scene, glshader_geometry, glshader_stencil, glshader_light);
+    glcontext.framebuffer_draw_scene(scene, glshader_geometry, glshader_stencil, glshader_light, glshader_post_proc);
 
     /* Step physics simulation */
     physics.step(dt);

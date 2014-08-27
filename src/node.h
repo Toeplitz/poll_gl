@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+using namespace glm;
 
 #include <memory>
 #include <string>
@@ -53,23 +54,23 @@ class Node: public Animated {
     Mesh               *mesh = nullptr;
     Node               *parent = nullptr;
 
+    Node_List           children;
+    std::string         name;
+    Node_State          state;
+    int                 tree_level = 0;
+
+    vec3           original_scaling;
+    vec3           original_position;
+    quat           original_rotation;
+    mat4           transform_global = mat4(1.f);
+    mat4           transform_local_current = mat4(1.f);
+    mat4           transform_local_original = mat4(1.f);
+    mat4           transform_model = mat4(1.f);
+
   public:
 
-    std::string         name;
-    glm::mat4           transform_global;
-    glm::mat4           transform_local_current;
-    glm::mat4           transform_local_original;
-    glm::mat4           transform_model = glm::mat4(1.f);
-
-    glm::vec3           original_scaling;
-    glm::vec3           original_position;
-    glm::quat           original_rotation;
-    Node_List           children;
-    int                 tree_level = 0;
-    Node_State          state;
 
     Node(const std::string &node_name);
-    ~Node();
 
     Armature           *armature_get();
     void                armature_set(Armature *armature);
@@ -77,15 +78,23 @@ class Node: public Animated {
     Camera             *camera_get();
     void                camera_set(Camera *camera);
     void                copy_transform_data(Node &node);
+    Node_List    const &children_get() const;
     void                child_add(std::unique_ptr<Node> &&node, int level);
-    Light              *light_create(Assets &assets, const unsigned int type);
+    Light              *light_create(Assets &assets, const unsigned int lamp_type, const unsigned int illumination_type = Light::VOLUME);
     Light              *light_get();
     void                light_set(Light *light);
+    const vec3         &original_position_get();
+    void                original_position_set(const vec3 &v);
+    const quat         &original_rotation_get();
+    void                original_rotation_set(const quat &q);
+    const vec3         &original_scaling_get();
+    void                original_scaling_set(const vec3 &v);
     Node               *parent_get();
     void                print_state(int indent_level);
     Physics_Rigidbody  *physics_rigidbody_create(Assets &assets);
     Physics_Rigidbody  *physics_rigidbody_get();
     void                physics_rigidbody_set(Physics_Rigidbody *rigidbody);
+    const std::string  &name_get();
     void                name_set(const std::string &name);
     Manipulator        *manipulator_create(Assets &assets);
     Manipulator        *manipulator_get();
@@ -96,15 +105,23 @@ class Node: public Animated {
     Mesh               *mesh_create(Assets &assets);
     Mesh               *mesh_get();
     void                mesh_set(Mesh *mesh);
-    void                rotate(const float angle, const glm::vec3 &v);
-    void                scale(const glm::vec3 &v);
+    void                rotate(const float angle, const vec3 &v);
+    void                scale(const vec3 &v);
+    Node_State         &state_get();
     Text               *text_create(Font *font, Assets &assets);
     Text               *text_get();
     void                text_set(Text *text);
-    void                translate(const glm::vec3 &v);
-    void                transform_local_current_set(const glm::mat4 &transform);
-    void                transform_local_original_set(const glm::mat4 &transform);
-    glm::mat4          &transform_model_get();
-    void                transform_model_set(const glm::mat4 &transform);
+    void                translate(const vec3 &v);
+    void                transform_local_current_set(const mat4 &transform);
+    void                transform_local_original_set(const mat4 &transform);
+    const mat4    &transform_global_get();
+    void                transform_global_set(const mat4 &transform);
+    const mat4    &transform_local_current_get();
+    mat4          &transform_model_get();
+    void                transform_model_set(const mat4 &transform);
     void                transform_update_global_recursive(Node &node);
+    const int          &tree_level_get();
+    void                tree_level_set(const unsigned int &tree_level);
 };
+
+

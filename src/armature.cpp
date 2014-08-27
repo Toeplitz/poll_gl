@@ -59,7 +59,7 @@ Node *Armature::find_toplevel_node()
       root = bone.joint_node;
     } else {
       Node *node = bone.joint_node;
-      if (root->tree_level >= node->tree_level) {
+      if (root->tree_level_get() >= node->tree_level_get()) {
         root = node;
       }
     }
@@ -110,6 +110,6 @@ void Armature::node_print_all()
   std::cout << "Nodes in armature: " << std::endl;
   for (auto &bone_entry : bones) {
     Bone &bone = *bone_entry;
-    std::cout << bone.joint_node->name << std::endl;
+    std::cout << bone.joint_node->name_get() << std::endl;
   }
 }

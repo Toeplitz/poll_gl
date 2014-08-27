@@ -49,7 +49,7 @@ Physics::~Physics()
 Physics_Character_Controller *Physics::character_controller_add(Node &node, Node &collision_node)
 {
   if (!node.mesh_get()) {
-    std::cout << "Error: no mesh for character controller creation (node: '" << node.name << "')" << std::endl;
+    std::cout << "Error: no mesh for character controller creation (node: '" << node.name_get() << "')" << std::endl;
     return nullptr;
   }
 
@@ -83,10 +83,10 @@ void Physics::collision_mesh_add(Node &node, const std::string &prefix, const st
   Model model;
   Node *root_ptr = model.load(collision_assets, node, prefix, filename, MODEL_IMPORT_DEFAULT);
   collision_assets.print_all(*root_ptr);
-  std::cout << "Root ptr collision: " << root_ptr->name << std::endl;
+  std::cout << "Root ptr collision: " << root_ptr->name_get() << std::endl;
   for (auto &armature: collision_assets.armature_get_all()) {
     for (auto &bone: armature->bones_get_all()) {
-      std::cout << bone->joint_node->name << std::endl;
+      std::cout << bone->joint_node->name_get() << std::endl;
       // Here we have the name of the bone in the real mesh.
     }
   }
@@ -102,7 +102,7 @@ void Physics::collision_shape_add(Node &node, const Physics_Collision_Shape shap
   if (!node.mesh_get()) {
   //  std::cout << "No mesh for node: '" << node.name << "', skipping ..." << std::endl;
   } else if (node.light_get()) {
-    std::cout << "Light node: '" << node.name << "', skipping ..." << std::endl;
+    std::cout << "Light node: '" << node.name_get() << "', skipping ..." << std::endl;
   } else {
 
     p_node.node = &node;
@@ -116,7 +116,7 @@ void Physics::collision_shape_add(Node &node, const Physics_Collision_Shape shap
   if (!recursive)
     return;
 
-  for (auto &child : node.children) {
+  for (auto &child : node.children_get()) {
     collision_shape_add(*child, shape, recursive, mass);
   }
 
@@ -170,9 +170,9 @@ void Physics::term()
 btRigidBody *Physics::bullet_collision_rigidbody_create(Node &node, Physics_Collision_Shape shape, float m)
 {
   btCollisionShape *collision_shape = nullptr;
-  glm::vec3 position = node.original_position;
-  glm::vec3 scaling = node.original_scaling;
-  glm::quat rotation = node.original_rotation;
+  glm::vec3 position = node.original_position_get();
+  glm::vec3 scaling = node.original_scaling_get();
+  glm::quat rotation = node.original_rotation_get();
 
   switch (shape) {
     case PHYSICS_COLLISION_SPHERE:
@@ -231,7 +231,7 @@ btCollisionShape *Physics::bullet_collision_shape_convex_hull_create(Node &node)
   int n = vertices.size();
 
   collision_shape = new btConvexHullShape((btScalar *) vertices.data(), n, sizeof(glm::vec3));
-  collision_shape->setLocalScaling(btVector3(node.original_scaling.x, node.original_scaling.y, node.original_scaling.z));
+  collision_shape->setLocalScaling(btVector3(node.original_scaling_get().x, node.original_scaling_get().y, node.original_scaling_get().z));
 
   return collision_shape;
 }
@@ -243,7 +243,7 @@ btCollisionShape *Physics::bullet_collision_shape_triangle_mesh_create(Node &nod
   btCollisionShape *collision_shape = nullptr;
 
   if  (!mesh) {
-    std::cout << "ERROR: no mesh for node: " << node.name << std::endl;
+    std::cout << "ERROR: no mesh for node: " << node.name_get() << std::endl;
     return nullptr;
   }
 
@@ -269,7 +269,7 @@ btCollisionShape *Physics::bullet_collision_shape_triangle_mesh_create(Node &nod
   bool useQuantizedAabbCompression = true;
   btVector3 aabbMin(-1000, -1000, -1000), aabbMax(1000, 1000, 1000);
   collision_shape = new btBvhTriangleMeshShape(ptrimesh, useQuantizedAabbCompression, aabbMin, aabbMax);
-  collision_shape->setLocalScaling(btVector3(node.original_scaling.x, node.original_scaling.y, node.original_scaling.z));
+  collision_shape->setLocalScaling(btVector3(node.original_scaling_get().x, node.original_scaling_get().y, node.original_scaling_get().z));
 
   return collision_shape;
 }
@@ -393,7 +393,7 @@ void Physics::bullet_world_delete(Physics_Node &p_node)
 
 Physics_Motion_State::Physics_Motion_State(const btTransform &start_position, Node &node)
 {
-  glm::mat4 scale_matrix = glm::scale(glm::mat4(1.f), node.original_scaling);
+  glm::mat4 scale_matrix = glm::scale(glm::mat4(1.f), node.original_scaling_get());
   glm::mat4 model_no_scaling = node.transform_model_get() * glm::inverse(scale_matrix);
   this->transform.setFromOpenGLMatrix((btScalar *) &model_no_scaling);
   //this->transform = start_position;
@@ -416,7 +416,7 @@ void Physics_Motion_State::setWorldTransform(const btTransform &t)
   //  glm::mat4 m = bullet_convert_glm(t);
   t.getOpenGLMatrix((btScalar *) &m);
   //print_matrix(std::cout, m, 0);
-  glm::mat4 model = m * glm::scale(glm::mat4(1.f), node->original_scaling);
+  glm::mat4 model = m * glm::scale(glm::mat4(1.f), node->original_scaling_get());
   node->transform_model_set(model);
   //node->mesh->model = m;
   // node->mesh->physics_matrix = right_handed_to_left_handed(m);

@@ -23,6 +23,7 @@ class Poll {
     Physics physics;
     GLshader glshader_geometry;
     GLshader glshader_light;
+    GLshader glshader_post_proc;
     GLshader glshader_stencil;
     GLshader glshader_text;
     Scene scene;
@@ -37,7 +38,6 @@ class Poll {
 
   public:
     Poll(const std::string &config_file = ""); 
-    ~Poll(); 
 
     Assets      &assets_get();
     Config      &config_get();

@@ -22,6 +22,7 @@ class Light
   private:
     Light_Properties properties;
     Node *node_ptr = nullptr;
+    unsigned int illumination_type;
 
   public:
     enum Light_Type
@@ -29,9 +30,13 @@ class Light
       UNDEFINED = 0,
       DIRECTIONAL = 1,
       SPOT = 2,
-      POINT = 3
+      POINT = 3,
+      VOLUME = 4,
+      GLOBAL = 5
     };
 
+    const unsigned int     &illumination_type_get();
+    void                    illumination_type_set(unsigned int illum_type);
     Node                   *node_ptr_get();
     void                    node_ptr_set(Node *node);
     void                    print(const int indent_level);

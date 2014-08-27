@@ -5,22 +5,8 @@
 
 
 /**************************************************/
-/***************** CONSTRUCTORS *******************/
-/**************************************************/
-
-
-GLcontext::GLcontext()
-{
-}
-
-
-GLcontext::~GLcontext()
-{
-}
-
-
-/**************************************************/
 /***************** PUBLIC METHODS *****************/
+/**************************************************/
 
 
 void GLcontext::check_error()
@@ -52,23 +38,6 @@ bool GLcontext::init(const int width, const int height)
 }
 
 
-void GLcontext::draw_light(Light *light)
-{
-  Node *node = light->node_ptr_get();
-  if (!node) {
-    std::cout << "Error: missing node pointer for light" << std::endl;
-    return;
-  }
-
-  Mesh *mesh = node->mesh_get();
-  if (!mesh) {
-    std::cout << "Error: no mesh attached to the light" << std::endl;
-    return;
-  }
-
-  uniform_buffers_update_matrices(*node);
-  draw_mesh(*mesh);
-}
 
 
 void GLcontext::draw_node(Node &node)
@@ -76,7 +45,7 @@ void GLcontext::draw_node(Node &node)
   Mesh *mesh = node.mesh_get();
 
   if (!mesh) {
-    std::cout << "No mesh attached to node: '" << node.name << std::endl;
+    std::cout << "No mesh attached to node: '" << node.name_get() << std::endl;
     return;
   }
 
@@ -88,9 +57,9 @@ void GLcontext::draw_node(Node &node)
     if (material) uniform_buffers_update_material(*material);
   }
 
-  if (node.state.cubemap_skybox) glDepthMask(GL_FALSE);
+  if (node.state_get().cubemap_skybox) glDepthMask(GL_FALSE);
   draw_mesh(*mesh);
-  if (node.state.cubemap_skybox) glDepthMask(GL_TRUE);
+  if (node.state_get().cubemap_skybox) glDepthMask(GL_TRUE);
 
 }
 
@@ -114,11 +83,11 @@ void GLcontext::draw_text(Node &node)
   Text *text = node.text_get();
 
   if (!text) {
-    std::cout << "Error: no text attached to node: '" << node.name << "'" << std::endl;
+    std::cout << "Error: no text attached to node: '" << node.name_get() << "'" << std::endl;
     return;
   }
   if (!mesh) {
-    std::cout << "Error: no mesh attached to node: '" << node.name << "'" << std::endl;
+    std::cout << "Error: no mesh attached to node: '" << node.name_get() << "'" << std::endl;
     return;
   }
 
@@ -218,7 +187,7 @@ void GLcontext::framebuffer_create(const int width, const int height)
 }
 
 
-void GLcontext::framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  GLshader &shader_stencil, GLshader &shader_light)
+void GLcontext::framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  GLshader &shader_stencil, GLshader &shader_light, GLshader &shader_post_proc)
 {
   Assets &assets = scene.assets_get();
   auto &lights = assets.light_active_get();
@@ -244,19 +213,30 @@ void GLcontext::framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  
   GL_ASSERT(glEnable(GL_STENCIL_TEST));
   for (auto &light: lights) {
     Node *node = light->node_ptr_get();
-    glm::mat4 &model = node->transform_model_get();
-    light->properties_position_set(glm::vec3(model[3][0], model[3][1], model[3][2]));
-    uniform_buffers_update_light(*light);
     if (!node) {
       std::cout << "Error: missing node pointer for light" << std::endl;
       continue;
     }
+
+    mat4 &model = node->transform_model_get();
+    light->properties_position_set(vec3(model[3][0], model[3][1], model[3][2]));
+    uniform_buffers_update_matrices(*node);
+    uniform_buffers_update_light(*light);
 
     Mesh *mesh = node->mesh_get();
     if (!mesh) {
       std::cout << "Error: no mesh attached to the light" << std::endl;
       continue;
     }
+
+
+    /*
+     *
+     * draw_light_volume(light, shader_stencil, shader_light);
+     * draw_light_screen_quad(light, 
+     *
+     */
+
 
     /* STENCIL PASS */
     shader_stencil.use();
@@ -270,13 +250,12 @@ void GLcontext::framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  
     GL_ASSERT(glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP));
     GL_ASSERT(glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP));
 
-    draw_light(light.get());
+    draw_mesh(*mesh);
 
     /* LIGHT PASS */
     shader_light.use();
     GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
     GL_ASSERT(glStencilFunc(GL_NOTEQUAL, 0, 0xFF));
-
     GL_ASSERT(glDisable(GL_DEPTH_TEST));
     GL_ASSERT(glEnable(GL_BLEND));
     GL_ASSERT(glBlendEquation(GL_FUNC_ADD));
@@ -290,7 +269,7 @@ void GLcontext::framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  
     GL_ASSERT(glActiveTexture(GL_TEXTURE2));
     GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_depth));
 
-    draw_light(light.get());
+    draw_mesh(*mesh);
 
     GL_ASSERT(glCullFace(GL_BACK));
     GL_ASSERT(glDisable(GL_BLEND));
@@ -301,6 +280,16 @@ void GLcontext::framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  
   GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
   GL_ASSERT(glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_fb));
   GL_ASSERT(glReadBuffer(GL_COLOR_ATTACHMENT2));
+
+  /*
+  shader_post_proc.use();
+  Mesh *mesh_screen_quad = assets.stock_nodes_get().screen_quad_get();
+  GL_ASSERT(glActiveTexture(GL_TEXTURE0));
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_final));
+  draw_mesh(*mesh_screen_quad);
+  */
+
+  /* FIXME: blitting is slow, draw a screen quad instead */
   GL_ASSERT(glBlitFramebuffer(0, 0, 1280, 720, 0, 0, 1280, 720, GL_COLOR_BUFFER_BIT, GL_NEAREST));
 }
 
@@ -403,7 +392,7 @@ void GLcontext::uniform_buffers_create(Config &config)
   GLuint bind_index;
 
   {
-    glm::mat4 matrix[3];
+    mat4 matrix[3];
     bind_index = UB_GLOBALMATRICES;
     GL_ASSERT(glGenBuffers(1, &gl_buffer_globalmatrices));
     GL_ASSERT(glBindBuffer(target, gl_buffer_globalmatrices));
@@ -413,7 +402,7 @@ void GLcontext::uniform_buffers_create(Config &config)
   }
 
   {
-    glm::mat4 matrix;
+    mat4 matrix;
     bind_index = UB_MATRICES;
     GL_ASSERT(glGenBuffers(1, &gl_buffer_matrices));
     GL_ASSERT(glBindBuffer(target, gl_buffer_matrices));
@@ -423,7 +412,7 @@ void GLcontext::uniform_buffers_create(Config &config)
   }
 
   {
-    glm::mat4 matrix[64];
+    mat4 matrix[64];
     bind_index = UB_ARMATURE;
     GL_ASSERT(glGenBuffers(1, &gl_buffer_armature));
     GL_ASSERT(glBindBuffer(target, gl_buffer_armature));
@@ -434,9 +423,9 @@ void GLcontext::uniform_buffers_create(Config &config)
 
   {
     Material_Properties properties;
-    properties.Ka = glm::vec4(1.f, 0.f, 0.f, 1.f);
-    properties.Kd = glm::vec4(0.f, 1.f, 0.f, 1.f);
-    properties.Ks = glm::vec4(0.f, 0.f, 1.f, 1.f);
+    properties.Ka = vec4(1.f, 0.f, 0.f, 1.f);
+    properties.Kd = vec4(0.f, 1.f, 0.f, 1.f);
+    properties.Ks = vec4(0.f, 0.f, 1.f, 1.f);
     properties.shininess = 0.f;
 
     bind_index = UB_MATERIAL;
@@ -480,8 +469,8 @@ void GLcontext::uniform_buffers_create(Config &config)
   {
 
     struct {
-      glm::vec4 ssoa;
-      glm::ivec4 viewport;
+      vec4 ssoa;
+      ivec4 viewport;
     } p;
 
     const Conf_Global &conf_global = config.conf_global_get();
@@ -527,7 +516,7 @@ void GLcontext::uniform_buffers_update_armature(const Armature &armature)
 
 void GLcontext::uniform_buffers_update_camera(Camera &camera)
 {
-  glm::mat4 data[3];
+  mat4 data[3];
   data[0] = camera.transform_perspective_get();
   data[1] = camera.transform_perspective_inverse_get();
   data[2] = camera.transform_view_get();
@@ -540,8 +529,8 @@ void GLcontext::uniform_buffers_update_camera(Camera &camera)
 void GLcontext::uniform_buffers_update_config(Config &config)
 {
   struct {
-    glm::vec4 ssoa;
-    glm::ivec4 viewport;
+    vec4 ssoa;
+    ivec4 viewport;
   } p;
 
   const Conf_Global &conf_global = config.conf_global_get();
@@ -596,7 +585,7 @@ void GLcontext::uniform_buffers_update_material(const Material &material)
 
 void GLcontext::uniform_buffers_update_matrices(Node &node)
 {
-  glm::mat4 m;
+  mat4 m;
   m = node.transform_model_get();
 
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_matrices));
@@ -608,7 +597,7 @@ void GLcontext::uniform_buffers_update_matrices(Node &node)
 void GLcontext::uniform_buffers_update_state(Node &node)
 {
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_state));
-  GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(node.state), &node.state));
+  GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(node.state_get()), &node.state_get()));
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 }
 
@@ -645,6 +634,18 @@ void GLcontext::uniform_locations_geometry_init(GLshader &shader)
 }
 
 
+void GLcontext::uniform_locations_post_proc_init(GLshader &shader)
+{
+  GLuint program = shader.program;
+  GLint location;
+
+  shader.use();
+
+  location = glGetUniformLocation(program, "tex");
+  GL_ASSERT(glUniform1i(location, 0));
+}
+
+
 void GLcontext::uniform_locations_text_init(GLshader &shader)
 {
   GLint location;
@@ -676,7 +677,7 @@ void GLcontext::vertex_buffers_mesh_create(Mesh *mesh, const size_t max_size)
 
   target = GL_ARRAY_BUFFER;
   {
-    std::vector<glm::vec3> positions = mesh->positions_get();
+    std::vector<vec3> positions = mesh->positions_get();
     index = 0;
     size_t size = positions.size() * sizeof(positions[0]) + max_size;
 
@@ -687,7 +688,7 @@ void GLcontext::vertex_buffers_mesh_create(Mesh *mesh, const size_t max_size)
   }
 
   {
-    std::vector<glm::vec3> normals = mesh->normals_get();
+    std::vector<vec3> normals = mesh->normals_get();
     index = 1;
     if (normals.size() > 0) {
       GL_ASSERT(glBindBuffer(target, mesh->gl_vertex_buffers[index]));
@@ -698,7 +699,7 @@ void GLcontext::vertex_buffers_mesh_create(Mesh *mesh, const size_t max_size)
   }
 
   {
-    std::vector<glm::vec3> tangents = mesh->tangents_get();
+    std::vector<vec3> tangents = mesh->tangents_get();
     if (tangents.size() > 0) {
       index = 2;
       GL_ASSERT(glBindBuffer(target, mesh->gl_vertex_buffers[index]));
@@ -709,7 +710,7 @@ void GLcontext::vertex_buffers_mesh_create(Mesh *mesh, const size_t max_size)
   }
 
   {
-    std::vector<glm::vec3> bitangents = mesh->bitangents_get();
+    std::vector<vec3> bitangents = mesh->bitangents_get();
     if (bitangents.size() > 0) {
       index = 3;
       GL_ASSERT(glBindBuffer(target, mesh->gl_vertex_buffers[index]));
@@ -720,7 +721,7 @@ void GLcontext::vertex_buffers_mesh_create(Mesh *mesh, const size_t max_size)
   }
 
   {
-    std::vector<glm::vec3> bone_weights = mesh->bone_weights_get();
+    std::vector<vec3> bone_weights = mesh->bone_weights_get();
     if (bone_weights.size() > 0) {
       index = 4;
       GL_ASSERT(glBindBuffer(target, mesh->gl_vertex_buffers[index]));
@@ -731,7 +732,7 @@ void GLcontext::vertex_buffers_mesh_create(Mesh *mesh, const size_t max_size)
   }
 
   {
-    std::vector<glm::ivec3> bone_indices = mesh->bone_indices_get();
+    std::vector<ivec3> bone_indices = mesh->bone_indices_get();
     if (bone_indices.size() > 0) {
       index = 5;
       GL_ASSERT(glBindBuffer(target, mesh->gl_vertex_buffers[index]));
@@ -742,7 +743,7 @@ void GLcontext::vertex_buffers_mesh_create(Mesh *mesh, const size_t max_size)
   }
 
   {
-    std::vector<glm::vec2> uvs = mesh->texture_st_get();
+    std::vector<vec2> uvs = mesh->texture_st_get();
     if (uvs.size() > 0) {
       index = 6;
       GL_ASSERT(glBindBuffer(target, mesh->gl_vertex_buffers[index]));
@@ -773,7 +774,7 @@ void GLcontext::vertex_buffers_mesh_update(Mesh *mesh)
 
   target = GL_ARRAY_BUFFER;
   {
-    std::vector<glm::vec3> positions = mesh->positions_get();
+    std::vector<vec3> positions = mesh->positions_get();
     index = 0;
     size_t size = positions.size() * sizeof(positions[0]);
     GL_ASSERT(glBindBuffer(target, mesh->gl_vertex_buffers[index]));
@@ -781,7 +782,7 @@ void GLcontext::vertex_buffers_mesh_update(Mesh *mesh)
   }
 
   {
-    std::vector<glm::vec2> uvs = mesh->texture_st_get();
+    std::vector<vec2> uvs = mesh->texture_st_get();
     if (uvs.size() > 0) {
       index = 6;
       GL_ASSERT(glBindBuffer(target, mesh->gl_vertex_buffers[index]));

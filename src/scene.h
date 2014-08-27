@@ -26,8 +26,6 @@ class Scene {
     Assets assets;
     Node root;
 
-    Manipulator *manipulator_disk;
-
     Node *node_find_recursive(Node &node, const std::string &name);
 
   public:
@@ -39,10 +37,8 @@ class Scene {
     void                        animated_nodes_update_transforms(Node &node, const double dt);
     Assets                     &assets_get();
     Camera                     *camera_get();
-    void                        init(GLcontext &glcontext);
     Node                       &load(GLcontext &glcontext, const std::string &prefix, 
                                      const std::string &filename, const unsigned int options);
-    void                        manipulator_toggle(Node *node);
     void                        mesh_nodes_add(Node &node);
     const std::vector<Node *>  &mesh_nodes_get() const;
     void                        scene_graph_print(const bool compact = false);

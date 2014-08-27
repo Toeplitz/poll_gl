@@ -15,14 +15,10 @@ Bone::Bone(const std::string &name, const unsigned int &id, const glm::mat4 &m, 
 } 
 
 
-Bone::~Bone()
-{
-}
-
-
 /**************************************************/
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
+
 
 unsigned int Bone::index_get()
 {
@@ -32,5 +28,5 @@ unsigned int Bone::index_get()
 
 glm::mat4 Bone::skinning_matrix_update() 
 {
-  return joint_node->transform_global * offset_matrix;
+  return joint_node->transform_global_get() * offset_matrix;
 }

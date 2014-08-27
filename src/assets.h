@@ -33,6 +33,7 @@ class Stock_Nodes
     Node *node_symbol_diamond;
     Node *node_symbol_disk;
     Node *node_symbol_pyramid;
+    Node *node_screen_quad;
 
   public:
 
@@ -40,6 +41,7 @@ class Stock_Nodes
     Mesh *disk_get();
     Mesh *diamond_get();
     Mesh *pyramid_get();
+    Mesh *screen_quad_get();
     Mesh *sphere_get();
 };
 

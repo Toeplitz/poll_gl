@@ -8,6 +8,18 @@
 /**************************************************/
 
 
+const unsigned int &Light::illumination_type_get()
+{
+  return illumination_type;
+}
+
+
+void Light::illumination_type_set(unsigned int illumination_type)
+{
+  this->illumination_type = illumination_type;
+}
+
+
 Node *Light::node_ptr_get()
 {
   return this->node_ptr;

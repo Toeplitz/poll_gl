@@ -9,12 +9,8 @@
 /**************************************************/
 
 
-Node::Node(const std::string &node_name):
-  transform_global(1),
-  transform_local_current(1),
-  transform_local_original(1)
+Node::Node(const std::string &node_name)
 {
-
   name_set(node_name);
   state.animated = false;
   state.debug = false;
@@ -28,14 +24,10 @@ Node::Node(const std::string &node_name):
 } 
 
 
-Node::~Node() 
-{
-}
-
-
 /**************************************************/
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
+
 
 Armature *Node::armature_get()
 {
@@ -79,6 +71,12 @@ void Node::copy_transform_data(Node &node)
 }
 
 
+Node_List const &Node::children_get() const
+{
+  return children;
+}
+
+
 void Node::child_add(std::unique_ptr<Node> &&node, int level) 
 {
   node->parent = this;
@@ -87,15 +85,27 @@ void Node::child_add(std::unique_ptr<Node> &&node, int level)
 }
 
 
-Light *Node::light_create(Assets &assets, const unsigned int type)
+Light *Node::light_create(Assets &assets, const unsigned int lamp_type, const unsigned int illumination_type)
 {
   Stock_Nodes &stock_nodes = assets.stock_nodes_get();
-  Mesh *light_volume = stock_nodes.sphere_get();
+  Mesh *mesh = nullptr;
+
+  if (illumination_type == Light::GLOBAL) {
+    mesh = stock_nodes.screen_quad_get();
+  } else {
+    mesh = stock_nodes.sphere_get();
+  }
+
+  if (!mesh) {
+    std::cout << "Error: Light type was not set" << std::endl;
+    return nullptr;
+  }
 
   std::unique_ptr<Light> light(new Light());
   Light *light_ptr = light.get();
-  light_ptr->properties_type_set(type);
-  mesh_set(light_volume);
+  light_ptr->properties_type_set(lamp_type);
+  light_ptr->illumination_type_set(illumination_type);
+  mesh_set(mesh);
   light_set(light_ptr);
   assets.light_active_add(std::move(light));
 
@@ -115,6 +125,42 @@ void Node::light_set(Light *light)
     light->node_ptr_set(this);
 
   this->light = light;
+}
+
+
+const vec3  &Node::original_position_get()
+{
+  return original_position;
+}
+
+
+void Node::original_position_set(const vec3 &v)
+{
+  this->original_position = v;
+}
+
+
+const quat &Node::original_rotation_get()
+{
+  return original_rotation;
+}
+
+
+void  Node::original_rotation_set(const quat &q)
+{
+  this->original_rotation = q;
+}
+
+
+const vec3 &Node::original_scaling_get()
+{
+  return original_scaling;
+}
+
+
+void Node::original_scaling_set(const vec3 &v)
+{
+  this->original_scaling = v;
 }
 
 
@@ -168,6 +214,12 @@ Manipulator *Node::manipulator_create(Assets &assets)
   manipulator_set(manipulator_ptr);
   assets.manipulator_add(std::move(manipulator));
   return manipulator_ptr;
+}
+
+
+const std::string  &Node::name_get()
+{
+  return name;
 }
 
 
@@ -233,17 +285,23 @@ void Node::mesh_set(Mesh *mesh)
 }
 
 
-void Node::rotate(const float angle, const glm::vec3 &v)
+void Node::rotate(const float angle, const vec3 &v)
 {
-  glm::mat4 m = glm::rotate(transform_model_get(), angle, v);
+  mat4 m = glm::rotate(transform_model_get(), angle, v);
   transform_model_set(m);
 }
 
 
-void Node::scale(const glm::vec3 &v)
+void Node::scale(const vec3 &v)
 {
-  glm::mat4 m = glm::scale(transform_model_get(), v);
+  mat4 m = glm::scale(transform_model_get(), v);
   transform_model_set(m);
+}
+
+
+Node_State &Node::state_get()
+{
+  return state;
 }
 
 
@@ -274,32 +332,50 @@ void Node::text_set(Text *text)
 }
 
 
-void Node::translate(const glm::vec3 &v) 
+void Node::translate(const vec3 &v) 
 {
-  glm::mat4 m = glm::translate(transform_model_get(), v);
+  mat4 m = glm::translate(transform_model_get(), v);
   transform_model_set(m);
 }
 
 
-void Node::transform_local_current_set(const glm::mat4 &transform) 
+void Node::transform_local_current_set(const mat4 &transform) 
 {
   transform_local_current = transform;
 }
 
 
-void Node::transform_local_original_set(const glm::mat4 &transform) 
+void Node::transform_local_original_set(const mat4 &transform) 
 {
   transform_local_original = transform;
 }
 
 
-glm::mat4 &Node::transform_model_get()
+const mat4 &Node::transform_global_get()
+{
+  return transform_global;
+}
+
+
+void Node::transform_global_set(const mat4 &transform)
+{
+  this->transform_global = transform;
+}
+
+
+const mat4 &Node::transform_local_current_get()
+{
+  return transform_local_current;
+}
+
+
+mat4 &Node::transform_model_get()
 {
   return transform_model; 
 }
 
 
-void Node::transform_model_set(const glm::mat4 &transform)
+void Node::transform_model_set(const mat4 &transform)
 {
   transform_model = transform;
 }
@@ -308,7 +384,7 @@ void Node::transform_model_set(const glm::mat4 &transform)
 
 void Node::transform_update_global_recursive(Node &node)
 {
-  glm::mat4 transform = node.transform_local_current;
+  mat4 transform = node.transform_local_current;
   Node *parent = node.parent;
 
   if (parent) {
@@ -320,4 +396,16 @@ void Node::transform_update_global_recursive(Node &node)
   for (auto &child : node.children) {
     transform_update_global_recursive(*child);
   }
+}
+
+
+const int &Node::tree_level_get()
+{
+  return tree_level;
+}
+
+
+void Node::tree_level_set(const unsigned int &tree_level)
+{
+  this->tree_level = tree_level;
 }
