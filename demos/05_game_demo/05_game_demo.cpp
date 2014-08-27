@@ -276,7 +276,7 @@ int main()
     Node *node = scene.node_create("Light_Point_Global");
     Light *light = node->light_create(assets, Light::POINT, Light::GLOBAL);
     node->translate(glm::vec3(0, 40, 0));
-    light->properties_color_set(glm::vec3(0., 0., 0.));
+    light->properties_color_set(glm::vec3(0.1, 0.1, 0.1));
   }
 
 
