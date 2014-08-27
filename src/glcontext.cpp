@@ -20,21 +20,16 @@ void GLcontext::check_error()
 
 void GLcontext::draw_light_volume(Mesh *mesh, GLshader &shader_stencil, GLshader &shader_light)
 {
-  /* STENCIL PASS */
   shader_stencil.use();
   GL_ASSERT(glDrawBuffer(GL_NONE));
   GL_ASSERT(glClear(GL_STENCIL_BUFFER_BIT));
-
   GL_ASSERT(glEnable(GL_DEPTH_TEST));
   GL_ASSERT(glDisable(GL_CULL_FACE));
   GL_ASSERT(glStencilFunc(GL_ALWAYS, 0, 0));
-
   GL_ASSERT(glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP));
   GL_ASSERT(glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP));
-
   draw_mesh(*mesh);
 
-  /* LIGHT PASS */
   shader_light.use();
   GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
   GL_ASSERT(glStencilFunc(GL_NOTEQUAL, 0, 0xFF));
@@ -44,7 +39,6 @@ void GLcontext::draw_light_volume(Mesh *mesh, GLshader &shader_stencil, GLshader
   GL_ASSERT(glBlendFunc(GL_ONE, GL_ONE));
   GL_ASSERT(glEnable(GL_CULL_FACE));
   GL_ASSERT(glCullFace(GL_FRONT));
-
   draw_mesh(*mesh);
 
   GL_ASSERT(glCullFace(GL_BACK));
@@ -56,12 +50,11 @@ void GLcontext::draw_light_screen(Mesh *mesh, GLshader &shader_quad_light)
 {
   shader_quad_light.use();
 
+  GL_ASSERT(glClear(GL_STENCIL_BUFFER_BIT));
   GL_ASSERT(glDisable(GL_STENCIL_TEST));
-  GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
   GL_ASSERT(glEnable(GL_BLEND));
   GL_ASSERT(glBlendEquation(GL_FUNC_ADD));
   GL_ASSERT(glBlendFunc(GL_ONE, GL_ONE));
-
   draw_mesh(*mesh);
 
   GL_ASSERT(glDisable(GL_BLEND));
@@ -274,6 +267,7 @@ void GLcontext::framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_diffuse));
   GL_ASSERT(glActiveTexture(GL_TEXTURE2));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_depth));
+  GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
 
   for (auto &light: lights) {
     Node *node = light->node_ptr_get();
@@ -308,19 +302,15 @@ void GLcontext::framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  
   }
   GL_ASSERT(glDisable(GL_STENCIL_TEST));
 
-  /* POST PROCESSING PASS */
   GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
   GL_ASSERT(glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_fb));
   GL_ASSERT(glReadBuffer(GL_COLOR_ATTACHMENT2));
 
-  /*
   shader_post_proc.use();
   GL_ASSERT(glActiveTexture(GL_TEXTURE0));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_final));
   draw_mesh(*mesh_screen_quad);
-  */
 
-  GL_ASSERT(glBlitFramebuffer(0, 0, 1280, 720, 0, 0, 1280, 720, GL_COLOR_BUFFER_BIT, GL_NEAREST));
 }
 
 

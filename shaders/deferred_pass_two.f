@@ -103,8 +103,8 @@ vec3 phong(in vec3 op_eye, in vec3 n_eye, in vec3 kd) {
 
   //return vec3(dist_2d,dist_2d,dist_2d);
 
-  //return (Id + Is) * atten_factor;
-  return (Id + Is);
+  return (Id + Is) * atten_factor;
+  //return (Id + Is);
 
   //return Id;
 }
@@ -170,9 +170,8 @@ void main ()
 
   out_color.rgb = occlusion * phong(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel));
  // frag_color.rgb = vec3(0, 1, 0);
-  //frag_color.rgb = occlusion * phong(pos_eye, normalize(n_texel.rgb), vec3(0.5, 0.5, 0.5));
  // frag_color.rgb = vec3(n_texel);
-  //frag_color.rgb = vec3(occlusion, occlusion, occlusion);
+ // out_color.rgb = vec3(occlusion, occlusion, occlusion);
 
   out_color.a = 1.0;
 }
