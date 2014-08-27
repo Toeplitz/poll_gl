@@ -268,6 +268,7 @@ int main()
       glm::vec3(1, 0.5, 0)
     };
 
+    /*
     for (int i = 0; i < 5; i++) {
       Node *node = scene.node_create("Light_Point");
       Light *light = node->light_create(assets, Light::POINT);
@@ -275,6 +276,7 @@ int main()
       node->translate(light_positions[i]);
       node->scale(glm::vec3(30, 30, 30));
     }
+    */
   }
 
 

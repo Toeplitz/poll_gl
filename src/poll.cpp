@@ -19,7 +19,7 @@ Poll::Poll(const std::string &config_file)
     config.init(console, scene, glcontext, config_file);
 
   window.init(config, "Poll");
-  window.swap_interval_set(1);
+  window.swap_interval_set(0);
   if (!glcontext.init(window.width_get(), window.height_get())) {
     exit(-1);
   }
@@ -34,16 +34,19 @@ Poll::Poll(const std::string &config_file)
 
   glshader_geometry.load("shaders/deferred_pass_one.v", "shaders/deferred_pass_one.f");
   glshader_light.load("shaders/deferred_pass_two.v", "shaders/deferred_pass_two.f");
+  glshader_quad_light.load("shaders/quad_light.v", "shaders/quad_light.f");
   glshader_post_proc.load("shaders/post_proc.v", "shaders/post_proc.f");
   glshader_stencil.load("shaders/stencil_pass.v", "shaders/stencil_pass.f");
   glshader_text.load("shaders/text.v", "shaders/text.f"); 
   glcontext.uniform_locations_geometry_init(glshader_geometry);
   glcontext.uniform_locations_lighting_init(glshader_light);
+  glcontext.uniform_locations_lighting_init(glshader_quad_light);
   glcontext.uniform_locations_post_proc_init(glshader_post_proc);
   glcontext.uniform_locations_text_init(glshader_text);
   glcontext.uniform_buffers_create(config);
   glcontext.uniform_buffers_block_bind(glshader_geometry);
   glcontext.uniform_buffers_block_bind(glshader_light);
+  glcontext.uniform_buffers_block_bind(glshader_quad_light);
   glcontext.uniform_buffers_block_bind(glshader_stencil);
 
   glcontext.framebuffer_create(window.width_get(), window.height_get());
@@ -92,7 +95,7 @@ void Poll::run()
     glcontext.uniform_buffers_update_camera(camera);
 
     /* Draw scene */
-    glcontext.framebuffer_draw_scene(scene, glshader_geometry, glshader_stencil, glshader_light, glshader_post_proc);
+    glcontext.framebuffer_draw_scene(scene, glshader_geometry, glshader_stencil, glshader_light, glshader_quad_light, glshader_post_proc);
 
     /* Step physics simulation */
     physics.step(dt);

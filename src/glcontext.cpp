@@ -18,26 +18,55 @@ void GLcontext::check_error()
 }
 
 
-bool GLcontext::init(const int width, const int height)
+void GLcontext::draw_light_volume(Mesh *mesh, GLshader &shader_stencil, GLshader &shader_light)
 {
-  glewExperimental= GL_TRUE;
-  if (glewInit() != GLEW_OK) {
-    std::cout << "GLcontext ERROR: failed to initalize GLEW" << std::endl;
-    return false;
-  }
-  check_error();
-  check_version(3);
+  /* STENCIL PASS */
+  shader_stencil.use();
+  GL_ASSERT(glDrawBuffer(GL_NONE));
+  GL_ASSERT(glClear(GL_STENCIL_BUFFER_BIT));
 
-  GL_ASSERT(glViewport(0, 0, width, height));
-  GL_ASSERT(glCullFace(GL_BACK));
-  GL_ASSERT(glEnable(GL_CULL_FACE));
   GL_ASSERT(glEnable(GL_DEPTH_TEST));
-  GL_ASSERT(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+  GL_ASSERT(glDisable(GL_CULL_FACE));
+  GL_ASSERT(glStencilFunc(GL_ALWAYS, 0, 0));
 
-  return true;
+  GL_ASSERT(glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP));
+  GL_ASSERT(glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP));
+
+  draw_mesh(*mesh);
+
+  /* LIGHT PASS */
+  shader_light.use();
+  GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
+  GL_ASSERT(glStencilFunc(GL_NOTEQUAL, 0, 0xFF));
+  GL_ASSERT(glDisable(GL_DEPTH_TEST));
+  GL_ASSERT(glEnable(GL_BLEND));
+  GL_ASSERT(glBlendEquation(GL_FUNC_ADD));
+  GL_ASSERT(glBlendFunc(GL_ONE, GL_ONE));
+  GL_ASSERT(glEnable(GL_CULL_FACE));
+  GL_ASSERT(glCullFace(GL_FRONT));
+
+  draw_mesh(*mesh);
+
+  GL_ASSERT(glCullFace(GL_BACK));
+  GL_ASSERT(glDisable(GL_BLEND));
 }
 
 
+void GLcontext::draw_light_screen(Mesh *mesh, GLshader &shader_quad_light)
+{
+  shader_quad_light.use();
+
+  GL_ASSERT(glDisable(GL_STENCIL_TEST));
+  GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
+  GL_ASSERT(glEnable(GL_BLEND));
+  GL_ASSERT(glBlendEquation(GL_FUNC_ADD));
+  GL_ASSERT(glBlendFunc(GL_ONE, GL_ONE));
+
+  draw_mesh(*mesh);
+
+  GL_ASSERT(glDisable(GL_BLEND));
+  GL_ASSERT(glEnable(GL_STENCIL_TEST));
+}
 
 
 void GLcontext::draw_node(Node &node)
@@ -105,6 +134,27 @@ void GLcontext::draw_text(Node &node)
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, texture.gl_texture));
   draw_mesh(*mesh);
   GL_ASSERT(glDisable(GL_BLEND));
+}
+
+
+
+bool GLcontext::init(const int width, const int height)
+{
+  glewExperimental= GL_TRUE;
+  if (glewInit() != GLEW_OK) {
+    std::cout << "GLcontext ERROR: failed to initalize GLEW" << std::endl;
+    return false;
+  }
+  check_error();
+  check_version(3);
+
+  GL_ASSERT(glViewport(0, 0, width, height));
+  GL_ASSERT(glCullFace(GL_BACK));
+  GL_ASSERT(glEnable(GL_CULL_FACE));
+  GL_ASSERT(glEnable(GL_DEPTH_TEST));
+  GL_ASSERT(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
+  return true;
 }
 
 
@@ -182,15 +232,21 @@ void GLcontext::framebuffer_create(const int width, const int height)
   GL_ASSERT(glGenTextures(1, &gl_fb_tex_final));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_final));
   GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
   GL_ASSERT(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gl_fb_tex_final, 0));
 
 }
 
 
-void GLcontext::framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  GLshader &shader_stencil, GLshader &shader_light, GLshader &shader_post_proc)
+void GLcontext::framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  GLshader &shader_stencil,
+    GLshader &shader_light, GLshader &shader_quad_light, GLshader &shader_post_proc)
 {
   Assets &assets = scene.assets_get();
   auto &lights = assets.light_active_get();
+  Mesh *mesh_screen_quad = assets.stock_nodes_get().screen_quad_get();
 
   GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb));
   GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
@@ -209,8 +265,16 @@ void GLcontext::framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  
   }
   GL_ASSERT(glDepthMask(GL_FALSE));
 
-  /* STENCIL AND LIGHT PASS*/
+  GL_ASSERT(glDisable(GL_DEPTH_TEST));
   GL_ASSERT(glEnable(GL_STENCIL_TEST));
+
+  GL_ASSERT(glActiveTexture(GL_TEXTURE0));
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_normal));
+  GL_ASSERT(glActiveTexture(GL_TEXTURE1));
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_diffuse));
+  GL_ASSERT(glActiveTexture(GL_TEXTURE2));
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_depth));
+
   for (auto &light: lights) {
     Node *node = light->node_ptr_get();
     if (!node) {
@@ -229,67 +293,33 @@ void GLcontext::framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  
       continue;
     }
 
+    switch (light->illumination_type_get()) {
+      case Light::VOLUME:
+        draw_light_volume(mesh, shader_stencil, shader_light);
+        break;
+      case Light::GLOBAL:
+        draw_light_screen(mesh_screen_quad, shader_quad_light);
+        break;
+      default:
+        std::cout << "Error: illumination type not supported" << std::endl;
+        break;
+    }
 
-    /*
-     *
-     * draw_light_volume(light, shader_stencil, shader_light);
-     * draw_light_screen_quad(light, 
-     *
-     */
-
-
-    /* STENCIL PASS */
-    shader_stencil.use();
-    GL_ASSERT(glDrawBuffer(GL_NONE));
-    GL_ASSERT(glClear(GL_STENCIL_BUFFER_BIT));
-
-    GL_ASSERT(glEnable(GL_DEPTH_TEST));
-    GL_ASSERT(glDisable(GL_CULL_FACE));
-    GL_ASSERT(glStencilFunc(GL_ALWAYS, 0, 0));
-
-    GL_ASSERT(glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP));
-    GL_ASSERT(glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP));
-
-    draw_mesh(*mesh);
-
-    /* LIGHT PASS */
-    shader_light.use();
-    GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
-    GL_ASSERT(glStencilFunc(GL_NOTEQUAL, 0, 0xFF));
-    GL_ASSERT(glDisable(GL_DEPTH_TEST));
-    GL_ASSERT(glEnable(GL_BLEND));
-    GL_ASSERT(glBlendEquation(GL_FUNC_ADD));
-    GL_ASSERT(glBlendFunc(GL_ONE, GL_ONE));
-    GL_ASSERT(glEnable(GL_CULL_FACE));
-    GL_ASSERT(glCullFace(GL_FRONT));
-    GL_ASSERT(glActiveTexture(GL_TEXTURE0));
-    GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_normal));
-    GL_ASSERT(glActiveTexture(GL_TEXTURE1));
-    GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_diffuse));
-    GL_ASSERT(glActiveTexture(GL_TEXTURE2));
-    GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_depth));
-
-    draw_mesh(*mesh);
-
-    GL_ASSERT(glCullFace(GL_BACK));
-    GL_ASSERT(glDisable(GL_BLEND));
   }
   GL_ASSERT(glDisable(GL_STENCIL_TEST));
 
-  /***** BLIT FINAL FRAME *********/
+  /* POST PROCESSING PASS */
   GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
   GL_ASSERT(glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_fb));
   GL_ASSERT(glReadBuffer(GL_COLOR_ATTACHMENT2));
 
   /*
   shader_post_proc.use();
-  Mesh *mesh_screen_quad = assets.stock_nodes_get().screen_quad_get();
   GL_ASSERT(glActiveTexture(GL_TEXTURE0));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_final));
   draw_mesh(*mesh_screen_quad);
   */
 
-  /* FIXME: blitting is slow, draw a screen quad instead */
   GL_ASSERT(glBlitFramebuffer(0, 0, 1280, 720, 0, 0, 1280, 720, GL_COLOR_BUFFER_BIT, GL_NEAREST));
 }
 
@@ -520,6 +550,18 @@ void GLcontext::uniform_buffers_update_camera(Camera &camera)
   data[0] = camera.transform_perspective_get();
   data[1] = camera.transform_perspective_inverse_get();
   data[2] = camera.transform_view_get();
+  GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_globalmatrices));
+  GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(data), &data));
+  GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, 0));
+}
+
+
+void GLcontext::uniform_buffers_update_camera_unity()
+{
+  mat4 data[3];
+  data[0] = mat4(1.f);
+  data[1] = mat4(1.f);
+  data[2] = mat4(1.f);
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_globalmatrices));
   GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(data), &data));
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, 0));

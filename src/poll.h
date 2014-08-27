@@ -26,6 +26,7 @@ class Poll {
     GLshader glshader_post_proc;
     GLshader glshader_stencil;
     GLshader glshader_text;
+    GLshader glshader_quad_light;
     Scene scene;
     Ui ui;
     Window window;

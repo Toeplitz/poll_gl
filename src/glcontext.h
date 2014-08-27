@@ -45,15 +45,17 @@ class GLcontext {
   public:
     
     void check_error();
-    bool init(const int width, const int height);
+    void draw_light_volume(Mesh *mesh, GLshader &shader_stencil, GLshader &shader_light);
+    void draw_light_screen(Mesh *mesh, GLshader &shader_light);
     void draw_node(Node &node);
     void draw_mesh(Mesh &mesh);
     void draw_text(Node &node);
+    bool init(const int width, const int height);
     void framebuffer_check_status();
     void framebuffer_create(const int width, const int height);
     void framebuffer_delete();
     void framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  
-                                GLshader &shader_stencil, GLshader &shader_light, GLshader &shader_post_proc);
+                                GLshader &shader_stencil, GLshader &shader_light, GLshader &shader_quad_light, GLshader &shader_post_proc);
     void framebuffer_node_create(Node &node);
     void texture_delete(Texture &texture);
     void texture_single_channel_create(Texture &texture);
@@ -64,6 +66,7 @@ class GLcontext {
     void uniform_buffers_delete();
     void uniform_buffers_update_armature(const Armature &armature);
     void uniform_buffers_update_camera(Camera &camera);
+    void uniform_buffers_update_camera_unity();
     void uniform_buffers_update_config(Config &config);
     void uniform_buffers_update_light(Light &light);
     void uniform_buffers_update_material(const Material &material);

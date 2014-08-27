@@ -68,7 +68,8 @@ uniform sampler2D normal_tex;
 uniform sampler2D diffuse_tex;
 uniform sampler2D depth_tex;
 
-out vec4 frag_color;
+layout (location = 0) out vec4 out_color;
+//out vec4 frag_color;
 
 vec3 d_Ls = vec3 (1.0, 1.0, 1.0); // white specular colour
 vec3 d_Ld = vec3 (0.7, 0.7, 0.7); // dull white diffuse light colour
@@ -167,12 +168,12 @@ void main ()
 
   float occlusion = ssoa(st, d_texel, pos_eye, n_texel.rgb);
 
-  frag_color.rgb = occlusion * phong(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel));
+  out_color.rgb = occlusion * phong(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel));
  // frag_color.rgb = vec3(0, 1, 0);
   //frag_color.rgb = occlusion * phong(pos_eye, normalize(n_texel.rgb), vec3(0.5, 0.5, 0.5));
  // frag_color.rgb = vec3(n_texel);
   //frag_color.rgb = vec3(occlusion, occlusion, occlusion);
 
-  frag_color.a = 1.0;
+  out_color.a = 1.0;
 }
 

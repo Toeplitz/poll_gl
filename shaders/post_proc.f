@@ -8,15 +8,7 @@ out vec4 frag_color;
 
 void main()
 {
-  vec3 out_color = vec3(0.7, 0.7, 0.7);
-
-  if (st.s >= 0.5) {
-    out_color = 1 - texture(tex, st).rgb;
-  } else {
-    out_color = texture(tex, st).rgb;
-  }
-
-  frag_color.rgb = out_color;
+  frag_color.rgb = texture(tex, st).rgb;
   frag_color.a = 1.0; 
 }
 

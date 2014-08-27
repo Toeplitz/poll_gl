@@ -32,7 +32,7 @@ const Uniform_Map uniform_buffer_map(uniform_buffer_map_def,
 
 
 #ifndef GL_ASSERT
-    #ifndef NDEBUG
+    #ifndef NDEBUG 
         #define GL_ASSERT(x)                                    \
             do {                                                \
                 GLenum _glError;                                \
@@ -45,7 +45,7 @@ const Uniform_Map uniform_buffer_map(uniform_buffer_map_def,
                 }                                               \
             } while(__LINE__ == -1)
     #else
-        #define GL_ASSERT(x)
+        #define GL_ASSERT(x) x;
     #endif /* NDEBUG */
 #endif 
 
