@@ -4,23 +4,9 @@
 
 
 /**************************************************/
-/***************** CONSTRUCTORS *******************/
-/**************************************************/
-
-
-GLshader::GLshader()
-{
-}
-
-
-GLshader::~GLshader(void)
-{
-}
-
-
-/**************************************************/
 /***************** PRIVATE METHODS ****************/
 /**************************************************/
+
 
 void GLshader::compile()
 {
@@ -43,6 +29,10 @@ void GLshader::compile()
     return;
   }
 }
+
+
+
+
 
 
 GLuint GLshader::create_shader(std::string filename, GLenum type)
@@ -139,6 +129,36 @@ int GLshader::get_block_index(std::string blockName)
 }
 
 
+std::string GLshader::parse_file(const std::string &file)
+{
+  std::string parsed;
+  std::ifstream t(SHADER_PATH + file);
+
+  std::string line;
+  while(std::getline(t, line)) {
+    std::string add_str;
+    std::size_t found = line.find(INCLUDE_STRING);
+    if (found != std::string::npos) {
+      std::string included_file = line.replace(found, std::string(INCLUDE_STRING).length() + 1, "");
+
+      if (file_exists(SHADER_PATH + included_file) &&
+          file.compare(included_file)) {
+        add_str = parse_file(included_file);
+      } else {
+        std::cout << "Error: included GLSL file: '" << included_file << "' is not valid!" << std::endl;
+      }
+    } else {
+      add_str = line + "\r\n";
+    }
+    parsed.append(add_str);
+  }
+
+  t.close();
+
+  return parsed;
+}
+
+
 void GLshader::print_log(GLuint object)
 {
   GLint log_length = 0;
@@ -174,6 +194,12 @@ void GLshader::validate(void)
     fprintf(stderr, "glValidateProgram Shader:");
     this->print_log(program);
   }
+}
+
+
+void GLshader::version_add(std::string &parsed)
+{
+  parsed.insert(0, std::string(GLSL_VERSION) + "\r\n");
 }
 
 
@@ -272,8 +298,6 @@ void GLshader::print_block_names()
 
 void GLshader::term()
 {
-  std::cout << "Detatching and deleting GLshader: " << vertexShaderFile << std::endl;
-
   GL_ASSERT(glDetachShader(program, vs));
   GL_ASSERT(glDetachShader(program, fs));
 

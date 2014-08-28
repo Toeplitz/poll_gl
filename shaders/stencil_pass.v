@@ -1,18 +1,6 @@
-#version 330
-
 layout(location = 0) in vec3 vertex_position;
 
-
-layout(std140) uniform GlobalMatrices {
-  mat4 proj;
-  mat4 inv_proj;
-  mat4 view;
-};
-
-layout(std140) uniform Matrices {
-  mat4 model;
-};
-
+#include uniform_buffers.glsl
 
 
 void main(void) 

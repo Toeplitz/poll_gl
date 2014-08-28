@@ -10,7 +10,7 @@ all: $(PROJECT)
 	g++ -c -I../../src/ $(CFLAGS) $<
 
 $(PROJECT): $(OBJECTS)
-	g++ -o $(PROJECT) $(OBJECTS) -L../../external/lib/ -L../../build/ -lfragmic -ldemo_common -lassimp -lGLU -lGLEW -lGL -lSDL2 -lBulletDynamics -lBulletCollision -lLinearMath
+	g++ -o $(PROJECT) $(OBJECTS) -L../../external/lib/ -L../../build/ -lfragmic -ldemo_common -lassimp -lGLU -lGLEW -lGL -lSDL2 -lBulletDynamics -lBulletCollision -lLinearMath -ljsoncpp
 
 clean:
 	rm -f $(OBJECTS) $(PROJECT)

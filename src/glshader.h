@@ -11,6 +11,12 @@
 
 #include "gldefaults.h"
 
+
+#define INCLUDE_STRING "#include"
+#define SHADER_PATH "/home/ms/git/poll/shaders/"
+#define GLSL_VERSION "#version 330"
+
+
 class GLshader {
 
   private:
@@ -19,11 +25,14 @@ class GLshader {
     GLuint gs;
     std::vector<GLuint> shader_objects;
 
-    void    compile();
-    GLuint  create_shader(std::string fileName, GLenum type);
-    char   *file_read(const char *filename);
-    void    print_log(GLuint object);
-    void    validate();
+    void        compile();
+    GLuint      create_shader_cpp(const std::string &file, GLenum type);
+    GLuint      create_shader(std::string fileName, GLenum type);
+    char       *file_read(const char *filename);
+    std::string parse_file(const std::string &file);
+    void        print_log(GLuint object);
+    void        validate();
+    void        version_add(std::string &parsed);
 
   public:
     std::string vertexShaderFile;
@@ -31,15 +40,12 @@ class GLshader {
     std::string geomShaderFile;
     GLuint program;
 
-    GLshader();
-    ~GLshader(void);
-
     std::vector<std::string> block_names_get();
-    void load(const std::string &vertex, const std::string &fragment, const std::string &geometry = "");
-    int  get_block_index(std::string blockName);
-    void print_block_names();
-    void term();
-    void use();
+    void                     load(const std::string &vertex, const std::string &fragment, const std::string &geometry = "");
+    int                      get_block_index(std::string blockName);
+    void                     print_block_names();
+    void                     term();
+    void                     use();
 };
 
 

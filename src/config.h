@@ -81,9 +81,6 @@ class Config
 
   public:
 
-    Config();
-    ~Config();
-
     void                init(Console &console, Scene &scene, GLcontext &glcontext, const std::string &global_file);
     void                conf_global_apply();
     void                conf_global_apply(const std::string &prim);

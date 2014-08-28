@@ -49,6 +49,7 @@ Poll::Poll(const std::string &config_file)
   glcontext.uniform_buffers_block_bind(glshader_post_proc);
   glcontext.uniform_buffers_block_bind(glshader_stencil);
   glcontext.uniform_buffers_block_bind(glshader_quad_light);
+  glcontext.uniform_buffers_block_bind(glshader_text);
 
   glcontext.framebuffer_create(window.width_get(), window.height_get());
 
