@@ -31,90 +31,35 @@ void GLshader::compile()
 }
 
 
-
-
-
-
 GLuint GLshader::create_shader(std::string filename, GLenum type)
 {
-  const GLchar *source = file_read(filename.c_str());
+  std::string source = parse_file(filename);
 
-  if (source == NULL) {
+  if (source.empty()) {
     fprintf(stderr, "Error opening %s: ", filename.c_str());
     perror("");
     return 0;
   }
 
-  GLuint shaderObject = glCreateShader(type);
-  const GLchar *sources[] = {
-    // Define GLshader version
-    ""
-      ,
-    // GLES2 precision specifiers
-#ifdef GL_ES_VERSION_2_0
-    // Define default float precision for fragment shaders:
-    (type == GL_FRAGMENT_SHADER) ?
-      ""
-      // Note: OpenGL ES automatically defines this:
-      // #define GL_ES
-#else
-    // Ignore GLES 2 precision specifiers:
-    ""
-#endif
-      ,
-    source
-  };
+  GLuint glshader = glCreateShader(type);
+  const char *c_str = source.c_str();
+  GL_ASSERT(glShaderSource(glshader, 1, &c_str, NULL));
 
-  GL_ASSERT(glShaderSource(shaderObject, 3, sources, NULL));
-  free((void *) source);
-
-  GL_ASSERT(glCompileShader(shaderObject));
+  GL_ASSERT(glCompileShader(glshader));
   GLint compile_ok = GL_FALSE;
-  GL_ASSERT(glGetShaderiv(shaderObject, GL_COMPILE_STATUS, &compile_ok));
+  GL_ASSERT(glGetShaderiv(glshader, GL_COMPILE_STATUS, &compile_ok));
 
   if (compile_ok == GL_FALSE) {
     std::cout << "Fragmic ERROR: could not compile shader: " << filename << std::endl;
-    print_log(shaderObject);
-    glDeleteShader(shaderObject);
+    print_log(glshader);
+    glDeleteShader(glshader);
     exit(-1);
     return 0;
   }
 
-  shader_objects.push_back(shaderObject);
+  shader_objects.push_back(glshader);
 
-  return shaderObject;
-}
-
-
-char *GLshader::file_read(const char *filename)
-{
-  FILE *in;
-
-  in = fopen(filename, "rb");
-
-  if (in == NULL)
-    return NULL;
-
-  int res_size = BUFSIZ;
-  char *res = (char *) malloc(res_size);
-  int nb_read_total = 0;
-
-  while (!feof(in) && !ferror(in)) {
-    if (nb_read_total + BUFSIZ > res_size) {
-      if (res_size > 10 * 1024 * 1024)
-        break;
-      res_size = res_size * 2;
-      res = (char *) realloc(res, res_size);
-    }
-    char *p_res = res + nb_read_total;
-    nb_read_total += fread(p_res, 1, BUFSIZ, in);
-  }
-
-  fclose(in);
-  res = (char *) realloc(res, nb_read_total + 1);
-  res[nb_read_total] = '\0';
-
-  return res;
+  return glshader;
 }
 
 

@@ -26,9 +26,7 @@ class GLshader {
     std::vector<GLuint> shader_objects;
 
     void        compile();
-    GLuint      create_shader_cpp(const std::string &file, GLenum type);
     GLuint      create_shader(std::string fileName, GLenum type);
-    char       *file_read(const char *filename);
     std::string parse_file(const std::string &file);
     void        print_log(GLuint object);
     void        validate();
