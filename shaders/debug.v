@@ -8,6 +8,6 @@ smooth out vec4 theColor;
 
 void main()
 {
-  gl_Position = projection * view * position;
+  gl_Position = proj * view * position;
   theColor = color;
 }

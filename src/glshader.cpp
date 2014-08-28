@@ -34,6 +34,11 @@ void GLshader::compile()
 GLuint GLshader::create_shader(std::string filename, GLenum type)
 {
   std::string source = parse_file(filename);
+  if (type == GL_FRAGMENT_SHADER) {
+  //  source.insert(0, std::string("#extension GL_ARB_gpu_shader5 : require") + "\r\n");
+  //  source.insert(0, std::string("#extension GL_ARB_shader_subroutine: enable") + "\r\n");
+  }
+  version_add(source);
 
   if (source.empty()) {
     fprintf(stderr, "Error opening %s: ", filename.c_str());
@@ -50,6 +55,7 @@ GLuint GLshader::create_shader(std::string filename, GLenum type)
   GL_ASSERT(glGetShaderiv(glshader, GL_COMPILE_STATUS, &compile_ok));
 
   if (compile_ok == GL_FALSE) {
+    print_source(source);
     std::cout << "Fragmic ERROR: could not compile shader: " << filename << std::endl;
     print_log(glshader);
     glDeleteShader(glshader);
@@ -129,6 +135,19 @@ void GLshader::print_log(GLuint object)
 }
 
 
+void GLshader::print_source(std::string &source)
+{
+  std::istringstream f(source);
+  std::string line;    
+  int count = 0;
+  while (std::getline(f, line)) {
+    count++;
+    std::cout << count << ": " << line << std::endl;
+  }
+}
+
+
+
 void GLshader::validate(void)
 {
   GLint validate_ok = GL_FALSE;
@@ -158,17 +177,17 @@ void GLshader::load(const std::string &vertex, const std::string &fragment, cons
   vertexShaderFile = vertex;
   fragmentShaderFile = fragment;
 
-  if (!file_exists(vertex)) {
+  if (!file_exists(SHADER_PATH + vertex)) {
     std::cout << "GLSL (vertex shader) file '" << vertex << "' does not exist. Exiting ..." << std::endl;
     exit(-1);
   }
-  if (!file_exists(fragment)) {
+  if (!file_exists(SHADER_PATH + fragment)) {
     std::cout << "GLSL (fragment shader) file '" << fragment << "' does not exist. Exiting ..." << std::endl;
     exit(-1);
   }
 
   if (!geometry.empty()) {
-    if (!file_exists(geometry)) {
+    if (!file_exists(SHADER_PATH + geometry)) {
       std::cout << "GLSL (geometry shader) file '" << geometry << "' does not exist. Exiting ..." << std::endl;
       exit(-1);
     }
@@ -199,6 +218,37 @@ std::vector<std::string> GLshader::block_names_get()
   }
 
   return name_list;
+}
+
+
+void GLshader::print_subroutines()
+{
+  int maxSub,maxSubU,countActiveSU;
+  char name[256]; int len, numCompS;
+
+  GL_ASSERT(glGetIntegerv(GL_MAX_SUBROUTINES, &maxSub));
+  GL_ASSERT(glGetIntegerv(GL_MAX_SUBROUTINE_UNIFORM_LOCATIONS, &maxSubU));
+  printf("Max Subroutines: %d  Max Subroutine Uniforms: %d\n", maxSub,maxSubU);
+
+  GL_ASSERT(glGetProgramStageiv(program, GL_VERTEX_SHADER, GL_ACTIVE_SUBROUTINE_UNIFORMS, &countActiveSU));
+
+  for (int i = 0; i < countActiveSU; ++i) {
+
+    glGetActiveSubroutineUniformName(program, GL_VERTEX_SHADER, i, 256, &len, name);
+
+    printf("Suroutine Uniform: %d name: %s\n", i,name);
+    glGetActiveSubroutineUniformiv(program, GL_VERTEX_SHADER, i, GL_NUM_COMPATIBLE_SUBROUTINES, &numCompS);
+
+    int *s = (int *) malloc(sizeof(int) * numCompS);
+    glGetActiveSubroutineUniformiv(program, GL_VERTEX_SHADER, i, GL_COMPATIBLE_SUBROUTINES, s);
+    printf("Compatible Subroutines:\n");
+    for (int j=0; j < numCompS; ++j) {
+      glGetActiveSubroutineName(program, GL_VERTEX_SHADER, s[j], 256, &len, name);
+      printf("\t%d - %s\n", s[j],name);
+    }
+    printf("\n");
+    free(s);
+  }
 }
 
 
@@ -235,7 +285,7 @@ void GLshader::print_block_names()
   }
 
   for (unsigned int il = 0; il < name_list.size(); il++) {
-      std::cout << "Block name: " << name_list[il] << ", index: " <<
+    std::cout << "Block name: " << name_list[il] << ", index: " <<
       get_block_index(name_list[il]) << std::endl;
   }
 }

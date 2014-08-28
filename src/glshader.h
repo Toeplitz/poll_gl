@@ -29,6 +29,7 @@ class GLshader {
     GLuint      create_shader(std::string fileName, GLenum type);
     std::string parse_file(const std::string &file);
     void        print_log(GLuint object);
+    void        print_source(std::string &source);
     void        validate();
     void        version_add(std::string &parsed);
 
@@ -42,6 +43,7 @@ class GLshader {
     void                     load(const std::string &vertex, const std::string &fragment, const std::string &geometry = "");
     int                      get_block_index(std::string blockName);
     void                     print_block_names();
+    void                     print_subroutines();
     void                     term();
     void                     use();
 };

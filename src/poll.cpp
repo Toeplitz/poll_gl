@@ -32,12 +32,12 @@ Poll::Poll(const std::string &config_file)
   cam_node->camera_get()->transform_perspective_create(window.width_get(), window.height_get());
   scene.node_camera_set(cam_node);
 
-  glshader_geometry.load("shaders/deferred_pass_one.v", "shaders/deferred_pass_one.f");
-  glshader_light.load("shaders/deferred_pass_two.v", "shaders/deferred_pass_two.f");
-  glshader_quad_light.load("shaders/quad_light.v", "shaders/quad_light.f");
-  glshader_post_proc.load("shaders/post_proc.v", "shaders/post_proc.f");
-  glshader_stencil.load("shaders/stencil_pass.v", "shaders/stencil_pass.f");
-  glshader_text.load("shaders/text.v", "shaders/text.f"); 
+  glshader_geometry.load("deferred_pass_one.v", "deferred_pass_one.f");
+  glshader_light.load("deferred_pass_two.v", "deferred_pass_two.f");
+  glshader_quad_light.load("quad_light.v", "quad_light.f");
+  glshader_post_proc.load("post_proc.v", "post_proc.f");
+  glshader_stencil.load("stencil_pass.v", "stencil_pass.f");
+  glshader_text.load("text.v", "text.f"); 
   glcontext.uniform_locations_geometry_init(glshader_geometry);
   glcontext.uniform_locations_lighting_init(glshader_light);
   glcontext.uniform_locations_lighting_init(glshader_quad_light);

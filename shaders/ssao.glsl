@@ -20,7 +20,17 @@ const vec2 poisson16[] = vec2[] (
 );
 
 
-float ssoa(vec2 st, float d_texel, vec3 pos_eye, vec3 n_texel)
+vec3 reconstruct_position(float depth, vec2 tex_coord)
+{
+  vec4 position = vec4(tex_coord, depth, 1);
+  position.xyz = position.xyz * 2 - 1;
+  position = inverse(proj * view) * position;
+  position.xyz /= position.w;
+  return position.xyz;
+}
+
+
+float ssoa(vec2 st, float d_texel, vec3 pos_eye, vec3 n_texel, sampler2D depth_tex)
 {
   vec2 filterRadius = vec2(config_ssoa.filter_radius / config_viewport.width,
     config_ssoa.filter_radius / config_viewport.height);

@@ -145,11 +145,6 @@ bool GLcontext::init(const int width, const int height)
   GL_ASSERT(glCullFace(GL_BACK));
   GL_ASSERT(glEnable(GL_CULL_FACE));
   GL_ASSERT(glEnable(GL_DEPTH_TEST));
-  GL_ASSERT(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-
-  if (GLEW_ARB_shader_subroutine) {
-    std::cout << "Shader subroutine exists" << std::endl;
-  }
 
   return true;
 }

@@ -273,10 +273,21 @@ int main()
       node->scale(glm::vec3(30, 30, 30));
     }
 
-    Node *node = scene.node_create("Light_Point_Global");
-    Light *light = node->light_create(assets, Light::POINT, Light::GLOBAL);
-    node->translate(glm::vec3(0, 40, 0));
-    light->properties_color_set(glm::vec3(0.1, 0.1, 0.1));
+    {
+      Node *node = scene.node_create("Light_Point_Global");
+      Light *light = node->light_create(assets, Light::DIRECTIONAL, Light::GLOBAL);
+      node->translate(glm::vec3(0, 40, 0));
+      light->properties_direction_set(glm::vec3(0, -1, -1));
+      light->properties_color_set(glm::vec3(0.2, 0.2, 0.2));
+    }
+
+    {
+      Node *node = scene.node_create("Light_Point_Spot");
+      Light *light = node->light_create(assets, Light::SPOT);
+      node->translate(glm::vec3(-40, 20, 0));
+      node->scale(glm::vec3(30, 30, 30));
+      light->properties_color_set(glm::vec3(1, 0, 0));
+    }
   }
 
 

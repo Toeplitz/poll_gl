@@ -1,14 +1,15 @@
 
 #include uniform_buffers.glsl
-#include light.glsl
 #include ssao.glsl
+#include light.glsl
+
 
 uniform sampler2D normal_tex;
 uniform sampler2D diffuse_tex;
 uniform sampler2D depth_tex;
 
 layout (location = 0) out vec4 out_color;
-
+//out vec4 frag_color;
 
 
 void main () 
@@ -25,12 +26,11 @@ void main ()
   vec3 p_texel = reconstruct_position(d_texel, st);
   vec3 pos_eye = vec3(view * vec4(p_texel.rgb, 1.0));
 
-  float occlusion = ssoa(st, d_texel, pos_eye, n_texel.rgb, depth_tex);
-
-  out_color.rgb = occlusion * light_apply(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel));
- // frag_color.rgb = vec3(0, 1, 0);
+  out_color.rgb = light_apply(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel));
+ // out_color.rgb = vec3(0, 1, 0);
+  //frag_color.rgb = occlusion * phong(pos_eye, normalize(n_texel.rgb), vec3(0.5, 0.5, 0.5));
  // frag_color.rgb = vec3(n_texel);
- // out_color.rgb = vec3(occlusion, occlusion, occlusion);
+  //frag_color.rgb = vec3(occlusion, occlusion, occlusion);
 
   out_color.a = 1.0;
 }
