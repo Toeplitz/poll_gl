@@ -20,6 +20,7 @@ void GLcontext::check_error()
 
 void GLcontext::draw_light_volume(Mesh *mesh, GLshader &shader_stencil, GLshader &shader_light)
 {
+
   shader_stencil.use();
   GL_ASSERT(glDrawBuffer(GL_NONE));
   GL_ASSERT(glClear(GL_STENCIL_BUFFER_BIT));
@@ -246,7 +247,7 @@ void GLcontext::framebuffer_draw_scene(Scene &scene)
   GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
   GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT));
 
-  shader.scene_geometry.use();
+  shader.world_geometry.use();
   GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb));
   GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
   GL_ASSERT(glDrawBuffers(2, draw_bufs));
@@ -289,12 +290,10 @@ void GLcontext::framebuffer_draw_scene(Scene &scene)
 
     switch (light->illumination_type_get()) {
       case Light::VOLUME:
-        /* FIXME: calculate mvp */
-        draw_light_volume(mesh, shader.scene_stencil, shader.scene_light);
+        draw_light_volume(mesh, shader.world_stencil, shader.world_light);
         break;
       case Light::GLOBAL:
-        /* FIXME: mvp = identity */
-        draw_light_screen(mesh_screen_quad, shader.quad_light);
+        draw_light_screen(mesh_screen_quad, shader.screen_light);
         break;
       default:
         std::cout << "Error: illumination type not supported" << std::endl;
@@ -308,7 +307,7 @@ void GLcontext::framebuffer_draw_scene(Scene &scene)
   GL_ASSERT(glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_fb));
   GL_ASSERT(glReadBuffer(GL_COLOR_ATTACHMENT2));
 
-  shader.post_proc.use();
+  shader.screen_post_proc.use();
   GL_ASSERT(glActiveTexture(GL_TEXTURE0));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_final));
   draw_mesh(*mesh_screen_quad);
@@ -414,7 +413,7 @@ void GLcontext::uniform_buffers_create(Config &config)
   GLuint bind_index;
 
   {
-    mat4 matrix[3];
+    mat4 matrix[4];
     bind_index = UB_GLOBALMATRICES;
     GL_ASSERT(glGenBuffers(1, &gl_buffer_globalmatrices));
     GL_ASSERT(glBindBuffer(target, gl_buffer_globalmatrices));
@@ -536,24 +535,18 @@ void GLcontext::uniform_buffers_update_armature(const Armature &armature)
 }
 
 
-void GLcontext::uniform_buffers_update_camera(Camera &camera)
+void GLcontext::uniform_buffers_update_camera(Camera &camera, bool unity)
 {
-  mat4 data[3];
+  mat4 data[4];
   data[0] = camera.transform_perspective_get();
   data[1] = camera.transform_perspective_inverse_get();
   data[2] = camera.transform_view_get();
-  GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_globalmatrices));
-  GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(data), &data));
-  GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, 0));
-}
 
+  if (unity)
+    data[3] = glm::mat4(1.f);
+  else
+    data[3] = camera.transform_view_projection_get();
 
-void GLcontext::uniform_buffers_update_camera_unity()
-{
-  mat4 data[3];
-  data[0] = mat4(1.f);
-  data[1] = mat4(1.f);
-  data[2] = mat4(1.f);
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_globalmatrices));
   GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(data), &data));
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, 0));

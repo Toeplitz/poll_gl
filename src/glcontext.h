@@ -64,8 +64,7 @@ class GLcontext {
     void uniform_buffers_create(Config &config);
     void uniform_buffers_delete();
     void uniform_buffers_update_armature(const Armature &armature);
-    void uniform_buffers_update_camera(Camera &camera);
-    void uniform_buffers_update_camera_unity();
+    void uniform_buffers_update_camera(Camera &camera, bool unity = false);
     void uniform_buffers_update_config(Config &config);
     void uniform_buffers_update_light(Light &light);
     void uniform_buffers_update_material(const Material &material);

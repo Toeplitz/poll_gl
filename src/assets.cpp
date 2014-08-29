@@ -19,24 +19,24 @@ void Stock_Shaders::init(Config &config, GLcontext &glcontext)
 {
   glcontext.uniform_buffers_create(config);
 
-  post_proc.load("post_proc.v", "post_proc.f");
-  glcontext.uniform_locations_post_proc_init(post_proc);
-  glcontext.uniform_buffers_block_bind(post_proc);
+  screen_light.load("screen_light.v", "screen_light.f");
+  glcontext.uniform_locations_lighting_init(screen_light);
+  glcontext.uniform_buffers_block_bind(screen_light);
 
-  scene_geometry.load("deferred_pass_one.v", "deferred_pass_one.f");
-  glcontext.uniform_locations_geometry_init(scene_geometry);
-  glcontext.uniform_buffers_block_bind(scene_geometry);
+  screen_post_proc.load("screen_post_proc.v", "screen_post_proc.f");
+  glcontext.uniform_locations_post_proc_init(screen_post_proc);
+  glcontext.uniform_buffers_block_bind(screen_post_proc);
 
-  scene_light.load("deferred_pass_two.v", "deferred_pass_two.f");
-  glcontext.uniform_locations_lighting_init(scene_light);
-  glcontext.uniform_buffers_block_bind(scene_light);
+  world_geometry.load("world_geometry.v", "world_geometry.f");
+  glcontext.uniform_locations_geometry_init(world_geometry);
+  glcontext.uniform_buffers_block_bind(world_geometry);
 
-  scene_stencil.load("stencil_pass.v", "stencil_pass.f");
-  glcontext.uniform_buffers_block_bind(scene_stencil);
+  world_light.load("world_light.v", "world_light.f");
+  glcontext.uniform_locations_lighting_init(world_light);
+  glcontext.uniform_buffers_block_bind(world_light);
 
-  quad_light.load("quad_light.v", "quad_light.f");
-  glcontext.uniform_locations_lighting_init(quad_light);
-  glcontext.uniform_buffers_block_bind(quad_light);
+  world_stencil.load("world_stencil.v", "world_stencil.f");
+  glcontext.uniform_buffers_block_bind(world_stencil);
 
   text.load("text.v", "text.f"); 
   glcontext.uniform_buffers_block_bind(text);
@@ -46,12 +46,12 @@ void Stock_Shaders::init(Config &config, GLcontext &glcontext)
 
 void Stock_Shaders::term()
 {
-  post_proc.term();
-  scene_geometry.term();
-  scene_light.term();
-  scene_stencil.term();
+  screen_post_proc.term();
+  screen_light.term();
   text.term();
-  quad_light.term();
+  world_geometry.term();
+  world_light.term();
+  world_stencil.term();
 }
 
 

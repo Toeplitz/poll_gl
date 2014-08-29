@@ -52,12 +52,12 @@ class Stock_Nodes
 class Stock_Shaders
 {
   public:
-    GLshader post_proc;
-    GLshader scene_geometry;
-    GLshader scene_light;
-    GLshader scene_stencil;
+    GLshader screen_light;
+    GLshader screen_post_proc;
     GLshader text;
-    GLshader quad_light;
+    GLshader world_geometry;
+    GLshader world_light;
+    GLshader world_stencil;
 
     void init(Config &config, GLcontext &glcontext);
     void term();

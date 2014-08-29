@@ -2,6 +2,7 @@ layout(std140) uniform GlobalMatrices {
   mat4 proj;
   mat4 inv_proj;
   mat4 view;
+  mat4 view_projection;
 };
 
 layout(std140) uniform Matrices {

@@ -20,7 +20,7 @@ void Ui::init(Console &console, GLcontext &glcontext, Scene &scene)
   console.command_add("light", "list", std::bind(&Ui::callback_light_list, this, _1, _2, _3));
   console.command_add("light", "print", std::bind(&Ui::callback_light_print, this, _1, _2, _3));
   console.command_add("light", "select", std::bind(&Ui::callback_light_select, this, _1, _2, _3));
-  console.command_add("light", "type", std::bind(&Ui::callback_light_select, this, _1, _2, _3));
+  console.command_add("light", "type", std::bind(&Ui::callback_light_type, this, _1, _2, _3));
   console.command_add("node", "manipulator", std::bind(&Ui::callback_node_manipulator, this, _1, _2, _3));
   console.command_add("scene", "list", std::bind(&Ui::callback_scene_list, this, _1, _2, _3));
 

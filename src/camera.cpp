@@ -45,12 +45,26 @@ void Camera::transform_view_create(const glm::vec3 position, const glm::vec3 dir
 {
   view = glm::lookAt(position, position + direction, up);
   this->position = position;
+  transform_view_projection_update();
 }
 
 
 glm::mat4 &Camera::transform_view_get()
 {
   return view;
+}
+
+
+glm::mat4 &Camera::transform_view_projection_get()
+{
+  return view_projection;
+}
+
+
+glm::mat4 &Camera::transform_view_projection_update()
+{
+  view_projection = perspective * view;
+  return view_projection;
 }
 
 

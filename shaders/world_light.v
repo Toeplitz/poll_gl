@@ -5,7 +5,7 @@ layout(location = 0) in vec3 vertex_position;
 
 void main()
 {
-  gl_Position = proj * view * model *  vec4(vertex_position, 1.0);
+  gl_Position = view_projection * model *  vec4(vertex_position, 1.0);
 }
 
 

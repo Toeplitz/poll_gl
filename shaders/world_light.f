@@ -10,10 +10,8 @@ uniform sampler2D depth_tex;
 layout (location = 0) out vec4 out_color;
 
 
-
 void main () 
 {
-
   vec2 st;
   st.s = gl_FragCoord.x / config_viewport.width;
   st.t = gl_FragCoord.y / config_viewport.height;
@@ -28,10 +26,6 @@ void main ()
   float occlusion = ssoa(st, d_texel, pos_eye, n_texel.rgb, depth_tex);
 
   out_color.rgb = occlusion * light_apply(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel));
- // frag_color.rgb = vec3(0, 1, 0);
- // frag_color.rgb = vec3(n_texel);
- // out_color.rgb = vec3(occlusion, occlusion, occlusion);
-
   out_color.a = 1.0;
 }
 
