@@ -363,28 +363,6 @@ void GLcontext::framebuffer_draw_scene(Scene &scene)
 }
 
 
-void GLcontext::screen_read_pixels(const int x, const int y)
-{
-  int window_width = 1280;
-  int window_height = 720;
-
-  GLfloat color[4];
-  GLfloat depth;
-  GLuint index;
- 
-  glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_fb);
-  glReadBuffer(GL_COLOR_ATTACHMENT1);
-  glReadPixels(x, y, 1, 1, GL_RGBA, GL_FLOAT, color);
-  //glReadPixels(x, window_height - y - 1, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
-  //glReadPixels(x, window_height - y - 1, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT, &index);
-
-  std::cout << "Diffuse r,g,b,a: " << color[0] << ", " << color[1] << ", " << color[2] << ", " << color[3] << std::endl;
-
-  //printf("Clicked on pixel %d, %d, color %02hhx%02hhx%02hhx%02hhx, depth %f, stencil index %u\n",
-  //    x, y, color[0], color[1], color[2], color[3], depth, index);
-
-}
-
 void GLcontext::texture_delete(Texture &texture)
 {
   if (!glIsTexture(texture.gl_texture)) return;

@@ -260,7 +260,6 @@ void Window::keyboard_callback_released(SDL_Keysym *keysym)
 void Window::mouse_callback_pressed_down(SDL_MouseButtonEvent *ev)
 {
   std::cout << "clicked screen x,y = " << ev->x << ", " << ev->y << std::endl;
-  glcontext.screen_read_pixels(ev->x, ev->y);
 }
 
 

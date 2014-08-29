@@ -59,7 +59,6 @@ class GLcontext {
     void framebuffer_create(const int width, const int height);
     void framebuffer_delete();
     void framebuffer_draw_scene(Scene &scene);
-    void screen_read_pixels(const int x, const int y);
     void texture_delete(Texture &texture);
     void texture_single_channel_create(Texture &texture);
     void texture_materials_create(Material *material);
