@@ -18,6 +18,105 @@ void GLcontext::check_error()
 }
 
 
+void GLcontext::draw_geometry_all(Scene &scene)
+{
+  Assets &assets = scene.assets_get();
+  Stock_Shaders &shader = assets.stock_shaders_get();
+
+  shader.world_geometry.use();
+  GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb));
+  GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+  GL_ASSERT(glDrawBuffers(2, draw_bufs));
+  GL_ASSERT(glDepthMask(GL_TRUE));
+  GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+  GL_ASSERT(glEnable(GL_DEPTH_TEST));
+  for (auto &node: scene.mesh_nodes_get()) {
+    draw_node(*node);
+  }
+  GL_ASSERT(glDepthMask(GL_FALSE));
+  GL_ASSERT(glDisable(GL_DEPTH_TEST));
+}
+
+
+void GLcontext::draw_light_all(Scene &scene)
+{
+  Assets &assets = scene.assets_get();
+  Stock_Shaders &shader = assets.stock_shaders_get();
+  auto &lights = assets.light_active_get();
+  Mesh *mesh_screen_quad = assets.stock_nodes_get().screen_quad_get();
+
+  GL_ASSERT(glEnable(GL_STENCIL_TEST));
+
+  GL_ASSERT(glActiveTexture(GL_TEXTURE0));
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_normal));
+  GL_ASSERT(glActiveTexture(GL_TEXTURE1));
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_diffuse));
+  GL_ASSERT(glActiveTexture(GL_TEXTURE2));
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_depth));
+  GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
+
+  for (auto &light: lights) {
+    Node *node = light->node_ptr_get();
+    if (!node) {
+      std::cout << "Error: missing node pointer for light" << std::endl;
+      continue;
+    }
+
+    mat4 &model = node->transform_model_get();
+    light->properties_position_set(vec3(model[3][0], model[3][1], model[3][2]));
+    uniform_buffers_update_matrices(*node);
+    uniform_buffers_update_light(*light);
+
+    Mesh *mesh = node->mesh_get();
+    if (!mesh) {
+      std::cout << "Error: no mesh attached to the light" << std::endl;
+      continue;
+    }
+
+    switch (light->illumination_type_get()) {
+      case Light::VOLUME:
+        draw_light_volume(mesh, shader.world_stencil, shader.world_light);
+        break;
+      case Light::GLOBAL:
+        draw_light_screen(mesh_screen_quad, shader.screen_light);
+        break;
+      default:
+        std::cout << "Error: illumination type not supported" << std::endl;
+        break;
+    }
+
+  }
+  GL_ASSERT(glDisable(GL_STENCIL_TEST));
+}
+
+
+void GLcontext::draw_light_all_symbols(Scene &scene)
+{
+  Assets &assets = scene.assets_get();
+  Stock_Shaders &shader = assets.stock_shaders_get();
+  auto &lights = assets.light_active_get();
+
+  GL_ASSERT(glEnable(GL_DEPTH_TEST));
+  for (auto &light: lights) {
+    Node *node = light->node_ptr_get();
+    mat4 &model = node->transform_model_get();
+    mat4 symbol_model = translate(mat4(1.f), vec3(model[3][0], model[3][1], model[3][2]));
+
+    uniform_buffers_update_matrices(symbol_model);
+
+    if (light->properties_get().type == Light::POINT ||
+        light->properties_get().type == Light::SPOT) {
+
+      shader.world_basic_color.use();
+      Mesh *mesh_pyramid = light->mesh_symbol_get();
+      draw_mesh(*mesh_pyramid);
+    }
+
+  }
+  GL_ASSERT(glDisable(GL_DEPTH_TEST));
+}
+
+
 void GLcontext::draw_light_volume(Mesh *mesh, GLshader &shader_stencil, GLshader &shader_light)
 {
 
@@ -151,6 +250,7 @@ bool GLcontext::init(const int width, const int height)
 }
 
 
+
 void GLcontext::framebuffer_check_status() 
 {
   GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -198,7 +298,7 @@ void GLcontext::framebuffer_create(const int width, const int height)
 
   GL_ASSERT(glGenTextures(1, &gl_fb_tex_diffuse));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_diffuse));
-  GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL));
+  GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
   GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
   GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
   GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
@@ -238,82 +338,52 @@ void GLcontext::framebuffer_create(const int width, const int height)
 
 void GLcontext::framebuffer_draw_scene(Scene &scene)
 {
-  Assets &assets = scene.assets_get();
-  Stock_Shaders &shader = assets.stock_shaders_get();
-  auto &lights = assets.light_active_get();
-  Mesh *mesh_screen_quad = assets.stock_nodes_get().screen_quad_get();
-
   GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb));
   GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
   GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT));
 
-  shader.world_geometry.use();
-  GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb));
-  GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-  GL_ASSERT(glDrawBuffers(2, draw_bufs));
-  GL_ASSERT(glDepthMask(GL_TRUE));
-  GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-  GL_ASSERT(glEnable(GL_DEPTH_TEST));
-  for (auto &node: scene.mesh_nodes_get()) {
-    draw_node(*node);
-  }
-  GL_ASSERT(glDepthMask(GL_FALSE));
-
-  GL_ASSERT(glDisable(GL_DEPTH_TEST));
-  GL_ASSERT(glEnable(GL_STENCIL_TEST));
-
-  GL_ASSERT(glActiveTexture(GL_TEXTURE0));
-  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_normal));
-  GL_ASSERT(glActiveTexture(GL_TEXTURE1));
-  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_diffuse));
-  GL_ASSERT(glActiveTexture(GL_TEXTURE2));
-  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_depth));
-  GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
-
-  for (auto &light: lights) {
-    Node *node = light->node_ptr_get();
-    if (!node) {
-      std::cout << "Error: missing node pointer for light" << std::endl;
-      continue;
-    }
-
-    mat4 &model = node->transform_model_get();
-    light->properties_position_set(vec3(model[3][0], model[3][1], model[3][2]));
-    uniform_buffers_update_matrices(*node);
-    uniform_buffers_update_light(*light);
-
-    Mesh *mesh = node->mesh_get();
-    if (!mesh) {
-      std::cout << "Error: no mesh attached to the light" << std::endl;
-      continue;
-    }
-
-    switch (light->illumination_type_get()) {
-      case Light::VOLUME:
-        draw_light_volume(mesh, shader.world_stencil, shader.world_light);
-        break;
-      case Light::GLOBAL:
-        draw_light_screen(mesh_screen_quad, shader.screen_light);
-        break;
-      default:
-        std::cout << "Error: illumination type not supported" << std::endl;
-        break;
-    }
-
-  }
-  GL_ASSERT(glDisable(GL_STENCIL_TEST));
+  draw_geometry_all(scene);
+  draw_light_all(scene);
+  draw_light_all_symbols(scene);
 
   GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
   GL_ASSERT(glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_fb));
   GL_ASSERT(glReadBuffer(GL_COLOR_ATTACHMENT2));
 
-  shader.screen_post_proc.use();
-  GL_ASSERT(glActiveTexture(GL_TEXTURE0));
-  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_final));
-  draw_mesh(*mesh_screen_quad);
+  {
+    Assets &assets = scene.assets_get();
+    Stock_Shaders &shader = assets.stock_shaders_get();
+    Mesh *mesh = assets.stock_nodes_get().screen_quad_get();
+    shader.screen_post_proc.use();
+    GL_ASSERT(glActiveTexture(GL_TEXTURE0));
+    GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_final));
+    draw_mesh(*mesh);
+  }
 
 }
 
+
+void GLcontext::screen_read_pixels(const int x, const int y)
+{
+  int window_width = 1280;
+  int window_height = 720;
+
+  GLfloat color[4];
+  GLfloat depth;
+  GLuint index;
+ 
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_fb);
+  glReadBuffer(GL_COLOR_ATTACHMENT1);
+  glReadPixels(x, y, 1, 1, GL_RGBA, GL_FLOAT, color);
+  //glReadPixels(x, window_height - y - 1, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+  //glReadPixels(x, window_height - y - 1, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT, &index);
+
+  std::cout << "Diffuse r,g,b,a: " << color[0] << ", " << color[1] << ", " << color[2] << ", " << color[3] << std::endl;
+
+  //printf("Clicked on pixel %d, %d, color %02hhx%02hhx%02hhx%02hhx, depth %f, stencil index %u\n",
+  //    x, y, color[0], color[1], color[2], color[3], depth, index);
+
+}
 
 void GLcontext::texture_delete(Texture &texture)
 {
@@ -614,9 +684,14 @@ void GLcontext::uniform_buffers_update_matrices(Node &node)
 {
   mat4 m;
   m = node.transform_model_get();
+  uniform_buffers_update_matrices(m);
+}
 
+
+void GLcontext::uniform_buffers_update_matrices(mat4 &model)
+{
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_matrices));
-  GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(m), &m));
+  GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(model), &model));
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 }
 

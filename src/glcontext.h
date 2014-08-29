@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
 using namespace glm;
 
 #include <iostream>
@@ -45,6 +46,9 @@ class GLcontext {
   public:
     
     void check_error();
+    void draw_geometry_all(Scene &scene);
+    void draw_light_all(Scene &scene);
+    void draw_light_all_symbols(Scene &scene);
     void draw_light_volume(Mesh *mesh, GLshader &shader_stencil, GLshader &shader_light);
     void draw_light_screen(Mesh *mesh, GLshader &shader_light);
     void draw_node(Node &node);
@@ -55,7 +59,7 @@ class GLcontext {
     void framebuffer_create(const int width, const int height);
     void framebuffer_delete();
     void framebuffer_draw_scene(Scene &scene);
-    void framebuffer_node_create(Node &node);
+    void screen_read_pixels(const int x, const int y);
     void texture_delete(Texture &texture);
     void texture_single_channel_create(Texture &texture);
     void texture_materials_create(Material *material);
@@ -69,6 +73,7 @@ class GLcontext {
     void uniform_buffers_update_light(Light &light);
     void uniform_buffers_update_material(const Material &material);
     void uniform_buffers_update_matrices(Node &node);
+    void uniform_buffers_update_matrices(mat4 &model);
     void uniform_buffers_update_state(Node &node);
     void uniform_locations_geometry_init(GLshader &shader);
     void uniform_locations_lighting_init(GLshader &shader);

@@ -27,6 +27,9 @@ void Stock_Shaders::init(Config &config, GLcontext &glcontext)
   glcontext.uniform_locations_post_proc_init(screen_post_proc);
   glcontext.uniform_buffers_block_bind(screen_post_proc);
 
+  world_basic_color.load("world_basic_color.v", "world_basic_color.f");
+  glcontext.uniform_buffers_block_bind(world_basic_color);
+
   world_geometry.load("world_geometry.v", "world_geometry.f");
   glcontext.uniform_locations_geometry_init(world_geometry);
   glcontext.uniform_buffers_block_bind(world_geometry);
@@ -49,6 +52,7 @@ void Stock_Shaders::term()
   screen_post_proc.term();
   screen_light.term();
   text.term();
+  world_basic_color.term();
   world_geometry.term();
   world_light.term();
   world_stencil.term();
@@ -66,6 +70,13 @@ void Stock_Shaders::term()
 
  void Stock_Nodes::init(GLcontext &glcontext, Scene &scene)
 {
+  {
+    node_symbol_cone = &scene.load(glcontext, "data/", "cone.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
+    node_symbol_cone->name_set("stock_cone");
+    Mesh *mesh = node_symbol_cone->mesh_get();
+    mesh->positions_update(node_symbol_cone->transform_model_get());
+    glcontext.vertex_buffers_mesh_create(node_symbol_cone->mesh_get());
+  }
 
   {
     node_light_sphere = &scene.load(glcontext, "data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
@@ -87,6 +98,12 @@ void Stock_Shaders::term()
     glcontext.vertex_buffers_mesh_create(mesh);
   }
 
+}
+
+
+Mesh *Stock_Nodes::cone_get()
+{
+  return node_symbol_cone->mesh_get();
 }
 
 

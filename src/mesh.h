@@ -36,6 +36,7 @@ class Mesh {
     void                            positions_add(const glm::vec3 &v);
     void                            positions_clear();
     const std::vector<glm::vec3>   &positions_get() const;
+    void                            positions_update(const glm::mat4 &model);
     void                            print(const int indent_level);
     const std::vector<glm::vec3>   &normals_get() const;
     unsigned int                    num_indices_get();

@@ -155,6 +155,9 @@ bool Window::poll_events()
       case SDL_JOYBUTTONUP:
         joystick_button_released(&event.jbutton);
         break;
+      case SDL_MOUSEBUTTONDOWN:
+        mouse_callback_pressed_down(&event.button);
+        break;
       default:
         break;
     }
@@ -251,6 +254,13 @@ void Window::keyboard_callback_released(SDL_Keysym *keysym)
   for (auto &func: custom_keyboard_released_callback_list) {
     func(keysym);
   }
+}
+
+
+void Window::mouse_callback_pressed_down(SDL_MouseButtonEvent *ev)
+{
+  std::cout << "clicked screen x,y = " << ev->x << ", " << ev->y << std::endl;
+  glcontext.screen_read_pixels(ev->x, ev->y);
 }
 
 

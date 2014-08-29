@@ -32,7 +32,9 @@ class Stock_Nodes
 {
   private:
 
+
     Node *node_light_sphere;
+    Node *node_symbol_cone;
     Node *node_symbol_diamond;
     Node *node_symbol_disk;
     Node *node_symbol_pyramid;
@@ -41,6 +43,7 @@ class Stock_Nodes
   public:
 
     void init(GLcontext &glcontext, Scene &scene);
+    Mesh *cone_get();
     Mesh *disk_get();
     Mesh *diamond_get();
     Mesh *pyramid_get();
@@ -55,6 +58,7 @@ class Stock_Shaders
     GLshader screen_light;
     GLshader screen_post_proc;
     GLshader text;
+    GLshader world_basic_color;
     GLshader world_geometry;
     GLshader world_light;
     GLshader world_stencil;

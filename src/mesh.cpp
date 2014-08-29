@@ -119,6 +119,16 @@ const std::vector<glm::vec3> &Mesh::positions_get() const
 }
 
 
+void Mesh::positions_update(const glm::mat4 &model)
+{
+
+  for (size_t i = 0; i < positions.size(); i++) {
+    positions[i] = glm::vec3(model * glm::vec4(positions[i], 1.0));
+  }
+
+}
+
+
 void Mesh::print(const int indent_level)
 {
   indent(std::cout, indent_level);

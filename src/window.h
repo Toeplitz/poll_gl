@@ -27,6 +27,7 @@ class Window {
     void joystick_button_released(SDL_JoyButtonEvent *ev);
     bool keyboard_callback_pressed(SDL_Keysym *keysym);
     void keyboard_callback_released(SDL_Keysym *keysy);
+    void mouse_callback_pressed_down(SDL_MouseButtonEvent *ev);
 
     std::function <void (SDL_JoyAxisEvent *)> custom_joystick_axis_motion_callback;
     std::function <void (SDL_JoyButtonEvent *)> custom_joystick_pressed_callback;
