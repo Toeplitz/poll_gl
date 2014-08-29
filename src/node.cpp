@@ -12,15 +12,6 @@
 Node::Node(const std::string &node_name)
 {
   name_set(node_name);
-  state.animated = false;
-  state.debug = false;
-  state.debug = false;
-  state.diffuse = false;
-  state.diffuse_normal = false;
-  state.diffuse_specular_normal = false;
-  state.cubemap_reflect = false;
-  state.cubemap_skybox = false;
-  state.standard = false;
 } 
 
 
@@ -88,6 +79,7 @@ void Node::child_add(std::unique_ptr<Node> &&node, int level)
 Light *Node::light_create(Assets &assets, const unsigned int lamp_type, const unsigned int illumination_type)
 {
   Stock_Nodes &stock_nodes = assets.stock_nodes_get();
+  Mesh *mesh_symbol_pyramid = stock_nodes.pyramid_get();
   Mesh *mesh = nullptr;
 
   if (illumination_type == Light::GLOBAL) {
@@ -103,6 +95,7 @@ Light *Node::light_create(Assets &assets, const unsigned int lamp_type, const un
 
   std::unique_ptr<Light> light(new Light());
   Light *light_ptr = light.get();
+  light_ptr->mesh_symbol_set(mesh_symbol_pyramid);
   light_ptr->properties_type_set(lamp_type);
   light_ptr->illumination_type_set(illumination_type);
   mesh_set(mesh);

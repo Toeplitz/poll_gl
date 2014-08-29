@@ -6,7 +6,7 @@
 
 
 class Node;
-
+class Mesh;
 
 struct Light_Properties
 {
@@ -22,7 +22,9 @@ class Light
   private:
     Light_Properties properties;
     Node *node_ptr = nullptr;
+    Mesh *mesh_symbol = nullptr;
     unsigned int illumination_type;
+
 
   public:
     enum Light_Type
@@ -36,7 +38,9 @@ class Light
     };
 
     const unsigned int     &illumination_type_get();
-    void                    illumination_type_set(unsigned int illum_type);
+    void                    illumination_type_set(const unsigned int illum_type);
+    Mesh                   *mesh_symbol_get();
+    void                    mesh_symbol_set(Mesh *mesh);
     Node                   *node_ptr_get();
     void                    node_ptr_set(Node *node);
     void                    print(const int indent_level);

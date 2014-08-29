@@ -25,6 +25,7 @@ class Ui
     void callback_light_disable(const std::string &prim, const std::string &sec, const std::string &val);
     void callback_light_enable(const std::string &prim, const std::string &sec, const std::string &val);
     void callback_light_select(const std::string &prim, const std::string &sec, const std::string &val);
+    void callback_light_type(const std::string &prim, const std::string &sec, const std::string &val);
     void callback_light_print(const std::string &prim, const std::string &sec, const std::string &val);
     void callback_light_list(const std::string &prim, const std::string &sec, const std::string &val);
     void callback_node_manipulator(const std::string &prim, const std::string &sec, const std::string &val);
@@ -33,8 +34,6 @@ class Ui
     void light_active_set(Light *light);
 
   public:
-    Ui();
-    ~Ui();
 
     void init(Console &console, GLcontext &glcontext, Scene &scene);
     void draw(const std::string &fps_text);

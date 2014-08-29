@@ -3,21 +3,6 @@
 
 
 /**************************************************/
-/***************** CONSTRUCTORS *******************/
-/**************************************************/
-
-
-Ui::Ui()
-{
-}
-
-
-Ui::~Ui()
-{
-}
-
-
-/**************************************************/
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
 
@@ -35,6 +20,7 @@ void Ui::init(Console &console, GLcontext &glcontext, Scene &scene)
   console.command_add("light", "list", std::bind(&Ui::callback_light_list, this, _1, _2, _3));
   console.command_add("light", "print", std::bind(&Ui::callback_light_print, this, _1, _2, _3));
   console.command_add("light", "select", std::bind(&Ui::callback_light_select, this, _1, _2, _3));
+  console.command_add("light", "type", std::bind(&Ui::callback_light_select, this, _1, _2, _3));
   console.command_add("node", "manipulator", std::bind(&Ui::callback_node_manipulator, this, _1, _2, _3));
   console.command_add("scene", "list", std::bind(&Ui::callback_scene_list, this, _1, _2, _3));
 
@@ -133,6 +119,29 @@ void Ui::callback_light_enable(const std::string &prim, const std::string &sec, 
   callback_light_list(prim, sec, val);
 }
 
+
+void Ui::callback_light_type(const std::string &prim, const std::string &sec, const std::string &val)
+{
+  if (!light_active)
+    return;
+
+  int type = ::atoi(val.c_str());
+  switch (type) {
+    case 0:
+      light_active->properties_type_set(Light::DIRECTIONAL);
+      break;
+    case 1:
+      light_active->properties_type_set(Light::POINT);
+      break;
+    case 2:
+      light_active->properties_type_set(Light::SPOT);
+      break;
+    default:
+      std::cout << "Light type: '" << type << "'is unknown. Valid choices are: 0 (directional), 1 (point), 2 (spot)" << std::endl;
+      break;
+  }
+
+}
 
 void Ui::callback_light_print(const std::string &prim, const std::string &sec, const std::string &val)
 {

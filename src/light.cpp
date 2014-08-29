@@ -1,7 +1,9 @@
 #include "light.h"
+#include "mesh.h"
 #include "utils.h"
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
+
 
 /**************************************************/
 /***************** PUBLIC METHODS *****************/
@@ -14,15 +16,27 @@ const unsigned int &Light::illumination_type_get()
 }
 
 
-void Light::illumination_type_set(unsigned int illumination_type)
+void Light::illumination_type_set(const unsigned int illumination_type)
 {
   this->illumination_type = illumination_type;
 }
 
 
+Mesh *Light::mesh_symbol_get()
+{
+  return mesh_symbol;
+}
+
+
+void Light::mesh_symbol_set(Mesh *mesh)
+{
+  this->mesh_symbol = mesh;
+}
+
+
 Node *Light::node_ptr_get()
 {
-  return this->node_ptr;
+  return node_ptr;
 }
  
 

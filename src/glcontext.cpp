@@ -235,10 +235,10 @@ void GLcontext::framebuffer_create(const int width, const int height)
 }
 
 
-void GLcontext::framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  GLshader &shader_stencil,
-    GLshader &shader_light, GLshader &shader_quad_light, GLshader &shader_post_proc)
+void GLcontext::framebuffer_draw_scene(Scene &scene)
 {
   Assets &assets = scene.assets_get();
+  Stock_Shaders &shader = assets.stock_shaders_get();
   auto &lights = assets.light_active_get();
   Mesh *mesh_screen_quad = assets.stock_nodes_get().screen_quad_get();
 
@@ -246,8 +246,7 @@ void GLcontext::framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  
   GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
   GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT));
 
-  /* GEOMETRY PASS */
-  shader_geometry.use();
+  shader.scene_geometry.use();
   GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb));
   GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
   GL_ASSERT(glDrawBuffers(2, draw_bufs));
@@ -290,10 +289,12 @@ void GLcontext::framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  
 
     switch (light->illumination_type_get()) {
       case Light::VOLUME:
-        draw_light_volume(mesh, shader_stencil, shader_light);
+        /* FIXME: calculate mvp */
+        draw_light_volume(mesh, shader.scene_stencil, shader.scene_light);
         break;
       case Light::GLOBAL:
-        draw_light_screen(mesh_screen_quad, shader_quad_light);
+        /* FIXME: mvp = identity */
+        draw_light_screen(mesh_screen_quad, shader.quad_light);
         break;
       default:
         std::cout << "Error: illumination type not supported" << std::endl;
@@ -307,7 +308,7 @@ void GLcontext::framebuffer_draw_scene(Scene &scene, GLshader shader_geometry,  
   GL_ASSERT(glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_fb));
   GL_ASSERT(glReadBuffer(GL_COLOR_ATTACHMENT2));
 
-  shader_post_proc.use();
+  shader.post_proc.use();
   GL_ASSERT(glActiveTexture(GL_TEXTURE0));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_final));
   draw_mesh(*mesh_screen_quad);

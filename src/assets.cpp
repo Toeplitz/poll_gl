@@ -5,8 +5,58 @@
 #include <memory>
 #include <algorithm> 
 
+
 /**************************************************/
-/***************** STOCK CLASS ********************/
+/************* STOCK SHADERS CLASS ****************/
+/**************************************************/
+
+/**************************************************/
+/***************** PUBLIC METHODS *****************/
+/**************************************************/
+
+
+void Stock_Shaders::init(Config &config, GLcontext &glcontext)
+{
+  glcontext.uniform_buffers_create(config);
+
+  post_proc.load("post_proc.v", "post_proc.f");
+  glcontext.uniform_locations_post_proc_init(post_proc);
+  glcontext.uniform_buffers_block_bind(post_proc);
+
+  scene_geometry.load("deferred_pass_one.v", "deferred_pass_one.f");
+  glcontext.uniform_locations_geometry_init(scene_geometry);
+  glcontext.uniform_buffers_block_bind(scene_geometry);
+
+  scene_light.load("deferred_pass_two.v", "deferred_pass_two.f");
+  glcontext.uniform_locations_lighting_init(scene_light);
+  glcontext.uniform_buffers_block_bind(scene_light);
+
+  scene_stencil.load("stencil_pass.v", "stencil_pass.f");
+  glcontext.uniform_buffers_block_bind(scene_stencil);
+
+  quad_light.load("quad_light.v", "quad_light.f");
+  glcontext.uniform_locations_lighting_init(quad_light);
+  glcontext.uniform_buffers_block_bind(quad_light);
+
+  text.load("text.v", "text.f"); 
+  glcontext.uniform_buffers_block_bind(text);
+  glcontext.uniform_locations_text_init(text);
+}
+
+
+void Stock_Shaders::term()
+{
+  post_proc.term();
+  scene_geometry.term();
+  scene_light.term();
+  scene_stencil.term();
+  text.term();
+  quad_light.term();
+}
+
+
+/**************************************************/
+/************** STOCK NODES CLASS *****************/
 /**************************************************/
 
 /**************************************************/
@@ -119,9 +169,10 @@ void Assets::camera_print_all(const Node &node) const
 }
 
 
-void Assets::init(GLcontext &glcontext, Scene &scene)
+void Assets::init(Config &config, GLcontext &glcontext, Scene &scene)
 {
   stock_nodes.init(glcontext, scene);
+  stock_shaders.init(config, glcontext);
 }
 
 
@@ -370,6 +421,12 @@ Stock_Nodes &Assets::stock_nodes_get()
 }
 
 
+Stock_Shaders &Assets::stock_shaders_get()
+{
+  return stock_shaders;
+}
+
+
 void Assets::text_add(std::unique_ptr<Text> &&text) 
 {
   texts.push_back(std::move(text));
@@ -394,5 +451,7 @@ void Assets::term(GLcontext &glcontext)
   for (auto &material: material_get_all()) {
     glcontext.texture_materials_delete(material.get());
   }
+
+  stock_shaders.term();
 
 }

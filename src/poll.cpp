@@ -23,33 +23,13 @@ Poll::Poll(const std::string &config_file)
   if (!glcontext.init(window.width_get(), window.height_get())) {
     exit(-1);
   }
-  glcontext.check_error();
 
-  assets.init(glcontext, scene);
+  assets.init(config, glcontext, scene);
 
   Node *cam_node = scene.node_create("camera");
   cam_node->camera_create(scene.assets_get());
   cam_node->camera_get()->transform_perspective_create(window.width_get(), window.height_get());
   scene.node_camera_set(cam_node);
-
-  glshader_geometry.load("deferred_pass_one.v", "deferred_pass_one.f");
-  glshader_light.load("deferred_pass_two.v", "deferred_pass_two.f");
-  glshader_quad_light.load("quad_light.v", "quad_light.f");
-  glshader_post_proc.load("post_proc.v", "post_proc.f");
-  glshader_stencil.load("stencil_pass.v", "stencil_pass.f");
-  glshader_text.load("text.v", "text.f"); 
-  glcontext.uniform_locations_geometry_init(glshader_geometry);
-  glcontext.uniform_locations_lighting_init(glshader_light);
-  glcontext.uniform_locations_lighting_init(glshader_quad_light);
-  glcontext.uniform_locations_post_proc_init(glshader_post_proc);
-  glcontext.uniform_locations_text_init(glshader_text);
-  glcontext.uniform_buffers_create(config);
-  glcontext.uniform_buffers_block_bind(glshader_geometry);
-  glcontext.uniform_buffers_block_bind(glshader_light);
-  glcontext.uniform_buffers_block_bind(glshader_post_proc);
-  glcontext.uniform_buffers_block_bind(glshader_stencil);
-  glcontext.uniform_buffers_block_bind(glshader_quad_light);
-  glcontext.uniform_buffers_block_bind(glshader_text);
 
   glcontext.framebuffer_create(window.width_get(), window.height_get());
 
@@ -69,7 +49,8 @@ Poll::Poll(const std::string &config_file)
 void Poll::run()
 {
   GLcontext &glcontext = window.glcontext_get();
-  const Assets &assets = assets_get();
+  Assets &assets = assets_get();
+  Stock_Shaders &shader = assets.stock_shaders_get();
 
   for (;;) {
     double dt = delta_time_get();
@@ -97,13 +78,13 @@ void Poll::run()
     glcontext.uniform_buffers_update_camera(camera);
 
     /* Draw scene */
-    glcontext.framebuffer_draw_scene(scene, glshader_geometry, glshader_stencil, glshader_light, glshader_quad_light, glshader_post_proc);
+    glcontext.framebuffer_draw_scene(scene);
 
     /* Step physics simulation */
     physics.step(dt);
 
     /* Draw console and ui */
-    glshader_text.use();
+    shader.text.use();
     console.draw();
     ui.draw(fps_text_get());
 
@@ -122,10 +103,6 @@ void Poll::term()
   physics.term();
   assets.term(glcontext);
   glcontext.uniform_buffers_delete();
-  glshader_geometry.term();
-  glshader_light.term();
-  glshader_stencil.term();
-  glshader_text.term();
   window.term();
 }
 

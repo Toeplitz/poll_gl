@@ -136,7 +136,7 @@ void Physics::debug()
 
 void Physics::init()
 {
-  glshader.load("debug.v", "debug.f");
+  glshader.load("basic_color.v", "basic_color.f");
 }
 
 

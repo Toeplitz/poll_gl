@@ -52,3 +52,4 @@ Shadows:
 
 Optimization:
 - Frustnum culling  
+- Instanced rendering for same mesh object.

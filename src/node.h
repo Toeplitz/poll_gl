@@ -27,14 +27,14 @@ class Node;
 
 struct Node_State 
 {
-  int animated;
-  int debug;
-  int diffuse;
-  int diffuse_normal;
-  int diffuse_specular_normal;
-  int cubemap_reflect;
-  int cubemap_skybox;
-  int standard;
+  int animated = false;
+  int debug = false;
+  int diffuse = false;
+  int diffuse_normal = false;
+  int diffuse_specular_normal = false;
+  int cubemap_reflect = false;
+  int cubemap_skybox = false;
+  int standard = false;
 };
 
 
@@ -114,10 +114,10 @@ class Node: public Animated {
     void                translate(const vec3 &v);
     void                transform_local_current_set(const mat4 &transform);
     void                transform_local_original_set(const mat4 &transform);
-    const mat4    &transform_global_get();
+    const mat4         &transform_global_get();
     void                transform_global_set(const mat4 &transform);
-    const mat4    &transform_local_current_get();
-    mat4          &transform_model_get();
+    const mat4         &transform_local_current_get();
+    mat4               &transform_model_get();
     void                transform_model_set(const mat4 &transform);
     void                transform_update_global_recursive(Node &node);
     const int          &tree_level_get();
