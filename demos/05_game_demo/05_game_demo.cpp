@@ -206,12 +206,14 @@ int main()
   Physics &physics = poll.physics_get();
   GLcontext glcontext = poll.glcontext_get();
 
+  /*
   window.joystick_axis_motion_callback_set(joystick_axis_motion_cb);
   window.joystick_pressed_callback_set(joystick_button_pressed_cb);
   window.joystick_released_callback_set(joystick_button_released_cb);
   window.keyboard_pressed_callback_set(keyboard_pressed_cb);
   window.keyboard_released_callback_set(keyboard_released_cb);
   physics.custom_step_callback_set(physics_update);
+*/
 
   {
     Node *camera_node = scene.node_camera_get();
@@ -222,11 +224,13 @@ int main()
 
   /* Setup room */
   room = &scene.load(glcontext, "data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_LIGHTS);
-  physics.collision_shape_add(*room, PHYSICS_COLLISION_TRIANGLE_MESH, true, 0);
+  //physics.collision_shape_add(*room, PHYSICS_COLLISION_TRIANGLE_MESH, true, 0);
 
   /* Setup panda character */
   {
     Node &panda_root = scene.load(glcontext, "data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
+
+    /*
     Node &panda_collision_root = scene.load(glcontext, "data/game_assets/characters/panda/", 
         "Panda_convex_hull.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
     panda = scene.node_find(&panda_root, "Panda");
@@ -243,6 +247,7 @@ int main()
     } else {
       std::cout << "Could not find node" << std::endl;
     }
+    */
   }
 
 

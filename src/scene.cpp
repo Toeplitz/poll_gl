@@ -12,6 +12,7 @@
 Scene::Scene(): 
   root("Fragmic") 
 {
+  physics.init();
 }
 
 
@@ -184,6 +185,12 @@ Node *Scene::node_create(const std::string &name, Node *parent)
 Node &Scene::node_root_get() 
 {
   return root;
+}
+
+
+Physics &Scene::physics_get() 
+{
+  return physics;
 }
 
 

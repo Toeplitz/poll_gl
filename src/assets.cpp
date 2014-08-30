@@ -286,13 +286,17 @@ void Assets::light_print_all(const Node &node) const
   std::cout << "\tactive: " << std::endl;
   int count = 0;
   for (auto &light: active_lights) {
+    auto &prop = light->properties_get();
     std::cout << "\t[" << count << "] (" << light.get() << ") ";
+    std::cout << "x, y, z = " << prop.position.x << ", " << prop.position.y << ", " << prop.position.z;
     std::cout << std::endl;
     count++;
   }
   std::cout << "\tinactive: " << std::endl;
   for (auto &light: inactive_lights) {
+    auto &prop = light->properties_get();
     std::cout << "\t[" << count << "] (" << light.get() << ") ";
+    std::cout << "x, y, z = " << prop.position.x << ", " << prop.position.y << ", " << prop.position.z;
     std::cout << std::endl;
     count++;
   }
@@ -418,6 +422,15 @@ void Assets::physics_rigidbody_add(std::unique_ptr<Physics_Rigidbody> &&rigidbod
 }
 
 
+void Assets::physics_rigidbody_print_all(Node &node) 
+{
+  std::cout << "\nPhysics rigidbody: " << std::endl;
+  for (auto &rigidbody: rigidbodies) {
+    std::cout << "\t(" << &rigidbody << ")  ";
+  }
+
+}
+
 void Assets::print_all(Node &node)
 {
   std::cout << "======== Current assets (owned by engine) ========" << std::endl;
@@ -427,6 +440,7 @@ void Assets::print_all(Node &node)
   manipulator_print_all(node);
   material_print_all(node);
   mesh_print_all(node);
+  physics_rigidbody_print_all(node);
   text_print_all(node);
   std::cout << "==================================================" << std::endl;
 }

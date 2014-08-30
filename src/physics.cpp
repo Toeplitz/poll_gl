@@ -1,3 +1,4 @@
+#include "node.h"
 #include "physics.h"
 #include "physics_char_cont.h"
 #include "utils.h"
@@ -16,6 +17,7 @@ struct FilterCallback : public btOverlapFilterCallback {
     return collides;
   }
 };
+
 
 /**************************************************/
 /***************** CONSTRUCTORS *******************/
@@ -63,37 +65,6 @@ Physics_Character_Controller_List const  &Physics::character_get_all() const
 }
 
 
-void Physics::character_controller_remove(Physics_Character_Controller *char_cont)
-{
-}
-
-
-void character_controller_move(Physics_Character_Controller *char_cont, Physics_Direction dir)
-{
-}
-
-
-void character_controller_jump(Physics_Character_Controller *char_cont)
-{
-}
-
-
-void Physics::collision_mesh_add(Node &node, const std::string &prefix, const std::string &filename)
-{
-  Model model;
-  Node *root_ptr = model.load(collision_assets, node, prefix, filename, MODEL_IMPORT_DEFAULT);
-  collision_assets.print_all(*root_ptr);
-  std::cout << "Root ptr collision: " << root_ptr->name_get() << std::endl;
-  for (auto &armature: collision_assets.armature_get_all()) {
-    for (auto &bone: armature->bones_get_all()) {
-      std::cout << bone->joint_node->name_get() << std::endl;
-      // Here we have the name of the bone in the real mesh.
-    }
-  }
-
-}
-
-
 void Physics::collision_shape_add(Node &node, const Physics_Collision_Shape shape, bool recursive, float mass)
 {
   Physics_Node p_node;
@@ -123,12 +94,6 @@ void Physics::collision_shape_add(Node &node, const Physics_Collision_Shape shap
 }
 
 
-void Physics::collision_node_callback_set(const Node &node, const std::function<void (int)> callback)
-{
-  //std::cout << "Added cb for node: " << node.name << std::endl;
-  callback(1);
-}
-
 void Physics::debug()
 {
   debug_toggle = !debug_toggle;
@@ -136,7 +101,7 @@ void Physics::debug()
 
 void Physics::init()
 {
-  glshader.load("world_basic_color.v", "world_basic_color.f");
+ // glshader.load("world_basic_color.v", "world_basic_color.f");
 }
 
 
@@ -157,7 +122,7 @@ void Physics::step(const double dt)
 
 void Physics::term()
 {
-  glshader.term();
+  //glshader.term();
 }
 
 
@@ -348,6 +313,7 @@ int Physics::bullet_step(const double dt)
     world->stepSimulation(timestep, max_sub_steps, fixed_time_step);
   }
 
+  /*
   if (debug_toggle) {
     glshader.use();
     debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(1, 0, 0), btVector3(1, 0, 0), btVector3(1, 0, 0));
@@ -358,6 +324,7 @@ int Physics::bullet_step(const double dt)
         character->bullet_debug_draw_contacts(world, sweep_bp);
     }
   }
+  */
 
   return debug_toggle;
 }
@@ -396,7 +363,6 @@ Physics_Motion_State::Physics_Motion_State(const btTransform &start_position, No
   glm::mat4 scale_matrix = glm::scale(glm::mat4(1.f), node.original_scaling_get());
   glm::mat4 model_no_scaling = node.transform_model_get() * glm::inverse(scale_matrix);
   this->transform.setFromOpenGLMatrix((btScalar *) &model_no_scaling);
-  //this->transform = start_position;
   this->node = &node;
 }
 
@@ -413,12 +379,8 @@ void Physics_Motion_State::setWorldTransform(const btTransform &t)
 
   glm::mat4 m;
 
-  //  glm::mat4 m = bullet_convert_glm(t);
   t.getOpenGLMatrix((btScalar *) &m);
-  //print_matrix(std::cout, m, 0);
   glm::mat4 model = m * glm::scale(glm::mat4(1.f), node->original_scaling_get());
   node->transform_model_set(model);
-  //node->mesh->model = m;
-  // node->mesh->physics_matrix = right_handed_to_left_handed(m);
 }
 

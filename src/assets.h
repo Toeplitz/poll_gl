@@ -114,6 +114,7 @@ class Assets
     unsigned int          mesh_node_lookup(const Mesh *mesh, Node &node);
     void                  mesh_print_all(Node &node);
     void                  physics_rigidbody_add(std::unique_ptr<Physics_Rigidbody> &&rigidbody);
+    void                  physics_rigidbody_print_all(Node &node);
     void                  print_all(Node &node);
     Stock_Nodes          &stock_nodes_get();
     Stock_Shaders        &stock_shaders_get();

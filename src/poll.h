@@ -20,7 +20,6 @@ class Poll {
 
     Config config;
     Console console;
-    Physics physics;
     Scene scene;
     Ui ui;
     Window window;

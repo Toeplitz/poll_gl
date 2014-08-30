@@ -21,6 +21,7 @@ using namespace glm;
 
 class Armature;
 class Assets;
+class Physics;
 class Physics_Rigidbody;
 class Node;
 
@@ -91,7 +92,7 @@ class Node: public Animated {
     void                original_scaling_set(const vec3 &v);
     Node               *parent_get();
     void                print_state(int indent_level);
-    Physics_Rigidbody  *physics_rigidbody_create(Assets &assets);
+    Physics_Rigidbody  *physics_rigidbody_create(Assets &assets, Physics &physics);
     Physics_Rigidbody  *physics_rigidbody_get();
     void                physics_rigidbody_set(Physics_Rigidbody *rigidbody);
     const std::string  &name_get();

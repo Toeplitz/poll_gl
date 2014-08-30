@@ -18,7 +18,7 @@ Poll::Poll(const std::string &config_file)
   else
     config.init(console, scene, glcontext, config_file);
 
-  window.init(config, "Poll");
+  window.init(config, scene, "Poll");
   window.swap_interval_set(0);
   if (!glcontext.init(window.width_get(), window.height_get())) {
     exit(-1);
@@ -35,7 +35,6 @@ Poll::Poll(const std::string &config_file)
 
   console.init(glcontext, scene, window);
   ui.init(console, glcontext, scene);
-  physics.init();
 
   config.conf_global_apply(CONF_GLOBAL);
 }
@@ -50,6 +49,7 @@ void Poll::run()
 {
   GLcontext &glcontext = window.glcontext_get();
   Assets &assets = assets_get();
+  Physics &physics = physics_get();
   Stock_Shaders &shader = assets.stock_shaders_get();
 
   for (;;) {
@@ -100,7 +100,7 @@ void Poll::term()
   GLcontext &glcontext = window.glcontext_get();
 
   console.term();
-  physics.term();
+  scene.physics_get().term();
   assets.term(glcontext);
   glcontext.uniform_buffers_delete();
   window.term();
@@ -133,8 +133,9 @@ GLcontext &Poll::glcontext_get()
 
 Physics &Poll::physics_get() 
 {
-  return physics;
+  return scene.physics_get();
 }
+
 
 Scene &Poll::scene_get()
 {

@@ -9,7 +9,11 @@
 #include "glcontext.h"
 
 
+class Scene;
+
+
 using namespace std::placeholders;
+
 
 class Window {
   private:
@@ -20,6 +24,7 @@ class Window {
     SDL_Joystick *gamepad;
     SDL_GLContext gl_sdl_context;
     GLcontext glcontext;
+    Scene *scene;
 
     void check_error();
     void joystick_axis_motion(SDL_JoyAxisEvent *ev);
@@ -43,7 +48,7 @@ class Window {
     Window();
     ~Window();
 
-    bool  init(Config &config, const std::string &title);
+    bool  init(Config &config, Scene &scene, const std::string &title);
     float joystick_angle_get(float x, float y, float *radius);
     bool  poll_events();
     void  mouse_cursor_center();

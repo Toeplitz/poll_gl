@@ -1,7 +1,7 @@
 #pragma once
 
 #include <LinearMath/btIDebugDraw.h>
-#include "glshader.h"
+#include "gldefaults.h"
 #include <vector>
 
 

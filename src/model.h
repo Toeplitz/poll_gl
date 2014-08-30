@@ -20,6 +20,9 @@
 #include "utils.h"
 
 
+class Scene;
+
+
 enum Model_Texture_Type
 {
   MODEL_TEXTURE_DIFFUSE,
@@ -46,7 +49,7 @@ class Model {
     
     std::vector<Material *>  materials;
     NodeMap                  nodes;
-    const aiScene           *scene;
+    const aiScene           *assimp_scene;
     std::string              prefix;
     Armature                *armature_ptr = nullptr;
 

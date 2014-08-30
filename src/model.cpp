@@ -1,4 +1,5 @@
 #include "model.h"
+#include "scene.h"
 #include <glm/gtx/string_cast.hpp>
 
 template <typename Key, typename Value>
@@ -40,21 +41,21 @@ Node *Model::load(Assets &assets, Node &root, const std::string &prefix, const s
   Assimp::Importer importer;
   importer.SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 3);
   importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, remove_flags);
-  scene = importer.ReadFile(full_name.c_str(), pflags);
+  assimp_scene = importer.ReadFile(full_name.c_str(), pflags);
 
-  if (!scene) {
+  if (!assimp_scene) {
     std::cout << "Error parsing '" <<  full_name.c_str() << "': " << importer.GetErrorString() << std::endl;
     exit(-1);
   }
 
-  Node *rootPtr = node_map_create(*scene->mRootNode, &root, root.tree_level_get());
+  Node *rootPtr = node_map_create(*assimp_scene->mRootNode, &root, root.tree_level_get());
   rootPtr->transform_update_global_recursive(*rootPtr);
   BoneForAssimpBone boneForAssimpBone;
   bone_map_create(assets, boneForAssimpBone);
   materials_parse(assets);
   lights_parse(assets);
 
-  mesh_create_all(assets, *scene->mRootNode, boneForAssimpBone);
+  mesh_create_all(assets, *assimp_scene->mRootNode, boneForAssimpBone);
   key_frames_parse();
 
   return rootPtr;
@@ -167,8 +168,8 @@ void Model::bone_map_create(Assets & assets, BoneForAssimpBone & boneForAssimpBo
   size_t boneIndex = 0;
   auto armature = std::unique_ptr<Armature> (new Armature());
 
-  for (size_t i = 0; i < scene->mNumMeshes; ++i) {
-    const aiMesh *mesh = scene->mMeshes[i];
+  for (size_t i = 0; i < assimp_scene->mNumMeshes; ++i) {
+    const aiMesh *mesh = assimp_scene->mMeshes[i];
 
     if (mesh->mNumBones <= 0) {
       continue;
@@ -202,12 +203,12 @@ void Model::bone_map_create(Assets & assets, BoneForAssimpBone & boneForAssimpBo
 
 void Model::lights_parse(Assets &assets)
 {
-  if (!scene->HasLights())
+  if (!assimp_scene->HasLights())
     return;
 
   /*
-  for (unsigned int i = 0; i < scene->mNumLights; i++) {
-    aiLight &assimp_light = *scene->mLights[i];
+  for (unsigned int i = 0; i < assimp_scene->mNumLights; i++) {
+    aiLight &assimp_light = *assimp_scene->mLights[i];
     std::string key(assimp_light.mName.data);
     Node *light_node = lookup_node(key, nodes);
     assert(light_node);
@@ -266,51 +267,35 @@ Node *Model::node_map_create(const aiNode &node, Node *parent, int level)
 {
   glm::mat4 localTransform;
   std::string key(node.mName.data);
-  auto internalNode = std::unique_ptr<Node>(new Node(key));
-  Node *nodePtr = internalNode.get();
-  aiVector3t<float> scaling;
-  aiQuaterniont<float> rotation;
-  aiVector3t<float> position;
 
-  node.mTransformation.Decompose(scaling, rotation, position);
-  /*
-     std::cout << "Report for: " << node.mName.C_Str() << std::endl;
-     std::cout << "Scaling: " << scaling.x << ", " << scaling.y << ", " << scaling.z << std::endl;
-     std::cout << "Position: " << position.x << ", " << position.y << ", " << position.z << std::endl;
-     std::cout << "Rotation quaternion: " << rotation.x << ", " << rotation.y << ", " << rotation.z << ", " << rotation.w << std::endl;
-*/
-  glm::vec3 scale_vec(scaling.x, scaling.y, scaling.z);
-  glm::vec3 position_vec(position.x, position.y, -position.z);
-  glm::quat rotation_quat(rotation.x, rotation.y, -rotation.z, rotation.w);
-  nodePtr->original_scaling_set(scale_vec);
-  nodePtr->original_position_set(position_vec);
-  nodePtr->original_rotation_set(rotation_quat);
+  auto node_internal = std::unique_ptr<Node>(new Node(key));
+  Node *nodePtr = node_internal.get();
 
-  //  glm::mat4 scale_matrix = glm::scale(glm::mat4(1.f), scale_vec);
-  /*
-     glm::mat4 translate_matrix = glm::translate(glm::mat4(1.f), position_vec);
-     glm::mat4 neg_translate_matrix = glm::translate(glm::mat4(1.f), -position_vec);
-     glm::mat4 rotation_matrix = glm::mat4_cast(glm::quat(rotation.x, rotation.y, rotation.z, rotation.w));
-     glm::mat4 blender_compensatinon = glm::rotate(glm::mat4(1.0f), 90.0f, glm::vec3(0.f, 1.f, 0.f));
-     */
 
-  //  localTransform = translate_matrix * rotation_matrix * scale_matrix * blender_compensatinon;
+  {
+    aiVector3t<float> scaling;
+    aiQuaterniont<float> rotation;
+    aiVector3t<float> position;
 
-  nodes[key] = internalNode.get();
-  ai_mat_copy(&node.mTransformation, localTransform);
-  //internalNode->transform_local_original_set(right_handed_to_left_handed(localTransform));
-  //internalNode->transform_local_current_set(right_handed_to_left_handed(localTransform));
-  //  localTransform = translate_matrix * rotation_matrix * scale_matrix;
-  internalNode->transform_local_original_set(localTransform);
-  internalNode->transform_local_current_set(localTransform);
-  //print_matrix(std::cout, nodePtr->transform_local_current, 0);
-  //print_matrix(std::cout, nodePtr->transform_global, 0);
-
-  for (size_t i = 0; i < node.mNumChildren; i++) {
-    node_map_create(*node.mChildren[i], internalNode.get(), level + 1);
+    node.mTransformation.Decompose(scaling, rotation, position);
+    glm::vec3 scale_vec(scaling.x, scaling.y, scaling.z);
+    glm::vec3 position_vec(position.x, position.y, -position.z);
+    glm::quat rotation_quat(rotation.x, rotation.y, -rotation.z, rotation.w);
+    nodePtr->original_scaling_set(scale_vec);
+    nodePtr->original_position_set(position_vec);
+    nodePtr->original_rotation_set(rotation_quat);
+    ai_mat_copy(&node.mTransformation, localTransform);
+    node_internal->transform_local_original_set(localTransform);
+    node_internal->transform_local_current_set(localTransform);
   }
 
-  parent->child_add(std::move(internalNode), level + 1);
+  nodes[key] = node_internal.get();
+
+  for (size_t i = 0; i < node.mNumChildren; i++) {
+    node_map_create(*node.mChildren[i], node_internal.get(), level + 1);
+  }
+
+  parent->child_add(std::move(node_internal), level + 1);
 
   return nodePtr;
 }
@@ -319,15 +304,15 @@ Node *Model::node_map_create(const aiNode &node, Node *parent, int level)
 
 void Model::materials_parse(Assets &assets)
 {
-  if (!scene->HasMaterials()) {
+  if (!assimp_scene->HasMaterials()) {
     std::cout << "Fragmic warning: model '" << this << "'has no materials" << std::endl;
     return;
   }
 
-  //std::cout << "Number of materials: " << scene->mNumMaterials << std::endl;
+  //std::cout << "Number of materials: " << assimp_scene->mNumMaterials << std::endl;
 
-  for (unsigned int i = 0; i < scene->mNumMaterials; i++) {
-    aiMaterial &assimpMaterial = *scene->mMaterials[i];
+  for (unsigned int i = 0; i < assimp_scene->mNumMaterials; i++) {
+    aiMaterial &assimpMaterial = *assimp_scene->mMaterials[i];
     std::unique_ptr<Material> materialPtr(new Material());
     Material &material = *materialPtr;
 
@@ -456,7 +441,7 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
 
   for (unsigned int i = 0; i < node.mNumMeshes; i++) {
     unsigned int meshIndex = node.mMeshes[i];
-    aiMesh *assimpMesh = scene->mMeshes[meshIndex];
+    aiMesh *assimpMesh = assimp_scene->mMeshes[meshIndex];
 
     std::unique_ptr<Mesh> mesh_ptr(new Mesh());
     Mesh &m = *mesh_ptr;
@@ -579,13 +564,13 @@ void Model::mesh_create(Assets &assets, const aiNode &node, const BoneForAssimpB
 
 void Model::key_frames_parse(void)
 {
-  if (!scene->HasAnimations()) {
+  if (!assimp_scene->HasAnimations()) {
     //std::cout << "Fragmic WARNING: model '" << this << "'has no keyframes" << std::endl;
     return;
   }
 
-  for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
-    aiAnimation *animation = scene->mAnimations[i];
+  for (unsigned int i = 0; i < assimp_scene->mNumAnimations; i++) {
+    aiAnimation *animation = assimp_scene->mAnimations[i];
 
     for (unsigned int j = 0; j < animation->mNumChannels; j++) {
       aiNodeAnim *animNode = animation->mChannels[j];

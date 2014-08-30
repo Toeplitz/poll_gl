@@ -7,6 +7,7 @@
 #include <iostream>                     // for operator<<, basic_ostream, etc
 #include <stdexcept>                    // for runtime_error
 #include "glcontext.h"                  
+#include "raycast.h"
 
 
 /**************************************************/
@@ -33,11 +34,12 @@ Window::~Window()
 /**************************************************/
 
 
-bool Window::init(Config &config, const std::string &title)
+bool Window::init(Config &config, Scene &scene, const std::string &title)
 {
   const Conf_Global &conf_global = config.conf_global_get();
   width = conf_global.viewport.width;
   height = conf_global.viewport.height;
+  this->scene = &scene;
 
 
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0) {
@@ -259,7 +261,10 @@ void Window::keyboard_callback_released(SDL_Keysym *keysym)
 
 void Window::mouse_callback_pressed_down(SDL_MouseButtonEvent *ev)
 {
+  Raycast r;
   std::cout << "clicked screen x,y = " << ev->x << ", " << ev->y << std::endl;
+
+  r.convert_coordinates(*scene, ev->x, ev->y, width, height);
 }
 
 

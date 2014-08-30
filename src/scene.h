@@ -6,8 +6,11 @@
 #include "manipulator.h"
 #include "model.h"
 #include "node.h"
+#include "physics.h"
+
 
 class GLcontext;
+
 
 typedef std::vector<Node *> Node_Ptr_List;
 
@@ -21,6 +24,7 @@ class Scene
     Node *node_cur_camera = nullptr;
 
     Assets assets;
+    Physics physics;
     Node root;
 
     void  animated_nodes_add(Node &node);
@@ -46,5 +50,6 @@ class Scene
     Node                 *node_create(const std::string &name, Node *parent = nullptr);
     Node                 *node_find(Node *root_ptr, const std::string &name);
     Node                 &node_root_get();
+    Physics              &physics_get();
 };
 

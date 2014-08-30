@@ -178,7 +178,7 @@ Node *Node::parent_get()
 }
 
 
-Physics_Rigidbody  *Node::physics_rigidbody_create(Assets &assets)
+Physics_Rigidbody *Node::physics_rigidbody_create(Assets &assets, Physics &physics)
 {
   std::unique_ptr<Physics_Rigidbody> rigidbody(new Physics_Rigidbody());
   Physics_Rigidbody *rigidbody_ptr = rigidbody.get();

@@ -7,12 +7,7 @@
 #include <BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h>
 #include <BulletCollision/CollisionDispatch/btInternalEdgeUtility.h>
 #include <functional>
-#include "assets.h"
-#include "camera.h"
-#include "node.h"
-#include "glcontext.h"
 #include "gldebug.h"
-#include "utils.h"
 #include "physics_char_cont.h"
 
 //
@@ -20,6 +15,9 @@
 // http://www.cs.uu.nl/docs/vakken/mgp/assignment/Bullet%20-%20User%20Manual.pdf
 //
 //
+
+
+class Node;
 
 
 enum EPhysicsCollisionMask {
@@ -81,12 +79,10 @@ class Physics
     btSequentialImpulseConstraintSolver  *solver;
     btDiscreteDynamicsWorld              *world;
 
-    GLshader                              glshader;
     std::vector<Physics_Node>             p_nodes;
     Physics_Debug_Drawer                  debug_drawer;
     int                                   debug_toggle;
     int                                   pause_toggle;
-    Assets                                collision_assets;
     Physics_Character_Controller_List     characters;
 
 
@@ -117,9 +113,7 @@ class Physics
     Physics_Character_Controller             *character_controller_add(Node &node, Node &collision_node);
     void                                      character_controller_remove(Physics_Character_Controller *char_cont);
     Physics_Character_Controller_List const  &character_get_all() const;
-    void                                      collision_mesh_add(Node &node, const std::string &prefix, const std::string &filename);
     void                                      collision_shape_add(Node &node, const Physics_Collision_Shape shape, bool recursive, float mass);
-    void                                      collision_node_callback_set(const Node &node, const std::function<void (int)> callback);
     void                                      debug();
     void                                      init();
     void                                      pause();
