@@ -4,6 +4,7 @@
 #include "scene.h"
 #include <memory>
 #include <algorithm> 
+#include <glm/gtx/string_cast.hpp>
 
 
 /**************************************************/
@@ -41,6 +42,9 @@ void Stock_Shaders::init(Config &config, GLcontext &glcontext)
   world_stencil.load("world_stencil.v", "world_stencil.f");
   glcontext.uniform_buffers_block_bind(world_stencil);
 
+  world_physics_debug.load("world_physics_debug.v", "world_physics_debug.f");
+  glcontext.uniform_buffers_block_bind(world_physics_debug);
+
   text.load("text.v", "text.f"); 
   glcontext.uniform_buffers_block_bind(text);
   glcontext.uniform_locations_text_init(text);
@@ -56,6 +60,7 @@ void Stock_Shaders::term()
   world_geometry.term();
   world_light.term();
   world_stencil.term();
+  world_physics_debug.term();
 }
 
 
@@ -86,14 +91,14 @@ void Stock_Shaders::term()
 
   {
     node_symbol_pyramid = scene.node_create("stock_pyramid");
-    Mesh *mesh = node_symbol_pyramid->mesh_create(scene.assets_get());
+    Mesh *mesh = node_symbol_pyramid->mesh_create(scene);
     mesh->generate_pyramid(1.f);
     glcontext.vertex_buffers_mesh_create(mesh);
   }
 
   {
     node_screen_quad = scene.node_create("stock_screen_quad");
-    Mesh *mesh = node_screen_quad->mesh_create(scene.assets_get());
+    Mesh *mesh = node_screen_quad->mesh_create(scene);
     mesh->generate_quad(1.f);
     glcontext.vertex_buffers_mesh_create(mesh);
   }
@@ -101,9 +106,9 @@ void Stock_Shaders::term()
 }
 
 
-Mesh *Stock_Nodes::cone_get()
+Node *Stock_Nodes::cone_get()
 {
-  return node_symbol_cone->mesh_get();
+  return node_symbol_cone;
 }
 
 
@@ -181,7 +186,7 @@ void Assets::camera_print_all(const Node &node) const
   std::cout << "\nCameras: " << std::endl;
 
   for (auto &camera: cameras) {
-    std::cout << "\t(" << camera.get() << ")" << std::endl;
+    std::cout << "\t(" << camera.get() << ") pos: " << glm::to_string(camera->position_get()) << std::endl;
   }
 }
 
@@ -426,7 +431,9 @@ void Assets::physics_rigidbody_print_all(Node &node)
 {
   std::cout << "\nPhysics rigidbody: " << std::endl;
   for (auto &rigidbody: rigidbodies) {
-    std::cout << "\t(" << &rigidbody << ")  ";
+    Node *node_ptr = rigidbody->node_ptr_get();
+    std::cout << "\t(" << &rigidbody << ") node_ptr: " << node_ptr->name_get() << " ";
+    std::cout << std::endl;
   }
 
 }
@@ -469,7 +476,7 @@ void Assets::text_print_all(const Node &node) const
   std::cout << "\nText: " << std::endl;
 
   for (auto &text: texts) {
-    std::cout << "\t(" << text.get() << ")" << std::endl;
+    std::cout << "\t(" << text.get() << ")" << " string: '" << text.get()->string_get().substr(0, 100) << "'" << std::endl;
   }
 }
 

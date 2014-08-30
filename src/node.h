@@ -81,7 +81,7 @@ class Node: public Animated {
     void                copy_transform_data(Node &node);
     Node_List    const &children_get() const;
     void                child_add(std::unique_ptr<Node> &&node, int level);
-    Light              *light_create(Assets &assets, const unsigned int lamp_type, const unsigned int illumination_type = Light::VOLUME);
+    Light              *light_create(Scene &scene, const unsigned int lamp_type, const unsigned int illumination_type = Light::VOLUME);
     Light              *light_get();
     void                light_set(Light *light);
     const vec3         &original_position_get();
@@ -92,7 +92,7 @@ class Node: public Animated {
     void                original_scaling_set(const vec3 &v);
     Node               *parent_get();
     void                print_state(int indent_level);
-    Physics_Rigidbody  *physics_rigidbody_create(Assets &assets, Physics &physics);
+    Physics_Rigidbody  *physics_rigidbody_create(Scene &scene);
     Physics_Rigidbody  *physics_rigidbody_get();
     void                physics_rigidbody_set(Physics_Rigidbody *rigidbody);
     const std::string  &name_get();
@@ -103,13 +103,13 @@ class Node: public Animated {
     Material           *material_create(Assets &assets);
     Material           *material_get();
     void                material_set(Material *material);
-    Mesh               *mesh_create(Assets &assets);
+    Mesh               *mesh_create(Scene &scene);
     Mesh               *mesh_get();
     void                mesh_set(Mesh *mesh);
     void                rotate(const float angle, const vec3 &v);
     void                scale(const vec3 &v);
     Node_State         &state_get();
-    Text               *text_create(Font *font, Assets &assets);
+    Text               *text_create(Font *font, Scene &scene);
     Text               *text_get();
     void                text_set(Text *text);
     void                translate(const vec3 &v);

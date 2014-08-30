@@ -12,11 +12,11 @@ struct Animation;
 struct Animated 
 {
   private:
-    double animation_time;
-    double animation_time_min;
-    double animation_time_max;
-    double global_time_max;
-    double global_time_min;
+    double animation_time = 0;
+    double animation_time_min = 0;
+    double animation_time_max = 0;
+    double global_time_max = 0;
+    double global_time_min = 0;
     std::vector<std::unique_ptr<Keyframe>> keyframes;
     unsigned int keyframe_next;
     unsigned int keyframe_prev;

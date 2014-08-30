@@ -13,22 +13,13 @@ Physics_Debug_Drawer::~Physics_Debug_Drawer()
 }
 
 
-void Physics_Debug_Drawer::drawLine(const btVector3 &from,const btVector3 &to, const btVector3 &fromColor, const btVector3 &toColor)
+void Physics_Debug_Drawer::init()
 {
   GLenum target;
   GLint index;
   std::vector<glm::vec4> vertices;
   std::vector<glm::vec4> colors;
-
-  glm::vec4 start(from.getX(), from.getY(), from.getZ(), 1.0);
-  glm::vec4 end(to.getX(), to.getY(), to.getZ(), 1.0);
-  vertices.push_back(start);
-  vertices.push_back(end);
-
-  glm::vec4 start_color(fromColor.getX(), fromColor.getY(), fromColor.getZ(), 1.0);
-  glm::vec4 end_color(toColor.getX(), toColor.getY(), toColor.getZ(), 1.0);
-  colors.push_back(start_color);
-  colors.push_back(end_color);
+  size_t max_size = 904800;
 
   target = GL_ARRAY_BUFFER;
 
@@ -38,24 +29,65 @@ void Physics_Debug_Drawer::drawLine(const btVector3 &from,const btVector3 &to, c
   index = 0;
   glGenBuffers(1, &gl_vertex_buffer);
   glBindBuffer(target, gl_vertex_buffer);
-  glBufferData(target, vertices.size() * sizeof(vertices[0]), vertices.data(), GL_STATIC_DRAW);
+  glBufferData(target, max_size, vertices.data(), GL_STATIC_DRAW);
   glEnableVertexAttribArray(index);
   glVertexAttribPointer(index, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
   index = 1;
   glGenBuffers(1, &gl_color_buffer);
   glBindBuffer(target, gl_color_buffer);
-  glBufferData(target, colors.size() * sizeof(colors[0]), colors.data(), GL_STATIC_DRAW);
+  glBufferData(target, max_size, colors.data(), GL_STATIC_DRAW);
   glEnableVertexAttribArray(index);
   glVertexAttribPointer(index, 4, GL_FLOAT, GL_FALSE, 0, 0);
+}
 
-  glLineWidth(3);
-  glDrawArrays(GL_LINES, 0, 2); 
-  glLineWidth(1);
-  glBindBuffer(target, 0);
+
+void Physics_Debug_Drawer::term()
+{
   glDeleteBuffers(1, &gl_vertex_buffer);
   glDeleteBuffers(1, &gl_color_buffer);
   glDeleteVertexArrays(1, &gl_vao);
+}
+
+
+void Physics_Debug_Drawer::draw()
+{
+  GLenum target;
+
+  target = GL_ARRAY_BUFFER;
+  {
+    size_t size = vertices.size() * sizeof(vertices[0]);
+    GL_ASSERT(glBindBuffer(target, gl_vertex_buffer));
+    GL_ASSERT(glBufferSubData(target, 0, size, vertices.data()));
+  }
+
+  {
+    size_t size = colors.size() * sizeof(colors[0]);
+    GL_ASSERT(glBindBuffer(target, gl_color_buffer));
+    GL_ASSERT(glBufferSubData(target, 0, size, colors.data()));
+  }
+
+  GL_ASSERT(glBindVertexArray(gl_vao));
+  GL_ASSERT(glLineWidth(3));
+  GL_ASSERT(glDrawArrays(GL_LINES, 0, vertices.size()););
+  GL_ASSERT(glLineWidth(1));
+
+  vertices.clear();
+  colors.clear();
+}
+
+
+void Physics_Debug_Drawer::drawLine(const btVector3 &from,const btVector3 &to, const btVector3 &fromColor, const btVector3 &toColor)
+{
+  glm::vec4 start(from.getX(), from.getY(), from.getZ(), 1.0);
+  glm::vec4 end(to.getX(), to.getY(), to.getZ(), 1.0);
+  vertices.push_back(start);
+  vertices.push_back(end);
+
+  glm::vec4 start_color(fromColor.getX(), fromColor.getY(), fromColor.getZ(), 1.0);
+  glm::vec4 end_color(toColor.getX(), toColor.getY(), toColor.getZ(), 1.0);
+  colors.push_back(start_color);
+  colors.push_back(end_color);
 }
 
 

@@ -1,6 +1,8 @@
 #include "node.h"
 #include "physics.h"
 #include "physics_char_cont.h"
+#include "physics_rigidbody.h"
+#include "scene.h"
 #include "utils.h"
 #include <glm/gtx/string_cast.hpp>
 
@@ -65,43 +67,15 @@ Physics_Character_Controller_List const  &Physics::character_get_all() const
 }
 
 
-void Physics::collision_shape_add(Node &node, const Physics_Collision_Shape shape, bool recursive, float mass)
-{
-  Physics_Node p_node;
-
-
-  if (!node.mesh_get()) {
-  //  std::cout << "No mesh for node: '" << node.name << "', skipping ..." << std::endl;
-  } else if (node.light_get()) {
-    std::cout << "Light node: '" << node.name_get() << "', skipping ..." << std::endl;
-  } else {
-
-    p_node.node = &node;
-    p_node.rigidbody = bullet_collision_rigidbody_create(node, shape, mass);
-    p_nodes.push_back(p_node);
-    bullet_world_add(p_node);
-
-    //std::cout << "Added collision shape " << shape << " for node: " << node.name << std::endl;
-  }
-
-  if (!recursive)
-    return;
-
-  for (auto &child : node.children_get()) {
-    collision_shape_add(*child, shape, recursive, mass);
-  }
-
-}
-
-
 void Physics::debug()
 {
   debug_toggle = !debug_toggle;
 }
 
+
 void Physics::init()
 {
- // glshader.load("world_basic_color.v", "world_basic_color.f");
+  debug_drawer.init();
 }
 
 
@@ -111,18 +85,26 @@ void Physics::pause()
 }
 
 
-void Physics::step(const double dt)
+
+void Physics::rigidbody_add(Physics_Rigidbody *rigidbody)
+{
+  btRigidBody *rb_ptr = rigidbody->bt_rigidbody_get();
+  world->addRigidBody(rb_ptr);
+}
+
+
+void Physics::step(Scene &scene, const double dt)
 {
   if (custom_step_callback)
     custom_step_callback();
 
-  bullet_step(dt);
+  bullet_step(scene, dt);
 }
 
 
 void Physics::term()
 {
-  //glshader.term();
+  debug_drawer.term();
 }
 
 
@@ -130,114 +112,6 @@ void Physics::term()
 /***************** PRIVATE METHODS ****************/
 /**************************************************/
 
-
-
-btRigidBody *Physics::bullet_collision_rigidbody_create(Node &node, Physics_Collision_Shape shape, float m)
-{
-  btCollisionShape *collision_shape = nullptr;
-  glm::vec3 position = node.original_position_get();
-  glm::vec3 scaling = node.original_scaling_get();
-  glm::quat rotation = node.original_rotation_get();
-
-  switch (shape) {
-    case PHYSICS_COLLISION_SPHERE:
-      collision_shape = new btSphereShape(btScalar(scaling.x));
-      break;
-    case PHYSICS_COLLISION_BOX:
-      // btTransform does not have scaling, so we need to do it here.
-      collision_shape = new btBoxShape(btVector3(scaling.x, scaling.y, scaling.z));
-      break;
-    case PHYSICS_COLLISION_CONVEX_HULL:
-      collision_shape = bullet_collision_shape_convex_hull_create(node);
-      break;
-    case PHYSICS_COLLISION_TRIANGLE_MESH:
-      collision_shape = bullet_collision_shape_triangle_mesh_create(node);
-      break;
-    default:
-      break;
-  }
-
-  if (!collision_shape) {
-    std::cout << "Error: No valid shape found" << std::endl;
-    return nullptr;
-  }
-
-  glm::mat4 matrix;
-  btTransform t;
-  t.setIdentity();
-  t.setOrigin(btVector3(position.x, position.y, position.z));
-  t.setRotation(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
-  btTransform t2;
-  t2.setFromOpenGLMatrix((btScalar *) &node.transform_model_get());
-
-  Physics_Motion_State *motion_state = new Physics_Motion_State(t2, node);
-
-  btScalar mass = m;
-  btVector3 inertia(0, 0, 0);
-  collision_shape->calculateLocalInertia(mass, inertia);
-  btRigidBody::btRigidBodyConstructionInfo rb_ci(mass, motion_state, collision_shape, inertia);
-
-  btRigidBody* rb = new btRigidBody(rb_ci);
-
-  return rb;
-}
-
-
-void Physics::bullet_collision_rigidbody_delete(btRigidBody *rb)
-{
-  delete rb;
-}
-
-
-btCollisionShape *Physics::bullet_collision_shape_convex_hull_create(Node &node)
-{
-  btCollisionShape *collision_shape = nullptr;
-  std::vector<glm::vec3> vertices = node.mesh_get()->positions_get();
-  int n = vertices.size();
-
-  collision_shape = new btConvexHullShape((btScalar *) vertices.data(), n, sizeof(glm::vec3));
-  collision_shape->setLocalScaling(btVector3(node.original_scaling_get().x, node.original_scaling_get().y, node.original_scaling_get().z));
-
-  return collision_shape;
-}
-
-
-btCollisionShape *Physics::bullet_collision_shape_triangle_mesh_create(Node &node)
-{
-  Mesh *mesh = node.mesh_get();
-  btCollisionShape *collision_shape = nullptr;
-
-  if  (!mesh) {
-    std::cout << "ERROR: no mesh for node: " << node.name_get() << std::endl;
-    return nullptr;
-  }
-
-  std::vector<glm::vec3> positions = mesh->positions_get();
-  std::vector<GLshort> indices = mesh->indices_get();
-
-  assert(node.mesh_get()->num_indices_get() % 3 == 0);
-
-  btTriangleMesh* ptrimesh = new btTriangleMesh();
-  for (unsigned int i = 0; i < node.mesh_get()->num_indices_get(); i = i + 3) {
-    /*
-    std::cout << "Triangle points (x, y, z) , (x, y, z) , (x, y, z): " << std::endl;
-    std::cout << "(" << positions[indices[i]].x << ", " << positions[indices[i]].y << ", " << positions[indices[i]].z << ") ";
-    std::cout << "(" << positions[indices[i + 1]].x << ", " << positions[indices[i + 1]].y << ", " << positions[indices[i + 1]].z << ") ";
-    std::cout << "(" << positions[indices[i + 2]].x << ", " << positions[indices[i + 2]].y << ", " << positions[indices[i + 2]].z << ") " << std::endl;
-    */
-
-    ptrimesh->addTriangle(btVector3(positions[indices[i]].x, positions[indices[i]].y, positions[indices[i]].z),
-        btVector3(positions[indices[i + 1]].x, positions[indices[i + 1]].y, positions[indices[i + 1]].z),
-        btVector3(positions[indices[i + 2]].x, positions[indices[i + 2]].y, positions[indices[i + 2]].z));
-  }
-
-  bool useQuantizedAabbCompression = true;
-  btVector3 aabbMin(-1000, -1000, -1000), aabbMax(1000, 1000, 1000);
-  collision_shape = new btBvhTriangleMeshShape(ptrimesh, useQuantizedAabbCompression, aabbMin, aabbMax);
-  collision_shape->setLocalScaling(btVector3(node.original_scaling_get().x, node.original_scaling_get().y, node.original_scaling_get().z));
-
-  return collision_shape;
-}
 
 
 void Physics::bullet_init()
@@ -273,6 +147,7 @@ void Physics::bullet_init()
 Physics_Character_Controller *Physics::bullet_kinematic_character_controller_create(Node &node, Node &collision_node)
 {
   Physics_Character_Controller *character_ptr;
+  /*
   btCollisionShape *fallShape = bullet_collision_shape_convex_hull_create(collision_node);
 
   btTransform startTransform;
@@ -292,13 +167,15 @@ Physics_Character_Controller *Physics::bullet_kinematic_character_controller_cre
   character_ptr->reset();
   characters.push_back(std::move(character));
   world->addAction(character_ptr);
+  */
 
   return character_ptr;
 }
 
 
-int Physics::bullet_step(const double dt)
+int Physics::bullet_step(Scene &scene, const double dt)
 {
+  Stock_Shaders shader = scene.assets_get().stock_shaders_get();
   float timestep = 1.f / 60.f;
   //float timestep = (float) dt / 1000.f;
   int max_sub_steps = 1;
@@ -313,16 +190,17 @@ int Physics::bullet_step(const double dt)
     world->stepSimulation(timestep, max_sub_steps, fixed_time_step);
   }
 
+  shader.world_physics_debug.use();
   /*
-  if (debug_toggle) {
-    glshader.use();
-    debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(1, 0, 0), btVector3(1, 0, 0), btVector3(1, 0, 0));
-    debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(0, 1, 0), btVector3(0, 1, 0), btVector3(0, 1, 0));
-    debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(0, 0, 1), btVector3(0, 0, 1), btVector3(0, 0, 1));
-    world->debugDrawWorld();
-    for (auto &character : characters) {
-        character->bullet_debug_draw_contacts(world, sweep_bp);
-    }
+  debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(1, 0, 0), btVector3(1, 0, 0), btVector3(1, 0, 0));
+  debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(0, 1, 0), btVector3(0, 1, 0), btVector3(0, 1, 0));
+  debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(0, 0, 1), btVector3(0, 0, 1), btVector3(0, 0, 1));
+  */
+  world->debugDrawWorld();
+  debug_drawer.draw();
+  /*
+  for (auto &character : characters) {
+      character->bullet_debug_draw_contacts(world, sweep_bp);
   }
   */
 
@@ -341,18 +219,6 @@ void Physics::bullet_term()
 }
 
 
-void Physics::bullet_world_add(Physics_Node &p_node)
-{
-  world->addRigidBody(p_node.rigidbody);
-}
-
-
-void Physics::bullet_world_delete(Physics_Node &p_node)
-{
-  world->removeRigidBody(p_node.rigidbody);
-}
-
-
 /**************************************************/
 /************** CUSTOM MOTION STATE ***************/
 /**************************************************/
@@ -360,11 +226,18 @@ void Physics::bullet_world_delete(Physics_Node &p_node)
 
 Physics_Motion_State::Physics_Motion_State(const btTransform &start_position, Node &node)
 {
+  node_set(node);
+}
+
+
+void Physics_Motion_State::node_set(Node &node)
+{
   glm::mat4 scale_matrix = glm::scale(glm::mat4(1.f), node.original_scaling_get());
   glm::mat4 model_no_scaling = node.transform_model_get() * glm::inverse(scale_matrix);
   this->transform.setFromOpenGLMatrix((btScalar *) &model_no_scaling);
   this->node = &node;
 }
+
 
 
 void Physics_Motion_State::getWorldTransform(btTransform &t) const

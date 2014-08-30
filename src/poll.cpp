@@ -11,6 +11,7 @@
 Poll::Poll(const std::string &config_file)
 {
   GLcontext &glcontext = window.glcontext_get();
+  Physics &physics = physics_get();
   Assets &assets = assets_get();
 
   if (config_file.empty()) 
@@ -23,6 +24,8 @@ Poll::Poll(const std::string &config_file)
   if (!glcontext.init(window.width_get(), window.height_get())) {
     exit(-1);
   }
+
+  physics.init();
 
   assets.init(config, glcontext, scene);
 
@@ -81,7 +84,7 @@ void Poll::run()
     glcontext.framebuffer_draw_scene(scene);
 
     /* Step physics simulation */
-    physics.step(dt);
+    physics.step(scene, dt);
 
     /* Draw console and ui */
     shader.text.use();

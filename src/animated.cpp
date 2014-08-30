@@ -121,20 +121,20 @@ unsigned int Animated::keyframe_total_num_get()
 
 float Animated::step_time(const double dt)
 {
+  double factor = 0;
   if (dt <= 0)
     return -1;
 
   if (keyframes.size() == 0)
     return -1;
 
-//  std::cout << dt << std::endl;
   animation_time = animation_time + dt;
   if (animation_time >= animation_time_max) {
     reset();
   } else if (animation_time >= keyframe_next_time_get()) {
     keyframe_incement(1);
   }
-  double factor = step_factor_get(animation_time);
+  factor = step_factor_get(animation_time);
 
   return factor;
 }
@@ -161,9 +161,11 @@ void Animated::keyframe_incement(int increment)
 double Animated::step_factor_get(double time)
 {
   double factor = 1.0;
+  double max = 0.0;
+  double step = 0.0;
 
-  double max = keyframe_next_time_get() - keyframe_prev_time_get();
-  double step = time - keyframe_prev_time_get();
+  max = keyframe_next_time_get() - keyframe_prev_time_get();
+  step = time - keyframe_prev_time_get();
 
   if (step != max) {
     factor = step / max;

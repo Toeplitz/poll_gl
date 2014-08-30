@@ -68,7 +68,7 @@ void Console::init(GLcontext &glcontext, Scene &scene, Window &window)
   font_create(CONSOLE_FONT);
 
   node_text = scene.node_create("entry_box");
-  Text *text = node_text->text_create(&font, scene.assets_get());
+  Text *text = node_text->text_create(&font, scene);
   text->string_set("default");
   text->bake(nullptr, node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
   glcontext.vertex_buffers_mesh_create(node_text->mesh_get(), 1048 * sizeof(glm::vec3));

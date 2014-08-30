@@ -250,10 +250,6 @@ void common_fpcamera_use(Node *node)
   n = node;
   camera = n->camera_get();
 
-  if (n->camera_get()) {
-    std::cout << "Error: no camera attached to this node" << std::endl;
-  }
-
   common_fpcamera_defaults_set();
   camera->update_callback_set(common_fpcamera_update_cb);
   window.keyboard_pressed_callback_set(common_fpcamera_keyboard_pressed_cb);

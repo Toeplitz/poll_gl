@@ -18,6 +18,9 @@
 
 
 class Node;
+class Mesh;
+class Physics_Rigidbody;
+class Scene;
 
 
 enum EPhysicsCollisionMask {
@@ -59,6 +62,7 @@ class Physics_Motion_State: public btMotionState
 
   public:
     Physics_Motion_State(const btTransform &start_position, Node &node);
+    void node_set(Node &node);
 
     virtual void getWorldTransform(btTransform &t) const;
     virtual void setWorldTransform(const btTransform &t);
@@ -86,16 +90,10 @@ class Physics
     Physics_Character_Controller_List     characters;
 
 
-    btRigidBody                   *bullet_collision_rigidbody_create(Node &node, Physics_Collision_Shape shape, float m);
-    void                           bullet_collision_rigidbody_delete(btRigidBody *rb);
-    btCollisionShape              *bullet_collision_shape_convex_hull_create(Node &node);
-    btCollisionShape              *bullet_collision_shape_triangle_mesh_create(Node &node);
     void                           bullet_init();
     Physics_Character_Controller  *bullet_kinematic_character_controller_create(Node &node, Node &collision_node);
-    int                            bullet_step(const double dt);
+    int                            bullet_step(Scene &scene, const double dt);
     void                           bullet_term();
-    void                           bullet_world_add(Physics_Node &p_node);
-    void                           bullet_world_delete(Physics_Node &p_node);
 
 
     std::function <void ()> custom_step_callback;
@@ -113,11 +111,11 @@ class Physics
     Physics_Character_Controller             *character_controller_add(Node &node, Node &collision_node);
     void                                      character_controller_remove(Physics_Character_Controller *char_cont);
     Physics_Character_Controller_List const  &character_get_all() const;
-    void                                      collision_shape_add(Node &node, const Physics_Collision_Shape shape, bool recursive, float mass);
     void                                      debug();
     void                                      init();
     void                                      pause();
-    void                                      step(const double dt);
+    void                                      rigidbody_add(Physics_Rigidbody *rigidbody);
+    void                                      step(Scene &scene, const double dt);
     void                                      term();
 };
 

@@ -1,4 +1,4 @@
-#include "assets.h"
+#include "scene.h"
 #include "node.h"
 #include "utils.h"
 #include <glm/gtx/string_cast.hpp>
@@ -76,10 +76,10 @@ void Node::child_add(std::unique_ptr<Node> &&node, int level)
 }
 
 
-Light *Node::light_create(Assets &assets, const unsigned int lamp_type, const unsigned int illumination_type)
+Light *Node::light_create(Scene &scene, const unsigned int lamp_type, const unsigned int illumination_type)
 {
+  Assets &assets = scene.assets_get();
   Stock_Nodes &stock_nodes = assets.stock_nodes_get();
-  Mesh *mesh_symbol_cone = stock_nodes.cone_get();
   Mesh *mesh = nullptr;
 
   if (illumination_type == Light::GLOBAL) {
@@ -95,11 +95,19 @@ Light *Node::light_create(Assets &assets, const unsigned int lamp_type, const un
 
   std::unique_ptr<Light> light(new Light());
   Light *light_ptr = light.get();
-  light_ptr->mesh_symbol_set(mesh_symbol_cone);
   light_ptr->properties_type_set(lamp_type);
   light_ptr->illumination_type_set(illumination_type);
   mesh_set(mesh);
   light_set(light_ptr);
+
+
+ // node_symbol_cone->physics_rigidbody_create(scene);
+ // light_ptr->mesh_symbol_set(node_symbol_cone->mesh_get());
+ //
+ // FIXME: 
+ // Create a child node which is the symbol such that when
+ // the light is transformed all it's parents follow.
+
   assets.light_active_add(std::move(light));
 
   return light_ptr;
@@ -178,11 +186,16 @@ Node *Node::parent_get()
 }
 
 
-Physics_Rigidbody *Node::physics_rigidbody_create(Assets &assets, Physics &physics)
+Physics_Rigidbody *Node::physics_rigidbody_create(Scene &scene)
 {
+  std::cout << name << std::endl;
+  Assets &assets = scene.assets_get();
   std::unique_ptr<Physics_Rigidbody> rigidbody(new Physics_Rigidbody());
   Physics_Rigidbody *rigidbody_ptr = rigidbody.get();
+
+  rigidbody_ptr->create(this, Physics_Rigidbody::TRIANGLE_MESH);
   physics_rigidbody_set(rigidbody_ptr);
+  scene.physics_get().rigidbody_add(rigidbody_ptr);
   assets.physics_rigidbody_add(std::move(rigidbody));
   return rigidbody_ptr;
 }
@@ -256,11 +269,14 @@ void Node::material_set(Material *material)
 }
 
 
-Mesh *Node::mesh_create(Assets &assets)
+Mesh *Node::mesh_create(Scene &scene)
 {
+  Assets &assets = scene.assets_get();
+
   std::unique_ptr<Mesh> mesh(new Mesh());
   Mesh *mesh_ptr = mesh.get();
   mesh_set(mesh_ptr);
+
   assets.mesh_add(std::move(mesh));
   return mesh_ptr;
 }
@@ -298,15 +314,16 @@ Node_State &Node::state_get()
 }
 
 
-Text *Node::text_create(Font *font, Assets &assets)
+Text *Node::text_create(Font *font, Scene &scene)
 {
+  Assets &assets = scene.assets_get();
   std::unique_ptr<Text> text(new Text());
   Text *text_ptr = text.get();
   text_ptr->font_set(font);
   text_set(text_ptr);
 
   if (!mesh_get())
-    mesh_create(assets);
+    mesh_create(scene);
 
   assets.text_add(std::move(text));
   return text_ptr;

@@ -28,7 +28,7 @@ void Ui::init(Console &console, GLcontext &glcontext, Scene &scene)
 
   { 
     node_label_cam = scene.node_create("ui_label_cam");
-    Text *text = node_label_cam->text_create(font, scene.assets_get());
+    Text *text = node_label_cam->text_create(font, scene);
     const std::string cam_pos_str("x, y, z");
     text->string_set(cam_pos_str); 
     text->bake(nullptr, node_label_cam->mesh_get(), CONSOLE_X, 700);
@@ -37,7 +37,7 @@ void Ui::init(Console &console, GLcontext &glcontext, Scene &scene)
 
   {
     node_label_fps = scene.node_create("ui_label_fps");
-    Text *text = node_label_fps->text_create(font, scene.assets_get());
+    Text *text = node_label_fps->text_create(font, scene);
     const std::string fps_str("fps");
     text->string_set(fps_str); 
     text->bake(nullptr, node_label_fps->mesh_get(), CONSOLE_X, 680);
@@ -83,14 +83,13 @@ void Ui::callback_asset_list(const std::string &prim, const std::string &sec, co
 
 void Ui::callback_light_create(const std::string &prim, const std::string &sec, const std::string &val)
 {
-  Assets &assets = scene->assets_get();
   Camera *camera = scene->camera_get();
   const glm::vec3 position = camera->position_get();
 
   Node *node = scene->node_create("light_added");
   node->translate(position);
   node->scale(glm::vec3(30, 30, 30));
-  Light *light = node->light_create(assets, Light::POINT);
+  Light *light = node->light_create(*scene, Light::POINT);
   light_active_set(light);
   callback_light_list(prim, sec, val);
 }

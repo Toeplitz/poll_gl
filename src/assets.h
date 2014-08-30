@@ -43,7 +43,7 @@ class Stock_Nodes
   public:
 
     void init(GLcontext &glcontext, Scene &scene);
-    Mesh *cone_get();
+    Node *cone_get();
     Mesh *disk_get();
     Mesh *diamond_get();
     Mesh *pyramid_get();
@@ -62,6 +62,7 @@ class Stock_Shaders
     GLshader world_geometry;
     GLshader world_light;
     GLshader world_stencil;
+    GLshader world_physics_debug;
 
     void init(Config &config, GLcontext &glcontext);
     void term();

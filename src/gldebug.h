@@ -11,11 +11,15 @@ class Physics_Debug_Drawer : public btIDebugDraw
   GLuint    gl_color_buffer;
   GLuint    gl_vao;
 	int       debug_mode;
+  std::vector<glm::vec4> vertices;
+  std::vector<glm::vec4> colors;
 
 public:
 
 	Physics_Debug_Drawer();
 	virtual ~Physics_Debug_Drawer(); 
+  void init();
+  void term();
 
 	virtual void	drawLine(const btVector3 &from,const btVector3 &to, const btVector3 &fromColor, const btVector3 &toColor);
 	virtual void	drawLine(const btVector3 &from, const btVector3 &to, const btVector3 &color);
@@ -26,6 +30,7 @@ public:
 	virtual void	draw3dText(const btVector3 &location, const char *textString);
   virtual void	setDebugMode(int debug_mode);
   virtual int	  getDebugMode() const;
+          void  draw();
 
 };
 

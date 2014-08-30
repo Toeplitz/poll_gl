@@ -1,3 +1,4 @@
+#include "assets.h"
 #include "manipulator.h"
 #include "scene.h"
 #include "glcontext.h"
@@ -12,7 +13,6 @@
 Scene::Scene(): 
   root("Fragmic") 
 {
-  physics.init();
 }
 
 
@@ -74,7 +74,7 @@ Camera *Scene::camera_get()
 Node &Scene::load(GLcontext &glcontext, const std::string &prefix, const std::string &filename, const unsigned int options) 
 {
   Model model;
-  Node *root_ptr = model.load(assets, root, prefix, filename, options);
+  Node *root_ptr = model.load(*this, root, prefix, filename, options);
   node_state_recursive_update(*root_ptr);
 
   root_ptr->transform_update_global_recursive(root);

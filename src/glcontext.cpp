@@ -109,7 +109,8 @@ void GLcontext::draw_light_all_symbols(Scene &scene)
 
       shader.world_basic_color.use();
       Mesh *mesh_pyramid = light->mesh_symbol_get();
-      draw_mesh(*mesh_pyramid);
+      if (mesh_pyramid)
+        draw_mesh(*mesh_pyramid);
     }
 
   }
@@ -346,8 +347,10 @@ void GLcontext::framebuffer_draw_scene(Scene &scene)
   draw_light_all(scene);
   draw_light_all_symbols(scene);
 
+
   GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
   GL_ASSERT(glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_fb));
+  GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
   GL_ASSERT(glReadBuffer(GL_COLOR_ATTACHMENT2));
 
   {

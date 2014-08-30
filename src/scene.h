@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include "assets.h"
 #include "manipulator.h"
 #include "model.h"
 #include "node.h"
