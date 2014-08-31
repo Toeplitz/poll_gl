@@ -60,13 +60,13 @@ class Node: public Animated {
     Node_State          state;
     int                 tree_level = 0;
 
-    vec3           original_scaling;
-    vec3           original_position;
-    quat           original_rotation;
-    mat4           transform_global = mat4(1.f);
-    mat4           transform_local_current = mat4(1.f);
-    mat4           transform_local_original = mat4(1.f);
-    mat4           transform_model = mat4(1.f);
+    mat4 transform_position_current = mat4(1.f);
+    vec3 original_scaling = vec3(0, 0, 0);
+    vec3 original_position = vec3(0, 0, 0);
+    quat original_rotation = quat(0, 0, 0, 0);
+    mat4 transform_global = mat4(1.f);
+    mat4 transform_local_current = mat4(1.f);
+    mat4 transform_local_original = mat4(1.f);
 
   public:
 
@@ -106,21 +106,22 @@ class Node: public Animated {
     Mesh               *mesh_create(Scene &scene);
     Mesh               *mesh_get();
     void                mesh_set(Mesh *mesh);
-    void                rotate(const float angle, const vec3 &v);
-    void                scale(const vec3 &v);
+    mat4               &position_matrix_current_get();
+    void                rotate(Scene &scene, const float angle, const vec3 &v);
+    void                scale(Scene &scene, const vec3 &v);
     Node_State         &state_get();
     Text               *text_create(Font *font, Scene &scene);
     Text               *text_get();
     void                text_set(Text *text);
-    void                translate(const vec3 &v);
-    void                transform_local_current_set(const mat4 &transform);
-    void                transform_local_original_set(const mat4 &transform);
-    const mat4         &transform_global_get();
+    void                translate(Scene &scene, const vec3 &v);
+    mat4               &transform_global_get();
     void                transform_global_set(const mat4 &transform);
-    const mat4         &transform_local_current_get();
+    mat4               &transform_local_current_get();
+    void                transform_local_current_set(const mat4 &transform);
+    mat4               &transform_local_original_get();
+    void                transform_local_original_set(const mat4 &transform);
     mat4               &transform_model_get();
     void                transform_model_set(const mat4 &transform);
-    void                transform_update_global_recursive(Node &node);
     const int          &tree_level_get();
     void                tree_level_set(const unsigned int &tree_level);
 };

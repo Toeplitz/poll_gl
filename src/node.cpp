@@ -58,7 +58,7 @@ void Node::copy_transform_data(Node &node)
   original_rotation = node.original_rotation;
   original_scaling = node.original_scaling;
   original_position = node.original_position;
-  transform_update_global_recursive(*this);
+  //transform_update_global_recursive(*this);
 }
 
 
@@ -100,13 +100,12 @@ Light *Node::light_create(Scene &scene, const unsigned int lamp_type, const unsi
   mesh_set(mesh);
   light_set(light_ptr);
 
-
- // node_symbol_cone->physics_rigidbody_create(scene);
- // light_ptr->mesh_symbol_set(node_symbol_cone->mesh_get());
- //
- // FIXME: 
- // Create a child node which is the symbol such that when
- // the light is transformed all it's parents follow.
+  if (lamp_type == Light::POINT || lamp_type == Light::SPOT) {
+    Node *node_symbol_cone = stock_nodes.cone_get();
+    Node *node = scene.node_create("light_symbol", this);
+    node->mesh_set(node_symbol_cone->mesh_get());
+    node->physics_rigidbody_create(scene);
+  }
 
   assets.light_active_add(std::move(light));
 
@@ -188,7 +187,6 @@ Node *Node::parent_get()
 
 Physics_Rigidbody *Node::physics_rigidbody_create(Scene &scene)
 {
-  std::cout << name << std::endl;
   Assets &assets = scene.assets_get();
   std::unique_ptr<Physics_Rigidbody> rigidbody(new Physics_Rigidbody());
   Physics_Rigidbody *rigidbody_ptr = rigidbody.get();
@@ -294,17 +292,27 @@ void Node::mesh_set(Mesh *mesh)
 }
 
 
-void Node::rotate(const float angle, const vec3 &v)
+mat4 &Node::position_matrix_current_get()
 {
-  mat4 m = glm::rotate(transform_model_get(), angle, v);
-  transform_model_set(m);
+  mat4 &model = transform_model_get();
+  transform_position_current = glm::translate(mat4(1.f), vec3(model[3][0], model[3][1], model[3][2]));
+  return transform_position_current;
 }
 
 
-void Node::scale(const vec3 &v)
+void Node::rotate(Scene &scene, const float angle, const vec3 &v)
+{
+  mat4 m = glm::rotate(transform_model_get(), angle, v);
+  transform_model_set(m);
+  scene.transform_update_global_recursive(this);
+}
+
+
+void Node::scale(Scene &scene, const vec3 &v)
 {
   mat4 m = glm::scale(transform_model_get(), v);
   transform_model_set(m);
+  scene.transform_update_global_recursive(this);
 }
 
 
@@ -342,26 +350,15 @@ void Node::text_set(Text *text)
 }
 
 
-void Node::translate(const vec3 &v) 
+void Node::translate(Scene &scene, const vec3 &v) 
 {
   mat4 m = glm::translate(transform_model_get(), v);
   transform_model_set(m);
+  scene.transform_update_global_recursive(this);
 }
 
 
-void Node::transform_local_current_set(const mat4 &transform) 
-{
-  transform_local_current = transform;
-}
-
-
-void Node::transform_local_original_set(const mat4 &transform) 
-{
-  transform_local_original = transform;
-}
-
-
-const mat4 &Node::transform_global_get()
+mat4 &Node::transform_global_get()
 {
   return transform_global;
 }
@@ -373,39 +370,41 @@ void Node::transform_global_set(const mat4 &transform)
 }
 
 
-const mat4 &Node::transform_local_current_get()
+void Node::transform_local_current_set(const mat4 &transform) 
+{
+  this->transform_local_current = transform;
+}
+
+
+mat4 &Node::transform_local_current_get()
 {
   return transform_local_current;
 }
 
 
+void Node::transform_local_original_set(const mat4 &transform) 
+{
+  this->transform_local_original = transform;
+}
+
+
+mat4 &Node::transform_local_original_get()
+{
+  return transform_local_original;
+}
+
+
 mat4 &Node::transform_model_get()
 {
-  return transform_model; 
+  return transform_global_get();
+//  return transform_model; 
 }
 
 
 void Node::transform_model_set(const mat4 &transform)
 {
-  transform_model = transform;
-}
-
-
-
-void Node::transform_update_global_recursive(Node &node)
-{
-  mat4 transform = node.transform_local_current;
-  Node *parent = node.parent;
-
-  if (parent) {
-    node.transform_global = parent->transform_global * transform;
-  } else {
-    node.transform_global = transform;
-  }
-
-  for (auto &child : node.children) {
-    transform_update_global_recursive(*child);
-  }
+  transform_local_current_set(transform);
+//  transform_model = transform;
 }
 
 

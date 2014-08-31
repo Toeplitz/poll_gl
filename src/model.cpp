@@ -50,7 +50,7 @@ Node *Model::load(Scene &scene, Node &root, const std::string &prefix, const std
   }
 
   Node *rootPtr = node_map_create(scene, *assimp_scene->mRootNode, &root, root.tree_level_get());
-  rootPtr->transform_update_global_recursive(*rootPtr);
+//  rootPtr->transform_update_global_recursive(*rootPtr);
   BoneForAssimpBone boneForAssimpBone;
   bone_map_create(scene, boneForAssimpBone);
   materials_parse(scene);
@@ -511,8 +511,8 @@ void Model::mesh_create(Scene &scene, const aiNode &node, const BoneForAssimpBon
 
     if (!assimpMesh->mNumBones) {
       //      m.model = glm::rotate(mesh_node->transform_global, -90.f, glm::vec3(1.f, 0.f, 0.f));
-      glm::mat4 m = mesh_node->transform_global_get();
-      mesh_node->transform_model_set(m);
+ //     glm::mat4 m = mesh_node->transform_global_get();
+//      mesh_node->transform_model_set(m);
       //m.model = right_handed_to_left_handed(mesh_node->transform_global);
     }
 
@@ -555,12 +555,12 @@ void Model::mesh_create(Scene &scene, const aiNode &node, const BoneForAssimpBon
     //mesh_node->mesh_set(mesh_ptr.get());
     mesh_node->armature_set(armature_ptr);
     if (node.mNumMeshes > 1) {
-      mesh_node->copy_transform_data(*parent_node);
+//      mesh_node->copy_transform_data(*parent_node);
       //parent_node->child_add(std::move(sub_node), parent_node->tree_level_get() + 1);
     }
 
 
-    mesh_node->physics_rigidbody_create(scene);
+    //mesh_node->physics_rigidbody_create(scene);
     //assets.mesh_add(std::move(mesh_ptr));
     mesh_node = lookup_node(node_name, nodes);
   }

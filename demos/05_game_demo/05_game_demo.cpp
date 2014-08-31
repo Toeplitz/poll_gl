@@ -228,7 +228,7 @@ int main()
 
   /* Setup panda character */
   {
-    Node &panda_root = scene.load(glcontext, "data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
+    Node &panda_root = scene.load(glcontext, "data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_DEFAULT);
 
     /*
     Node &panda_collision_root = scene.load(glcontext, "data/game_assets/characters/panda/", 
@@ -274,23 +274,23 @@ int main()
       Node *node = scene.node_create("Light_Point");
       Light *light = node->light_create(scene, Light::POINT);
       light->properties_color_set(light_color[i]);
-      node->translate(light_positions[i]);
-      node->scale(glm::vec3(30, 30, 30));
+      node->translate(scene, light_positions[i]);
+      node->scale(scene, glm::vec3(30, 30, 30));
     }
 
     {
       Node *node = scene.node_create("Light_Directionl_Global");
       Light *light = node->light_create(scene, Light::DIRECTIONAL, Light::GLOBAL);
-      node->translate(glm::vec3(0, 40, 0));
+      node->translate(scene, glm::vec3(0, 40, 0));
       light->properties_direction_set(glm::vec3(0, -1, -1));
-      light->properties_color_set(glm::vec3(0.2, 0.2, 0.2));
+      light->properties_color_set(glm::vec3(0.5, 0.5, 0.5));
     }
 
     {
       Node *node = scene.node_create("Light_Spot");
       Light *light = node->light_create(scene, Light::SPOT);
-      node->translate(glm::vec3(-40, 20, 0));
-      node->scale(glm::vec3(30, 30, 30));
+      node->translate(scene, glm::vec3(-40, 20, 0));
+      node->scale(scene, glm::vec3(30, 30, 30));
       light->properties_color_set(glm::vec3(1, 0, 0));
     }
   }

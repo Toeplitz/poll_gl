@@ -13,6 +13,12 @@
 Scene::Scene(): 
   root("Fragmic") 
 {
+  glm::mat4 local_transform = mat4(1.f);
+//  local_transform[2][2] = -1.f;
+  std::cout << to_string(local_transform) << std::endl;
+  root.transform_local_current_set(local_transform);
+  root.transform_local_original_set(local_transform);
+  root.transform_global_set(local_transform);
 }
 
 
@@ -75,9 +81,9 @@ Node &Scene::load(GLcontext &glcontext, const std::string &prefix, const std::st
 {
   Model model;
   Node *root_ptr = model.load(*this, root, prefix, filename, options);
-  node_state_recursive_update(*root_ptr);
+  node_state_recursive_update(root);
 
-  root_ptr->transform_update_global_recursive(root);
+  transform_update_global_recursive(root_ptr);
   if (!(options & MODEL_IMPORT_NO_DRAW)) {
     node_recursive_init(glcontext, *root_ptr);
   }
@@ -149,6 +155,11 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
       node.light_get()->print(node.tree_level_get());
     }
   }
+
+  std::cout << std::endl;
+  std::cout << "global: " << to_string(node.transform_global_get()) << std::endl;
+  std::cout << "cur local: " << to_string(node.transform_local_current_get()) << std::endl;
+  std::cout << "orig local: " << to_string(node.transform_local_original_get()) << std::endl;
   std::cout << std::endl;
 
   for (auto &child : node.children_get()) {
@@ -178,6 +189,7 @@ Node *Scene::node_create(const std::string &name, Node *parent)
   else 
     parent->child_add(std::move(node), parent->tree_level_get() + 1);
 
+  transform_update_global_recursive(node_ptr);
   return node_ptr;
 }
 
@@ -192,6 +204,24 @@ Physics &Scene::physics_get()
 {
   return physics;
 }
+
+
+void Scene::transform_update_global_recursive(Node *node)
+{
+  mat4 transform = node->transform_local_current_get();
+  Node *parent = node->parent_get();
+
+  if (parent) {
+    node->transform_global_set(parent->transform_global_get() * transform);
+  } else {
+    node->transform_global_set(transform);
+  }
+
+  for (auto &child : node->children_get()) {
+    transform_update_global_recursive(child.get());
+  }
+}
+
 
 
 /**************************************************/

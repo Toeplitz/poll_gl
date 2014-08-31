@@ -87,8 +87,8 @@ void Ui::callback_light_create(const std::string &prim, const std::string &sec, 
   const glm::vec3 position = camera->position_get();
 
   Node *node = scene->node_create("light_added");
-  node->translate(position);
-  node->scale(glm::vec3(30, 30, 30));
+  node->translate(*scene, position);
+  node->scale(*scene, glm::vec3(30, 30, 30));
   Light *light = node->light_create(*scene, Light::POINT);
   light_active_set(light);
   callback_light_list(prim, sec, val);

@@ -20,7 +20,7 @@ Poll::Poll(const std::string &config_file)
     config.init(console, scene, glcontext, config_file);
 
   window.init(config, scene, "Poll");
-  window.swap_interval_set(0);
+  window.swap_interval_set(1);
   if (!glcontext.init(window.width_get(), window.height_get())) {
     exit(-1);
   }

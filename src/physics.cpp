@@ -191,11 +191,9 @@ int Physics::bullet_step(Scene &scene, const double dt)
   }
 
   shader.world_physics_debug.use();
-  /*
   debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(1, 0, 0), btVector3(1, 0, 0), btVector3(1, 0, 0));
   debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(0, 1, 0), btVector3(0, 1, 0), btVector3(0, 1, 0));
   debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(0, 0, 1), btVector3(0, 0, 1), btVector3(0, 0, 1));
-  */
   world->debugDrawWorld();
   debug_drawer.draw();
   /*

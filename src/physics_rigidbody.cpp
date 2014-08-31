@@ -2,6 +2,7 @@
 #include "node.h"
 #include "physics.h"
 #include "physics_rigidbody.h"
+#include <glm/gtx/string_cast.hpp>
 
 
 btRigidBody *Physics_Rigidbody::bt_rigidbody_get()
@@ -16,6 +17,9 @@ void Physics_Rigidbody::create(Node *node_ptr, const unsigned int shape)
     std::cout << "Error: no mesh, cannot create a rigidbody" << std::endl;
     return;
   }
+
+  std::cout << "Creating rigidbody for node_ptr: " << node_ptr->name_get() << std::endl;
+  std::cout << node_ptr->mesh_get()->num_vertices_get() << std::endl;
   this->node_ptr = node_ptr;
   glm::vec3 position = node_ptr->original_position_get();
   glm::vec3 scaling = node_ptr->original_scaling_get();
@@ -86,6 +90,8 @@ void Physics_Rigidbody::create(Node *node_ptr, const unsigned int shape)
   t.setRotation(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
   btTransform t2;
   t2.setFromOpenGLMatrix((btScalar *) &node_ptr->transform_model_get());
+
+  std::cout << to_string(node_ptr->transform_model_get()) << std::endl;
 
   bt_motion_state = std::unique_ptr<Physics_Motion_State>(new Physics_Motion_State(t2, *node_ptr));
 

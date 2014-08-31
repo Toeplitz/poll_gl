@@ -52,5 +52,6 @@ class Scene
     Node                 *node_find(Node *root_ptr, const std::string &name);
     Node                 &node_root_get();
     Physics              &physics_get();
+    void                 transform_update_global_recursive(Node *node);
 };
 
