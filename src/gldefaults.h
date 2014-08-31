@@ -30,10 +30,12 @@ const Uniform_Map::value_type uniform_buffer_map_def[] = {
 const Uniform_Map uniform_buffer_map(uniform_buffer_map_def, 
     uniform_buffer_map_def + sizeof uniform_buffer_map_def / sizeof uniform_buffer_map_def[0]);
 
+#define GL_ASSERT(x) x;
 
-#ifndef GL_ASSERT
+
+#ifndef GL_ASSERT2
     #ifndef NDEBUG 
-        #define GL_ASSERT(x)                                    \
+        #define GL_ASSERT2(x)                                    \
             do {                                                \
                 GLenum _glError;                                \
                 x;                                              \
@@ -45,7 +47,7 @@ const Uniform_Map uniform_buffer_map(uniform_buffer_map_def,
                 }                                               \
             } while(__LINE__ == -1)
     #else
-        #define GL_ASSERT(x) x;
+        #define GL_ASSERT2(x) x;
     #endif /* NDEBUG */
 #endif 
 
