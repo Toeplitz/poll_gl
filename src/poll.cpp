@@ -62,6 +62,7 @@ void Poll::run()
     }
 
     /* Update camera */
+
     Camera &camera = *scene.camera_get();
     camera.update();
     glcontext.uniform_buffers_update_camera(camera);
@@ -69,13 +70,14 @@ void Poll::run()
     /* Draw scene */
     glcontext.framebuffer_draw_scene(scene);
 
-    /* Step physics simulation */
-    physics.step(scene, dt);
 
     /* Draw console and ui */
     shader.text.use();
     console.draw();
     ui.draw(fps_text_get());
+
+    /* Step physics simulation */
+    physics.step(scene, dt);
 
     glcontext.check_error();
     window.swap();

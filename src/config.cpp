@@ -128,8 +128,8 @@ void Config::conf_global_set_all(bool console_add)
 {
   conf_global_init(conf_global.camera.fov, CONF_GLOBAL_CAMERA, CONF_GLOBAL_CAMERA_FOV, console_add);
   conf_global_init(conf_global.viewport.width, CONF_GLOBAL_VIEWPORT, CONF_GLOBAL_VIEWPORT_WIDTH, console_add);
-  conf_global_init(conf_global.viewport.width, CONF_GLOBAL_VIEWPORT, CONF_GLOBAL_VIEWPORT_SWAPINTERVAL, console_add);
   conf_global_init(conf_global.viewport.height, CONF_GLOBAL_VIEWPORT, CONF_GLOBAL_VIEWPORT_HEIGHT, console_add);
+  conf_global_init(conf_global.viewport.swap_interval, CONF_GLOBAL_VIEWPORT, CONF_GLOBAL_VIEWPORT_SWAPINTERVAL, console_add);
   conf_global_init(conf_global.ssao.sample_count, CONF_GLOBAL_SSAO, CONF_GLOBAL_SSAO_SAMPLECOUNT, console_add);
   conf_global_init(conf_global.ssao.distance_threshold, CONF_GLOBAL_SSAO, CONF_GLOBAL_SSAO_DISTANCETHRESHOLD, console_add);
   conf_global_init(conf_global.ssao.filter_radius, CONF_GLOBAL_SSAO, CONF_GLOBAL_SSAO_FILTERRADIUS, console_add);

@@ -12,7 +12,7 @@ class Physics_Debug_Drawer : public btIDebugDraw
   GLuint    gl_vao;
 	int       debug_mode;
   std::vector<glm::vec4> vertices;
-  std::vector<glm::vec4> colors;
+  std::vector<glm::vec3> colors;
 
 public:
 

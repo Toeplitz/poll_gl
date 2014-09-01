@@ -35,7 +35,6 @@ bool Window::init(Config &config, Scene &scene, const std::string &title)
   height = conf_global.viewport.height;
   this->scene = &scene;
 
-
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0) {
     POLL_ERROR(std::cerr, "Failed to initialize SDL: " << SDL_GetError());
     return false;

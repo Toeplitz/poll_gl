@@ -105,28 +105,11 @@ void GLcontext::draw_light_all_symbols(Scene &scene)
     Node *node = light->node_ptr_get();
 
     for (auto &child : node->children_get()) {
-    //  mat4 model_position = translate(mat4(1.f), child->position_current_get());
-//      std::cout << to_string(model_position) << std::endl;
       mat4 &model_position = child->position_matrix_current_get();
       uniform_buffers_update_matrices(model_position);
       Mesh *mesh = child->mesh_get();
       draw_mesh(*mesh);
     }
-    /*
-    mat4 &model = node->transform_model_get();
-    mat4 symbol_model = translate(mat4(1.f), vec3(model[3][0], model[3][1], model[3][2]));
-
-    uniform_buffers_update_matrices(symbol_model);
-
-    if (light->properties_get().type == Light::POINT ||
-        light->properties_get().type == Light::SPOT) {
-
-      shader.world_basic_color.use();
-      Mesh *mesh_pyramid = light->mesh_symbol_get();
-      if (mesh_pyramid)
-        draw_mesh(*mesh_pyramid);
-    }
-    */
 
   }
   GL_ASSERT(glDisable(GL_DEPTH_TEST));
@@ -283,7 +266,6 @@ void GLcontext::framebuffer_draw_scene(Scene &scene)
 
   GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
   GL_ASSERT(glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_fb));
-  GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
   GL_ASSERT(glReadBuffer(GL_COLOR_ATTACHMENT2));
 
   {
@@ -296,6 +278,7 @@ void GLcontext::framebuffer_draw_scene(Scene &scene)
     draw_mesh(*mesh);
   }
 
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 
