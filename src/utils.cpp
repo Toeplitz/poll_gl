@@ -3,6 +3,7 @@
 
 using std::ios;
 
+
 struct MatchPathSeparator
 {
   bool operator()( char ch ) const
@@ -11,6 +12,7 @@ struct MatchPathSeparator
   }
 };
 
+
 std::string basename(std::string const &pathname)
 {
   return std::string( 
@@ -18,6 +20,7 @@ std::string basename(std::string const &pathname)
         MatchPathSeparator() ).base(),
       pathname.end() );
 }
+
 
 void indent(std::ostream &os,size_t indent)
 {

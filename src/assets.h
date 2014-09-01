@@ -42,7 +42,7 @@ class Stock_Nodes
 
   public:
 
-    void init(GLcontext &glcontext, Scene &scene);
+    void init(Scene &scene);
     Node *cone_get();
     Mesh *disk_get();
     Mesh *diamond_get();
@@ -64,7 +64,7 @@ class Stock_Shaders
     GLshader world_stencil;
     GLshader world_physics_debug;
 
-    void init(Config &config, GLcontext &glcontext);
+    void init(Config &config, Scene &scene);
     void term();
 };
 
@@ -95,7 +95,7 @@ class Assets
     void                  armature_print_all() const;
     void                  camera_add(std::unique_ptr<Camera> &&camera);
     void                  camera_print_all(const Node &node) const;
-    void                  init(Config &config, GLcontext &glcontext, Scene &scene);
+    void                  init(Config &config, Scene &scene);
     void                  light_activate(Light *light);
     void                  light_active_add(std::unique_ptr<Light> &&light); 
     Light_List     const &light_active_get() const;
@@ -121,7 +121,7 @@ class Assets
     Stock_Shaders        &stock_shaders_get();
     void                  text_add(std::unique_ptr<Text> &&text);
     void                  text_print_all(const Node &node) const;
-    void                  term(GLcontext &glcontext);
+    void                  term(Scene &scene);
 
 };
 

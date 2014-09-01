@@ -9,7 +9,7 @@
 /**************************************************/
 
 
-const std::vector<glm::vec3> &Mesh::bone_weights_get() const
+const std::vector<vec3> &Mesh::bone_weights_get() const
 {
   return bone_weights;
 }
@@ -52,7 +52,7 @@ void Mesh::generate_cube(const float &size)
   };
 
   for (int i = 0; i < 8 * 3; i = i + 3) {
-    positions_add(glm::vec3(cube_vertices[i], 
+    positions_add(vec3(cube_vertices[i], 
           cube_vertices[i + 1], cube_vertices[i + 2]) * size);
   }
   for (int i = 0; i < 12 * 3; i++) {
@@ -63,18 +63,18 @@ void Mesh::generate_cube(const float &size)
 
 void Mesh::generate_pyramid(const float &size)
 {
-  positions_add(size * glm::vec3(0.0f, 1.f, 0.0f));
-  positions_add(size * glm::vec3(-1.0f, -1.0f, 1.0f));
-  positions_add(size * glm::vec3(1.0f, -1.0f, 1.0f));
-  positions_add(size * glm::vec3(0.0f, 1.0f, 0.0f));
-  positions_add(size * glm::vec3(-1.0f, -1.0f, 1.0f));
-  positions_add(size * glm::vec3(0.0f, -1.0f, -1.0f));
-  positions_add(size * glm::vec3(0.0f, 1.0f, 0.0f));
-  positions_add(size * glm::vec3(0.0f, -1.0f, -1.0f));
-  positions_add(size * glm::vec3(1.0f, -1.0f, 1.0f));
-  positions_add(size * glm::vec3(-1.0f, -1.0f, 1.0f));
-  positions_add(size * glm::vec3(0.0f, -1.0f, -1.0f));
-  positions_add(size * glm::vec3(1.0f, -1.0f, 1.0f));
+  positions_add(size * vec3(0.0f, 1.f, 0.0f));
+  positions_add(size * vec3(-1.0f, -1.0f, 1.0f));
+  positions_add(size * vec3(1.0f, -1.0f, 1.0f));
+  positions_add(size * vec3(0.0f, 1.0f, 0.0f));
+  positions_add(size * vec3(-1.0f, -1.0f, 1.0f));
+  positions_add(size * vec3(0.0f, -1.0f, -1.0f));
+  positions_add(size * vec3(0.0f, 1.0f, 0.0f));
+  positions_add(size * vec3(0.0f, -1.0f, -1.0f));
+  positions_add(size * vec3(1.0f, -1.0f, 1.0f));
+  positions_add(size * vec3(-1.0f, -1.0f, 1.0f));
+  positions_add(size * vec3(0.0f, -1.0f, -1.0f));
+  positions_add(size * vec3(1.0f, -1.0f, 1.0f));
 }
 
 void Mesh::generate_quad(const float &size)
@@ -90,7 +90,7 @@ void Mesh::generate_quad(const float &size)
   };
 
   for (int i = 0; i < n_vertices * 2; i = i + 2) {
-    positions_add(glm::vec3(quad_pos[i], quad_pos[i + 1], 0.0) * size);
+    positions_add(vec3(quad_pos[i], quad_pos[i + 1], 0.0) * size);
   }
 }
 
@@ -101,7 +101,7 @@ const std::vector<GLshort> &Mesh::indices_get() const
 }
 
 
-void Mesh::positions_add(const glm::vec3 &v)
+void Mesh::positions_add(const vec3 &v)
 {
   positions.push_back(v);
 }
@@ -113,17 +113,17 @@ void Mesh::positions_clear()
 }
 
 
-const std::vector<glm::vec3> &Mesh::positions_get() const
+const std::vector<vec3> &Mesh::positions_get() const
 {
   return positions;
 }
 
 
-void Mesh::positions_update(const glm::mat4 &model)
+void Mesh::positions_update(const mat4 &model)
 {
 
   for (size_t i = 0; i < positions.size(); i++) {
-    positions[i] = glm::vec3(model * glm::vec4(positions[i], 1.0));
+    positions[i] = vec3(model * vec4(positions[i], 1.0));
   }
 
 }
@@ -155,13 +155,13 @@ unsigned int Mesh::num_texture_st_get()
 }
 
 
-const std::vector<glm::vec3> &Mesh::bitangents_get() const
+const std::vector<vec3> &Mesh::bitangents_get() const
 {
   return bitangents;
 }
 
 
-const std::vector<glm::ivec3> &Mesh::bone_indices_get() const
+const std::vector<ivec3> &Mesh::bone_indices_get() const
 {
   return bone_indices;
 }
@@ -169,19 +169,19 @@ const std::vector<glm::ivec3> &Mesh::bone_indices_get() const
 
 
 
-const std::vector<glm::vec3> &Mesh::normals_get() const
+const std::vector<vec3> &Mesh::normals_get() const
 {
   return normals;
 }
 
 
-const std::vector<glm::vec3> &Mesh::tangents_get() const
+const std::vector<vec3> &Mesh::tangents_get() const
 {
   return tangents;
 }
 
 
-void Mesh::texture_st_add(const glm::vec2 &v)
+void Mesh::texture_st_add(const vec2 &v)
 {
   texture_st.push_back(v);
 }
@@ -193,7 +193,7 @@ void Mesh::texture_st_clear()
 }
 
 
-const std::vector<glm::vec2> &Mesh::texture_st_get() const
+const std::vector<vec2> &Mesh::texture_st_get() const
 {
   return texture_st;
 }

@@ -10,34 +10,22 @@
 
 Poll::Poll(const std::string &config_file)
 {
-  GLcontext &glcontext = window.glcontext_get();
+  GLcontext &glcontext = glcontext_get();
   Physics &physics = physics_get();
   Assets &assets = assets_get();
 
   if (config_file.empty()) 
-    config.init(console, scene, glcontext, GLOBAL_CONFIG);
+    config.init(console, scene, GLOBAL_CONFIG);
   else
-    config.init(console, scene, glcontext, config_file);
+    config.init(console, scene, config_file);
 
-  window.init(config, scene, "Poll");
-  window.swap_interval_set(1);
-  if (!glcontext.init(window.width_get(), window.height_get())) {
-    exit(-1);
-  }
-
-  physics.init();
-
-  assets.init(config, glcontext, scene);
-
-  Node *cam_node = scene.node_create("camera");
-  cam_node->camera_create(scene.assets_get());
-  cam_node->camera_get()->transform_perspective_create(window.width_get(), window.height_get());
-  scene.node_camera_set(cam_node);
-
-  glcontext.framebuffer_create(window.width_get(), window.height_get());
-
-  console.init(glcontext, scene, window);
+  window.init(config, scene, GLOBAL_TITLE);
+  glcontext.init(window);
+  scene.init(window);
+  assets.init(config, scene);
+  console.init(scene, window);
   ui.init(console, glcontext, scene);
+  physics.init();
 
   config.conf_global_apply(CONF_GLOBAL);
 }
@@ -50,7 +38,7 @@ Poll::Poll(const std::string &config_file)
 
 void Poll::run()
 {
-  GLcontext &glcontext = window.glcontext_get();
+  GLcontext &glcontext = glcontext_get();
   Assets &assets = assets_get();
   Physics &physics = physics_get();
   Stock_Shaders &shader = assets.stock_shaders_get();
@@ -59,10 +47,8 @@ void Poll::run()
     double dt = delta_time_get();
     profile_fps(dt);
 
-    if (!window.poll_events()) {
-      std::cout << "Poll exiting..." << std::endl;
+    if (!window.poll_events()) 
       return;
-    }
 
     /* Update animations */
     auto &animated_nodes = scene.animated_nodes_get();
@@ -101,11 +87,12 @@ void Poll::term()
 {
   Assets &assets = assets_get();
   GLcontext &glcontext = window.glcontext_get();
+  Physics &physics = physics_get();
 
   console.term();
-  scene.physics_get().term();
-  assets.term(glcontext);
-  glcontext.uniform_buffers_delete();
+  physics.term();
+  assets.term(scene);
+  glcontext.term();
   window.term();
 }
 

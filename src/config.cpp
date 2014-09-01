@@ -44,19 +44,26 @@ void Config::conf_global_apply(const std::string &prim)
     camera->fov_set(conf_global.camera.fov);
   }
 
+  if (!prim.compare(CONF_GLOBAL) || !prim.compare(CONF_GLOBAL_VIEWPORT))
+  {
+    Window &window = scene->window_get();
+    window.swap_interval_set(conf_global.viewport.swap_interval);
+  }
+
+
   if (prim.compare(CONF_GLOBAL) || prim.compare(CONF_GLOBAL_SSAO) 
       || prim.compare(CONF_GLOBAL_VIEWPORT))
   {
-    glcontext->uniform_buffers_update_config(*this);
+    GLcontext &glcontext = scene->glcontext_get();
+    glcontext.uniform_buffers_update_config(*this);
   }
 }
 
 
-void Config::init(Console &console, Scene &scene, GLcontext &glcontext, const std::string &global_file)
+void Config::init(Console &console, Scene &scene, const std::string &global_file)
 {
   this->console = &console;
   this->scene = &scene;
-  this->glcontext = &glcontext;
   this->global_file = global_file;
 
   if (!file_exists(global_file)) {
@@ -121,6 +128,7 @@ void Config::conf_global_set_all(bool console_add)
 {
   conf_global_init(conf_global.camera.fov, CONF_GLOBAL_CAMERA, CONF_GLOBAL_CAMERA_FOV, console_add);
   conf_global_init(conf_global.viewport.width, CONF_GLOBAL_VIEWPORT, CONF_GLOBAL_VIEWPORT_WIDTH, console_add);
+  conf_global_init(conf_global.viewport.width, CONF_GLOBAL_VIEWPORT, CONF_GLOBAL_VIEWPORT_SWAPINTERVAL, console_add);
   conf_global_init(conf_global.viewport.height, CONF_GLOBAL_VIEWPORT, CONF_GLOBAL_VIEWPORT_HEIGHT, console_add);
   conf_global_init(conf_global.ssao.sample_count, CONF_GLOBAL_SSAO, CONF_GLOBAL_SSAO_SAMPLECOUNT, console_add);
   conf_global_init(conf_global.ssao.distance_threshold, CONF_GLOBAL_SSAO, CONF_GLOBAL_SSAO_DISTANCETHRESHOLD, console_add);
@@ -164,7 +172,7 @@ void Config::conf_global_parse()
 void Config::write(Json::Value &conf)
 {
   if (global_file.empty()) {
-    std::cout << "Error: config needs to be initialized with a config file" << std::endl;
+    POLL_ERROR(std::cerr, "Config needs to be initialized with a config file!");
     return;
   }
 
@@ -182,6 +190,7 @@ void Config::write_defaults()
 
   add<int>(conf, CONF_GLOBAL, CONF_GLOBAL_VIEWPORT, CONF_GLOBAL_VIEWPORT_WIDTH, 1280);
   add<int>(conf, CONF_GLOBAL, CONF_GLOBAL_VIEWPORT, CONF_GLOBAL_VIEWPORT_HEIGHT, 720);
+  add<int>(conf, CONF_GLOBAL, CONF_GLOBAL_VIEWPORT, CONF_GLOBAL_VIEWPORT_SWAPINTERVAL, 1);
   add<float>(conf, CONF_GLOBAL, CONF_GLOBAL_CAMERA, CONF_GLOBAL_CAMERA_FOV, 45.0);
   add<int>(conf, CONF_GLOBAL, CONF_GLOBAL_SSAO, CONF_GLOBAL_SSAO_SAMPLECOUNT, 16);
   add<float>(conf, CONF_GLOBAL, CONF_GLOBAL_SSAO, CONF_GLOBAL_SSAO_DISTANCETHRESHOLD, 5.0);

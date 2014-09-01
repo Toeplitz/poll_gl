@@ -16,8 +16,9 @@
 /**************************************************/
 
 
-void Stock_Shaders::init(Config &config, GLcontext &glcontext)
+void Stock_Shaders::init(Config &config, Scene &scene)
 {
+  GLcontext &glcontext = scene.glcontext_get();
   glcontext.uniform_buffers_create(config);
 
   screen_light.load("screen_light.v", "screen_light.f");
@@ -73,8 +74,10 @@ void Stock_Shaders::term()
 /**************************************************/
 
 
- void Stock_Nodes::init(GLcontext &glcontext, Scene &scene)
+ void Stock_Nodes::init(Scene &scene)
 {
+  GLcontext &glcontext = scene.glcontext_get();
+
   {
     node_symbol_cone = &scene.load(glcontext, "data/", "cone.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
     node_symbol_cone->name_set("stock_cone");
@@ -191,10 +194,10 @@ void Assets::camera_print_all(const Node &node) const
 }
 
 
-void Assets::init(Config &config, GLcontext &glcontext, Scene &scene)
+void Assets::init(Config &config, Scene &scene)
 {
-  stock_nodes.init(glcontext, scene);
-  stock_shaders.init(config, glcontext);
+  stock_nodes.init(scene);
+  stock_shaders.init(config, scene);
 }
 
 
@@ -481,8 +484,10 @@ void Assets::text_print_all(const Node &node) const
 }
 
 
-void Assets::term(GLcontext &glcontext)
+void Assets::term(Scene &scene)
 {
+  GLcontext &glcontext = scene.glcontext_get();
+
   for (auto &mesh: mesh_get_all()) {
     glcontext.vertex_buffers_mesh_delete(mesh.get());
   }

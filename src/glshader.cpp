@@ -12,9 +12,9 @@ void GLshader::compile()
 {
   GLint link_ok = GL_FALSE;
 
-  if ((vs = create_shader(vertexShaderFile, GL_VERTEX_SHADER)) == 0)
+  if ((vs = create_shader(vertex_shader_file, GL_VERTEX_SHADER)) == 0)
     return;
-  if ((fs = create_shader(fragmentShaderFile, GL_FRAGMENT_SHADER)) == 0)
+  if ((fs = create_shader(fragment_shader_file, GL_FRAGMENT_SHADER)) == 0)
     return;
 
   program = glCreateProgram();
@@ -56,7 +56,7 @@ GLuint GLshader::create_shader(std::string filename, GLenum type)
 
   if (compile_ok == GL_FALSE) {
     print_source(source);
-    std::cout << "Fragmic ERROR: could not compile shader: " << filename << std::endl;
+    POLL_ERROR(std::cerr, "Fragmic ERROR: could not compile shader: " << filename);
     print_log(glshader);
     glDeleteShader(glshader);
     exit(-1);
@@ -96,7 +96,7 @@ std::string GLshader::parse_file(const std::string &file)
           file.compare(included_file)) {
         add_str = parse_file(included_file);
       } else {
-        std::cout << "Error: included GLSL file: '" << included_file << "' is not valid!" << std::endl;
+        POLL_ERROR(std::cerr, "Included GLSL file: '" << included_file << "' is not valid!");
       }
     } else {
       add_str = line + "\r\n";
@@ -119,7 +119,7 @@ void GLshader::print_log(GLuint object)
   else if (glIsProgram(object))
     glGetProgramiv(object, GL_INFO_LOG_LENGTH, &log_length);
   else {
-    fprintf(stderr, "printlog: Not a shader or a program\n");
+    POLL_ERROR(std::cerr, " Not a shader or a program\n");
     return;
   }
 
@@ -130,7 +130,7 @@ void GLshader::print_log(GLuint object)
   else if (glIsProgram(object))
     glGetProgramInfoLog(object, log_length, NULL, log);
 
-  fprintf(stderr, "%s", log);
+  std::cerr << log;
   free(log);
 }
 
@@ -174,8 +174,8 @@ void GLshader::version_add(std::string &parsed)
 
 void GLshader::load(const std::string &vertex, const std::string &fragment, const std::string &geometry)
 {
-  vertexShaderFile = vertex;
-  fragmentShaderFile = fragment;
+  vertex_shader_file = vertex;
+  fragment_shader_file = fragment;
 
   if (!file_exists(SHADER_PATH + vertex)) {
     std::cout << "GLSL (vertex shader) file '" << vertex << "' does not exist. Exiting ..." << std::endl;
@@ -290,6 +290,11 @@ void GLshader::print_block_names()
   }
 }
 
+
+GLuint &GLshader::program_get()
+{
+  return program;
+}
 
 void GLshader::term()
 {

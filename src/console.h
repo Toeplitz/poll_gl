@@ -2,7 +2,6 @@
 
 #include <map>
 #include <functional>
-#include "glcontext.h"
 #include "scene.h"
 #include "text.h"
 #include "window.h"
@@ -21,7 +20,6 @@ class Console
 {
   private:
     bool flag_toggle = false;
-    GLcontext *glcontext;
     Scene *scene;
     Font font;
     Node *node_text;
@@ -50,7 +48,7 @@ class Console
                      std::function<void (const std::string &, const std::string &, const std::string &)> cb);
     void  draw();
     Font *font_get();
-    void  init(GLcontext &glcontext, Scene &scene, Window &window);
+    void  init(Scene &scene, Window &window);
     void  keyboard_pressed_cb(SDL_Keysym *keysym);
     void  toggle();
     void  term();

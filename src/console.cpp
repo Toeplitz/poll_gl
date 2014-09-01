@@ -48,7 +48,7 @@ void Console::draw()
   if (!flag_toggle)
     return;
 
-  glcontext->draw_text(*node_text);
+  scene->glcontext_get().draw_text(*node_text);
 }
 
 
@@ -58,10 +58,9 @@ Font *Console::font_get()
 }
 
 
-void Console::init(GLcontext &glcontext, Scene &scene, Window &window)
+void Console::init(Scene &scene, Window &window)
 {
   this->scene = &scene;
-  this->glcontext = &glcontext;
 
   window.keyboard_pressed_callback_set(this, &Console::keyboard_pressed_cb);
 
@@ -71,7 +70,7 @@ void Console::init(GLcontext &glcontext, Scene &scene, Window &window)
   Text *text = node_text->text_create(&font, scene);
   text->string_set("default");
   text->bake(nullptr, node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
-  glcontext.vertex_buffers_mesh_create(node_text->mesh_get(), 1048 * sizeof(glm::vec3));
+  scene.glcontext_get().vertex_buffers_mesh_create(node_text->mesh_get(), 1048 * sizeof(glm::vec3));
 }
 
 
@@ -89,12 +88,12 @@ void Console::keyboard_pressed_cb(SDL_Keysym *keysym)
       break;
     case SDLK_SPACE:
       text->string_append(" ");
-      text->bake(glcontext, node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
+      text->bake(&scene->glcontext_get(), node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
       break;
     case SDLK_BACKSPACE:
       if (text->string_len() > 2) {
         text->string_erase_last();
-        text->bake(glcontext, node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
+        text->bake(&scene->glcontext_get(), node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
       }
       break;
     case SDLK_TAB:
@@ -113,7 +112,7 @@ void Console::keyboard_pressed_cb(SDL_Keysym *keysym)
         std::string key_input(SDL_GetKeyName(keysym->sym));
         std::transform(key_input.begin(), key_input.end(), key_input.begin(), ::tolower);
         text->string_append(key_input);
-        text->bake(glcontext, node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
+        text->bake(&scene->glcontext_get(), node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
       } 
       break;
   }
@@ -132,7 +131,7 @@ void Console::toggle()
     command_parse(cmd);
   } else {
     text->string_set(CONSOLE_PREFIX);
-    text->bake(glcontext, node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
+    text->bake(&scene->glcontext_get(), node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
   }
 
   flag_toggle = !flag_toggle;
@@ -202,7 +201,7 @@ void Console::command_history_show(const int loc)
 
   text = node_text->text_get();
   text->string_set(CONSOLE_PREFIX + history[loc]);
-  text->bake(glcontext, node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
+  text->bake(&scene->glcontext_get(), node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
 }
 
 
@@ -257,12 +256,12 @@ void Console::command_tab_complete(const std::string &cmd_full)
     case 2:
       match = command_tab_complete_find_prim_match(tokens[1]);
       text->string_set(CONSOLE_PREFIX + match + " ");
-      text->bake(glcontext, node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
+      text->bake(&scene->glcontext_get(), node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
       break;
     case 3:
       match = command_tab_complete_find_sec_match(tokens[1], tokens[2]);
       text->string_set(CONSOLE_PREFIX + tokens[1] + " " + match + " ");
-      text->bake(glcontext, node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
+      text->bake(&scene->glcontext_get(), node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
     default:
       break;
   }
@@ -291,14 +290,14 @@ void Console::font_create(const std::string &font_file)
   font.load(font_file);
   font.bake();
   Texture &texture = font.texture_get();
-  glcontext->texture_single_channel_create(texture);
+  scene->glcontext_get().texture_single_channel_create(texture);
 }
 
 
 
 void Console::font_delete()
 {
-  glcontext->texture_delete(font.texture_get());
+  scene->glcontext_get().texture_delete(font.texture_get());
 }
 
 

@@ -4,13 +4,13 @@
 #include <vector>
 #include <memory>
 #include "assets.h"
-#include "manipulator.h"
 #include "model.h"
 #include "node.h"
 #include "physics.h"
 
 
 class GLcontext;
+class Window;
 
 
 typedef std::vector<Node *> Node_Ptr_List;
@@ -28,6 +28,8 @@ class Scene
     Physics physics;
     Node root;
 
+    Window *window_ptr = nullptr;
+
     void  animated_nodes_add(Node &node);
     void  mesh_nodes_add(Node &node);
     Node *node_find_recursive(Node &node, const std::string &name);
@@ -41,6 +43,8 @@ class Scene
     void                  animated_nodes_update_transforms(Node &node, const double dt);
     Assets               &assets_get();
     Camera               *camera_get();
+    GLcontext            &glcontext_get();
+    void                  init(Window &window);
     Node                 &load(GLcontext &glcontext, const std::string &prefix, 
                                const std::string &filename, const unsigned int options);
     const Node_Ptr_List  &mesh_nodes_get() const;
@@ -53,5 +57,6 @@ class Scene
     Node                 &node_root_get();
     Physics              &physics_get();
     void                 transform_update_global_recursive(Node *node);
+    Window               &window_get();
 };
 

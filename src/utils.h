@@ -10,6 +10,15 @@
 #include <unistd.h>
 
 
+#define POLL_ERROR( os, msg ) \
+  (os) << "ERROR: [" << __FILE__ << ":" << __LINE__ << "] " \
+       << msg << std::endl
+
+#define POLL_WARN( os, msg ) \
+  (os) << "WARNING: [" << __FILE__ << ":" << __LINE__ << "] " \
+       << msg << std::endl
+
+
 extern std::string basename(std::string const &pathname);
 extern void        indent(std::ostream &os,size_t indent);
 bool               file_exists(const std::string &name);

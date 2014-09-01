@@ -19,6 +19,9 @@ using namespace glm;
 #include "text.h"
 
 
+class Window;
+
+
 class GLcontext {
   private:
     GLuint gl_buffer_armature;
@@ -36,7 +39,12 @@ class GLcontext {
     GLuint gl_fb_tex_final;
     GLuint gl_fb_vertex_buffers[1];
 
+    Window *window_ptr = nullptr;
+
     bool check_version(const int &major);
+    void framebuffer_check_status();
+    void framebuffer_create();
+    void framebuffer_delete();
     void texture_cubemap_create(Cubemap_Item &item);
     void texture_cubemap_delete(Cubemap &cubemap);
     void texture_create(Texture &texture, GLenum active_texture, GLint filter,
@@ -54,11 +62,9 @@ class GLcontext {
     void draw_node(Node &node);
     void draw_mesh(Mesh &mesh);
     void draw_text(Node &node);
-    bool init(const int width, const int height);
-    void framebuffer_check_status();
-    void framebuffer_create(const int width, const int height);
-    void framebuffer_delete();
+    void init(Window &window);
     void framebuffer_draw_scene(Scene &scene);
+    void term();
     void texture_delete(Texture &texture);
     void texture_single_channel_create(Texture &texture);
     void texture_materials_create(Material *material);

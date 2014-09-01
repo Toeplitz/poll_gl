@@ -19,7 +19,7 @@ class Window {
   private:
     unsigned int width;
     unsigned int height;
-    bool polygon_view_toggle;
+    bool polygon_view_toggle = false;
     SDL_Window *window;
     SDL_Joystick *gamepad;
     SDL_GLContext gl_sdl_context;
@@ -46,7 +46,6 @@ class Window {
   public:
 
     Window();
-    ~Window();
 
     bool  init(Config &config, Scene &scene, const std::string &title);
     float joystick_angle_get(float x, float y, float *radius);

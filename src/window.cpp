@@ -8,6 +8,7 @@
 #include <stdexcept>                    // for runtime_error
 #include "glcontext.h"                  
 #include "raycast.h"
+#include "utils.h"
 
 
 /**************************************************/
@@ -15,17 +16,10 @@
 /**************************************************/
 
 
-Window::Window(): 
-  polygon_view_toggle(false),
-  glcontext()
+Window::Window()
 {
   this->debug = 0;
   this->gamepad = nullptr;
-}
-
-
-Window::~Window()
-{
 }
 
 
@@ -43,7 +37,7 @@ bool Window::init(Config &config, Scene &scene, const std::string &title)
 
 
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0) {
-    std::cout << "Window error: failed to initialize SDL: " << SDL_GetError() << std::endl;
+    POLL_ERROR(std::cerr, "Failed to initialize SDL: " << SDL_GetError());
     return false;
   }
 
@@ -59,20 +53,16 @@ bool Window::init(Config &config, Scene &scene, const std::string &title)
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-  // May enable if performance allows
-  // SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-  // SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
-
   window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED,
       SDL_WINDOWPOS_CENTERED, width, height,
       SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
 
   if(SDL_NumJoysticks() < 1) {
-    std::cout << "Warning: No joysticks/gamepads connected!" << std::endl;
+    POLL_WARN(std::cerr, "No joysticks/gamepads connected!");
   } else {
     gamepad = SDL_JoystickOpen(0);
     if(gamepad == NULL) {
-      std::cout << "Warning: Unable to open game controller! SDL Error: " << SDL_GetError() << std::endl;
+      POLL_WARN(std::cerr, "Unable to open game controller! SDL Error: " << SDL_GetError());
     }
   }
 
@@ -80,9 +70,11 @@ bool Window::init(Config &config, Scene &scene, const std::string &title)
 
   const char *error = SDL_GetError();
   if (*error != '\0') {
-    std::cout << "GL CONTEXT SDL Error: " << error << std::endl;
+    POLL_WARN(std::cerr, "SDL message: " << error);
     SDL_ClearError();
   }
+  
+  swap_interval_set(config.conf_global_get().viewport.swap_interval);
 
   return true;
 }
@@ -202,7 +194,7 @@ void Window::check_error()
     }
   }
   catch(std::exception & e) {
-    std::cerr << e.what() << std::endl;
+    POLL_WARN(std::cerr, e.what());
   }
 }
 

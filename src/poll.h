@@ -12,6 +12,7 @@
 #include "window.h"                     
 
 
+#define GLOBAL_TITLE "Poll"
 #define GLOBAL_CONFIG "./poll.conf"
 
 

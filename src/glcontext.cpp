@@ -1,6 +1,8 @@
 #include "glcontext.h"
 #include "material.h"
 #include "node.h"
+#include "utils.h"
+#include "window.h"
 #include <glm/gtx/string_cast.hpp>
 
 
@@ -58,7 +60,7 @@ void GLcontext::draw_light_all(Scene &scene)
   for (auto &light: lights) {
     Node *node = light->node_ptr_get();
     if (!node) {
-      std::cout << "Error: missing node pointer for light" << std::endl;
+      POLL_ERROR(std::cerr, "Missing node pointer for light: " << light.get());
       continue;
     }
 
@@ -69,7 +71,7 @@ void GLcontext::draw_light_all(Scene &scene)
 
     Mesh *mesh = node->mesh_get();
     if (!mesh) {
-      std::cout << "Error: no mesh attached to the light" << std::endl;
+      POLL_ERROR(std::cerr, "No mesh attached to the light: " << node->name_get().c_str());
       continue;
     }
 
@@ -81,7 +83,7 @@ void GLcontext::draw_light_all(Scene &scene)
         draw_light_screen(mesh_screen_quad, shader.screen_light);
         break;
       default:
-        std::cout << "Error: illumination type not supported" << std::endl;
+        POLL_ERROR(std::cerr, "Illumination type not supported");
         break;
     }
 
@@ -181,7 +183,7 @@ void GLcontext::draw_node(Node &node)
   Mesh *mesh = node.mesh_get();
 
   if (!mesh) {
-    std::cout << "No mesh attached to node: '" << node.name_get() << std::endl;
+    POLL_ERROR(std::cerr, "No mesh attached to node: " <<  node.name_get().c_str());
     return;
   }
 
@@ -219,17 +221,17 @@ void GLcontext::draw_text(Node &node)
   Text *text = node.text_get();
 
   if (!text) {
-    std::cout << "Error: no text attached to node: '" << node.name_get() << "'" << std::endl;
+    POLL_ERROR(std::cerr, "No text attached to node: '" << node.name_get() << "'");
     return;
   }
   if (!mesh) {
-    std::cout << "Error: no mesh attached to node: '" << node.name_get() << "'" << std::endl;
+    POLL_ERROR(std::cerr, "No mesh attached to node: '" << node.name_get() << "'");
     return;
   }
 
   font = text->font_get();
   if (!font) {
-    std::cout << "Error: no font attached to text object" << std::endl;
+    POLL_ERROR(std::cerr, "No font attached to text object");
     return;
   }
 
@@ -245,109 +247,27 @@ void GLcontext::draw_text(Node &node)
 
 
 
-bool GLcontext::init(const int width, const int height)
+void GLcontext::init(Window &window)
 {
+  this->window_ptr = &window;
+
   glewExperimental= GL_TRUE;
   if (glewInit() != GLEW_OK) {
-    std::cout << "GLcontext ERROR: failed to initalize GLEW" << std::endl;
-    return false;
+    POLL_ERROR(std::cerr, "Failed to initalize GLEW, exiting ...");
+    exit(-1);
   }
   check_error();
   check_version(3);
 
-  GL_ASSERT(glViewport(0, 0, width, height));
+  GL_ASSERT(glViewport(0, 0, window.width_get(), window.height_get()));
   GL_ASSERT(glCullFace(GL_BACK));
   GL_ASSERT(glEnable(GL_CULL_FACE));
   GL_ASSERT(glEnable(GL_DEPTH_TEST));
 
-  return true;
+  framebuffer_create();
 }
 
 
-
-void GLcontext::framebuffer_check_status() 
-{
-  GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-  if (GL_FRAMEBUFFER_COMPLETE != status) {
-    fprintf (stderr, "ERROR: incomplete framebuffer\n");
-    if (GL_FRAMEBUFFER_UNDEFINED == status) {
-      fprintf (stderr, "GL_FRAMEBUFFER_UNDEFINED\n");
-    } else if (GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT == status) {
-      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT\n");
-    } else if (GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT == status) {
-      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT\n");
-    } else if (GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER == status) {
-      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER\n");
-    } else if (GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER== status) {
-      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER\n");
-    } else if (GL_FRAMEBUFFER_UNSUPPORTED == status) {
-      fprintf (stderr, "GL_FRAMEBUFFER_UNSUPPORTED\n");
-    } else if (GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE == status) {
-      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE\n");
-    } else if (GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS == status) {
-      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS\n");
-    } else {
-      fprintf (stderr, "unspecified error\n");
-    }
-    exit(-1);
-  }
-}
-
-
-void GLcontext::framebuffer_delete()
-{
-
-}
-
-
-void GLcontext::framebuffer_create(const int width, const int height)
-{
-  GL_ASSERT(glGenTextures(1, &gl_fb_tex_normal));
-  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_normal));
-  GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
-  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-
-  GL_ASSERT(glGenTextures(1, &gl_fb_tex_diffuse));
-  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_diffuse));
-  GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
-  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-
-  GL_ASSERT(glGenFramebuffers (1, &gl_fb));
-  GL_ASSERT(glBindFramebuffer(GL_FRAMEBUFFER, gl_fb));
-  GL_ASSERT(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl_fb_tex_normal, 0));
-  GL_ASSERT(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gl_fb_tex_diffuse, 0));
-  GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-  GL_ASSERT(glDrawBuffers(2, draw_bufs));
-
-  framebuffer_check_status();
-
-  GL_ASSERT(glGenTextures(1, &gl_fb_tex_depth));
-  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_depth));
-  GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
-  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-  GL_ASSERT(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, gl_fb_tex_depth, 0));
-
-  GL_ASSERT(glGenTextures(1, &gl_fb_tex_final));
-  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_final));
-  GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
-  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
- // GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
- // GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-  GL_ASSERT(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gl_fb_tex_final, 0));
-
-}
 
 
 void GLcontext::framebuffer_draw_scene(Scene &scene)
@@ -376,6 +296,12 @@ void GLcontext::framebuffer_draw_scene(Scene &scene)
     draw_mesh(*mesh);
   }
 
+}
+
+
+void GLcontext::term()
+{
+  uniform_buffers_delete();
 }
 
 
@@ -463,10 +389,9 @@ void GLcontext::uniform_buffers_block_bind(GLshader &shader)
   shader.use();
 
   for (auto &name : shader.block_names_get()) {
-    //   std::cout << name << " bind index: " << uniform_buffer_map.at(name) << std::endl;
     bind_index = uniform_buffer_map.at(name);
     block_index = shader.get_block_index(name);
-    GL_ASSERT(glUniformBlockBinding(shader.program, block_index, bind_index));
+    GL_ASSERT(glUniformBlockBinding(shader.program_get(), block_index, bind_index));
   }
 }
 
@@ -701,7 +626,7 @@ void GLcontext::uniform_buffers_update_state(Node &node)
 void GLcontext::uniform_locations_lighting_init(GLshader &shader)
 {
   GLint location;
-  GLuint program = shader.program;
+  GLuint program = shader.program_get();
 
   shader.use();
 
@@ -716,7 +641,7 @@ void GLcontext::uniform_locations_lighting_init(GLshader &shader)
 
 void GLcontext::uniform_locations_geometry_init(GLshader &shader)
 {
-  GLuint program = shader.program;
+  GLuint program = shader.program_get();
   GLint location;
 
   shader.use();
@@ -732,7 +657,7 @@ void GLcontext::uniform_locations_geometry_init(GLshader &shader)
 
 void GLcontext::uniform_locations_post_proc_init(GLshader &shader)
 {
-  GLuint program = shader.program;
+  GLuint program = shader.program_get();
   GLint location;
 
   shader.use();
@@ -745,7 +670,7 @@ void GLcontext::uniform_locations_post_proc_init(GLshader &shader)
 void GLcontext::uniform_locations_text_init(GLshader &shader)
 {
   GLint location;
-  GLuint program = shader.program;
+  GLuint program = shader.program_get();
 
   shader.use();
 
@@ -924,6 +849,95 @@ bool GLcontext::check_version(const int &major)
 
   return true;
 }
+
+
+void GLcontext::framebuffer_check_status() 
+{
+  GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+  if (GL_FRAMEBUFFER_COMPLETE != status) {
+    fprintf (stderr, "ERROR: incomplete framebuffer\n");
+    if (GL_FRAMEBUFFER_UNDEFINED == status) {
+      fprintf (stderr, "GL_FRAMEBUFFER_UNDEFINED\n");
+    } else if (GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT == status) {
+      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT\n");
+    } else if (GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT == status) {
+      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT\n");
+    } else if (GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER == status) {
+      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER\n");
+    } else if (GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER== status) {
+      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER\n");
+    } else if (GL_FRAMEBUFFER_UNSUPPORTED == status) {
+      fprintf (stderr, "GL_FRAMEBUFFER_UNSUPPORTED\n");
+    } else if (GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE == status) {
+      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE\n");
+    } else if (GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS == status) {
+      fprintf (stderr, "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS\n");
+    } else {
+      fprintf (stderr, "unspecified error\n");
+    }
+    exit(-1);
+  }
+}
+
+
+void GLcontext::framebuffer_delete()
+{
+
+}
+
+
+void GLcontext::framebuffer_create()
+{
+  auto width = window_ptr->width_get();
+  auto height = window_ptr->height_get();
+
+  GL_ASSERT(glGenTextures(1, &gl_fb_tex_normal));
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_normal));
+  GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+
+  GL_ASSERT(glGenTextures(1, &gl_fb_tex_diffuse));
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_diffuse));
+  GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+
+  GL_ASSERT(glGenFramebuffers (1, &gl_fb));
+  GL_ASSERT(glBindFramebuffer(GL_FRAMEBUFFER, gl_fb));
+  GL_ASSERT(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl_fb_tex_normal, 0));
+  GL_ASSERT(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gl_fb_tex_diffuse, 0));
+  GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+  GL_ASSERT(glDrawBuffers(2, draw_bufs));
+
+  framebuffer_check_status();
+
+  GL_ASSERT(glGenTextures(1, &gl_fb_tex_depth));
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_depth));
+  GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+  GL_ASSERT(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, gl_fb_tex_depth, 0));
+
+  GL_ASSERT(glGenTextures(1, &gl_fb_tex_final));
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_final));
+  GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+ // GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+ // GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+  GL_ASSERT(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gl_fb_tex_final, 0));
+
+}
+
 
 
 void GLcontext::texture_create(Texture &texture, GLenum active_texture, GLint filter,

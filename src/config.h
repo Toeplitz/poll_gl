@@ -14,6 +14,7 @@
 #define CONF_GLOBAL_VIEWPORT                   "viewport"
 #define CONF_GLOBAL_VIEWPORT_WIDTH             "width"
 #define CONF_GLOBAL_VIEWPORT_HEIGHT            "height"
+#define CONF_GLOBAL_VIEWPORT_SWAPINTERVAL      "swap_interval"
 #define CONF_GLOBAL_SSAO                       "ssao"
 #define CONF_GLOBAL_SSAO_SAMPLECOUNT           "sample_count"
 #define CONF_GLOBAL_SSAO_DISTANCETHRESHOLD     "distance_threshold"
@@ -22,7 +23,6 @@
 
 class Console;
 class Scene;
-class GLcontext;
 
 
 struct Conf_Global
@@ -34,6 +34,7 @@ struct Conf_Global
   struct Viewport {
     int height;
     int width;
+    int swap_interval;
   } viewport;
 
   struct Ssao {
@@ -61,7 +62,6 @@ class Config
     std::string global_file;
     Console *console;
     Scene *scene;
-    GLcontext *glcontext;
 
     Conf_Global conf_global;
     Json::Value conf_global_json;
@@ -81,7 +81,7 @@ class Config
 
   public:
 
-    void                init(Console &console, Scene &scene, GLcontext &glcontext, const std::string &global_file);
+    void                init(Console &console, Scene &scene, const std::string &global_file);
     void                conf_global_apply();
     void                conf_global_apply(const std::string &prim);
     const Conf_Global  &conf_global_get();

@@ -1,8 +1,8 @@
 #include "assets.h"
-#include "manipulator.h"
 #include "scene.h"
 #include "glcontext.h"
 #include "utils.h"
+#include "window.h"
 #include <glm/gtx/string_cast.hpp>
 
 
@@ -14,11 +14,10 @@ Scene::Scene():
   root("Fragmic") 
 {
   glm::mat4 local_transform = mat4(1.f);
-//  local_transform[2][2] = -1.f;
-  std::cout << to_string(local_transform) << std::endl;
   root.transform_local_current_set(local_transform);
   root.transform_local_original_set(local_transform);
   root.transform_global_set(local_transform);
+
 }
 
 
@@ -74,6 +73,24 @@ Camera *Scene::camera_get()
   }
 
   return node_cur_camera->camera_get();
+}
+
+
+GLcontext &Scene::glcontext_get()
+{
+  return window_ptr->glcontext_get();
+}
+
+
+void Scene::init(Window &window)
+{
+  this->window_ptr = &window;
+
+  Node *cam_node = node_create("camera");
+  cam_node->camera_create(assets_get());
+  cam_node->camera_get()->transform_perspective_create(window.width_get(), window.height_get());
+  node_camera_set(cam_node);
+
 }
 
 
@@ -223,6 +240,10 @@ void Scene::transform_update_global_recursive(Node *node)
 }
 
 
+Window &Scene::window_get()
+{
+  return *window_ptr;
+}
 
 /**************************************************/
 /***************** PRIVATE METHODS ****************/
