@@ -98,21 +98,21 @@ void GLcontext::draw_light_all_symbols(Scene &scene)
   Stock_Shaders &shader = assets.stock_shaders_get();
   auto &lights = assets.light_active_get();
 
-  GL_ASSERT(glEnable(GL_DEPTH_TEST));
+  //GL_ASSERT(glEnable(GL_DEPTH_TEST));
   shader.world_basic_color.use();
 
   for (auto &light: lights) {
     Node *node = light->node_ptr_get();
 
     for (auto &child : node->children_get()) {
-      mat4 &model_position = child->position_matrix_current_get();
+      mat4 &model_position = child->transform_model_position_get();
       uniform_buffers_update_matrices(model_position);
       Mesh *mesh = child->mesh_get();
       draw_mesh(*mesh);
     }
 
   }
-  GL_ASSERT(glDisable(GL_DEPTH_TEST));
+  //GL_ASSERT(glDisable(GL_DEPTH_TEST));
 }
 
 
@@ -263,6 +263,9 @@ void GLcontext::framebuffer_draw_scene(Scene &scene)
   draw_light_all(scene);
   draw_light_all_symbols(scene);
 
+
+    /* Step physics simulation */
+    scene.physics_get().step(scene, 1/60);
 
   GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
   GL_ASSERT(glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_fb));
@@ -507,17 +510,13 @@ void GLcontext::uniform_buffers_update_armature(const Armature &armature)
 }
 
 
-void GLcontext::uniform_buffers_update_camera(Camera &camera, bool unity)
+void GLcontext::uniform_buffers_update_camera(Camera &camera)
 {
   mat4 data[4];
   data[0] = camera.transform_perspective_get();
   data[1] = camera.transform_perspective_inverse_get();
   data[2] = camera.transform_view_get();
-
-  if (unity)
-    data[3] = glm::mat4(1.f);
-  else
-    data[3] = camera.transform_view_projection_get();
+  data[3] = camera.transform_view_projection_get();
 
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_globalmatrices));
   GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(data), &data));
@@ -800,8 +799,7 @@ void GLcontext::vertex_buffers_mesh_update(Mesh *mesh)
 void GLcontext::vertex_buffers_mesh_delete(Mesh *mesh)
 {
 
-  if (!mesh)
-    return;
+  if (!mesh) return;
 
   GL_ASSERT(glDeleteBuffers(8, mesh->gl_vertex_buffers));
   GL_ASSERT(glDeleteVertexArrays(1, &mesh->gl_vao));

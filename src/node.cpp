@@ -103,8 +103,10 @@ Light *Node::light_create(Scene &scene, const unsigned int lamp_type, const unsi
   if (lamp_type == Light::POINT || lamp_type == Light::SPOT) {
     Node *node_symbol_cone = stock_nodes.cone_get();
     Node *node = scene.node_create("light_symbol", this);
+    node->transform_inheritance_set(TRANSFORM_INHERIT_POSITION_ONLY);
     node->mesh_set(node_symbol_cone->mesh_get());
     node->physics_rigidbody_create(scene);
+    node->transform_model_set(scene, mat4(1.f));
   }
 
   assets.light_active_add(std::move(light));
@@ -199,7 +201,7 @@ Physics_Rigidbody *Node::physics_rigidbody_create(Scene &scene)
 }
 
 
-Physics_Rigidbody  *Node::physics_rigidbody_get()
+Physics_Rigidbody *Node::physics_rigidbody_get()
 {
   return rigidbody;
 }
@@ -292,27 +294,18 @@ void Node::mesh_set(Mesh *mesh)
 }
 
 
-mat4 &Node::position_matrix_current_get()
-{
-  mat4 &model = transform_model_get();
-  transform_position_current = glm::translate(mat4(1.f), vec3(model[3][0], model[3][1], model[3][2]));
-  return transform_position_current;
-}
-
-
 void Node::rotate(Scene &scene, const float angle, const vec3 &v)
 {
   mat4 m = glm::rotate(transform_model_get(), angle, v);
-  transform_model_set(m);
-  scene.transform_update_global_recursive(this);
+  transform_model_set(scene, m);
 }
 
 
 void Node::scale(Scene &scene, const vec3 &v)
 {
   mat4 m = glm::scale(transform_model_get(), v);
-  transform_model_set(m);
-  scene.transform_update_global_recursive(this);
+  transform_model_set(scene, m);
+
 }
 
 
@@ -353,9 +346,15 @@ void Node::text_set(Text *text)
 void Node::translate(Scene &scene, const vec3 &v) 
 {
   mat4 m = glm::translate(transform_model_get(), v);
-  transform_model_set(m);
-  scene.transform_update_global_recursive(this);
+  transform_model_set(scene, m);
 }
+
+
+void Node::transform_inheritance_set(Transform_Inheritance transform_inheritance)
+{
+  this->transform_inheritance = transform_inheritance;
+}
+
 
 
 mat4 &Node::transform_global_get()
@@ -366,7 +365,14 @@ mat4 &Node::transform_global_get()
 
 void Node::transform_global_set(const mat4 &transform)
 {
+  Physics_Rigidbody *rigidbody = physics_rigidbody_get();
+
   this->transform_global = transform;
+
+  if (rigidbody) {
+    POLL_DEBUG(std::cout, "setting motionstate for: " << this);
+    rigidbody->motionstate_transform_set(transform);
+  }
 }
 
 
@@ -397,14 +403,23 @@ mat4 &Node::transform_local_original_get()
 mat4 &Node::transform_model_get()
 {
   return transform_global_get();
-//  return transform_model; 
 }
 
 
-void Node::transform_model_set(const mat4 &transform)
+mat4 &Node::transform_model_position_get()
+{
+  mat4 &model = transform_model_get();
+  transform_position_current = glm::translate(mat4(1.f), vec3(model[3][0], model[3][1], model[3][2]));
+  return transform_position_current;
+}
+
+
+
+
+void Node::transform_model_set(Scene &scene, const mat4 &transform)
 {
   transform_local_current_set(transform);
-//  transform_model = transform;
+  scene.transform_update_global_recursive(this);
 }
 
 

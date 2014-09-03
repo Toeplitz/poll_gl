@@ -9,6 +9,9 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#define POLL_DEBUG( os, msg ) \
+  (os) << "DEBUG: [" << __FILE__ << ":" << __LINE__ << "] " \
+       << msg << std::endl
 
 #define POLL_ERROR( os, msg ) \
   (os) << "ERROR: [" << __FILE__ << ":" << __LINE__ << "] " \

@@ -19,6 +19,7 @@ class Physics_Rigidbody
   private:
     std::unique_ptr<btCollisionShape> bt_collision_shape;
     std::unique_ptr<btRigidBody> bt_rigidbody;
+    std::unique_ptr<btTriangleMesh> bt_triangle_mesh;
     float mass = 0;
 
     Node *node_ptr = nullptr;
@@ -39,6 +40,7 @@ class Physics_Rigidbody
     void         mass_set(const float mass);
     Node        *node_ptr_get();
     void         node_ptr_set(Node *node_ptr);
+    void         motionstate_transform_set(const mat4 &transform);
 
 };
 

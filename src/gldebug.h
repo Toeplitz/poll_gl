@@ -1,5 +1,11 @@
 #pragma once
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+using namespace glm;
+
 #include <LinearMath/btIDebugDraw.h>
 #include "gldefaults.h"
 #include <vector>
@@ -11,8 +17,8 @@ class Physics_Debug_Drawer : public btIDebugDraw
   GLuint    gl_color_buffer;
   GLuint    gl_vao;
 	int       debug_mode;
-  std::vector<glm::vec4> vertices;
-  std::vector<glm::vec3> colors;
+  std::vector<vec3> vertices;
+  std::vector<vec3> colors;
 
 public:
 

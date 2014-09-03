@@ -39,6 +39,12 @@ struct Node_State
 };
 
 
+enum Transform_Inheritance {
+  TRANSFORM_INHERIT_ALL,
+  TRANSFORM_INHERIT_POSITION_ONLY
+};
+
+
 typedef std::vector<std::unique_ptr<Node>> Node_List;
 
 
@@ -67,6 +73,8 @@ class Node: public Animated {
     mat4 transform_global = mat4(1.f);
     mat4 transform_local_current = mat4(1.f);
     mat4 transform_local_original = mat4(1.f);
+
+    Transform_Inheritance transform_inheritance = TRANSFORM_INHERIT_ALL;
 
   public:
 
@@ -114,6 +122,7 @@ class Node: public Animated {
     Text               *text_get();
     void                text_set(Text *text);
     void                translate(Scene &scene, const vec3 &v);
+    void                transform_inheritance_set(Transform_Inheritance transform_inheritance);
     mat4               &transform_global_get();
     void                transform_global_set(const mat4 &transform);
     mat4               &transform_local_current_get();
@@ -121,7 +130,8 @@ class Node: public Animated {
     mat4               &transform_local_original_get();
     void                transform_local_original_set(const mat4 &transform);
     mat4               &transform_model_get();
-    void                transform_model_set(const mat4 &transform);
+    mat4               &transform_model_position_get();
+    void                transform_model_set(Scene &scene, const mat4 &transform);
     const int          &tree_level_get();
     void                tree_level_set(const unsigned int &tree_level);
 };

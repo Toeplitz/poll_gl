@@ -1,5 +1,6 @@
 #include "glcontext.h"
 #include "gldebug.h"
+#include <glm/gtx/string_cast.hpp>
 
 
 
@@ -17,9 +18,9 @@ void Physics_Debug_Drawer::init()
 {
   GLenum target;
   GLint index;
-  std::vector<glm::vec4> vertices;
-  std::vector<glm::vec4> colors;
-  size_t max_size = 9904800;
+  std::vector<vec3> vertices;
+  std::vector<vec3> colors;
+  size_t max_size = 900000;
 
   target = GL_ARRAY_BUFFER;
 
@@ -31,7 +32,7 @@ void Physics_Debug_Drawer::init()
   glBindBuffer(target, gl_vertex_buffer);
   glBufferData(target, max_size, vertices.data(), GL_STATIC_DRAW);
   glEnableVertexAttribArray(index);
-  glVertexAttribPointer(index, 4, GL_FLOAT, GL_FALSE, 0, 0);
+  glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
   index = 1;
   glGenBuffers(1, &gl_color_buffer);
@@ -54,6 +55,8 @@ void Physics_Debug_Drawer::draw()
 {
   GLenum target;
 
+  GL_ASSERT(glBindVertexArray(gl_vao));
+
   target = GL_ARRAY_BUFFER;
   {
     size_t size = vertices.size() * sizeof(vertices[0]);
@@ -67,8 +70,8 @@ void Physics_Debug_Drawer::draw()
     GL_ASSERT(glBufferSubData(target, 0, size, colors.data()));
   }
 
+
  // GL_ASSERT(glEnable(GL_DEPTH_TEST));
-  GL_ASSERT(glBindVertexArray(gl_vao));
   GL_ASSERT(glLineWidth(3));
   GL_ASSERT(glDrawArrays(GL_LINES, 0, vertices.size()););
   GL_ASSERT(glLineWidth(1));
@@ -81,13 +84,14 @@ void Physics_Debug_Drawer::draw()
 
 void Physics_Debug_Drawer::drawLine(const btVector3 &from,const btVector3 &to, const btVector3 &fromColor, const btVector3 &toColor)
 {
-  glm::vec4 start(from.getX(), from.getY(), from.getZ(), 1.0);
-  glm::vec4 end(to.getX(), to.getY(), to.getZ(), 1.0);
+  vec3 start(from.getX(), from.getY(), from.getZ());
+  vec3 end(to.getX(), to.getY(), to.getZ());
+
   vertices.push_back(start);
   vertices.push_back(end);
 
-  glm::vec3 start_color(fromColor.getX(), fromColor.getY(), fromColor.getZ());
-  glm::vec3 end_color(toColor.getX(), toColor.getY(), toColor.getZ());
+  vec3 start_color(fromColor.getX(), fromColor.getY(), fromColor.getZ());
+  vec3 end_color(toColor.getX(), toColor.getY(), toColor.getZ());
   colors.push_back(start_color);
   colors.push_back(end_color);
 }

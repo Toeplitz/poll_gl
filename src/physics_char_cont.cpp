@@ -32,7 +32,7 @@ void Physics_Character_Controller::bullet_character_step(const double dt)
     return;
   
   ghost->getWorldTransform().getOpenGLMatrix((btScalar *) &m);
-  node->transform_model_set(m);
+ // node->transform_model_set(m);
 
   btScalar walkVelocity = 15.0;
   btScalar walkSpeed = walkVelocity * dt;
@@ -40,18 +40,18 @@ void Physics_Character_Controller::bullet_character_step(const double dt)
 
   if (direction & PHYSICS_DIRECTION_LEFT) {
     glm::mat4 model = glm::rotate(node->transform_model_get(), rotation_speed, glm::vec3(0, 1, 0));
-    node->transform_model_set(model);
+  //  node->transform_model_set(model);
     rotation_angle += rotation_speed;
   }
   if (direction & PHYSICS_DIRECTION_RIGHT) {
     glm::mat4 model = glm::rotate(node->transform_model_get(), -rotation_speed, glm::vec3(0, 1, 0));
-    node->transform_model_set(model);
+   // node->transform_model_set(model);
     rotation_angle -= rotation_speed;
   }
 
   if (direction & PHYSICS_DIRECTION_ROTATE) {
     glm::mat4 model = glm::rotate(node->transform_model_get(), -rotation_angle + angle_joystick, glm::vec3(0, 1, 0));
-    node->transform_model_set(model);
+  //  node->transform_model_set(model);
     rotation_angle = angle_joystick;
   }
 

@@ -191,10 +191,12 @@ int Physics::bullet_step(Scene &scene, const double dt)
   }
 
   shader.world_physics_debug.use();
+  world->debugDrawWorld();
+
   debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(1, 0, 0), btVector3(1, 0, 0), btVector3(1, 0, 0));
   debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(0, 1, 0), btVector3(0, 1, 0), btVector3(0, 1, 0));
   debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(0, 0, 1), btVector3(0, 0, 1), btVector3(0, 0, 1));
-  world->debugDrawWorld();
+  
   debug_drawer.draw();
   /*
   for (auto &character : characters) {
@@ -230,28 +232,36 @@ Physics_Motion_State::Physics_Motion_State(const btTransform &start_position, No
 
 void Physics_Motion_State::node_set(Node &node)
 {
-  glm::mat4 scale_matrix = glm::scale(glm::mat4(1.f), node.original_scaling_get());
-  glm::mat4 model_no_scaling = node.transform_model_get() * glm::inverse(scale_matrix);
+  //glm::mat4 scale_matrix = glm::scale(glm::mat4(1.f), node.original_scaling_get());
+  //glm::mat4 model_no_scaling = node.transform_model_get() * glm::inverse(scale_matrix);
+  glm::mat4 model_no_scaling = node.transform_model_get();
   this->transform.setFromOpenGLMatrix((btScalar *) &model_no_scaling);
   this->node = &node;
 }
 
 
-
-void Physics_Motion_State::getWorldTransform(btTransform &t) const
-{
-  t = transform;
-}
-
-
 void Physics_Motion_State::setWorldTransform(const btTransform &t)
 {
+  std::cout << "setWorldTransform" << std::endl;
   if (!node) return;
 
   glm::mat4 m;
 
-  t.getOpenGLMatrix((btScalar *) &m);
-  glm::mat4 model = m * glm::scale(glm::mat4(1.f), node->original_scaling_get());
-  node->transform_model_set(model);
+  //t.getOpenGLMatrix((btScalar *) &m);
+  //glm::mat4 model = m * glm::scale(glm::mat4(1.f), node->original_scaling_get());
+  //node->transform_local_current_set(m);
+}
+
+
+void Physics_Motion_State::transform_set(const glm::mat4 &model)
+{
+  transform.setFromOpenGLMatrix((btScalar *) &model);
+  POLL_DEBUG(std::cout, to_string(model));;
+}
+
+
+void Physics_Motion_State::getWorldTransform(btTransform &t) const
+{
+  t = transform;
 }
 
