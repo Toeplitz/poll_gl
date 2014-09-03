@@ -64,7 +64,7 @@ void GLcontext::draw_light_all(Scene &scene)
       continue;
     }
 
-    mat4 &model = node->transform_model_get();
+    mat4 &model = node->transform_global_get();
     light->properties_position_set(vec3(model[3][0], model[3][1], model[3][2]));
     uniform_buffers_update_matrices(*node);
     uniform_buffers_update_light(*light);
@@ -98,21 +98,21 @@ void GLcontext::draw_light_all_symbols(Scene &scene)
   Stock_Shaders &shader = assets.stock_shaders_get();
   auto &lights = assets.light_active_get();
 
-  //GL_ASSERT(glEnable(GL_DEPTH_TEST));
+  GL_ASSERT(glEnable(GL_DEPTH_TEST));
   shader.world_basic_color.use();
 
   for (auto &light: lights) {
     Node *node = light->node_ptr_get();
 
     for (auto &child : node->children_get()) {
-      mat4 &model_position = child->transform_model_position_get();
+      mat4 &model_position = child->transform_global_position_get();
       uniform_buffers_update_matrices(model_position);
       Mesh *mesh = child->mesh_get();
       draw_mesh(*mesh);
     }
 
   }
-  //GL_ASSERT(glDisable(GL_DEPTH_TEST));
+  GL_ASSERT(glDisable(GL_DEPTH_TEST));
 }
 
 
@@ -584,7 +584,7 @@ void GLcontext::uniform_buffers_update_material(const Material &material)
 void GLcontext::uniform_buffers_update_matrices(Node &node)
 {
   mat4 m;
-  m = node.transform_model_get();
+  m = node.transform_global_get();
   uniform_buffers_update_matrices(m);
 }
 

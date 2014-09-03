@@ -71,11 +71,11 @@ void Physics_Debug_Drawer::draw()
   }
 
 
- // GL_ASSERT(glEnable(GL_DEPTH_TEST));
+  GL_ASSERT(glEnable(GL_DEPTH_TEST));
   GL_ASSERT(glLineWidth(3));
   GL_ASSERT(glDrawArrays(GL_LINES, 0, vertices.size()););
   GL_ASSERT(glLineWidth(1));
- // GL_ASSERT(glDisable(GL_DEPTH_TEST));
+  GL_ASSERT(glDisable(GL_DEPTH_TEST));
 
   vertices.clear();
   colors.clear();

@@ -13,10 +13,9 @@
 Scene::Scene(): 
   root("Fragmic") 
 {
-  glm::mat4 local_transform = mat4(1.f);
-  root.transform_local_current_set(local_transform);
-  root.transform_local_original_set(local_transform);
-  root.transform_global_set(local_transform);
+  root.transform_global_set(mat4(1));
+  root.transform_local_current_set_only(mat4(1));
+  root.transform_local_original_set(mat4(1));
 
 }
 
@@ -46,11 +45,13 @@ void Scene::animated_nodes_update_transforms(Node &node, const double dt)
   if (node.keyframe_total_num_get()) {
     double factor = node.step_time(dt);
     glm::mat4 m = node.keyframe_interpolate(factor);
-    node.transform_local_current_set(m);
+    node.transform_local_current_set_only(m);
   }
 
   if (parent) {
-    node.transform_global_set(parent->transform_global_get() * transform);
+    mat4 global_transform;
+    global_transform = parent->transform_global_get();
+    node.transform_global_set(global_transform * transform);
   } else {
     node.transform_global_set(transform);
   }
@@ -113,7 +114,6 @@ const std::vector<Node *> &Scene::mesh_nodes_get() const
 {
   return mesh_nodes;
 }
-
 
 
 Node *Scene::node_find(Node *root_ptr, const std::string &name)
@@ -229,7 +229,17 @@ void Scene::transform_update_global_recursive(Node *node)
   Node *parent = node->parent_get();
 
   if (parent) {
-    node->transform_global_set(parent->transform_global_get() * transform);
+    mat4 global_transform;
+
+    //std::cout << node.transform_inheritance_get() << std::endl;
+
+    if (node->transform_inheritance_get() == TRANSFORM_INHERIT_POSITION_ONLY) {
+      global_transform = parent->transform_global_position_get();
+    } else {
+      global_transform = parent->transform_global_get();
+    }
+
+    node->transform_global_set(global_transform * transform);
   } else {
     node->transform_global_set(transform);
   }
@@ -244,6 +254,7 @@ Window &Scene::window_get()
 {
   return *window_ptr;
 }
+
 
 /**************************************************/
 /***************** PRIVATE METHODS ****************/

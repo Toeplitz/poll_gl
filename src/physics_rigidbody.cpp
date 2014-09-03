@@ -97,7 +97,7 @@ void Physics_Rigidbody::create(Node *node_ptr, const unsigned int shape)
   t.setOrigin(btVector3(position.x, position.y, position.z));
   t.setRotation(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
   btTransform t2;
-  t2.setFromOpenGLMatrix((btScalar *) &node_ptr->transform_model_get());
+  t2.setFromOpenGLMatrix((btScalar *) &node_ptr->transform_global_get());
 
  // std::cout << to_string(node_ptr->transform_model_get()) << std::endl;
 

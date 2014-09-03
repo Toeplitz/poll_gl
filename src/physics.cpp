@@ -234,8 +234,8 @@ void Physics_Motion_State::node_set(Node &node)
 {
   //glm::mat4 scale_matrix = glm::scale(glm::mat4(1.f), node.original_scaling_get());
   //glm::mat4 model_no_scaling = node.transform_model_get() * glm::inverse(scale_matrix);
-  glm::mat4 model_no_scaling = node.transform_model_get();
-  this->transform.setFromOpenGLMatrix((btScalar *) &model_no_scaling);
+  glm::mat4 model = node.transform_global_get();
+  this->transform.setFromOpenGLMatrix((btScalar *) &model);
   this->node = &node;
 }
 
@@ -256,7 +256,6 @@ void Physics_Motion_State::setWorldTransform(const btTransform &t)
 void Physics_Motion_State::transform_set(const glm::mat4 &model)
 {
   transform.setFromOpenGLMatrix((btScalar *) &model);
-  POLL_DEBUG(std::cout, to_string(model));;
 }
 
 

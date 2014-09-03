@@ -39,22 +39,23 @@ void Physics_Character_Controller::bullet_character_step(const double dt)
   float rotation_speed = 3.f * (float) dt;
 
   if (direction & PHYSICS_DIRECTION_LEFT) {
-    glm::mat4 model = glm::rotate(node->transform_model_get(), rotation_speed, glm::vec3(0, 1, 0));
+  //  glm::mat4 model = glm::rotate(node->transform_model_get(), rotation_speed, glm::vec3(0, 1, 0));
   //  node->transform_model_set(model);
     rotation_angle += rotation_speed;
   }
   if (direction & PHYSICS_DIRECTION_RIGHT) {
-    glm::mat4 model = glm::rotate(node->transform_model_get(), -rotation_speed, glm::vec3(0, 1, 0));
+  //  glm::mat4 model = glm::rotate(node->transform_model_get(), -rotation_speed, glm::vec3(0, 1, 0));
    // node->transform_model_set(model);
     rotation_angle -= rotation_speed;
   }
 
   if (direction & PHYSICS_DIRECTION_ROTATE) {
-    glm::mat4 model = glm::rotate(node->transform_model_get(), -rotation_angle + angle_joystick, glm::vec3(0, 1, 0));
+  //  glm::mat4 model = glm::rotate(node->transform_model_get(), -rotation_angle + angle_joystick, glm::vec3(0, 1, 0));
   //  node->transform_model_set(model);
     rotation_angle = angle_joystick;
   }
 
+  /*
   glm::mat4 model = node->transform_model_get();
   glm::vec3 forward = glm::vec3(model[2]);
   glm::vec3 strafe = glm::vec3(model[0]);
@@ -77,6 +78,7 @@ void Physics_Character_Controller::bullet_character_step(const double dt)
   btVector3 walkDirection(v.x, v.y, v.z);
   setWalkDirection(walkDirection * walkSpeed);
   ghost->getWorldTransform().setFromOpenGLMatrix((btScalar *) &node->transform_model_get());
+  */
 }
 
 

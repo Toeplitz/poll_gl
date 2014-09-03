@@ -39,9 +39,9 @@ struct Node_State
 };
 
 
-enum Transform_Inheritance {
-  TRANSFORM_INHERIT_ALL,
-  TRANSFORM_INHERIT_POSITION_ONLY
+enum Transform_Inherit {
+  TRANSFORM_INHERIT_ALL = 0,
+  TRANSFORM_INHERIT_POSITION_ONLY = 1
 };
 
 
@@ -74,7 +74,7 @@ class Node: public Animated {
     mat4 transform_local_current = mat4(1.f);
     mat4 transform_local_original = mat4(1.f);
 
-    Transform_Inheritance transform_inheritance = TRANSFORM_INHERIT_ALL;
+    Transform_Inherit transform_inheritance = TRANSFORM_INHERIT_ALL;
 
   public:
 
@@ -122,16 +122,16 @@ class Node: public Animated {
     Text               *text_get();
     void                text_set(Text *text);
     void                translate(Scene &scene, const vec3 &v);
-    void                transform_inheritance_set(Transform_Inheritance transform_inheritance);
+    Transform_Inherit   transform_inheritance_get();
+    void                transform_inheritance_set(Transform_Inherit transform_inheritance);
     mat4               &transform_global_get();
+    mat4               &transform_global_position_get();
     void                transform_global_set(const mat4 &transform);
     mat4               &transform_local_current_get();
-    void                transform_local_current_set(const mat4 &transform);
+    void                transform_local_current_set(Scene &scene, const mat4 &transform);
+    void                transform_local_current_set_only(const mat4 &transform);
     mat4               &transform_local_original_get();
     void                transform_local_original_set(const mat4 &transform);
-    mat4               &transform_model_get();
-    mat4               &transform_model_position_get();
-    void                transform_model_set(Scene &scene, const mat4 &transform);
     const int          &tree_level_get();
     void                tree_level_set(const unsigned int &tree_level);
 };

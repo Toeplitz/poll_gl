@@ -285,7 +285,7 @@ Node *Model::node_map_create(Scene &scene, const aiNode &node, Node *parent, int
     node_internal->original_rotation_set(rotation_quat);
     ai_mat_copy(&node.mTransformation, localTransform);
     node_internal->transform_local_original_set(localTransform);
-    node_internal->transform_local_current_set(localTransform);
+    node_internal->transform_local_current_set(scene, localTransform);
   }
 
   nodes[key] = node_internal;
@@ -503,7 +503,7 @@ void Model::mesh_create(Scene &scene, const aiNode &node, const BoneForAssimpBon
       // We can set mesh.skeletonNode to mesh.node and mesh.skeletonTransform
       // to identity if the mesh has no bones.
       glm::mat4 m = bone->skinning_matrix_update();
-      mesh_node->transform_model_set(scene, m);
+      sub_node->transform_local_current_set(scene, m);
 
 
       //m.model = bone->joint_node->transform_global * bone->offset_matrix;
