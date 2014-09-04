@@ -195,9 +195,11 @@ void Model::bone_map_create(Scene &scene, BoneForAssimpBone & boneForAssimpBone)
     return;
   }
 
-  Node *armatureRoot = armature->find_toplevel_node();
-  if (armatureRoot) {
-    armatureRoot->armature_set(armature.get());
+  Node *armature_root = armature->find_toplevel_node();
+  POLL_DEBUG(std::cout, "armature top level node: " << armature_root->name_get());
+  if (armature_root) {
+    armature_root->armature_set(armature.get());
+    armature_root_ptr = armature_root;
   }
   armature_ptr = armature.get();
   assets.armature_add(std::move(armature));
@@ -280,9 +282,6 @@ Node *Model::node_map_create(Scene &scene, const aiNode &node, Node *parent, int
     glm::vec3 scale_vec(scaling.x, scaling.y, scaling.z);
     glm::vec3 position_vec(position.x, position.y, -position.z);
     glm::quat rotation_quat(rotation.x, rotation.y, -rotation.z, rotation.w);
-    node_internal->original_scaling_set(scale_vec);
-    node_internal->original_position_set(position_vec);
-    node_internal->original_rotation_set(rotation_quat);
     ai_mat_copy(&node.mTransformation, localTransform);
     node_internal->transform_local_original_set(localTransform);
     node_internal->transform_local_current_set(scene, localTransform);
@@ -448,9 +447,9 @@ void Model::mesh_create(Scene &scene, const aiNode &node, const BoneForAssimpBon
     //auto sub_node = std::unique_ptr<Node>(new Node(key + std::string("_") + std::to_string(i)));
     Node *parent_node = mesh_node;
     std::string key(node.mName.data);
-    auto sub_node = scene.node_create(key + std::string("_") + std::to_string(i), parent_node);
 
     if (node.mNumMeshes > 1) {
+      auto sub_node = scene.node_create(key + std::string("_") + std::to_string(i), parent_node);
       mesh_node = sub_node;
     }
 
@@ -503,7 +502,7 @@ void Model::mesh_create(Scene &scene, const aiNode &node, const BoneForAssimpBon
       // We can set mesh.skeletonNode to mesh.node and mesh.skeletonTransform
       // to identity if the mesh has no bones.
       glm::mat4 m = bone->skinning_matrix_update();
-      sub_node->transform_local_current_set(scene, m);
+      mesh_node->transform_local_current_set(scene, m);
 
 
       //m.model = bone->joint_node->transform_global * bone->offset_matrix;
@@ -512,7 +511,7 @@ void Model::mesh_create(Scene &scene, const aiNode &node, const BoneForAssimpBon
     if (!assimpMesh->mNumBones) {
       //      m.model = glm::rotate(mesh_node->transform_global, -90.f, glm::vec3(1.f, 0.f, 0.f));
  //     glm::mat4 m = mesh_node->transform_global_get();
-//      mesh_node->transform_model_set(m);
+     // mesh_node->transform_local_current_set(scene, m);
       //m.model = right_handed_to_left_handed(mesh_node->transform_global);
     }
 
@@ -551,7 +550,7 @@ void Model::mesh_create(Scene &scene, const aiNode &node, const BoneForAssimpBon
       }
     }
 
-    m.scale_matrix = glm::scale(glm::mat4(1.0f), mesh_node->original_scaling_get());
+    //m.scale_matrix = glm::scale(glm::mat4(1.0f), mesh_node->original_scaling_get());
     //mesh_node->mesh_set(mesh_ptr.get());
     mesh_node->armature_set(armature_ptr);
     if (node.mNumMeshes > 1) {

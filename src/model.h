@@ -51,6 +51,7 @@ class Model {
     const aiScene           *assimp_scene;
     std::string              prefix;
     Armature                *armature_ptr = nullptr;
+    Node                    *armature_root_ptr = nullptr;
 
     void   assimp_material_add_texture(Material &material, aiMaterial &assimp_material, Model_Texture_Type type);
     void   ai_mat_copy(const aiMatrix4x4 *from, glm::mat4 &to);

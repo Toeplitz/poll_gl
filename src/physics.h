@@ -116,6 +116,7 @@ class Physics
     void                                      debug();
     void                                      init();
     void                                      pause();
+    void                                      ray_pick(const glm::vec3 &out_origin, const glm::vec3 &out_direction);
     void                                      rigidbody_add(Physics_Rigidbody *rigidbody);
     void                                      step(Scene &scene, const double dt);
     void                                      term();

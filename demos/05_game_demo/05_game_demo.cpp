@@ -233,8 +233,7 @@ int main()
 
   /* Setup panda character */
   {
-    Node &panda_root = scene.load(glcontext, "data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_DEFAULT);
-    panda_root.rotate(scene, 3.14f / 4.f,  vec3(1, 0, 0));
+    Node &panda_root = scene.load(glcontext, "data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
     panda_root.physics_rigidbody_create(scene);
 
     /*

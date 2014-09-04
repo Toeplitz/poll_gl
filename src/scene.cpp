@@ -173,10 +173,12 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
     }
   }
 
+  /*
   std::cout << std::endl;
   std::cout << "global: " << to_string(node.transform_global_get()) << std::endl;
   std::cout << "cur local: " << to_string(node.transform_local_current_get()) << std::endl;
   std::cout << "orig local: " << to_string(node.transform_local_original_get()) << std::endl;
+  */
   std::cout << std::endl;
 
   for (auto &child : node.children_get()) {

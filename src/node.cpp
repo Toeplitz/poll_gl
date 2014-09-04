@@ -28,6 +28,7 @@ Armature *Node::armature_get()
 void Node::armature_set(Armature *armature)
 {
   this->armature = armature;
+
 }
 
 
@@ -50,15 +51,6 @@ Camera *Node::camera_get()
 void Node::camera_set(Camera *camera)
 {
   this->camera = camera;
-}
-
-
-void Node::copy_transform_data(Node &node)
-{
-  original_rotation = node.original_rotation;
-  original_scaling = node.original_scaling;
-  original_position = node.original_position;
-  //transform_update_global_recursive(*this);
 }
 
 
@@ -130,42 +122,6 @@ void Node::light_set(Light *light)
 }
 
 
-const vec3  &Node::original_position_get()
-{
-  return original_position;
-}
-
-
-void Node::original_position_set(const vec3 &v)
-{
-  this->original_position = v;
-}
-
-
-const quat &Node::original_rotation_get()
-{
-  return original_rotation;
-}
-
-
-void  Node::original_rotation_set(const quat &q)
-{
-  this->original_rotation = q;
-}
-
-
-const vec3 &Node::original_scaling_get()
-{
-  return original_scaling;
-}
-
-
-void Node::original_scaling_set(const vec3 &v)
-{
-  this->original_scaling = v;
-}
-
-
 void Node::print_state(int indent_level)
 {
   indent(std::cout, indent_level);
@@ -187,21 +143,30 @@ Node *Node::parent_get()
 }
 
 
-Physics_Rigidbody *Node::physics_rigidbody_create(Scene &scene)
+Physics_Rigidbody *Node::physics_rigidbody_create(Scene &scene, bool recursive)
 {
   Assets &assets = scene.assets_get();
-  std::unique_ptr<Physics_Rigidbody> rigidbody(new Physics_Rigidbody());
-  Physics_Rigidbody *rigidbody_ptr = rigidbody.get();
+  Physics_Rigidbody *rigidbody_ptr = nullptr;
 
   if (!mesh_get()) {
     POLL_ERROR(std::cerr, "Cannot create rigidbody, no mesh for node: " << name_get());
-    return nullptr;
+  } else {
+    std::unique_ptr<Physics_Rigidbody> rigidbody(new Physics_Rigidbody());
+    rigidbody_ptr = rigidbody.get();
+
+    rigidbody_ptr->create(this, Physics_Rigidbody::TRIANGLE_MESH);
+    physics_rigidbody_set(rigidbody_ptr);
+    scene.physics_get().rigidbody_add(rigidbody_ptr);
+    assets.physics_rigidbody_add(std::move(rigidbody));
+
   }
 
-  rigidbody_ptr->create(this, Physics_Rigidbody::TRIANGLE_MESH);
-  physics_rigidbody_set(rigidbody_ptr);
-  scene.physics_get().rigidbody_add(rigidbody_ptr);
-  assets.physics_rigidbody_add(std::move(rigidbody));
+  if (recursive) {
+    for (auto &child : children_get()) {
+      child->physics_rigidbody_create(scene);
+    }
+  }
+
   return rigidbody_ptr;
 }
 

@@ -67,9 +67,7 @@ class Node: public Animated {
     int                 tree_level = 0;
 
     mat4 transform_position_current = mat4(1.f);
-    vec3 original_scaling = vec3(0, 0, 0);
-    vec3 original_position = vec3(0, 0, 0);
-    quat original_rotation = quat(0, 0, 0, 0);
+
     mat4 transform_global = mat4(1.f);
     mat4 transform_local_current = mat4(1.f);
     mat4 transform_local_original = mat4(1.f);
@@ -86,21 +84,14 @@ class Node: public Animated {
     Camera             *camera_create(Assets &assets);
     Camera             *camera_get();
     void                camera_set(Camera *camera);
-    void                copy_transform_data(Node &node);
     Node_List    const &children_get() const;
     void                child_add(std::unique_ptr<Node> &&node, int level);
     Light              *light_create(Scene &scene, const unsigned int lamp_type, const unsigned int illumination_type = Light::VOLUME);
     Light              *light_get();
     void                light_set(Light *light);
-    const vec3         &original_position_get();
-    void                original_position_set(const vec3 &v);
-    const quat         &original_rotation_get();
-    void                original_rotation_set(const quat &q);
-    const vec3         &original_scaling_get();
-    void                original_scaling_set(const vec3 &v);
     Node               *parent_get();
     void                print_state(int indent_level);
-    Physics_Rigidbody  *physics_rigidbody_create(Scene &scene);
+    Physics_Rigidbody  *physics_rigidbody_create(Scene &scene, bool recursive = true);
     Physics_Rigidbody  *physics_rigidbody_get();
     void                physics_rigidbody_set(Physics_Rigidbody *rigidbody);
     const std::string  &name_get();

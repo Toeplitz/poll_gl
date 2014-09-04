@@ -85,6 +85,28 @@ void Physics::pause()
 }
 
 
+void Physics::ray_pick(const glm::vec3 &out_origin, const glm::vec3 &direction)
+{
+  std::string message;
+
+  vec3 out_direction = direction * 1000.0f;
+
+  btCollisionWorld::ClosestRayResultCallback RayCallback(btVector3(out_origin.x, out_origin.y, out_origin.z), 
+      btVector3(out_direction.x, out_direction.y, out_direction.z));
+  world->rayTest(btVector3(out_origin.x, out_origin.y, out_origin.z), 
+      btVector3(out_direction.x, out_direction.y, out_direction.z), RayCallback);
+
+  if(RayCallback.hasHit()) {
+    std::ostringstream oss;
+    oss << "node: " <<  RayCallback.m_collisionObject->getUserPointer();
+    message = oss.str();
+  } else {
+    message = "background";
+  }
+
+  POLL_DEBUG(std::cout, message);
+}
+
 
 void Physics::rigidbody_add(Physics_Rigidbody *rigidbody)
 {

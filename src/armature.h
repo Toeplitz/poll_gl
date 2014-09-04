@@ -30,9 +30,6 @@ class Armature {
   public:
     std::vector<glm::mat4> skinning_matrices;
 
-    Armature();
-    ~Armature();
-
     void                        bones_add(std::unique_ptr<Bone> &&bone);
     Bone_Unique_Ptr_List const &bones_get_all() const;
     unsigned int                bones_num_get();

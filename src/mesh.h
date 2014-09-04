@@ -26,7 +26,6 @@ class Mesh {
     std::vector<vec3> bone_weights;
     std::vector<ivec3> bone_indices;
 
-    mat4 scale_matrix;
     unsigned int num_faces;
 
     const std::vector<vec3>    &bitangents_get() const;

@@ -19,16 +19,13 @@ void Physics_Rigidbody::create(Node *node_ptr, const unsigned int shape)
   }
 
   this->node_ptr = node_ptr;
-  glm::vec3 position = node_ptr->original_position_get();
-  glm::vec3 scaling = node_ptr->original_scaling_get();
-  glm::quat rotation = node_ptr->original_rotation_get();
 
   switch (shape) {
     case BOX:
-      bt_collision_shape = std::unique_ptr<btBoxShape>(new btBoxShape(btVector3(scaling.x, scaling.y, scaling.z)));
+      bt_collision_shape = std::unique_ptr<btBoxShape>(new btBoxShape(btVector3(1.f, 1.f, 1.f)));
       break;
     case SPHERE:
-      bt_collision_shape = std::unique_ptr<btSphereShape>(new btSphereShape(btScalar(scaling.x)));
+      bt_collision_shape = std::unique_ptr<btSphereShape>(new btSphereShape(btScalar(1.f)));
       break;
     case CONVEX_HULL:
       {
@@ -36,8 +33,6 @@ void Physics_Rigidbody::create(Node *node_ptr, const unsigned int shape)
         int n = vertices.size();
 
         bt_collision_shape = std::unique_ptr<btConvexShape>(new btConvexHullShape((btScalar *) vertices.data(), n, sizeof(glm::vec3)));
-        bt_collision_shape->setLocalScaling(btVector3(node_ptr->original_scaling_get().x, 
-              node_ptr->original_scaling_get().y, node_ptr->original_scaling_get().z));
       }
       break;
     case TRIANGLE_MESH:
@@ -79,11 +74,8 @@ void Physics_Rigidbody::create(Node *node_ptr, const unsigned int shape)
 
         btVector3 aabbMin(-1000, -1000, -1000), aabbMax(1000, 1000, 1000);
         bt_collision_shape = std::unique_ptr<btBvhTriangleMeshShape>(new btBvhTriangleMeshShape(bt_triangle_mesh.get(), true, aabbMin, aabbMax));
+        bt_collision_shape->setUserPointer(node_ptr);
 
-        /*
-        bt_collision_shape->setLocalScaling(btVector3(node_ptr->original_scaling_get().x, 
-              node_ptr->original_scaling_get().y, node_ptr->original_scaling_get().z));
-              */
       }
       break;
     default:
@@ -93,15 +85,9 @@ void Physics_Rigidbody::create(Node *node_ptr, const unsigned int shape)
 
   glm::mat4 matrix;
   btTransform t;
-  t.setIdentity();
-  t.setOrigin(btVector3(position.x, position.y, position.z));
-  t.setRotation(btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
-  btTransform t2;
-  t2.setFromOpenGLMatrix((btScalar *) &node_ptr->transform_global_get());
+  t.setFromOpenGLMatrix((btScalar *) &node_ptr->transform_global_get());
 
- // std::cout << to_string(node_ptr->transform_model_get()) << std::endl;
-
-  bt_motion_state = std::unique_ptr<Physics_Motion_State>(new Physics_Motion_State(t2, *node_ptr));
+  bt_motion_state = std::unique_ptr<Physics_Motion_State>(new Physics_Motion_State(t, *node_ptr));
 
   btVector3 inertia(0, 0, 0);
   btScalar bt_mass = mass;
