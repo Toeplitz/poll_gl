@@ -27,18 +27,20 @@ void Raycast::convert_coordinates(Scene &scene, const int viewport_x, const int 
   POLL_DEBUG(std::cout, "Ray start: " << to_string(lRayStart_NDC));
   POLL_DEBUG(std::cout, "Ray end: " << to_string(lRayEnd_NDC));
 
-  // The Projection matrix goes from Camera Space to NDC.
-  // So inverse(ProjectionMatrix) goes from NDC to Camera Space.
+  /*
   glm::mat4 InverseProjectionMatrix = camera->transform_perspective_inverse_get();
-
-  // The View Matrix goes from World Space to Camera Space.
-  // So inverse(ViewMatrix) goes from Camera Space to World Space.
   glm::mat4 InverseViewMatrix = glm::inverse(camera->transform_view_get());
 
   glm::vec4 lRayStart_camera = InverseProjectionMatrix * lRayStart_NDC;    lRayStart_camera/=lRayStart_camera.w;
   glm::vec4 lRayStart_world  = InverseViewMatrix       * lRayStart_camera; lRayStart_world /=lRayStart_world .w;
   glm::vec4 lRayEnd_camera   = InverseProjectionMatrix * lRayEnd_NDC;      lRayEnd_camera  /=lRayEnd_camera  .w;
   glm::vec4 lRayEnd_world    = InverseViewMatrix       * lRayEnd_camera;   lRayEnd_world   /=lRayEnd_world   .w;
+*/
+
+   // Faster way (just one inverse)
+   glm::mat4 M = glm::inverse(camera->transform_view_projection_get());
+   glm::vec4 lRayStart_world = M * lRayStart_NDC; lRayStart_world/=lRayStart_world.w;
+   glm::vec4 lRayEnd_world   = M * lRayEnd_NDC  ; lRayEnd_world  /=lRayEnd_world.w;
 
   glm::vec3 lRayDir_world(lRayEnd_world - lRayStart_world);
   lRayDir_world = glm::normalize(lRayDir_world);

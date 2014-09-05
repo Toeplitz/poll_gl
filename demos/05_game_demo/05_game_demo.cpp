@@ -223,8 +223,8 @@ int main()
   }
 
   /* Setup room */
-  room = &scene.load(glcontext, "data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED );
-  room->physics_rigidbody_create(scene);
+ // room = &scene.load(glcontext, "data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED );
+ // room->physics_rigidbody_create(scene);
 
   //physics.collision_shape_add(*room, PHYSICS_COLLISION_TRIANGLE_MESH, true, 0);
   Node *foo = &scene.load(glcontext, "data/", "test.dae", MODEL_IMPORT_OPTIMIZED );
@@ -233,8 +233,8 @@ int main()
 
   /* Setup panda character */
   {
-    Node &panda_root = scene.load(glcontext, "data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
-    panda_root.physics_rigidbody_create(scene);
+  //  Node &panda_root = scene.load(glcontext, "data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
+  //  panda_root.physics_rigidbody_create(scene);
 
     /*
     Node &panda_collision_root = scene.load(glcontext, "data/game_assets/characters/panda/", 

@@ -96,9 +96,11 @@ void Physics::ray_pick(const glm::vec3 &out_origin, const glm::vec3 &direction)
   world->rayTest(btVector3(out_origin.x, out_origin.y, out_origin.z), 
       btVector3(out_direction.x, out_direction.y, out_direction.z), RayCallback);
 
-  if(RayCallback.hasHit()) {
+  if (RayCallback.hasHit()) {
     std::ostringstream oss;
+    vec3 end = glm::vec3(RayCallback.m_hitPointWorld.getX(), RayCallback.m_hitPointWorld.getY(), RayCallback.m_hitPointWorld.getZ());
     oss << "node: " <<  RayCallback.m_collisionObject->getUserPointer();
+    oss << glm::to_string(end);
     message = oss.str();
   } else {
     message = "background";

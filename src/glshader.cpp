@@ -39,6 +39,7 @@ GLuint GLshader::create_shader(std::string filename, GLenum type)
   //  source.insert(0, std::string("#extension GL_ARB_shader_subroutine: enable") + "\r\n");
   }
   version_add(source);
+  //print_source(source);
 
   if (source.empty()) {
     fprintf(stderr, "Error opening %s: ", filename.c_str());
