@@ -20,7 +20,7 @@ void Physics_Debug_Drawer::init()
   GLint index;
   std::vector<vec3> vertices;
   std::vector<vec3> colors;
-  size_t max_size = 900000;
+  size_t max_size = 9000000;
 
   target = GL_ARRAY_BUFFER;
 

@@ -159,7 +159,7 @@ void Physics::bullet_init()
   sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 
   // broadphase filter callback
-  btOverlapFilterCallback * filterCallback = new FilterCallback();
+  btOverlapFilterCallback *filterCallback = new FilterCallback();
   world->getPairCache()->setOverlapFilterCallback(filterCallback);
 //
   world->setGravity(btVector3(0, -10, 0));
@@ -256,8 +256,6 @@ Physics_Motion_State::Physics_Motion_State(const btTransform &start_position, No
 
 void Physics_Motion_State::node_set(Node &node)
 {
-  //glm::mat4 scale_matrix = glm::scale(glm::mat4(1.f), node.original_scaling_get());
-  //glm::mat4 model_no_scaling = node.transform_model_get() * glm::inverse(scale_matrix);
   glm::mat4 model = node.transform_global_get();
   this->transform.setFromOpenGLMatrix((btScalar *) &model);
   this->node = &node;
@@ -269,11 +267,6 @@ void Physics_Motion_State::setWorldTransform(const btTransform &t)
   std::cout << "setWorldTransform" << std::endl;
   if (!node) return;
 
-  glm::mat4 m;
-
-  //t.getOpenGLMatrix((btScalar *) &m);
-  //glm::mat4 model = m * glm::scale(glm::mat4(1.f), node->original_scaling_get());
-  //node->transform_local_current_set(m);
 }
 
 
@@ -285,6 +278,9 @@ void Physics_Motion_State::transform_set(const glm::mat4 &model)
 
 void Physics_Motion_State::getWorldTransform(btTransform &t) const
 {
+  glm::mat4 m;
   t = transform;
+  t.getOpenGLMatrix((btScalar *) &m);
+  POLL_DEBUG(std::cout, "updating node: " << node->name_get() << ": " << to_string(m));
 }
 

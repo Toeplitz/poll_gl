@@ -439,6 +439,23 @@ void Assets::physics_rigidbody_print_all(Node &node)
   for (auto &rigidbody: rigidbodies) {
     Node *node_ptr = rigidbody->node_ptr_get();
     std::cout << "\t(" << &rigidbody << ") node_ptr: " << node_ptr->name_get() << " ";
+    if (rigidbody->shape_get() == Physics_Rigidbody::BOX) {
+      std::cout << " (box)";
+    } else if (rigidbody->shape_get() == Physics_Rigidbody::SPHERE) {
+      std::cout << " (sphere)";
+    } else if (rigidbody->shape_get() == Physics_Rigidbody::CONVEX_HULL) {
+      std::cout << " (convex hull)";
+    } else if (rigidbody->shape_get() == Physics_Rigidbody::TRIANGLE_MESH) {
+      std::cout << " (triangle mesh)";
+    }
+
+    if (rigidbody->type_get() == Physics_Rigidbody::DYNAMIC) {
+      std::cout << " (dynamic)";
+    } else if (rigidbody->type_get() == Physics_Rigidbody::KINEMATIC) {
+      std::cout << " (kinematic)";
+    }
+
+    std::cout << " mass: " << rigidbody->mass_get();
     std::cout << std::endl;
   }
 

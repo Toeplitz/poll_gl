@@ -3,6 +3,7 @@
 #include "physics.h"
 #include "physics_rigidbody.h"
 #include <glm/gtx/string_cast.hpp>
+#include "utils.h"
 
 
 btRigidBody *Physics_Rigidbody::bt_rigidbody_get()
@@ -11,29 +12,43 @@ btRigidBody *Physics_Rigidbody::bt_rigidbody_get()
 }
 
 
-void Physics_Rigidbody::create(Node *node_ptr, const unsigned int shape)
+void Physics_Rigidbody::create(Node *node_ptr, unsigned int shape, unsigned int type)
 {
   if (!node_ptr) {
     std::cout << "Error: no mesh, cannot create a rigidbody" << std::endl;
     return;
   }
 
+  POLL_DEBUG(std::cout, shape);
+
   this->node_ptr = node_ptr;
+  this->shape = shape;
+  this->type = type;
 
   switch (shape) {
     case BOX:
       bt_collision_shape = std::unique_ptr<btBoxShape>(new btBoxShape(btVector3(1.f, 1.f, 1.f)));
+      POLL_DEBUG(std::cout, "box");
       break;
     case SPHERE:
       bt_collision_shape = std::unique_ptr<btSphereShape>(new btSphereShape(btScalar(1.f)));
       break;
     case CONVEX_HULL:
       {
-        std::vector<glm::vec3> vertices = node_ptr->mesh_get()->positions_get();
-        int n = vertices.size();
+        bt_convex_hull_mesh = std::unique_ptr<btConvexHullShape>(new btConvexHullShape());
 
-        bt_collision_shape = std::unique_ptr<btConvexShape>(new btConvexHullShape((btScalar *) vertices.data(), n, sizeof(glm::vec3)));
+        //bt_collision_shape = std::unique_ptr<btConvexShape>(new btConvexHullShape((btScalar *) vertices.data(), n, sizeof(glm::vec3)));
+        bt_collision_shape = std::unique_ptr<btConvexShape>(bt_convex_hull_mesh.get());
+
+        Mesh *mesh = node_ptr->mesh_get();
+        std::vector<glm::vec3> positions = mesh->positions_get();
+
+        for (unsigned int i = 0; i < mesh->num_vertices_get(); i++) {
+          bt_convex_hull_mesh->addPoint(btVector3(positions[i].x , positions[i].y, positions[i].z));
+        }
+
       }
+
       break;
     case TRIANGLE_MESH:
       {
@@ -52,13 +67,6 @@ void Physics_Rigidbody::create(Node *node_ptr, const unsigned int shape)
             bt_triangle_mesh->addTriangle(btVector3(positions[indices[i]].x, positions[indices[i]].y, positions[indices[i]].z),
                 btVector3(positions[indices[i + 1]].x, positions[indices[i + 1]].y, positions[indices[i + 1]].z),
                 btVector3(positions[indices[i + 2]].x, positions[indices[i + 2]].y, positions[indices[i + 2]].z));
-
-            /*
-            std::cout << glm::to_string(positions[indices[i]]) << std::endl;
-            std::cout << glm::to_string(positions[indices[i + 1]]) << std::endl;
-            std::cout << glm::to_string(positions[indices[i + 2]]) << std::endl;
-            */
-
           }
         } else {
           for (unsigned int i = 0; i < mesh->num_vertices_get(); i = i + 3) {
@@ -96,8 +104,29 @@ void Physics_Rigidbody::create(Node *node_ptr, const unsigned int shape)
   
   bt_rigidbody = std::unique_ptr<btRigidBody>(new btRigidBody(rb_ci));
 
-  bt_rigidbody->setCollisionFlags(bt_rigidbody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT); 
-  bt_rigidbody->setActivationState(DISABLE_DEACTIVATION);
+  if (type == Type::KINEMATIC) {
+    bt_rigidbody->setCollisionFlags(bt_rigidbody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT); 
+    bt_rigidbody->setActivationState(DISABLE_DEACTIVATION);
+  }
+}
+
+
+void Physics_Rigidbody::mass_set(const float mass)
+{
+  if (!bt_rigidbody) {
+    POLL_ERROR(std::cerr, "no rigidbody existing when trying to set mass");
+    return;
+  }
+
+  this->mass = mass;
+  POLL_DEBUG(std::cout, "Setting mass");
+  bt_rigidbody->setMassProps(mass, btVector3(0, 0, 0));
+}
+
+
+float Physics_Rigidbody::mass_get()
+{
+  return mass;
 }
 
 
@@ -120,3 +149,13 @@ void Physics_Rigidbody::motionstate_transform_set(const mat4 &transform)
 }
 
 
+unsigned int Physics_Rigidbody::shape_get()
+{
+  return shape;
+}
+
+
+unsigned int Physics_Rigidbody::type_get()
+{
+  return type;
+}
