@@ -222,9 +222,10 @@ int main()
     common_debug_use();
   }
 
-  /* Setup room */
-  room = &scene.load(glcontext, "data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED);
-  //room->physics_rigidbody_create(scene, Physics_Rigidbody::TRIANGLE_MESH);
+  {
+    room = &scene.load(glcontext, "data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED);
+    room->physics_rigidbody_create(scene, true, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::DYNAMIC);
+  }
 
   //physics.collision_shape_add(*room, PHYSICS_COLLISION_TRIANGLE_MESH, true, 0);
  // Node *foo = &scene.load(glcontext, "data/", "test.dae", MODEL_IMPORT_OPTIMIZED );
@@ -233,8 +234,8 @@ int main()
   {
     Node &node = scene.load(glcontext, "data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED);
     node.translate(scene, glm::vec3(2, 27, 50));
-    Physics_Rigidbody *rigidbody = node.physics_rigidbody_create(scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC);
-    rigidbody->mass_set(20);
+    Physics_Rigidbody *rigidbody = node.physics_rigidbody_create(scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::DYNAMIC);
+    rigidbody->mass_set(&physics, 1);
   }
 
 
@@ -245,7 +246,7 @@ int main()
 
       Physics_Rigidbody *rigidbody = scene.node_find(&panda_root, "Panda")->physics_rigidbody_get();
       if (rigidbody) {
-        rigidbody->mass_set(10);
+        rigidbody->mass_set(&physics, 1);
       }
 
     /*

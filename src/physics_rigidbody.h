@@ -8,6 +8,7 @@
 
 using namespace glm;
 class Physics_Motion_State;
+class Physics;
 
 
 class Mesh;
@@ -37,7 +38,7 @@ class Physics_Rigidbody
     std::unique_ptr<btRigidBody> bt_rigidbody;
     std::unique_ptr<btTriangleMesh> bt_triangle_mesh;
     std::unique_ptr<btConvexHullShape> bt_convex_hull_mesh;
-    float mass = 10;
+    float mass = 0;
 
     Node *node_ptr = nullptr;
     std::unique_ptr<Physics_Motion_State> bt_motion_state;
@@ -50,7 +51,7 @@ class Physics_Rigidbody
     btRigidBody *bt_rigidbody_get();
     void         create(Node *node_ptr, unsigned int shape, unsigned int type);
     void         motionstate_transform_set(const mat4 &transform);
-    void         mass_set(const float mass);
+    void         mass_set(Physics *physics, const float mass);
     float        mass_get();
     Node        *node_ptr_get();
     void         node_ptr_set(Node *node_ptr);

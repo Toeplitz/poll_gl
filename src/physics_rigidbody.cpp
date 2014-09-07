@@ -19,8 +19,6 @@ void Physics_Rigidbody::create(Node *node_ptr, unsigned int shape, unsigned int 
     return;
   }
 
-  POLL_DEBUG(std::cout, shape);
-
   this->node_ptr = node_ptr;
   this->shape = shape;
   this->type = type;
@@ -35,17 +33,20 @@ void Physics_Rigidbody::create(Node *node_ptr, unsigned int shape, unsigned int 
       break;
     case CONVEX_HULL:
       {
-        bt_convex_hull_mesh = std::unique_ptr<btConvexHullShape>(new btConvexHullShape());
-
-        //bt_collision_shape = std::unique_ptr<btConvexShape>(new btConvexHullShape((btScalar *) vertices.data(), n, sizeof(glm::vec3)));
-        bt_collision_shape = std::unique_ptr<btConvexShape>(bt_convex_hull_mesh.get());
-
         Mesh *mesh = node_ptr->mesh_get();
         std::vector<glm::vec3> positions = mesh->positions_get();
+       // bt_convex_hull_mesh = std::unique_ptr<btConvexHullShape>(new btConvexHullShape());
+
+        bt_collision_shape = std::unique_ptr<btConvexShape>(new btConvexHullShape((btScalar *) positions.data(), 
+              mesh->num_vertices_get(), sizeof(glm::vec3)));
+       // bt_collision_shape = std::unique_ptr<btConvexShape>(bt_convex_hull_mesh.get());
+
+        /*
 
         for (unsigned int i = 0; i < mesh->num_vertices_get(); i++) {
           bt_convex_hull_mesh->addPoint(btVector3(positions[i].x , positions[i].y, positions[i].z));
         }
+        */
 
       }
 
@@ -91,7 +92,6 @@ void Physics_Rigidbody::create(Node *node_ptr, unsigned int shape, unsigned int 
       return;
   }
 
-  glm::mat4 matrix;
   btTransform t;
   t.setFromOpenGLMatrix((btScalar *) &node_ptr->transform_global_get());
 
@@ -111,16 +111,24 @@ void Physics_Rigidbody::create(Node *node_ptr, unsigned int shape, unsigned int 
 }
 
 
-void Physics_Rigidbody::mass_set(const float mass)
+void Physics_Rigidbody::mass_set(Physics *physics, const float mass)
 {
   if (!bt_rigidbody) {
-    POLL_ERROR(std::cerr, "no rigidbody existing when trying to set mass");
+    POLL_ERROR(std::cerr, "No rigidbody existing when trying to set mass");
     return;
   }
 
+  physics->rigidbody_delete(this);
   this->mass = mass;
-  POLL_DEBUG(std::cout, "Setting mass");
-  bt_rigidbody->setMassProps(mass, btVector3(0, 0, 0));
+
+  bt_rigidbody.release();
+  btVector3 inertia(0, 0, 0);
+  btRigidBody::btRigidBodyConstructionInfo rb_ci(mass, bt_motion_state.get(), bt_collision_shape.get(), inertia);
+  
+  bt_rigidbody = std::unique_ptr<btRigidBody>(new btRigidBody(rb_ci));
+  //bt_rigidbody->getCollisionShape()->calculateLocalInertia(bt_mass, inertia);
+  //bt_rigidbody->setMassProps(bt_mass, inertia);
+  physics->rigidbody_add(this);
 }
 
 

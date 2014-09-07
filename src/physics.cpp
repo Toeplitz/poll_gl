@@ -113,7 +113,17 @@ void Physics::ray_pick(const glm::vec3 &out_origin, const glm::vec3 &direction)
 void Physics::rigidbody_add(Physics_Rigidbody *rigidbody)
 {
   btRigidBody *rb_ptr = rigidbody->bt_rigidbody_get();
+  POLL_DEBUG(std::cout, "adding rigidbody for: " << rigidbody->node_ptr_get()->name_get());
+  POLL_DEBUG(std::cout, "inverse mass: " << rb_ptr->getInvMass());
   world->addRigidBody(rb_ptr);
+}
+
+
+void Physics::rigidbody_delete(Physics_Rigidbody *rigidbody)
+{
+  btRigidBody *rb_ptr = rigidbody->bt_rigidbody_get();
+  POLL_DEBUG(std::cout, "removing rigidbody for: " << rigidbody->node_ptr_get()->name_get());
+  world->removeRigidBody(rb_ptr);
 }
 
 
@@ -144,23 +154,24 @@ void Physics::bullet_init()
   dispatcher = new btCollisionDispatcher(collision_config);
   solver = new btSequentialImpulseConstraintSolver;
 
-  btVector3 worldMin(-1000,-1000,-1000);
-  btVector3 worldMax(1000,1000,1000);
-  sweep_bp = new btAxisSweep3(worldMin, worldMax);
-  //broadphase = new btDbvtBroadphase();
-  sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+ // btVector3 worldMin(-1000,-1000,-1000);
+ // btVector3 worldMax(1000,1000,1000);
+ // sweep_bp = new btAxisSweep3(worldMin, worldMax);
+  broadphase = new btDbvtBroadphase();
+ // sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
  // broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 
-  //world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collision_config);
-  world = new btDiscreteDynamicsWorld(dispatcher, sweep_bp, solver, collision_config);
-  world->getDispatchInfo().m_allowedCcdPenetration=0.0001f;
+  world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collision_config);
+ // world = new btDiscreteDynamicsWorld(dispatcher, sweep_bp, solver, collision_config);
+ // world->getDispatchInfo().m_allowedCcdPenetration=0.0001f;
 
   //broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
-  sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+ // sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 
   // broadphase filter callback
-  btOverlapFilterCallback *filterCallback = new FilterCallback();
-  world->getPairCache()->setOverlapFilterCallback(filterCallback);
+ // btOverlapFilterCallback *filterCallback = new FilterCallback();
+ // world->getPairCache()->setOverlapFilterCallback(filterCallback);
+ 
 //
   world->setGravity(btVector3(0, -10, 0));
   world->setDebugDrawer(&debug_drawer);
@@ -201,16 +212,16 @@ int Physics::bullet_step(Scene &scene, const double dt)
 {
   Stock_Shaders shader = scene.assets_get().stock_shaders_get();
   float timestep = 1.f / 60.f;
-  //float timestep = (float) dt / 1000.f;
+  //float timestep = (float) dt;
   int max_sub_steps = 1;
   float fixed_time_step = 1.f / 60.f;
 
 
-  //std::cout << "timeStep <  maxSubSteps * fixedTimeStep: " << timestep << " < " << max_sub_steps * fixed_time_step << std::endl;
   if (pause_toggle) {
     for (auto &character : characters) {
       character->bullet_character_step(dt);
     }
+    //std::cout << "timeStep <  maxSubSteps * fixedTimeStep: " << timestep << " < " << max_sub_steps * fixed_time_step << std::endl;
     world->stepSimulation(timestep, max_sub_steps, fixed_time_step);
   }
 
@@ -264,9 +275,8 @@ void Physics_Motion_State::node_set(Node &node)
 
 void Physics_Motion_State::setWorldTransform(const btTransform &t)
 {
-  std::cout << "setWorldTransform" << std::endl;
+  //std::cout << "setWorldTransform" << std::endl;
   if (!node) return;
-
 }
 
 
@@ -281,6 +291,6 @@ void Physics_Motion_State::getWorldTransform(btTransform &t) const
   glm::mat4 m;
   t = transform;
   t.getOpenGLMatrix((btScalar *) &m);
-  POLL_DEBUG(std::cout, "updating node: " << node->name_get() << ": " << to_string(m));
+  //POLL_DEBUG(std::cout, "updating node: " << node->name_get() << ": " << to_string(m));
 }
 

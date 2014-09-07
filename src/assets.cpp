@@ -455,7 +455,20 @@ void Assets::physics_rigidbody_print_all(Node &node)
       std::cout << " (kinematic)";
     }
 
-    std::cout << " mass: " << rigidbody->mass_get();
+    if (rigidbody->bt_rigidbody_get()->isStaticObject()) {
+      std::cout << " (bullet static)";
+    }
+
+    if (rigidbody->bt_rigidbody_get()->isKinematicObject()) {
+      std::cout << " (bullet kinematic)";
+    }
+    
+    if (rigidbody->bt_rigidbody_get()->isInWorld()) {
+
+      std::cout << " [in world] ";
+    }
+
+    std::cout << " mass = " << rigidbody->mass_get();
     std::cout << std::endl;
   }
 
