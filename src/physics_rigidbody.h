@@ -49,7 +49,7 @@ class Physics_Rigidbody
   public:
 
     btRigidBody *bt_rigidbody_get();
-    void         create(Node *node_ptr, unsigned int shape, unsigned int type);
+    void         create(Node *node_ptr, unsigned int shape, unsigned int type, float initial_mass);
     void         motionstate_transform_set(const mat4 &transform);
     void         mass_set(Physics *physics, const float mass);
     float        mass_get();

@@ -97,7 +97,7 @@ Light *Node::light_create(Scene &scene, const unsigned int lamp_type, const unsi
     Node *node = scene.node_create("light_symbol", this);
     node->transform_inheritance_set(TRANSFORM_INHERIT_POSITION_ONLY);
     node->mesh_set(node_symbol_cone->mesh_get());
-    node->physics_rigidbody_create(scene, false, Physics_Rigidbody::CONVEX_HULL, Physics_Rigidbody::KINEMATIC);
+    node->physics_rigidbody_create(scene, false, Physics_Rigidbody::CONVEX_HULL, Physics_Rigidbody::KINEMATIC, 0);
     node->transform_local_current_set(scene, mat4(1.f));
   }
 
@@ -143,7 +143,7 @@ Node *Node::parent_get()
 }
 
 
-Physics_Rigidbody *Node::physics_rigidbody_create(Scene &scene, bool recursive, unsigned int shape, unsigned int type)
+Physics_Rigidbody *Node::physics_rigidbody_create(Scene &scene, bool recursive, unsigned int shape, unsigned int type, float initial_mass)
 {
   Assets &assets = scene.assets_get();
   Physics_Rigidbody *rigidbody_ptr = nullptr;
@@ -154,7 +154,7 @@ Physics_Rigidbody *Node::physics_rigidbody_create(Scene &scene, bool recursive, 
     std::unique_ptr<Physics_Rigidbody> rigidbody(new Physics_Rigidbody());
     rigidbody_ptr = rigidbody.get();
 
-    rigidbody_ptr->create(this, shape, type);
+    rigidbody_ptr->create(this, shape, type, initial_mass);
     physics_rigidbody_set(rigidbody_ptr);
     scene.physics_get().rigidbody_add(rigidbody_ptr);
     assets.physics_rigidbody_add(std::move(rigidbody));
@@ -163,7 +163,7 @@ Physics_Rigidbody *Node::physics_rigidbody_create(Scene &scene, bool recursive, 
 
   if (recursive) {
     for (auto &child : children_get()) {
-      child->physics_rigidbody_create(scene, recursive, shape, type);
+      child->physics_rigidbody_create(scene, recursive, shape, type, initial_mass);
     }
   }
 

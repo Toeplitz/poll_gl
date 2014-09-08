@@ -91,7 +91,7 @@ class Node: public Animated {
     void                light_set(Light *light);
     Node               *parent_get();
     void                print_state(int indent_level);
-    Physics_Rigidbody  *physics_rigidbody_create(Scene &scene, bool recursivee, unsigned int shape, unsigned int type);
+    Physics_Rigidbody  *physics_rigidbody_create(Scene &scene, bool recursivee, unsigned int shape, unsigned int type, float initial_mass);
     Physics_Rigidbody  *physics_rigidbody_get();
     void                physics_rigidbody_set(Physics_Rigidbody *rigidbody);
     const std::string  &name_get();

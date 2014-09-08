@@ -12,7 +12,7 @@ btRigidBody *Physics_Rigidbody::bt_rigidbody_get()
 }
 
 
-void Physics_Rigidbody::create(Node *node_ptr, unsigned int shape, unsigned int type)
+void Physics_Rigidbody::create(Node *node_ptr, unsigned int shape, unsigned int type, float initial_mass)
 {
   if (!node_ptr) {
     std::cout << "Error: no mesh, cannot create a rigidbody" << std::endl;
@@ -98,9 +98,10 @@ void Physics_Rigidbody::create(Node *node_ptr, unsigned int shape, unsigned int 
   bt_motion_state = std::unique_ptr<Physics_Motion_State>(new Physics_Motion_State(t, *node_ptr));
 
   btVector3 inertia(0, 0, 0);
-  btScalar bt_mass = mass;
-  bt_collision_shape->calculateLocalInertia(mass, inertia);
+  btScalar bt_mass = initial_mass;
+  bt_collision_shape->calculateLocalInertia(bt_mass, inertia);
   btRigidBody::btRigidBodyConstructionInfo rb_ci(bt_mass, bt_motion_state.get(), bt_collision_shape.get(), inertia);
+  this->mass = initial_mass;
   
   bt_rigidbody = std::unique_ptr<btRigidBody>(new btRigidBody(rb_ci));
 
