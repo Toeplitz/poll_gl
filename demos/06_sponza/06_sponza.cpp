@@ -18,7 +18,7 @@ int main()
   }
 
   Node &root = scene.node_root_get();
-  Node &sponza = scene.load(glcontext, "data/crytek-sponza/", "sponza_with_spec.obj", MODEL_IMPORT_OPTIMIZED);
+  Node &sponza = scene.load("data/crytek-sponza/", "sponza_with_spec.obj", MODEL_IMPORT_OPTIMIZED);
 //  root.scale(scene, glm::vec3(0.01, 0.01, 0.01));
   // scene.load("data/crytek-sponza/", "banner.obj", MODEL_IMPORT_OPTIMIZED);
 

@@ -79,7 +79,7 @@ void Stock_Shaders::term()
   GLcontext &glcontext = scene.glcontext_get();
 
   {
-    node_symbol_cone = &scene.load(glcontext, "data/", "cone.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
+    node_symbol_cone = &scene.load("data/", "cone.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
     node_symbol_cone->name_set("stock_cone");
     Mesh *mesh = node_symbol_cone->mesh_get();
     /* update the vertices since this is a blender export */
@@ -88,7 +88,7 @@ void Stock_Shaders::term()
   }
 
   {
-    node_light_sphere = &scene.load(glcontext, "data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
+    node_light_sphere = &scene.load("data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
     node_light_sphere->name_set("stock_sphere");
     Mesh *mesh = node_light_sphere->mesh_get();
     mesh->positions_update(node_light_sphere->transform_global_get());

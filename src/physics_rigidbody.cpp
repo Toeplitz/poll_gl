@@ -14,6 +14,8 @@ btRigidBody *Physics_Rigidbody::bt_rigidbody_get()
 
 void Physics_Rigidbody::create(Node *node_ptr, unsigned int shape, unsigned int type, float initial_mass)
 {
+  btCollisionShape *shape_ptr;
+
   if (!node_ptr) {
     std::cout << "Error: no mesh, cannot create a rigidbody" << std::endl;
     return;
@@ -26,28 +28,64 @@ void Physics_Rigidbody::create(Node *node_ptr, unsigned int shape, unsigned int 
   switch (shape) {
     case BOX:
       bt_collision_shape = std::unique_ptr<btBoxShape>(new btBoxShape(btVector3(1.f, 1.f, 1.f)));
-      POLL_DEBUG(std::cout, "box");
+      shape_ptr = bt_collision_shape.get();
       break;
     case SPHERE:
       bt_collision_shape = std::unique_ptr<btSphereShape>(new btSphereShape(btScalar(1.f)));
+      shape_ptr = bt_collision_shape.get();
       break;
     case CONVEX_HULL:
       {
-        Mesh *mesh = node_ptr->mesh_get();
-        std::vector<glm::vec3> positions = mesh->positions_get();
-       // bt_convex_hull_mesh = std::unique_ptr<btConvexHullShape>(new btConvexHullShape());
+       // Mesh *mesh = node_ptr->mesh_get();
+       // std::vector<glm::vec3> positions = mesh->positions_get();
+        // bt_convex_hull_mesh = std::unique_ptr<btConvexHullShape>(new btConvexHullShape());
 
-        bt_collision_shape = std::unique_ptr<btConvexShape>(new btConvexHullShape((btScalar *) positions.data(), 
-              mesh->num_vertices_get(), sizeof(glm::vec3)));
-       // bt_collision_shape = std::unique_ptr<btConvexShape>(bt_convex_hull_mesh.get());
+/*
+        btConvexHullShape *ptr = new btConvexHullShape();
+
+        for (size_t i = 0; i < mesh->num_vertices_get(); i++) {
+          ptr->addPoint(btVector3(positions[i].x, positions[i].y, positions[i].z));
+        }
+*/
+
+
+        // bt_collision_shape = std::unique_ptr<btConvexShape>(bt_convex_hull_mesh.get());
 
         /*
 
-        for (unsigned int i = 0; i < mesh->num_vertices_get(); i++) {
-          bt_convex_hull_mesh->addPoint(btVector3(positions[i].x , positions[i].y, positions[i].z));
-        }
-        */
+           for (unsigned int i = 0; i < mesh->num_vertices_get(); i++) {
+           bt_convex_hull_mesh->addPoint(btVector3(positions[i].x , positions[i].y, positions[i].z));
+           }
+           */
 
+        Mesh *mesh = node_ptr->mesh_get();
+        int num_indices = mesh->num_indices_get();
+
+        std::vector<glm::vec3> positions = mesh->positions_get();
+        std::vector<GLshort> indices = mesh->indices_get();
+
+        assert(node.mesh_get()->num_indices_get() % 3 == 0);
+
+        bt_triangle_mesh = std::unique_ptr<btTriangleMesh>(new btTriangleMesh());
+
+        if (num_indices > 0) { 
+          for (unsigned int i = 0; i < mesh->num_indices_get(); i = i + 3) {
+            bt_triangle_mesh->addTriangle(btVector3(positions[indices[i]].x, positions[indices[i]].y, positions[indices[i]].z),
+                btVector3(positions[indices[i + 1]].x, positions[indices[i + 1]].y, positions[indices[i + 1]].z),
+                btVector3(positions[indices[i + 2]].x, positions[indices[i + 2]].y, positions[indices[i + 2]].z));
+          }
+        } else {
+          for (unsigned int i = 0; i < mesh->num_vertices_get(); i = (i + 3)) {
+            vec3 pos_1 = positions[i];
+            vec3 pos_2 = positions[i + 1];
+            vec3 pos_3 = positions[i + 2];
+            bt_triangle_mesh->addTriangle(btVector3(pos_1.x, pos_1.y, pos_1.z),
+                btVector3(pos_2.z, pos_2.y, pos_2.z),
+                btVector3(pos_3.z, pos_3.y, pos_3.z));
+          }
+        }
+        btConvexShape *tmpshape = new btConvexTriangleMeshShape(bt_triangle_mesh.get());
+        shape_ptr = tmpshape;
       }
 
       break;
@@ -61,7 +99,7 @@ void Physics_Rigidbody::create(Node *node_ptr, unsigned int shape, unsigned int 
 
         assert(node.mesh_get()->num_indices_get() % 3 == 0);
 
-        bt_triangle_mesh = std::unique_ptr<btTriangleMesh> (new btTriangleMesh());
+        bt_triangle_mesh = std::unique_ptr<btTriangleMesh>(new btTriangleMesh());
 
         if (num_indices > 0) { 
           for (unsigned int i = 0; i < mesh->num_indices_get(); i = i + 3) {
@@ -78,12 +116,12 @@ void Physics_Rigidbody::create(Node *node_ptr, unsigned int shape, unsigned int 
                 btVector3(pos_2.z, pos_2.y, pos_2.z),
                 btVector3(pos_3.z, pos_3.y, pos_3.z));
           }
-
         }
 
         btVector3 aabbMin(-1000, -1000, -1000), aabbMax(1000, 1000, 1000);
         bt_collision_shape = std::unique_ptr<btBvhTriangleMeshShape>(new btBvhTriangleMeshShape(bt_triangle_mesh.get(), true, aabbMin, aabbMax));
         bt_collision_shape->setUserPointer(node_ptr);
+        shape_ptr = bt_collision_shape.get();
 
       }
       break;
@@ -92,23 +130,8 @@ void Physics_Rigidbody::create(Node *node_ptr, unsigned int shape, unsigned int 
       return;
   }
 
-  btTransform t;
-  t.setFromOpenGLMatrix((btScalar *) &node_ptr->transform_global_get());
+  bt_shape_init(node_ptr, shape_ptr, type, initial_mass);
 
-  bt_motion_state = std::unique_ptr<Physics_Motion_State>(new Physics_Motion_State(t, *node_ptr));
-
-  btVector3 inertia(0, 0, 0);
-  btScalar bt_mass = initial_mass;
-  bt_collision_shape->calculateLocalInertia(bt_mass, inertia);
-  btRigidBody::btRigidBodyConstructionInfo rb_ci(bt_mass, bt_motion_state.get(), bt_collision_shape.get(), inertia);
-  this->mass = initial_mass;
-  
-  bt_rigidbody = std::unique_ptr<btRigidBody>(new btRigidBody(rb_ci));
-
-  if (type == Type::KINEMATIC) {
-    bt_rigidbody->setCollisionFlags(bt_rigidbody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT); 
-    bt_rigidbody->setActivationState(DISABLE_DEACTIVATION);
-  }
 }
 
 
@@ -125,7 +148,7 @@ void Physics_Rigidbody::mass_set(Physics *physics, const float mass)
   bt_rigidbody.release();
   btVector3 inertia(0, 0, 0);
   btRigidBody::btRigidBodyConstructionInfo rb_ci(mass, bt_motion_state.get(), bt_collision_shape.get(), inertia);
-  
+
   bt_rigidbody = std::unique_ptr<btRigidBody>(new btRigidBody(rb_ci));
   //bt_rigidbody->getCollisionShape()->calculateLocalInertia(bt_mass, inertia);
   //bt_rigidbody->setMassProps(bt_mass, inertia);
@@ -167,4 +190,27 @@ unsigned int Physics_Rigidbody::shape_get()
 unsigned int Physics_Rigidbody::type_get()
 {
   return type;
+}
+
+
+void Physics_Rigidbody::bt_shape_init(Node *node_ptr, btCollisionShape *shape, unsigned int type, float initial_mass)
+{
+  btTransform t;
+  t.setFromOpenGLMatrix((btScalar *) &node_ptr->transform_global_get());
+
+  bt_motion_state = std::unique_ptr<Physics_Motion_State>(new Physics_Motion_State(t, *node_ptr));
+
+  btVector3 inertia(0, 0, 0);
+  btScalar bt_mass = initial_mass;
+  shape->calculateLocalInertia(bt_mass, inertia);
+  btRigidBody::btRigidBodyConstructionInfo rb_ci(bt_mass, bt_motion_state.get(), shape, inertia);
+  this->mass = initial_mass;
+
+  bt_rigidbody = std::unique_ptr<btRigidBody>(new btRigidBody(rb_ci));
+
+  if (type == Type::KINEMATIC) {
+    bt_rigidbody->setCollisionFlags(bt_rigidbody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT); 
+    bt_rigidbody->setActivationState(DISABLE_DEACTIVATION);
+  }
+
 }

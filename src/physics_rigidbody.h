@@ -45,6 +45,8 @@ class Physics_Rigidbody
     unsigned int shape = -1;
     unsigned int type = -1;
 
+    void bt_shape_init(Node *node_ptr, btCollisionShape *shape, unsigned int type, float inital_mass);
+
 
   public:
 

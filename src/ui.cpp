@@ -13,7 +13,9 @@ void Ui::init(Console &console, GLcontext &glcontext, Scene &scene)
   this->scene = &scene;
   this->glcontext = &glcontext;
 
+
   console.command_add("asset", "list", std::bind(&Ui::callback_asset_list, this, _1, _2, _3));
+  console.command_add("object", "add", std::bind(&Ui::callback_object_add, this, _1, _2, _3));
   console.command_add("light", "add", std::bind(&Ui::callback_light_create, this, _1, _2, _3));
   console.command_add("light", "disable", std::bind(&Ui::callback_light_disable, this, _1, _2, _3));
   console.command_add("light", "enable", std::bind(&Ui::callback_light_enable, this, _1, _2, _3));
@@ -176,6 +178,24 @@ void Ui::callback_light_list(const std::string &prim, const std::string &sec, co
   Node &root = scene->node_root_get();
   assets.light_print_all(root);
   std::cout << "\tCurrent selected light: " << light_active << std::endl;
+}
+
+
+void Ui::callback_object_add(const std::string &prim, const std::string &sec, const std::string &val)
+{
+  Camera *camera = scene->camera_get();
+  auto pos = camera->position_get();
+  int num = 1;
+
+  if (val.size() > 0)
+    num = ::atoi(val.c_str());
+
+  for (int i = 0; i < num; i++) {
+    Node &node = scene->load("data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED);
+    node.translate(*scene, pos);
+    node.physics_rigidbody_create(*scene, false, Physics_Rigidbody::SPHERE, Physics_Rigidbody::DYNAMIC, 10.f);
+  }
+
 }
 
 

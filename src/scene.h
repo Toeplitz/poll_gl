@@ -45,8 +45,7 @@ class Scene
     Camera               *camera_get();
     GLcontext            &glcontext_get();
     void                  init(Window &window);
-    Node                 &load(GLcontext &glcontext, const std::string &prefix, 
-                               const std::string &filename, const unsigned int options);
+    Node                 &load(const std::string &prefix,  const std::string &filename, const unsigned int options);
     const Node_Ptr_List  &mesh_nodes_get() const;
     void                  scene_graph_print(const bool compact = false);
     void                  scene_graph_print_by_node(Node &node, const bool compact = false);

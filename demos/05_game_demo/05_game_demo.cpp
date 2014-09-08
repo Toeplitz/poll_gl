@@ -223,7 +223,7 @@ int main()
   }
 
   {
-    room = &scene.load(glcontext, "data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED);
+    room = &scene.load("data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED);
     room->physics_rigidbody_create(scene, true, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::DYNAMIC, 0);
   }
 
@@ -232,7 +232,7 @@ int main()
  // foo->physics_rigidbody_create(scene, Physics_Rigidbody::CONVEX_HULL);
 
   {
-    Node &node = scene.load(glcontext, "data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED);
+    Node &node = scene.load("data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED);
     node.translate(scene, glm::vec3(2, 27, 40));
     node.physics_rigidbody_create(scene, false, Physics_Rigidbody::SPHERE, Physics_Rigidbody::DYNAMIC, 10.f);
   }
@@ -240,7 +240,7 @@ int main()
 
   /* Setup panda character */
   {
-    Node &panda_root = scene.load(glcontext, "data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
+    Node &panda_root = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
     panda_root.physics_rigidbody_create(scene, true, Physics_Rigidbody::CONVEX_HULL, Physics_Rigidbody::DYNAMIC, 10.f);
 
     /*

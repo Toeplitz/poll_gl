@@ -95,8 +95,9 @@ void Scene::init(Window &window)
 }
 
 
-Node &Scene::load(GLcontext &glcontext, const std::string &prefix, const std::string &filename, const unsigned int options) 
+Node &Scene::load(const std::string &prefix, const std::string &filename, const unsigned int options) 
 {
+  GLcontext &glcontext = glcontext_get();
   Model model;
   Node *root_ptr = model.load(*this, root, prefix, filename, options);
   node_state_recursive_update(root);
