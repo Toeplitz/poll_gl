@@ -227,21 +227,21 @@ int main()
     room->physics_rigidbody_create(scene, true, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::DYNAMIC, 0);
   }
 
-  //physics.collision_shape_add(*room, PHYSICS_COLLISION_TRIANGLE_MESH, true, 0);
- // Node *foo = &scene.load(glcontext, "data/", "test.dae", MODEL_IMPORT_OPTIMIZED );
- // foo->physics_rigidbody_create(scene, Physics_Rigidbody::CONVEX_HULL);
+  Node *foo = &scene.load("data/", "cone.dae", MODEL_IMPORT_OPTIMIZED);
+  foo->translate(scene, glm::vec3(0, 0, 40));
+  foo->physics_rigidbody_create(scene, false, Physics_Rigidbody::CONVEX_HULL, Physics_Rigidbody::DYNAMIC, 1.f);
 
   {
     Node &node = scene.load("data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED);
     node.translate(scene, glm::vec3(2, 27, 40));
-    node.physics_rigidbody_create(scene, false, Physics_Rigidbody::SPHERE, Physics_Rigidbody::DYNAMIC, 10.f);
+    node.physics_rigidbody_create(scene, false, Physics_Rigidbody::BOX, Physics_Rigidbody::DYNAMIC, 1.f);
   }
 
 
   /* Setup panda character */
   {
-    Node &panda_root = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
-    panda_root.physics_rigidbody_create(scene, true, Physics_Rigidbody::CONVEX_HULL, Physics_Rigidbody::DYNAMIC, 10.f);
+//    Node &panda_root = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
+ //   panda_root.physics_rigidbody_create(scene, true, Physics_Rigidbody::CONVEX_HULL, Physics_Rigidbody::DYNAMIC, 0.f);
 
     /*
       Physics_Rigidbody *rigidbody = scene.node_find(&panda_root, "Panda")->physics_rigidbody_get();

@@ -120,7 +120,6 @@ void Physics_Rigidbody::create(Node *node_ptr, unsigned int shape, unsigned int 
 
         btVector3 aabbMin(-1000, -1000, -1000), aabbMax(1000, 1000, 1000);
         bt_collision_shape = std::unique_ptr<btBvhTriangleMeshShape>(new btBvhTriangleMeshShape(bt_triangle_mesh.get(), true, aabbMin, aabbMax));
-        bt_collision_shape->setUserPointer(node_ptr);
         shape_ptr = bt_collision_shape.get();
 
       }
@@ -207,6 +206,7 @@ void Physics_Rigidbody::bt_shape_init(Node *node_ptr, btCollisionShape *shape, u
   this->mass = initial_mass;
 
   bt_rigidbody = std::unique_ptr<btRigidBody>(new btRigidBody(rb_ci));
+  bt_rigidbody->setUserPointer((void*) node_ptr);
 
   if (type == Type::KINEMATIC) {
     bt_rigidbody->setCollisionFlags(bt_rigidbody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT); 

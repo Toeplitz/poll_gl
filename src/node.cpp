@@ -97,7 +97,7 @@ Light *Node::light_create(Scene &scene, const unsigned int lamp_type, const unsi
     Node *node = scene.node_create("light_symbol", this);
     node->transform_inheritance_set(TRANSFORM_INHERIT_POSITION_ONLY);
     node->mesh_set(node_symbol_cone->mesh_get());
-    node->physics_rigidbody_create(scene, false, Physics_Rigidbody::CONVEX_HULL, Physics_Rigidbody::KINEMATIC, 0);
+    node->physics_rigidbody_create(scene, false, Physics_Rigidbody::BOX, Physics_Rigidbody::KINEMATIC, 0);
     node->transform_local_current_set(scene, mat4(1.f));
   }
 

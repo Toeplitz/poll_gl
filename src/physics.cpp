@@ -97,10 +97,12 @@ void Physics::ray_pick(const glm::vec3 &out_origin, const glm::vec3 &direction)
       btVector3(out_direction.x, out_direction.y, out_direction.z), RayCallback);
 
   if (RayCallback.hasHit()) {
+    POLL_DEBUG(std::cout, "closestHitFraction: " << RayCallback.m_closestHitFraction);
+
     std::ostringstream oss;
     vec3 end = glm::vec3(RayCallback.m_hitPointWorld.getX(), RayCallback.m_hitPointWorld.getY(), RayCallback.m_hitPointWorld.getZ());
-    oss << "node: " <<  RayCallback.m_collisionObject->getUserPointer();
-    oss << glm::to_string(end);
+    Node *node_ptr = (Node *) RayCallback.m_collisionObject->getUserPointer();
+    oss << "clicked: " << node_ptr->name_get();
     message = oss.str();
   } else {
     message = "background";
@@ -154,19 +156,19 @@ void Physics::bullet_init()
   dispatcher = new btCollisionDispatcher(collision_config);
   solver = new btSequentialImpulseConstraintSolver;
 
-  // btVector3 worldMin(-1000,-1000,-1000);
-  // btVector3 worldMax(1000,1000,1000);
-  // sweep_bp = new btAxisSweep3(worldMin, worldMax);
-  broadphase = new btDbvtBroadphase();
-  // sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+   btVector3 worldMin(-1000,-1000,-1000);
+   btVector3 worldMax(1000,1000,1000);
+   sweep_bp = new btAxisSweep3(worldMin, worldMax);
+//  broadphase = new btDbvtBroadphase();
+   sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
   // broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 
-  world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collision_config);
-  // world = new btDiscreteDynamicsWorld(dispatcher, sweep_bp, solver, collision_config);
-  // world->getDispatchInfo().m_allowedCcdPenetration=0.0001f;
+  //world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collision_config);
+  world = new btDiscreteDynamicsWorld(dispatcher, sweep_bp, solver, collision_config);
+  world->getDispatchInfo().m_allowedCcdPenetration=0.0001f;
 
   //broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
-  // sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+   sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 
   // broadphase filter callback
   // btOverlapFilterCallback *filterCallback = new FilterCallback();
