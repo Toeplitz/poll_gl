@@ -1,12 +1,4 @@
-TODO now:
-
-- Bring back option for directional global light
-- Render icon for light position
-- Render disks for the light volume outline
-
-
 BUILD:
-
 
 Required libs:
 - Bullet
@@ -15,13 +7,11 @@ Required libs:
 - Glew
 - Jsoncpp
 
-
-mkdir build
+> mkdir build
+> make
 
 add build folder to LD_LIBRARY_PATH:
-export LD_LIBRARY_PATH="~/git/poll/build"
-
-
+> export LD_LIBRARY_PATH="~/git/poll/build"
 
 
 
@@ -32,19 +22,16 @@ http://dhpoware.com/demos/index.html
 Rendering objectives:
 
 
+TO WORK ON:
+
 Relieff techniques:
 - Use gimp plugin to create normal and hightmaps
 - Normal mapping (cookbook, anton, dhpoware)
 - Parallax mapping (dhpoware)
 - Alpha map (cookbook, anton)
 
-
 Lighting:
 - Baked light maps for static scenes
-- Deferred shading (anton)
-  - Displays different textures with keyboard 1, 2, 3 ... for QC.
-- SSOA
-
 
 Shadows:
 - Baked shadow maps for static scenes
