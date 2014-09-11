@@ -166,6 +166,12 @@ GLcontext &Window::glcontext_get()
 }
 
 
+Raycast &Window::raycast_get()
+{
+  return raycast;
+}
+
+
 unsigned int Window::height_get() const
 {
   return height;
@@ -252,10 +258,9 @@ void Window::keyboard_callback_released(SDL_Keysym *keysym)
 
 void Window::mouse_callback_pressed_down(SDL_MouseButtonEvent *ev)
 {
-  Raycast r;
   std::cout << "clicked screen x,y = " << ev->x << ", " << ev->y << std::endl;
 
-  r.convert_coordinates(*scene, ev->x, ev->y, width, height);
+  raycast.convert_coordinates(*scene, ev->x, ev->y, width, height);
 }
 
 
