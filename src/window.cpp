@@ -258,9 +258,7 @@ void Window::keyboard_callback_released(SDL_Keysym *keysym)
 
 void Window::mouse_callback_pressed_down(SDL_MouseButtonEvent *ev)
 {
-  std::cout << "clicked screen x,y = " << ev->x << ", " << ev->y << std::endl;
-
-  raycast.convert_coordinates(*scene, ev->x, ev->y, width, height);
+  raycast.cast(*scene, ev->x, ev->y, width, height);
 }
 
 

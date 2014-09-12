@@ -2,6 +2,7 @@
 #include "physics.h"
 #include "physics_char_cont.h"
 #include "physics_rigidbody.h"
+#include "raycast.h"
 #include "scene.h"
 #include "utils.h"
 #include <glm/gtx/string_cast.hpp>
@@ -85,9 +86,13 @@ void Physics::pause()
 }
 
 
-void Physics::ray_pick(const glm::vec3 &out_origin, const glm::vec3 &direction)
+std::shared_ptr<Raycast_Hitpoint> Physics::ray_pick(const glm::vec3 &out_origin, const glm::vec3 &direction)
 {
-  std::string message;
+  glm::vec3 end;
+
+  auto hitpoint = std::shared_ptr<Raycast_Hitpoint>(new Raycast_Hitpoint);
+  hitpoint->node_ptr = nullptr;
+  hitpoint->world_hitpoint = vec3(0, 0, 0);
 
   vec3 out_direction = direction * 1000.0f;
 
@@ -96,19 +101,14 @@ void Physics::ray_pick(const glm::vec3 &out_origin, const glm::vec3 &direction)
   world->rayTest(btVector3(out_origin.x, out_origin.y, out_origin.z), 
       btVector3(out_direction.x, out_direction.y, out_direction.z), RayCallback);
 
-  if (RayCallback.hasHit()) {
-    POLL_DEBUG(std::cout, "closestHitFraction: " << RayCallback.m_closestHitFraction);
+  if (!RayCallback.hasHit())
+    return nullptr;
 
-    std::ostringstream oss;
-    vec3 end = glm::vec3(RayCallback.m_hitPointWorld.getX(), RayCallback.m_hitPointWorld.getY(), RayCallback.m_hitPointWorld.getZ());
-    Node *node_ptr = (Node *) RayCallback.m_collisionObject->getUserPointer();
-    oss << "clicked: " << node_ptr->name_get();
-    message = oss.str();
-  } else {
-    message = "background";
-  }
-
-  POLL_DEBUG(std::cout, message);
+  end = glm::vec3(RayCallback.m_hitPointWorld.getX(), RayCallback.m_hitPointWorld.getY(), RayCallback.m_hitPointWorld.getZ());
+  Node *node_ptr = (Node *) RayCallback.m_collisionObject->getUserPointer();
+  hitpoint->node_ptr = node_ptr;
+  hitpoint->world_hitpoint = end;
+  return hitpoint;
 }
 
 
@@ -116,7 +116,6 @@ void Physics::rigidbody_add(Physics_Rigidbody *rigidbody)
 {
   btRigidBody *rb_ptr = rigidbody->bt_rigidbody_get();
   POLL_DEBUG(std::cout, "adding rigidbody for: " << rigidbody->node_ptr_get()->name_get());
-  POLL_DEBUG(std::cout, "inverse mass: " << rb_ptr->getInvMass());
   world->addRigidBody(rb_ptr);
 }
 
