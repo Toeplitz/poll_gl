@@ -1,0 +1,19 @@
+#pragma once
+
+#include "poll.h"
+#include "poll_plugin.h"
+
+
+class Plugin_Debug: public Poll_Plugin
+{
+
+  Console *console = nullptr;
+  Scene *scene = nullptr;
+  Physics *physics = nullptr;
+
+  public:
+    Plugin_Debug(Console &console, Scene &scene);
+    void mouse_callback_pressed(SDL_MouseButtonEvent *ev);
+    void keyboard_callback_pressed(SDL_Keysym *keysym);
+
+};
