@@ -7,6 +7,7 @@
 #include <iostream>                     // for operator<<, basic_ostream, etc
 #include <stdexcept>                    // for runtime_error
 #include "glcontext.h"                  
+#include "poll_plugin.h"
 #include "raycast.h"
 #include "utils.h"
 
@@ -120,24 +121,28 @@ void Window::term()
 }
 
 
-bool Window::poll_events()
+bool Window::poll_events(std::vector<Poll_Plugin *> &plugins)
 {
   SDL_Event event;
 
   check_error();
 
   while (SDL_PollEvent(&event)) {
-    if (custom_event_callback)
-      custom_event_callback(&event);
 
     switch (event.type) {
       case SDL_QUIT:
         return false;
         break;
       case SDL_KEYUP:
+        for (auto plugin : plugins) {
+          plugin->keyboard_callback_released(&event.key.keysym);
+        }
         keyboard_callback_released(&event.key.keysym);
         break;
       case SDL_KEYDOWN:
+        for (auto plugin : plugins) {
+          plugin->keyboard_callback_pressed(&event.key.keysym);
+        }
         return keyboard_callback_pressed(&event.key.keysym);
       case SDL_JOYAXISMOTION:
         joystick_axis_motion(&event.jaxis);
@@ -149,7 +154,20 @@ bool Window::poll_events()
         joystick_button_released(&event.jbutton);
         break;
       case SDL_MOUSEBUTTONDOWN:
+        for (auto plugin : plugins) {
+          plugin->mouse_callback_pressed(&event.button);
+        }
         mouse_callback_pressed_down(&event.button);
+        break;
+      case SDL_MOUSEBUTTONUP:
+        for (auto plugin : plugins) {
+          plugin->mouse_callback_released(&event.button);
+        }
+        break;
+      case SDL_MOUSEMOTION:
+        for (auto plugin : plugins) {
+          plugin->mouse_callback_motion(&event.motion);
+        }
         break;
       default:
         break;

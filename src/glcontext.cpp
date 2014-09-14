@@ -251,8 +251,6 @@ void GLcontext::init(Window &window)
 }
 
 
-
-
 void GLcontext::framebuffer_draw_scene(Scene &scene)
 {
   GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb));
@@ -263,9 +261,8 @@ void GLcontext::framebuffer_draw_scene(Scene &scene)
   draw_light_all(scene);
   draw_light_all_symbols(scene);
 
-
-    /* Step physics simulation */
-    scene.physics_get().step(scene, 1/60);
+  /* Step physics simulation */
+  scene.physics_get().step(scene, 1/60);
 
   GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
   GL_ASSERT(glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_fb));

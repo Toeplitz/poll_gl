@@ -11,6 +11,7 @@
 
 
 class Scene;
+class Poll_Plugin;
 
 
 using namespace std::placeholders;
@@ -44,14 +45,13 @@ class Window {
     std::vector<std::function <void (SDL_Keysym *)>> custom_keyboard_pressed_callback_list;
     std::vector<std::function <void (SDL_Keysym *)>> custom_keyboard_released_callback_list;
 
-    std::function <void (SDL_Event *)> custom_event_callback;
   public:
 
     Window();
 
     bool  init(Config &config, Scene &scene, const std::string &title);
     float joystick_angle_get(float x, float y, float *radius);
-    bool  poll_events();
+    bool  poll_events(std::vector<Poll_Plugin *> &plugins);
     void  mouse_cursor_center();
     void  mouse_cursor_toggle();
     void  swap_interval_set(const int n);
@@ -102,10 +102,6 @@ class Window {
       }
 
 
-      void event_callback_set(const std::function<void (SDL_Event *)> callback)
-      {
-        custom_event_callback = callback;
-      }
 };
 
 

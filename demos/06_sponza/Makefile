@@ -2,7 +2,7 @@ PROJECT = 06_sponza
 
 SRC := $(wildcard *.cpp)  
 OBJECTS = $(SRC:.cpp=.o) 
-CFLAGS  = -I/usr/include/bullet/ -I../../external/include -I../common/ -Wall -pedantic -g -std=c++11 -DGLM_FORCE_RADIANS
+CFLAGS  = -I/usr/include/bullet/ -I../../external/include -I../plugins/ -Wall -pedantic -g -std=c++11 -DGLM_FORCE_RADIANS
 
 all: $(PROJECT)
 

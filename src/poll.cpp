@@ -1,4 +1,5 @@
 #include "poll.h"
+#include "poll_plugin.h"
 #include <iostream>
 #include <chrono>
 
@@ -47,8 +48,12 @@ void Poll::run()
     double dt = delta_time_get();
     profile_fps(dt);
 
-    if (!window.poll_events()) 
+    if (!window.poll_events(plugins)) 
       return;
+
+    for (auto plugin : plugins) {
+      plugin->custom_callback();
+    }
 
     /* Update animations */
     auto &animated_nodes = scene.animated_nodes_get();
@@ -68,6 +73,8 @@ void Poll::run()
 
     /* Draw scene */
     glcontext.framebuffer_draw_scene(scene);
+
+
 
     /* Draw console and ui */
     shader.text.use();
@@ -121,6 +128,12 @@ GLcontext &Poll::glcontext_get()
 Physics &Poll::physics_get() 
 {
   return scene.physics_get();
+}
+
+
+void Poll::plugin_add(Poll_Plugin &plugin)
+{
+  plugins.push_back(&plugin);
 }
 
 

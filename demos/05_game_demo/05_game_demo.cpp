@@ -1,5 +1,7 @@
 #include "poll.h"
-#include "common.h"
+#include "poll_plugin.h"
+#include "plugin_debug.h"
+#include "plugin_firstperson_cam.h"
 #include "physics.h"
 #include <iostream>
 
@@ -94,7 +96,7 @@ static void joystick_button_released_cb(SDL_JoyButtonEvent *ev)
 
 static void keyboard_pressed_cb(SDL_Keysym *keysym)
 {
-  Console &console = p->console_get();
+  /*
 
   if (console.active()) 
     return;
@@ -135,11 +137,13 @@ static void keyboard_pressed_cb(SDL_Keysym *keysym)
   }
 
   character->move(static_cast<Physics_Direction>(direction));
+  */
 }
 
 
 static void keyboard_released_cb(SDL_Keysym *keysym)
 {
+  /*
   Console &console = p->console_get();
 
   if (console.active()) 
@@ -170,6 +174,8 @@ static void keyboard_released_cb(SDL_Keysym *keysym)
   }
 
   character->move(static_cast<Physics_Direction>(direction));
+
+  */
 }
 
 
@@ -215,12 +221,12 @@ int main()
   physics.custom_step_callback_set(physics_update);
 */
 
-  {
-    Node *camera_node = scene.node_camera_get();
-    common_init(poll);
-    common_fpcamera_use(camera_node);
-    common_debug_use();
-  }
+  Node *camera_node = scene.node_camera_get();
+  auto firstperson_camera = std::unique_ptr<Plugin_Firstperson_Camera>(new Plugin_Firstperson_Camera(poll.console_get(), scene, camera_node));
+  poll.plugin_add(*firstperson_camera);
+
+  auto debug = std::unique_ptr<Plugin_Debug>(new Plugin_Debug(poll.console_get(), scene));
+  poll.plugin_add(*debug);
 
   {
     room = &scene.load("data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED);

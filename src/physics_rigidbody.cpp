@@ -36,35 +36,11 @@ void Physics_Rigidbody::create(Node *node_ptr, unsigned int shape, unsigned int 
       break;
     case CONVEX_HULL:
       {
-       // Mesh *mesh = node_ptr->mesh_get();
-       // std::vector<glm::vec3> positions = mesh->positions_get();
-        // bt_convex_hull_mesh = std::unique_ptr<btConvexHullShape>(new btConvexHullShape());
-
-/*
-        btConvexHullShape *ptr = new btConvexHullShape();
-
-        for (size_t i = 0; i < mesh->num_vertices_get(); i++) {
-          ptr->addPoint(btVector3(positions[i].x, positions[i].y, positions[i].z));
-        }
-*/
-
-
-        // bt_collision_shape = std::unique_ptr<btConvexShape>(bt_convex_hull_mesh.get());
-
-        /*
-
-           for (unsigned int i = 0; i < mesh->num_vertices_get(); i++) {
-           bt_convex_hull_mesh->addPoint(btVector3(positions[i].x , positions[i].y, positions[i].z));
-           }
-           */
-
         Mesh *mesh = node_ptr->mesh_get();
         int num_indices = mesh->num_indices_get();
 
         std::vector<glm::vec3> positions = mesh->positions_get();
         std::vector<GLshort> indices = mesh->indices_get();
-
-        assert(node.mesh_get()->num_indices_get() % 3 == 0);
 
         bt_triangle_mesh = std::unique_ptr<btTriangleMesh>(new btTriangleMesh());
 
@@ -96,8 +72,6 @@ void Physics_Rigidbody::create(Node *node_ptr, unsigned int shape, unsigned int 
 
         std::vector<glm::vec3> positions = mesh->positions_get();
         std::vector<GLshort> indices = mesh->indices_get();
-
-        assert(node.mesh_get()->num_indices_get() % 3 == 0);
 
         bt_triangle_mesh = std::unique_ptr<btTriangleMesh>(new btTriangleMesh());
 
