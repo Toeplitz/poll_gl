@@ -3,11 +3,11 @@
 #include "plugin_firstperson_cam.h"
 #include <iostream>
 
-Poll poll;
 
 
 int main() 
 {
+  Poll poll;
   Scene &scene = poll.scene_get();
 
   Node *camera_node = scene.node_camera_get();
@@ -18,9 +18,13 @@ int main()
   poll.plugin_add(*debug);
 
   Node &root = scene.node_root_get();
-  Node &sponza = scene.load("data/crytek-sponza/", "sponza_with_spec.obj", MODEL_IMPORT_OPTIMIZED);
+  Node &sponza = scene.load("data/crytek-sponza/", "sponza_with_spec.obj", MODEL_IMPORT_DEFAULT);
   sponza.scale(scene, glm::vec3(0.1, 0.1, 0.1));
-  // scene.load("data/crytek-sponza/", "banner.obj", MODEL_IMPORT_OPTIMIZED);
+  sponza.physics_rigidbody_create(scene, true, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::DYNAMIC, 0);
+
+  Node *foo = &scene.load("data/", "cone.dae", MODEL_IMPORT_OPTIMIZED);
+  foo->translate(scene, glm::vec3(0, 0, 40));
+  foo->physics_rigidbody_create(scene, false, Physics_Rigidbody::CONVEX_HULL, Physics_Rigidbody::DYNAMIC, 1.f);
 
   {
     Node *node = scene.node_create("Light_Directionl_Global");

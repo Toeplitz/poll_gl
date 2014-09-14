@@ -234,6 +234,7 @@ int Physics::bullet_step(Scene &scene, const double dt)
   debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(0, 0, 1), btVector3(0, 0, 1), btVector3(0, 0, 1));
 
   debug_drawer.draw();
+
   /*
      for (auto &character : characters) {
      character->bullet_debug_draw_contacts(world, sweep_bp);

@@ -9,6 +9,7 @@ Physics_Debug_Drawer::Physics_Debug_Drawer()
   this->debug_mode = 0;
 }
 
+
 Physics_Debug_Drawer::~Physics_Debug_Drawer()
 {
 }
@@ -20,34 +21,34 @@ void Physics_Debug_Drawer::init()
   GLint index;
   std::vector<vec3> vertices;
   std::vector<vec3> colors;
-  size_t max_size = 9000000;
+  size_t max_size = 90000000;
 
   target = GL_ARRAY_BUFFER;
 
-  glGenVertexArrays(1, &gl_vao);
-  glBindVertexArray(gl_vao);
+  GL_ASSERT(glGenVertexArrays(1, &gl_vao));
+  GL_ASSERT(glBindVertexArray(gl_vao));
 
   index = 0;
-  glGenBuffers(1, &gl_vertex_buffer);
-  glBindBuffer(target, gl_vertex_buffer);
-  glBufferData(target, max_size, vertices.data(), GL_STATIC_DRAW);
-  glEnableVertexAttribArray(index);
-  glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  GL_ASSERT(glGenBuffers(1, &gl_vertex_buffer));
+  GL_ASSERT(glBindBuffer(target, gl_vertex_buffer));
+  GL_ASSERT(glBufferData(target, max_size, vertices.data(), GL_STATIC_DRAW));
+  GL_ASSERT(glEnableVertexAttribArray(index));
+  GL_ASSERT(glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0));
 
   index = 1;
-  glGenBuffers(1, &gl_color_buffer);
-  glBindBuffer(target, gl_color_buffer);
-  glBufferData(target, max_size, colors.data(), GL_STATIC_DRAW);
-  glEnableVertexAttribArray(index);
-  glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  GL_ASSERT(glGenBuffers(1, &gl_color_buffer));
+  GL_ASSERT(glBindBuffer(target, gl_color_buffer));
+  GL_ASSERT(glBufferData(target, max_size, colors.data(), GL_STATIC_DRAW));
+  GL_ASSERT(glEnableVertexAttribArray(index));
+  GL_ASSERT(glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0));
 }
 
 
 void Physics_Debug_Drawer::term()
 {
-  glDeleteBuffers(1, &gl_vertex_buffer);
-  glDeleteBuffers(1, &gl_color_buffer);
-  glDeleteVertexArrays(1, &gl_vao);
+  GL_ASSERT(glDeleteBuffers(1, &gl_vertex_buffer));
+  GL_ASSERT(glDeleteBuffers(1, &gl_color_buffer));
+  GL_ASSERT(glDeleteVertexArrays(1, &gl_vao));
 }
 
 
