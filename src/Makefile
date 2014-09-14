@@ -1,4 +1,4 @@
-PROJECT = libfragmic.so
+PROJECT = libpoll.so
 
 SRC := $(wildcard *.cpp) 
 OBJECTS = $(SRC:.cpp=.o)

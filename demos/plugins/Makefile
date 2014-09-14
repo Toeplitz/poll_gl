@@ -1,4 +1,4 @@
-PROJECT = libdemo_common.so
+PROJECT = libpoll_plugins.so
 
 SRC := $(wildcard *.cpp) 
 OBJECTS = $(SRC:.cpp=.o)
