@@ -44,7 +44,7 @@ class Stock_Nodes
 
     void init(Scene &scene);
     Node *cone_get();
-    Mesh *disk_get();
+    Node *disk_get();
     Mesh *diamond_get();
     Mesh *pyramid_get();
     Mesh *screen_quad_get();

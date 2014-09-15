@@ -72,9 +72,7 @@ void Poll::run()
     glcontext.uniform_buffers_update_camera(camera);
 
     /* Draw scene */
-    glcontext.framebuffer_draw_scene(scene);
-
-
+    glcontext.framebuffer_draw_scene(scene, plugins);
 
     /* Draw console and ui */
     shader.text.use();

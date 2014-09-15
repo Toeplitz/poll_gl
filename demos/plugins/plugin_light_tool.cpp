@@ -25,6 +25,7 @@ void Plugin_Light_Tool::callback_light_create(const std::string &prim, const std
   node->translate(*scene, position);
   node->scale(*scene, glm::vec3(30, 30, 30));
   Light *light = node->light_create(*scene, Light::POINT);
+  light->properties_color_set(glm::vec3(1, 1, 1));
   light_active_set(light);
   callback_light_list(prim, sec, val);
 }
@@ -111,6 +112,28 @@ void Plugin_Light_Tool::callback_light_list(const std::string &prim, const std::
   Node &root = scene->node_root_get();
   assets.light_print_all(root);
   std::cout << "\tCurrent selected light: " << light_active << std::endl;
+}
+
+
+void Plugin_Light_Tool::custom_draw_callback()
+{
+  Assets &assets = scene->assets_get();
+  Stock_Shaders &shader = assets.stock_shaders_get();
+  GLcontext &glcontext = scene->glcontext_get();
+
+  shader.world_basic_color.use();
+
+  auto &lights = assets.light_active_get();
+  for (auto &light: lights) {
+    Node *node = light->node_ptr_get();
+
+    for (auto &child : node->children_get()) {
+      mat4 &transform = child->transform_global_get();
+      glcontext.uniform_buffers_update_matrices(transform);
+      Mesh *mesh = child->mesh_get();
+      glcontext.draw_mesh(*mesh);
+    }
+  }
 }
 
 

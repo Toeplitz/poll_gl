@@ -93,12 +93,35 @@ Light *Node::light_create(Scene &scene, const unsigned int lamp_type, const unsi
   light_set(light_ptr);
 
   if (lamp_type == Light::POINT || lamp_type == Light::SPOT) {
-    Node *node_symbol_cone = stock_nodes.cone_get();
-    Node *node = scene.node_create("light_symbol", this);
-    node->transform_inheritance_set(TRANSFORM_INHERIT_POSITION_ONLY);
-    node->mesh_set(node_symbol_cone->mesh_get());
-    node->physics_rigidbody_create(scene, false, Physics_Rigidbody::BOX, Physics_Rigidbody::KINEMATIC, 0);
-    node->transform_local_current_set(scene, mat4(1.f));
+    {
+      Node *node_symbol_cone = stock_nodes.cone_get();
+      Node *node = scene.node_create("light_symbol", this);
+      node->transform_inheritance_set(TRANSFORM_INHERIT_POSITION_ONLY);
+      node->mesh_set(node_symbol_cone->mesh_get());
+      node->physics_rigidbody_create(scene, false, Physics_Rigidbody::BOX, Physics_Rigidbody::KINEMATIC, 0);
+    }
+
+    Node *node_symbol_disk = stock_nodes.disk_get();
+    {
+      Node *node = scene.node_create("light_disk", this);
+      node->mesh_set(node_symbol_disk->mesh_get());
+     // node->physics_rigidbody_create(scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC, 0);
+    }
+
+    {
+      Node *node = scene.node_create("light_disk", this);
+      node->mesh_set(node_symbol_disk->mesh_get());
+     // node->physics_rigidbody_create(scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC, 0);
+      node->rotate(scene, M_PI / 2, glm::vec3(1, 0, 0));
+    }
+
+    {
+      Node *node = scene.node_create("light_disk", this);
+      node->mesh_set(node_symbol_disk->mesh_get());
+     // node->physics_rigidbody_create(scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC, 0);
+      node->rotate(scene, M_PI / 2, glm::vec3(0, 0, 1));
+    }
+
   }
 
   assets.light_active_add(std::move(light));

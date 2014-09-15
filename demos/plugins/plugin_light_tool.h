@@ -17,7 +17,9 @@ class Plugin_Light_Tool: public Poll_Plugin
     void callback_light_select(const std::string &prim, const std::string &sec, const std::string &val);
     void callback_light_type(const std::string &prim, const std::string &sec, const std::string &val);
     void callback_light_print(const std::string &prim, const std::string &sec, const std::string &val);
+    void custom_draw_callback();
     void light_active_set(Light *light);
+
 
 
   public:

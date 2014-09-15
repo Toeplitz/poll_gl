@@ -17,4 +17,5 @@ class Poll_Plugin
     virtual void keyboard_callback_released(SDL_Keysym *keysym);
     virtual void custom_callback_event(unsigned int type);
     virtual void custom_callback();
+    virtual void custom_draw_callback();
 };

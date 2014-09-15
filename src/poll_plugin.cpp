@@ -46,3 +46,8 @@ void Poll_Plugin::custom_callback()
 {
 }
 
+
+void Poll_Plugin::custom_draw_callback()
+{
+}
+

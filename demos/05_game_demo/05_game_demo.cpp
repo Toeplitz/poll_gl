@@ -283,7 +283,6 @@ int main()
   {
 
     glm::vec3 light_positions[5] = {
-      glm::vec3(0, 21, 0),
       glm::vec3(-50, 15, 45),
       glm::vec3(-50, 15, -45),
       glm::vec3(50, 15, 45),
@@ -291,14 +290,13 @@ int main()
     };
 
     glm::vec3 light_color[5] = {
-      glm::vec3(1, 1, 1),
       glm::vec3(1, 0, 0),
       glm::vec3(0, 1, 0),
       glm::vec3(0, 0, 1),
       glm::vec3(1, 0.5, 0)
     };
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 4; i++) {
       Node *node = scene.node_create("Light_Point");
       Light *light = node->light_create(scene, Light::POINT);
       light->properties_color_set(light_color[i]);
@@ -317,8 +315,8 @@ int main()
     {
       Node *node = scene.node_create("Light_Spot");
       Light *light = node->light_create(scene, Light::SPOT);
-      node->translate(scene, glm::vec3(-40, 20, 0));
-      node->scale(scene, glm::vec3(30, 30, 30));
+      node->translate(scene, glm::vec3(-40, 3, 0));
+      node->scale(scene, glm::vec3(10, 10, 10));
       light->properties_color_set(glm::vec3(1, 0, 0));
     }
   }

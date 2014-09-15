@@ -187,4 +187,5 @@ void Physics_Rigidbody::bt_shape_init(Node *node_ptr, btCollisionShape *shape, u
     bt_rigidbody->setActivationState(DISABLE_DEACTIVATION);
   }
 
+
 }

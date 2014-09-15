@@ -15,6 +15,7 @@ using namespace glm;
 #include "camera.h"
 #include "gldefaults.h"
 #include "glshader.h"
+#include "poll_plugin.h"
 #include "scene.h"
 #include "text.h"
 
@@ -56,14 +57,13 @@ class GLcontext {
     void check_error();
     void draw_geometry_all(Scene &scene);
     void draw_light_all(Scene &scene);
-    void draw_light_all_symbols(Scene &scene);
     void draw_light_volume(Mesh *mesh, GLshader &shader_stencil, GLshader &shader_light);
     void draw_light_screen(Mesh *mesh, GLshader &shader_light);
     void draw_node(Node &node);
     void draw_mesh(Mesh &mesh);
     void draw_text(Node &node);
     void init(Window &window);
-    void framebuffer_draw_scene(Scene &scene);
+    void framebuffer_draw_scene(Scene &scene, std::vector<Poll_Plugin *> &plugins);
     void term();
     void texture_delete(Texture &texture);
     void texture_single_channel_create(Texture &texture);

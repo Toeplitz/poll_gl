@@ -87,6 +87,16 @@ void Stock_Shaders::term()
     glcontext.vertex_buffers_mesh_create(node_symbol_cone->mesh_get());
   }
 
+
+  {
+    node_symbol_disk = &scene.load("data/", "disk.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
+    node_symbol_disk->name_set("stock_disk");
+    Mesh *mesh = node_symbol_disk->mesh_get();
+    mesh->positions_update(node_symbol_disk->transform_global_get());
+    glcontext.vertex_buffers_mesh_create(mesh);
+  }
+
+
   {
     node_light_sphere = &scene.load("data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_NO_DRAW);
     node_light_sphere->name_set("stock_sphere");
@@ -118,9 +128,9 @@ Node *Stock_Nodes::cone_get()
 }
 
 
-Mesh *Stock_Nodes::disk_get()
+Node *Stock_Nodes::disk_get()
 {
-  return node_symbol_disk->mesh_get();
+  return node_symbol_disk;
 }
 
 

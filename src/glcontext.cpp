@@ -92,30 +92,6 @@ void GLcontext::draw_light_all(Scene &scene)
 }
 
 
-void GLcontext::draw_light_all_symbols(Scene &scene)
-{
-  Assets &assets = scene.assets_get();
-  Stock_Shaders &shader = assets.stock_shaders_get();
-  auto &lights = assets.light_active_get();
-
-  GL_ASSERT(glEnable(GL_DEPTH_TEST));
-  shader.world_basic_color.use();
-
-  for (auto &light: lights) {
-    Node *node = light->node_ptr_get();
-
-    for (auto &child : node->children_get()) {
-      mat4 &model_position = child->transform_global_position_get();
-      uniform_buffers_update_matrices(model_position);
-      Mesh *mesh = child->mesh_get();
-      draw_mesh(*mesh);
-    }
-
-  }
-  GL_ASSERT(glDisable(GL_DEPTH_TEST));
-}
-
-
 void GLcontext::draw_light_volume(Mesh *mesh, GLshader &shader_stencil, GLshader &shader_light)
 {
 
@@ -251,7 +227,7 @@ void GLcontext::init(Window &window)
 }
 
 
-void GLcontext::framebuffer_draw_scene(Scene &scene)
+void GLcontext::framebuffer_draw_scene(Scene &scene, std::vector<Poll_Plugin *> &plugins)
 {
   GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb));
   GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
@@ -259,7 +235,12 @@ void GLcontext::framebuffer_draw_scene(Scene &scene)
 
   draw_geometry_all(scene);
   draw_light_all(scene);
-  draw_light_all_symbols(scene);
+
+  GL_ASSERT(glEnable(GL_DEPTH_TEST));
+  for (auto plugin : plugins) {
+    plugin->custom_draw_callback();
+  }
+  GL_ASSERT(glDisable(GL_DEPTH_TEST));
 
   /* Step physics simulation */
   scene.physics_get().step(scene, 1/60);
