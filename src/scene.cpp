@@ -87,7 +87,7 @@ void Scene::init(Window &window)
 {
   this->window_ptr = &window;
 
-  Node *cam_node = node_create("camera");
+  Node *cam_node = node_create("camera", &root);
   cam_node->camera_create(assets_get());
   cam_node->camera_get()->transform_perspective_create(window.width_get(), window.height_get());
   node_camera_set(cam_node);
@@ -171,10 +171,14 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
     }
   }
 
+  /*
   std::cout << std::endl;
   std::cout << "global: " << to_string(node.transform_global_get()) << std::endl;
   std::cout << "cur local: " << to_string(node.transform_local_current_get()) << std::endl;
   std::cout << "orig local: " << to_string(node.transform_local_original_get()) << std::endl;
+  */
+
+  std::cout << " active: " << node.active_get();
   std::cout << std::endl;
 
   for (auto &child : node.children_get()) {
@@ -195,9 +199,10 @@ Node *Scene::node_camera_get()
 }
 
 
-Node *Scene::node_create(const std::string &name, Node *parent)
+Node *Scene::node_create(const std::string &name, Node *parent, Transform_Inherit transform_inheritance)
 {
   std::unique_ptr<Node> node(new Node(name));
+  node->transform_inheritance_set(transform_inheritance);
   Node *node_ptr  = node.get();
   if (!parent)
     root.child_add(std::move(node), root.tree_level_get() + 1);

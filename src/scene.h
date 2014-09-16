@@ -51,7 +51,7 @@ class Scene
     void                  scene_graph_print_by_node(Node &node, const bool compact = false);
     Node                 *node_camera_get();
     void                  node_camera_set(Node *camera_node);
-    Node                 *node_create(const std::string &name, Node *parent = nullptr);
+    Node                 *node_create(const std::string &name, Node *parent = nullptr, Transform_Inherit transform_inheritance = TRANSFORM_INHERIT_ALL);
     Node                 *node_find(Node *root_ptr, const std::string &name);
     Node                 &node_root_get();
     Physics              &physics_get();

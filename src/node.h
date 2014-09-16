@@ -78,7 +78,7 @@ class Node: public Animated {
 
     Node(const std::string &node_name);
 
-    void                active_set(const bool flag);
+    void                active_set(Scene &scene, const bool flag);
     bool                active_get();
     Armature           *armature_get();
     void                armature_set(Armature *armature);

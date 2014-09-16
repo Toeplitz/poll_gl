@@ -33,25 +33,19 @@ void Plugin_Light_Tool::callback_light_create(const std::string &prim, const std
 
 void Plugin_Light_Tool::callback_light_disable(const std::string &prim, const std::string &sec, const std::string &val)
 {
-  Assets &assets = scene->assets_get();
-
   if (!light_active)
     return;
 
-  assets.light_deactivate(light_active);
-  callback_light_list(prim, sec, val);
+  light_active->node_ptr_get()->active_set(*scene, false);
 }
 
 
 void Plugin_Light_Tool::callback_light_enable(const std::string &prim, const std::string &sec, const std::string &val)
 {
-  Assets &assets = scene->assets_get();
-
   if (!light_active)
     return;
 
-  assets.light_activate(light_active);
-  callback_light_list(prim, sec, val);
+  light_active->node_ptr_get()->active_set(*scene, true);
 }
 
 
@@ -138,6 +132,10 @@ void Plugin_Light_Tool::custom_draw_callback()
 
 void Plugin_Light_Tool::light_active_set(Light *light)
 {
-  light_active = light;
+  if (light_active) {
+    light_active->node_ptr_get()->active_set(*scene, false);
+  }
 
+  light_active = light;
+  light_active->node_ptr_get()->active_set(*scene, true);
 }

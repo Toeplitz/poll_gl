@@ -20,9 +20,30 @@ Node::Node(const std::string &node_name)
 /**************************************************/
 
 
-void  Node::active_set(const bool flag)
+void  Node::active_set(Scene &scene, const bool flag)
 {
   this->active = flag;
+
+  POLL_DEBUG(std::cout, "setting active state for node: " << name_get());
+
+  Physics_Rigidbody *rigidbody = physics_rigidbody_get();
+  if (rigidbody) {
+    if (flag) {
+      POLL_DEBUG(std::cout, "Setting active and adding rigidbody");
+      scene.physics_get().rigidbody_add(rigidbody);
+      /* FIXME: use bullet masks */
+    } else {
+      POLL_DEBUG(std::cout, "Setting active and removing rigidbody:");
+
+      /* FIXME: use bullet masks */
+      scene.physics_get().rigidbody_delete(rigidbody);
+    }
+  }
+
+  for (auto &child : children_get()) {
+    child->active_set(scene, flag);
+  }
+  
 }
 
 
@@ -107,8 +128,7 @@ Light *Node::light_create(Scene &scene, const unsigned int lamp_type, const unsi
   if (lamp_type == Light::POINT || lamp_type == Light::SPOT) {
     {
       Node *node_symbol_cone = stock_nodes.cone_get();
-      Node *node = scene.node_create("light_symbol", this);
-      node->transform_inheritance_set(TRANSFORM_INHERIT_POSITION_ONLY);
+      Node *node = scene.node_create("light_symbol", this, TRANSFORM_INHERIT_POSITION_ONLY);
       node->mesh_set(node_symbol_cone->mesh_get());
       node->physics_rigidbody_create(scene, false, Physics_Rigidbody::BOX, Physics_Rigidbody::KINEMATIC, 0);
     }
@@ -117,20 +137,23 @@ Light *Node::light_create(Scene &scene, const unsigned int lamp_type, const unsi
     {
       Node *node = scene.node_create("light_disk", this);
       node->mesh_set(node_symbol_disk->mesh_get());
-     // node->physics_rigidbody_create(scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC, 0);
+      node->physics_rigidbody_create(scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC, 0);
+      node->active_set(scene, false);
     }
 
     {
       Node *node = scene.node_create("light_disk", this);
       node->mesh_set(node_symbol_disk->mesh_get());
-     // node->physics_rigidbody_create(scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC, 0);
+      node->physics_rigidbody_create(scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC, 0);
+      node->active_set(scene, false);
       node->rotate(scene, M_PI / 2, glm::vec3(1, 0, 0));
     }
 
     {
       Node *node = scene.node_create("light_disk", this);
       node->mesh_set(node_symbol_disk->mesh_get());
-     // node->physics_rigidbody_create(scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC, 0);
+      node->physics_rigidbody_create(scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC, 0);
+      node->active_set(scene, false);
       node->rotate(scene, M_PI / 2, glm::vec3(0, 0, 1));
     }
 
