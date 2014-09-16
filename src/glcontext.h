@@ -57,10 +57,10 @@ class GLcontext {
     void check_error();
     void draw_geometry_all(Scene &scene);
     void draw_light_all(Scene &scene);
-    void draw_light_volume(Mesh *mesh, GLshader &shader_stencil, GLshader &shader_light);
-    void draw_light_screen(Mesh *mesh, GLshader &shader_light);
+    void draw_light_volume(Node &node, GLshader &shader_stencil, GLshader &shader_light);
+    void draw_light_screen(Node &node, GLshader &shader_light);
     void draw_node(Node &node);
-    void draw_mesh(Mesh &mesh);
+    void draw_mesh(Node &node);
     void draw_text(Node &node);
     void init(Window &window);
     void framebuffer_draw_scene(Scene &scene, std::vector<Poll_Plugin *> &plugins);

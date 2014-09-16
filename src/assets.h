@@ -1,22 +1,18 @@
 #pragma once
-
-#include <vector>
-
 #include "armature.h"
 #include "camera.h"
 #include "glshader.h"
 #include "light.h"
 #include "physics_rigidbody.h"
 #include "model.h"
-#include "manipulator.h"
 #include "material.h"
 #include "mesh.h"
+#include <vector>
 
 
 typedef std::vector<std::unique_ptr<Armature>>          Armature_List;
 typedef std::vector<std::unique_ptr<Camera>>            Camera_List;
 typedef std::vector<std::unique_ptr<Light>>             Light_List;
-typedef std::vector<std::unique_ptr<Manipulator>>       Manipulator_List;
 typedef std::vector<std::unique_ptr<Material>>          Material_List;
 typedef std::vector<std::unique_ptr<Mesh>>              Mesh_List;
 typedef std::vector<std::unique_ptr<Physics_Rigidbody>> Physics_Rigidbody_List;
@@ -31,8 +27,6 @@ class Scene;
 class Stock_Nodes 
 {
   private:
-
-
     Node *node_light_sphere;
     Node *node_symbol_cone;
     Node *node_symbol_diamond;
@@ -41,14 +35,13 @@ class Stock_Nodes
     Node *node_screen_quad;
 
   public:
-
     void init(Scene &scene);
     Node *cone_get();
     Node *disk_get();
     Mesh *diamond_get();
     Mesh *pyramid_get();
-    Mesh *screen_quad_get();
-    Mesh *sphere_get();
+    Node *screen_quad_get();
+    Node *sphere_get();
 };
 
 
@@ -73,23 +66,19 @@ class Assets
 {
 
   private:
-
     Armature_List armatures;
     Camera_List cameras;
     Light_List active_lights;
     Light_List inactive_lights;
     Physics_Rigidbody_List rigidbodies;
-    Manipulator_List manipulators;
     Material_List materials;
     Mesh_List meshes;
     Text_List texts;
-
     Stock_Nodes stock_nodes;
     Stock_Shaders stock_shaders;
 
 
   public:
-
     void                  armature_add(std::unique_ptr<Armature> &&armature);
     Armature_List  const &armature_get_all() const;
     void                  armature_print_all() const;
@@ -104,8 +93,6 @@ class Assets
     void                  light_inactive_add(std::unique_ptr<Light> &&light);
     bool                  light_is_active(Light *light);
     void                  light_print_all(const Node &node) const;
-    void                  manipulator_add(std::unique_ptr<Manipulator> &&manipulator);
-    void                  manipulator_print_all(const Node &node) const;
     Material_List  const &material_get_all() const;
     void                  material_add(std::unique_ptr<Material> &&material);
     unsigned int          material_node_lookup(const Material *material, Node &node);

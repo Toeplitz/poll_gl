@@ -15,27 +15,7 @@ Armature *armature = nullptr;
 Node *panda;
 Node *room;
 
-
-Light *light_directional;
-Light *light_point;
-Light *light_spot;
-
-
-static void light_toggle(Light *light)
-{
-  Scene &scene = poll.scene_get();
-  Assets &assets = scene.assets_get();
-
-  int r = assets.light_is_active(light);
-  if (r) {
-    assets.light_deactivate(light);
-  } else {
-    assets.light_activate(light);
-  }
-}
-
-
-
+#if 0
 static void joystick_axis_motion_cb(SDL_JoyAxisEvent *ev)
 {
   static int joystick_x = 0;
@@ -124,15 +104,6 @@ static void keyboard_pressed_cb(SDL_Keysym *keysym)
     case SDLK_2:
       direction |= PHYSICS_DIRECTION_STRAFE_RIGHT;
       break;
-    case SDLK_9:
-      light_toggle(light_directional);
-      break;
-    case SDLK_8:
-      light_toggle(light_point);
-      break;
-    case SDLK_7:
-      light_toggle(light_spot);
-      break;
     default:
       break;
   }
@@ -202,16 +173,13 @@ static void physics_update()
   }
   last_state = cur_state;
 }
+#endif
 
 
 
 int main() 
 {
   Scene &scene = poll.scene_get();
-  Assets &assets = scene.assets_get();
-  Window &window = poll.window_get();
-  Physics &physics = poll.physics_get();
-  GLcontext glcontext = poll.glcontext_get();
 
   /*
   window.joystick_axis_motion_callback_set(joystick_axis_motion_cb);

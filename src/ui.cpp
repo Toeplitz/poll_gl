@@ -16,7 +16,6 @@ void Ui::init(Console &console, GLcontext &glcontext, Scene &scene)
 
   console.command_add("asset", "list", std::bind(&Ui::callback_asset_list, this, _1, _2, _3));
   console.command_add("object", "add", std::bind(&Ui::callback_object_add, this, _1, _2, _3));
-  console.command_add("node", "manipulator", std::bind(&Ui::callback_node_manipulator, this, _1, _2, _3));
   console.command_add("scene", "list", std::bind(&Ui::callback_scene_list, this, _1, _2, _3));
 
   Font *font = console.font_get();
@@ -92,18 +91,6 @@ void Ui::callback_object_add(const std::string &prim, const std::string &sec, co
     node.physics_rigidbody_create(*scene, false, Physics_Rigidbody::SPHERE, Physics_Rigidbody::DYNAMIC, 10.f);
   }
 
-}
-
-
-void Ui::callback_node_manipulator(const std::string &prim, const std::string &sec, const std::string &val)
-{
-  int toggle = 0;
-
-  if (val.size() > 0)
-    toggle = ::atoi(val.c_str());
-
-  //scene->manipulator_toggle
- 
 }
 
 

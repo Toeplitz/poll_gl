@@ -34,8 +34,8 @@ void Physics_Character_Controller::bullet_character_step(const double dt)
   ghost->getWorldTransform().getOpenGLMatrix((btScalar *) &m);
  // node->transform_model_set(m);
 
-  btScalar walkVelocity = 15.0;
-  btScalar walkSpeed = walkVelocity * dt;
+//  btScalar walkVelocity = 15.0;
+//  btScalar walkSpeed = walkVelocity * dt;
   float rotation_speed = 3.f * (float) dt;
 
   if (direction & PHYSICS_DIRECTION_LEFT) {

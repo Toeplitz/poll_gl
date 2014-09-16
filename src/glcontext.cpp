@@ -45,7 +45,7 @@ void GLcontext::draw_light_all(Scene &scene)
   Assets &assets = scene.assets_get();
   Stock_Shaders &shader = assets.stock_shaders_get();
   auto &lights = assets.light_active_get();
-  Mesh *mesh_screen_quad = assets.stock_nodes_get().screen_quad_get();
+  Node *node_screen_quad = assets.stock_nodes_get().screen_quad_get();
 
   GL_ASSERT(glEnable(GL_STENCIL_TEST));
 
@@ -77,10 +77,10 @@ void GLcontext::draw_light_all(Scene &scene)
 
     switch (light->illumination_type_get()) {
       case Light::VOLUME:
-        draw_light_volume(mesh, shader.world_stencil, shader.world_light);
+        draw_light_volume(*node, shader.world_stencil, shader.world_light);
         break;
       case Light::GLOBAL:
-        draw_light_screen(mesh_screen_quad, shader.screen_light);
+        draw_light_screen(*node_screen_quad, shader.screen_light);
         break;
       default:
         POLL_ERROR(std::cerr, "Illumination type not supported");
@@ -92,8 +92,9 @@ void GLcontext::draw_light_all(Scene &scene)
 }
 
 
-void GLcontext::draw_light_volume(Mesh *mesh, GLshader &shader_stencil, GLshader &shader_light)
+void GLcontext::draw_light_volume(Node &node, GLshader &shader_stencil, GLshader &shader_light)
 {
+  NODE_VALIDATE(node);
 
   shader_stencil.use();
   GL_ASSERT(glDrawBuffer(GL_NONE));
@@ -103,7 +104,7 @@ void GLcontext::draw_light_volume(Mesh *mesh, GLshader &shader_stencil, GLshader
   GL_ASSERT(glStencilFunc(GL_ALWAYS, 0, 0));
   GL_ASSERT(glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP));
   GL_ASSERT(glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP));
-  draw_mesh(*mesh);
+  draw_mesh(node);
 
   shader_light.use();
   GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
@@ -114,15 +115,17 @@ void GLcontext::draw_light_volume(Mesh *mesh, GLshader &shader_stencil, GLshader
   GL_ASSERT(glBlendFunc(GL_ONE, GL_ONE));
   GL_ASSERT(glEnable(GL_CULL_FACE));
   GL_ASSERT(glCullFace(GL_FRONT));
-  draw_mesh(*mesh);
+  draw_mesh(node);
 
   GL_ASSERT(glCullFace(GL_BACK));
   GL_ASSERT(glDisable(GL_BLEND));
 }
 
 
-void GLcontext::draw_light_screen(Mesh *mesh, GLshader &shader_quad_light)
+void GLcontext::draw_light_screen(Node &node, GLshader &shader_quad_light)
 {
+  NODE_VALIDATE(node);
+
   shader_quad_light.use();
 
   GL_ASSERT(glClear(GL_STENCIL_BUFFER_BIT));
@@ -130,7 +133,7 @@ void GLcontext::draw_light_screen(Mesh *mesh, GLshader &shader_quad_light)
   GL_ASSERT(glEnable(GL_BLEND));
   GL_ASSERT(glBlendEquation(GL_FUNC_ADD));
   GL_ASSERT(glBlendFunc(GL_ONE, GL_ONE));
-  draw_mesh(*mesh);
+  draw_mesh(node);
 
   GL_ASSERT(glDisable(GL_BLEND));
   GL_ASSERT(glEnable(GL_STENCIL_TEST));
@@ -139,6 +142,7 @@ void GLcontext::draw_light_screen(Mesh *mesh, GLshader &shader_quad_light)
 
 void GLcontext::draw_node(Node &node)
 {
+  NODE_VALIDATE(node);
   Mesh *mesh = node.mesh_get();
 
   if (!mesh) {
@@ -155,14 +159,17 @@ void GLcontext::draw_node(Node &node)
   }
 
   if (node.state_get().cubemap_skybox) glDepthMask(GL_FALSE);
-  draw_mesh(*mesh);
+  draw_mesh(node);
   if (node.state_get().cubemap_skybox) glDepthMask(GL_TRUE);
 
 }
 
 
-void GLcontext::draw_mesh(Mesh &mesh)
+void GLcontext::draw_mesh(Node &node)
 {
+  NODE_VALIDATE(node);
+  Mesh &mesh = *node.mesh_get();
+
   GL_ASSERT(glBindVertexArray(mesh.gl_vao));
   GLsizei count = (GLsizei) mesh.num_indices_get();
   if (count <= 0) {
@@ -175,6 +182,7 @@ void GLcontext::draw_mesh(Mesh &mesh)
 
 void GLcontext::draw_text(Node &node)
 {
+  NODE_VALIDATE(node);
   Font *font = nullptr;
   Mesh *mesh = node.mesh_get();
   Text *text = node.text_get();
@@ -200,7 +208,7 @@ void GLcontext::draw_text(Node &node)
   GL_ASSERT(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
   GL_ASSERT(glActiveTexture(GL_TEXTURE0));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, texture.gl_texture));
-  draw_mesh(*mesh);
+  draw_mesh(node);
   GL_ASSERT(glDisable(GL_BLEND));
 }
 
@@ -252,11 +260,11 @@ void GLcontext::framebuffer_draw_scene(Scene &scene, std::vector<Poll_Plugin *> 
   {
     Assets &assets = scene.assets_get();
     Stock_Shaders &shader = assets.stock_shaders_get();
-    Mesh *mesh = assets.stock_nodes_get().screen_quad_get();
+    Node *node = assets.stock_nodes_get().screen_quad_get();
     shader.screen_post_proc.use();
     GL_ASSERT(glActiveTexture(GL_TEXTURE0));
     GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_final));
-    draw_mesh(*mesh);
+    draw_mesh(*node);
   }
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);

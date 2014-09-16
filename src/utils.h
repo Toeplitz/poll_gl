@@ -22,6 +22,10 @@
        << msg << std::endl
 
 
+#define NODE_VALIDATE(node) \
+  if (!node.active_get()) return;
+
+
 extern std::string basename(std::string const &pathname);
 extern void        indent(std::ostream &os,size_t indent);
 bool               file_exists(const std::string &name);

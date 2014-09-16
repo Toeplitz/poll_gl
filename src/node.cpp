@@ -20,6 +20,18 @@ Node::Node(const std::string &node_name)
 /**************************************************/
 
 
+void  Node::active_set(const bool flag)
+{
+  this->active = flag;
+}
+
+
+bool Node::active_get()
+{
+  return active;
+}
+
+
 Armature *Node::armature_get()
 {
   return armature;
@@ -73,11 +85,12 @@ Light *Node::light_create(Scene &scene, const unsigned int lamp_type, const unsi
   Assets &assets = scene.assets_get();
   Stock_Nodes &stock_nodes = assets.stock_nodes_get();
   Mesh *mesh = nullptr;
+  Node *node_ptr = nullptr;
 
   if (illumination_type == Light::GLOBAL) {
-    mesh = stock_nodes.screen_quad_get();
+    node_ptr = stock_nodes.screen_quad_get();
   } else {
-    mesh = stock_nodes.sphere_get();
+    node_ptr = stock_nodes.sphere_get();
   }
 
   if (!mesh) {
@@ -89,7 +102,7 @@ Light *Node::light_create(Scene &scene, const unsigned int lamp_type, const unsi
   Light *light_ptr = light.get();
   light_ptr->properties_type_set(lamp_type);
   light_ptr->illumination_type_set(illumination_type);
-  mesh_set(mesh);
+  mesh_set(node_ptr->mesh_get());
   light_set(light_ptr);
 
   if (lamp_type == Light::POINT || lamp_type == Light::SPOT) {
@@ -206,16 +219,6 @@ void Node::physics_rigidbody_set(Physics_Rigidbody *rigidbody)
 }
 
 
-Manipulator *Node::manipulator_create(Assets &assets)
-{
-  std::unique_ptr<Manipulator> manipulator(new Manipulator());
-  Manipulator *manipulator_ptr = manipulator.get();
-  manipulator_set(manipulator_ptr);
-  assets.manipulator_add(std::move(manipulator));
-  return manipulator_ptr;
-}
-
-
 const std::string  &Node::name_get()
 {
   return name;
@@ -225,18 +228,6 @@ const std::string  &Node::name_get()
 void Node::name_set(const std::string &name)
 {
   this->name = name;
-}
-
-
-Manipulator *Node::manipulator_get()
-{
-  return manipulator;
-}
-
-
-void Node::manipulator_set(Manipulator *manipulator)
-{
-  this->manipulator= manipulator;
 }
 
 

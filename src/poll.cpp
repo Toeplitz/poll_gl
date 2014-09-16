@@ -41,7 +41,6 @@ void Poll::run()
 {
   GLcontext &glcontext = glcontext_get();
   Assets &assets = assets_get();
-  Physics &physics = physics_get();
   Stock_Shaders &shader = assets.stock_shaders_get();
 
   for (;;) {

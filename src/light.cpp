@@ -22,18 +22,6 @@ void Light::illumination_type_set(const unsigned int illumination_type)
 }
 
 
-Mesh *Light::mesh_symbol_get()
-{
-  return mesh_symbol;
-}
-
-
-void Light::mesh_symbol_set(Mesh *mesh)
-{
-  this->mesh_symbol = mesh;
-}
-
-
 Node *Light::node_ptr_get()
 {
   return node_ptr;

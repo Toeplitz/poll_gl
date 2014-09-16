@@ -146,15 +146,15 @@ Mesh *Stock_Nodes::pyramid_get()
 }
 
 
-Mesh *Stock_Nodes::screen_quad_get() 
+Node *Stock_Nodes::screen_quad_get() 
 {
-  return node_screen_quad->mesh_get();
+  return node_screen_quad;
 }
 
 
-Mesh *Stock_Nodes::sphere_get()
+Node *Stock_Nodes::sphere_get()
 {
-  return node_light_sphere->mesh_get();
+  return node_light_sphere;
 }
 
 
@@ -324,22 +324,6 @@ void Assets::light_print_all(const Node &node) const
 }
 
 
-void Assets::manipulator_add(std::unique_ptr<Manipulator> &&manipulator) 
-{
-  manipulators.push_back(std::move(manipulator));
-}
-
-
-void Assets::manipulator_print_all(const Node &node) const
-{
-  std::cout << "\nManipulators: " << std::endl;
-
-  for (auto &manipulator: manipulators) {
-    std::cout << "\t(" << manipulator.get() << ")" << std::endl;
-  }
-}
-
-
 void Assets::material_add(std::unique_ptr<Material> &&material) 
 {
   materials.push_back(std::move(material));
@@ -490,7 +474,6 @@ void Assets::print_all(Node &node)
   armature_print_all();
   camera_print_all(node);
   light_print_all(node);
-  manipulator_print_all(node);
   material_print_all(node);
   mesh_print_all(node);
   physics_rigidbody_print_all(node);

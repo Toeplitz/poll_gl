@@ -13,7 +13,6 @@ using namespace glm;
 #include "camera.h"
 #include "light.h"
 #include "physics_rigidbody.h"
-#include "manipulator.h"
 #include "material.h"
 #include "mesh.h"
 #include "text.h"
@@ -56,11 +55,11 @@ class Node: public Animated {
     Light              *light = nullptr;
     Physics_Rigidbody  *rigidbody = nullptr;
     Text               *text = nullptr;
-    Manipulator        *manipulator = nullptr;
     Material           *material = nullptr;
     Mesh               *mesh = nullptr;
     Node               *parent = nullptr;
 
+    bool                active = true;
     Node_List           children;
     std::string         name;
     Node_State          state;
@@ -79,6 +78,8 @@ class Node: public Animated {
 
     Node(const std::string &node_name);
 
+    void                active_set(const bool flag);
+    bool                active_get();
     Armature           *armature_get();
     void                armature_set(Armature *armature);
     Camera             *camera_create(Assets &assets);
@@ -96,9 +97,6 @@ class Node: public Animated {
     void                physics_rigidbody_set(Physics_Rigidbody *rigidbody);
     const std::string  &name_get();
     void                name_set(const std::string &name);
-    Manipulator        *manipulator_create(Assets &assets);
-    Manipulator        *manipulator_get();
-    void                manipulator_set(Manipulator *manipulator);
     Material           *material_create(Assets &assets);
     Material           *material_get();
     void                material_set(Material *material);

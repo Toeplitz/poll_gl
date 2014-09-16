@@ -3,16 +3,6 @@
 #include "../external/stb_image.h"
 
 
-Image::Image()
-{
-}
-
-
-Image::~Image()
-{
-}
-
-
 bool Image::load(const std::string &filename)
 {
   unsigned char *buf = stbi_load(filename.c_str(), &width, &height, &components, 3);
@@ -42,6 +32,7 @@ void Image::data_copy(unsigned char *buf, const int width, const int height)
   this->width = width;
   this->height = height;
 }
+
 
 const unsigned char &Image::data_get() const
 {

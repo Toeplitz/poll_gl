@@ -182,7 +182,7 @@ void Physics::bullet_init()
 
 Physics_Character_Controller *Physics::bullet_kinematic_character_controller_create(Node &node, Node &collision_node)
 {
-  Physics_Character_Controller *character_ptr;
+  Physics_Character_Controller *character_ptr = nullptr;
   /*
      btCollisionShape *fallShape = bullet_collision_shape_convex_hull_create(collision_node);
 

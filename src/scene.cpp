@@ -149,9 +149,6 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
   if (node.keyframe_total_num_get() > 0) {
     std::cout << " (" << node.keyframe_total_num_get() << " keyframes)";
   }
-  if (node.manipulator_get()) {
-    std::cout << " (manipulator)";
-  }
   if (node.material_get()) {
     std::cout << " (material)";
   }

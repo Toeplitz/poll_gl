@@ -17,7 +17,6 @@ int main()
   auto debug = std::unique_ptr<Plugin_Debug>(new Plugin_Debug(poll.console_get(), scene));
   poll.plugin_add(*debug);
 
-  Node &root = scene.node_root_get();
   Node &sponza = scene.load("data/crytek-sponza/", "sponza_with_spec.obj", MODEL_IMPORT_DEFAULT);
   sponza.scale(scene, glm::vec3(0.1, 0.1, 0.1));
   sponza.physics_rigidbody_create(scene, true, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::DYNAMIC, 0);

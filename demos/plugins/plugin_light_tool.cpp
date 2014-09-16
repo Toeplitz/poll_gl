@@ -130,8 +130,7 @@ void Plugin_Light_Tool::custom_draw_callback()
     for (auto &child : node->children_get()) {
       mat4 &transform = child->transform_global_get();
       glcontext.uniform_buffers_update_matrices(transform);
-      Mesh *mesh = child->mesh_get();
-      glcontext.draw_mesh(*mesh);
+      glcontext.draw_mesh(*child);
     }
   }
 }
