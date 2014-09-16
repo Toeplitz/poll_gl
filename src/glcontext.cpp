@@ -20,151 +20,6 @@ void GLcontext::check_error()
 }
 
 
-void GLcontext::draw_geometry_all(Scene &scene)
-{
-  Assets &assets = scene.assets_get();
-  Stock_Shaders &shader = assets.stock_shaders_get();
-
-  shader.world_geometry.use();
-  GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb));
-  GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-  GL_ASSERT(glDrawBuffers(2, draw_bufs));
-  GL_ASSERT(glDepthMask(GL_TRUE));
-  GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-  GL_ASSERT(glEnable(GL_DEPTH_TEST));
-  for (auto &node: scene.mesh_nodes_get()) {
-    draw_node(*node);
-  }
-  GL_ASSERT(glDepthMask(GL_FALSE));
-  GL_ASSERT(glDisable(GL_DEPTH_TEST));
-}
-
-
-void GLcontext::draw_light_all(Scene &scene)
-{
-  Assets &assets = scene.assets_get();
-  Stock_Shaders &shader = assets.stock_shaders_get();
-  auto &lights = assets.light_active_get();
-  Node *node_screen_quad = assets.stock_nodes_get().screen_quad_get();
-
-  GL_ASSERT(glEnable(GL_STENCIL_TEST));
-
-  GL_ASSERT(glActiveTexture(GL_TEXTURE0));
-  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_normal));
-  GL_ASSERT(glActiveTexture(GL_TEXTURE1));
-  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_diffuse));
-  GL_ASSERT(glActiveTexture(GL_TEXTURE2));
-  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_depth));
-  GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
-
-  for (auto &light: lights) {
-    Node *node = light->node_ptr_get();
-    if (!node) {
-      POLL_ERROR(std::cerr, "Missing node pointer for light: " << light.get());
-      continue;
-    }
-
-    mat4 &model = node->transform_global_get();
-    light->properties_position_set(vec3(model[3][0], model[3][1], model[3][2]));
-    uniform_buffers_update_matrices(*node);
-    uniform_buffers_update_light(*light);
-
-    Mesh *mesh = node->mesh_get();
-    if (!mesh) {
-      POLL_ERROR(std::cerr, "No mesh attached to the light: " << node->name_get().c_str());
-      continue;
-    }
-
-    switch (light->illumination_type_get()) {
-      case Light::VOLUME:
-        draw_light_volume(*node, shader.world_stencil, shader.world_light);
-        break;
-      case Light::GLOBAL:
-        draw_light_screen(*node_screen_quad, shader.screen_light);
-        break;
-      default:
-        POLL_ERROR(std::cerr, "Illumination type not supported");
-        break;
-    }
-
-  }
-  GL_ASSERT(glDisable(GL_STENCIL_TEST));
-}
-
-
-void GLcontext::draw_light_volume(Node &node, GLshader &shader_stencil, GLshader &shader_light)
-{
-  NODE_VALIDATE(node);
-
-  shader_stencil.use();
-  GL_ASSERT(glDrawBuffer(GL_NONE));
-  GL_ASSERT(glClear(GL_STENCIL_BUFFER_BIT));
-  GL_ASSERT(glEnable(GL_DEPTH_TEST));
-  GL_ASSERT(glDisable(GL_CULL_FACE));
-  GL_ASSERT(glStencilFunc(GL_ALWAYS, 0, 0));
-  GL_ASSERT(glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP));
-  GL_ASSERT(glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP));
-  draw_mesh(node);
-
-  shader_light.use();
-  GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
-  GL_ASSERT(glStencilFunc(GL_NOTEQUAL, 0, 0xFF));
-  GL_ASSERT(glDisable(GL_DEPTH_TEST));
-  GL_ASSERT(glEnable(GL_BLEND));
-  GL_ASSERT(glBlendEquation(GL_FUNC_ADD));
-  GL_ASSERT(glBlendFunc(GL_ONE, GL_ONE));
-  GL_ASSERT(glEnable(GL_CULL_FACE));
-  GL_ASSERT(glCullFace(GL_FRONT));
-  draw_mesh(node);
-
-  GL_ASSERT(glCullFace(GL_BACK));
-  GL_ASSERT(glDisable(GL_BLEND));
-}
-
-
-void GLcontext::draw_light_screen(Node &node, GLshader &shader_quad_light)
-{
-  NODE_VALIDATE(node);
-
-  shader_quad_light.use();
-
-  GL_ASSERT(glClear(GL_STENCIL_BUFFER_BIT));
-  GL_ASSERT(glDisable(GL_STENCIL_TEST));
-  GL_ASSERT(glEnable(GL_BLEND));
-  GL_ASSERT(glBlendEquation(GL_FUNC_ADD));
-  GL_ASSERT(glBlendFunc(GL_ONE, GL_ONE));
-  draw_mesh(node);
-
-  GL_ASSERT(glDisable(GL_BLEND));
-  GL_ASSERT(glEnable(GL_STENCIL_TEST));
-}
-
-
-void GLcontext::draw_node(Node &node)
-{
-  NODE_VALIDATE(node);
-  Mesh *mesh = node.mesh_get();
-
-  if (!mesh) {
-    POLL_ERROR(std::cerr, "No mesh attached to node: " <<  node.name_get().c_str());
-    return;
-  }
-
-  uniform_buffers_update_state(node);
-  uniform_buffers_update_matrices(node);
-
-  { 
-    Material *material = node.material_get();
-    if (material) uniform_buffers_update_material(*material);
-  }
-
-  if (node.state_get().cubemap_skybox) glDepthMask(GL_FALSE);
-  draw_mesh(node);
-  if (node.state_get().cubemap_skybox) glDepthMask(GL_TRUE);
-
-}
-
-
 void GLcontext::draw_mesh(Node &node)
 {
   NODE_VALIDATE(node);
@@ -177,6 +32,42 @@ void GLcontext::draw_mesh(Node &node)
   } else {
     GL_ASSERT(glDrawElements(mesh.mode, count, GL_UNSIGNED_SHORT, 0));
   }
+}
+
+
+void GLcontext::draw_scene(Scene &scene, std::vector<Poll_Plugin *> &plugins)
+{
+  GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb));
+  GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
+  GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT));
+
+  draw_geometry_all(scene);
+  draw_light_all(scene);
+
+  GL_ASSERT(glEnable(GL_DEPTH_TEST));
+  for (auto plugin : plugins) {
+    plugin->custom_draw_callback();
+  }
+  GL_ASSERT(glDisable(GL_DEPTH_TEST));
+
+  /* Step physics simulation */
+  scene.physics_get().step(scene, 1/60);
+
+  GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
+  GL_ASSERT(glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_fb));
+  GL_ASSERT(glReadBuffer(GL_COLOR_ATTACHMENT2));
+
+  {
+    Assets &assets = scene.assets_get();
+    Stock_Shaders &shader = assets.stock_shaders_get();
+    Node *node = assets.stock_nodes_get().screen_quad_get();
+    shader.screen_post_proc.use();
+    GL_ASSERT(glActiveTexture(GL_TEXTURE0));
+    GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_final));
+    draw_mesh(*node);
+  }
+
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 
@@ -234,41 +125,6 @@ void GLcontext::init(Window &window)
   framebuffer_create();
 }
 
-
-void GLcontext::framebuffer_draw_scene(Scene &scene, std::vector<Poll_Plugin *> &plugins)
-{
-  GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb));
-  GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
-  GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT));
-
-  draw_geometry_all(scene);
-  draw_light_all(scene);
-
-  GL_ASSERT(glEnable(GL_DEPTH_TEST));
-  for (auto plugin : plugins) {
-    plugin->custom_draw_callback();
-  }
-  GL_ASSERT(glDisable(GL_DEPTH_TEST));
-
-  /* Step physics simulation */
-  scene.physics_get().step(scene, 1/60);
-
-  GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
-  GL_ASSERT(glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_fb));
-  GL_ASSERT(glReadBuffer(GL_COLOR_ATTACHMENT2));
-
-  {
-    Assets &assets = scene.assets_get();
-    Stock_Shaders &shader = assets.stock_shaders_get();
-    Node *node = assets.stock_nodes_get().screen_quad_get();
-    shader.screen_post_proc.use();
-    GL_ASSERT(glActiveTexture(GL_TEXTURE0));
-    GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_final));
-    draw_mesh(*node);
-  }
-
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
 
 
 void GLcontext::term()
@@ -815,6 +671,150 @@ bool GLcontext::check_version(const int &major)
     return false;
 
   return true;
+}
+
+
+void GLcontext::draw_geometry_all(Scene &scene)
+{
+  Assets &assets = scene.assets_get();
+  Stock_Shaders &shader = assets.stock_shaders_get();
+
+  shader.world_geometry.use();
+  GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb));
+  GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+  GL_ASSERT(glDrawBuffers(2, draw_bufs));
+  GL_ASSERT(glDepthMask(GL_TRUE));
+  GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+  GL_ASSERT(glEnable(GL_DEPTH_TEST));
+  for (auto &node: scene.mesh_nodes_get()) {
+    draw_node(*node);
+  }
+  GL_ASSERT(glDepthMask(GL_FALSE));
+  GL_ASSERT(glDisable(GL_DEPTH_TEST));
+}
+
+
+void GLcontext::draw_light_all(Scene &scene)
+{
+  Assets &assets = scene.assets_get();
+  Stock_Shaders &shader = assets.stock_shaders_get();
+  auto &lights = assets.light_active_get();
+  Node *node_screen_quad = assets.stock_nodes_get().screen_quad_get();
+
+  GL_ASSERT(glEnable(GL_STENCIL_TEST));
+
+  GL_ASSERT(glActiveTexture(GL_TEXTURE0));
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_normal));
+  GL_ASSERT(glActiveTexture(GL_TEXTURE1));
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_diffuse));
+  GL_ASSERT(glActiveTexture(GL_TEXTURE2));
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_depth));
+  GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
+
+  for (auto &light: lights) {
+    Node *node = light->node_ptr_get();
+    if (!node) {
+      POLL_ERROR(std::cerr, "Missing node pointer for light: " << light.get());
+      continue;
+    }
+
+    mat4 &model = node->transform_global_get();
+    light->properties_position_set(vec3(model[3][0], model[3][1], model[3][2]));
+    uniform_buffers_update_matrices(*node);
+    uniform_buffers_update_light(*light);
+
+    Mesh *mesh = node->mesh_get();
+    if (!mesh) {
+      POLL_ERROR(std::cerr, "No mesh attached to the light: " << node->name_get().c_str());
+      continue;
+    }
+
+    switch (light->illumination_type_get()) {
+      case Light::VOLUME:
+        draw_light_volume(*node, shader.world_stencil, shader.world_light);
+        break;
+      case Light::GLOBAL:
+        draw_light_screen(*node_screen_quad, shader.screen_light);
+        break;
+      default:
+        POLL_ERROR(std::cerr, "Illumination type not supported");
+        break;
+    }
+
+  }
+  GL_ASSERT(glDisable(GL_STENCIL_TEST));
+}
+
+
+void GLcontext::draw_light_volume(Node &node, GLshader &shader_stencil, GLshader &shader_light)
+{
+  NODE_VALIDATE(node);
+
+  shader_stencil.use();
+  GL_ASSERT(glDrawBuffer(GL_NONE));
+  GL_ASSERT(glClear(GL_STENCIL_BUFFER_BIT));
+  GL_ASSERT(glEnable(GL_DEPTH_TEST));
+  GL_ASSERT(glDisable(GL_CULL_FACE));
+  GL_ASSERT(glStencilFunc(GL_ALWAYS, 0, 0));
+  GL_ASSERT(glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP));
+  GL_ASSERT(glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP));
+  draw_mesh(node);
+
+  shader_light.use();
+  GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
+  GL_ASSERT(glStencilFunc(GL_NOTEQUAL, 0, 0xFF));
+  GL_ASSERT(glDisable(GL_DEPTH_TEST));
+  GL_ASSERT(glEnable(GL_BLEND));
+  GL_ASSERT(glBlendEquation(GL_FUNC_ADD));
+  GL_ASSERT(glBlendFunc(GL_ONE, GL_ONE));
+  GL_ASSERT(glEnable(GL_CULL_FACE));
+  GL_ASSERT(glCullFace(GL_FRONT));
+  draw_mesh(node);
+
+  GL_ASSERT(glCullFace(GL_BACK));
+  GL_ASSERT(glDisable(GL_BLEND));
+}
+
+
+void GLcontext::draw_light_screen(Node &node, GLshader &shader_quad_light)
+{
+  NODE_VALIDATE(node);
+
+  shader_quad_light.use();
+
+  GL_ASSERT(glClear(GL_STENCIL_BUFFER_BIT));
+  GL_ASSERT(glDisable(GL_STENCIL_TEST));
+  GL_ASSERT(glEnable(GL_BLEND));
+  GL_ASSERT(glBlendEquation(GL_FUNC_ADD));
+  GL_ASSERT(glBlendFunc(GL_ONE, GL_ONE));
+  draw_mesh(node);
+
+  GL_ASSERT(glDisable(GL_BLEND));
+  GL_ASSERT(glEnable(GL_STENCIL_TEST));
+}
+
+
+void GLcontext::draw_node(Node &node)
+{
+  NODE_VALIDATE(node);
+  Mesh *mesh = node.mesh_get();
+
+  if (!mesh) {
+    POLL_ERROR(std::cerr, "No mesh attached to node: " <<  node.name_get().c_str());
+    return;
+  }
+
+  uniform_buffers_update_state(node);
+  uniform_buffers_update_matrices(node);
+
+  { 
+    Material *material = node.material_get();
+    if (material) uniform_buffers_update_material(*material);
+  }
+
+  if (node.state_get().cubemap_skybox) glDepthMask(GL_FALSE);
+  draw_mesh(node);
+  if (node.state_get().cubemap_skybox) glDepthMask(GL_TRUE);
 }
 
 

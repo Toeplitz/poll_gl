@@ -52,18 +52,19 @@ class GLcontext {
                         GLint wrap, GLint internal_format, GLenum format,
                         const bool unpack_align);
 
-  public:
-    
-    void check_error();
     void draw_geometry_all(Scene &scene);
     void draw_light_all(Scene &scene);
     void draw_light_volume(Node &node, GLshader &shader_stencil, GLshader &shader_light);
     void draw_light_screen(Node &node, GLshader &shader_light);
     void draw_node(Node &node);
+
+  public:
+    
+    void check_error();
     void draw_mesh(Node &node);
+    void draw_scene(Scene &scene, std::vector<Poll_Plugin *> &plugins);
     void draw_text(Node &node);
     void init(Window &window);
-    void framebuffer_draw_scene(Scene &scene, std::vector<Poll_Plugin *> &plugins);
     void term();
     void texture_delete(Texture &texture);
     void texture_single_channel_create(Texture &texture);
