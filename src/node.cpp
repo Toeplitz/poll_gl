@@ -84,7 +84,6 @@ Light *Node::light_create(Scene &scene, const unsigned int lamp_type, const unsi
 {
   Assets &assets = scene.assets_get();
   Stock_Nodes &stock_nodes = assets.stock_nodes_get();
-  Mesh *mesh = nullptr;
   Node *node_ptr = nullptr;
 
   if (illumination_type == Light::GLOBAL) {
@@ -93,7 +92,7 @@ Light *Node::light_create(Scene &scene, const unsigned int lamp_type, const unsi
     node_ptr = stock_nodes.sphere_get();
   }
 
-  if (!mesh) {
+  if (!node_ptr) {
     std::cout << "Error: Light type was not set" << std::endl;
     return nullptr;
   }
