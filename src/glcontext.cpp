@@ -524,10 +524,15 @@ void GLcontext::vertex_buffers_mesh_create(Mesh *mesh, const size_t max_size)
   {
     std::vector<vec3> positions = mesh->positions_get();
     index = 0;
-    size_t size = positions.size() * sizeof(positions[0]) + max_size;
+    size_t size = (positions.size()  + max_size) * sizeof(positions[0]);
 
     GL_ASSERT(glBindBuffer(target, mesh->gl_vertex_buffers[index]));
-    GL_ASSERT(glBufferData(target, size, positions.data(), GL_STATIC_DRAW));
+
+    if (positions.size() <= 0) {
+      GL_ASSERT(glBufferData(target, size, nullptr, GL_STATIC_DRAW));
+    } else {
+      GL_ASSERT(glBufferData(target, size, positions.data(), GL_STATIC_DRAW));
+    }
     GL_ASSERT(glEnableVertexAttribArray(index));
     GL_ASSERT(glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0));
   }
@@ -591,8 +596,14 @@ void GLcontext::vertex_buffers_mesh_create(Mesh *mesh, const size_t max_size)
     std::vector<vec2> uvs = mesh->texture_st_get();
     if (uvs.size() > 0) {
       index = 6;
+      size_t size = (uvs.size() + max_size) * sizeof(uvs[0]);
       GL_ASSERT(glBindBuffer(target, mesh->gl_vertex_buffers[index]));
-      GL_ASSERT(glBufferData(target, uvs.size() * sizeof(uvs[0]) + max_size, uvs.data(), GL_STATIC_DRAW));
+
+      if (uvs.size() <= 0) {
+        GL_ASSERT(glBufferData(target, size, nullptr, GL_STATIC_DRAW));
+      } else {
+        GL_ASSERT(glBufferData(target, size, uvs.data(), GL_STATIC_DRAW));
+      }
       GL_ASSERT(glEnableVertexAttribArray(index));
       GL_ASSERT(glVertexAttribPointer(index, 2, GL_FLOAT, GL_FALSE, 0, 0));
     }

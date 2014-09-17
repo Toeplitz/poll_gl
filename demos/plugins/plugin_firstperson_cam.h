@@ -17,19 +17,19 @@ class Plugin_Firstperson_Camera: public Poll_Plugin
     Window *window = nullptr;
 
     enum Camera_Move { FORWARD, BACKWARD, SIDESTEP_RIGHT, SIDESTEP_LEFT};
-    Node *n;
-    Camera *camera;
-    float horizontal_angle;
-    float vertical_angle;
-    float speed;
-    float mouse_speed;
+    Node *n = nullptr;
+    Camera *camera = nullptr;
+    float horizontal_angle = 0.f;
+    float vertical_angle = 0.f;
+    float speed = 0.f;
+    float mouse_speed = 0.f;
     std::vector<Camera_Move> move_queue;
     glm::vec3 up;
     glm::vec3 direction;
     glm::vec3 right;
     glm::vec3 position;
     glm::vec3 target;
-    bool mouse_view_toggle;
+    bool mouse_view_toggle = false;
 
     void common_fpcamera_defaults_set();
     void common_fpcamera_directions_calc();

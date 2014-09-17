@@ -70,7 +70,7 @@ void Console::init(Scene &scene, Window &window)
   Text *text = node_text->text_create(&font, scene);
   text->string_set("default");
   text->bake(nullptr, node_text->mesh_get(), CONSOLE_X, CONSOLE_Y);
-  scene.glcontext_get().vertex_buffers_mesh_create(node_text->mesh_get(), 1048 * sizeof(glm::vec3));
+  scene.glcontext_get().vertex_buffers_mesh_create(node_text->mesh_get(), 256 * sizeof(glm::vec3));
 }
 
 

@@ -124,6 +124,8 @@ void Physics::rigidbody_delete(Physics_Rigidbody *rigidbody)
 {
   btRigidBody *rb_ptr = rigidbody->bt_rigidbody_get();
   POLL_DEBUG(std::cout, "removing rigidbody for: " << rigidbody->node_ptr_get()->name_get());
+
+  world->removeCollisionObject(rb_ptr);
   world->removeRigidBody(rb_ptr);
 }
 

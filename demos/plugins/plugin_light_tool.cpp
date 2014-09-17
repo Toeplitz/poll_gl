@@ -132,10 +132,11 @@ void Plugin_Light_Tool::custom_draw_callback()
 
 void Plugin_Light_Tool::light_active_set(Light *light)
 {
-  if (light_active) {
+  if (light_active) 
     light_active->node_ptr_get()->active_set(*scene, false);
-  }
 
   light_active = light;
-  light_active->node_ptr_get()->active_set(*scene, true);
+
+  if (light_active)
+    light_active->node_ptr_get()->active_set(*scene, true);
 }
