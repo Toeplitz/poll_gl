@@ -133,13 +133,21 @@ void Plugin_Light_Tool::custom_callback_draw()
 
 void Plugin_Light_Tool::light_active_set(Light *light)
 {
-  if (light_active) 
-    light_active->node_ptr_get()->active_set(*scene, false);
+  if (light_active) {
+    Gimbal_Nodes &gimbal_nodes = light_active->gimbal_nodes_get();
+    gimbal_nodes.x->active_set(*scene, false);
+    gimbal_nodes.y->active_set(*scene, false);
+    gimbal_nodes.z->active_set(*scene, false);
+  }
 
   light_active = light;
 
-  if (light_active)
-    light_active->node_ptr_get()->active_set(*scene, true);
+  if (light_active) {
+    Gimbal_Nodes &gimbal_nodes = light_active->gimbal_nodes_get();
+    gimbal_nodes.x->active_set(*scene, true);
+    gimbal_nodes.y->active_set(*scene, true);
+    gimbal_nodes.z->active_set(*scene, true);
+  }
 }
 
 
@@ -160,8 +168,9 @@ void Plugin_Light_Tool::light_callback_create(Node *node_ptr)
       Gimbal_Nodes &gimbal_nodes = light->gimbal_nodes_get();
 
       {
-        Node *node_symbol_cone = stock_nodes.cone_get();
+        Node *node_symbol_cone = stock_nodes.sphere_get();
         Node *node = scene->node_create("light_symbol", node_ptr, TRANSFORM_INHERIT_POSITION_ONLY);
+        node->scale(*scene, glm::vec3(0.1, 0.1, 0.1));
         node->mesh_set(node_symbol_cone->mesh_get());
         node->physics_rigidbody_create(*scene, false, Physics_Rigidbody::BOX, Physics_Rigidbody::KINEMATIC, 0);
         gimbal_nodes.center = node;
@@ -206,7 +215,7 @@ void Plugin_Light_Tool::light_callback_create(Node *node_ptr)
 
 void Plugin_Light_Tool::raycast_collide_callback_gimbal_center(Node &node, vec3 &position)
 {
-  Light *light = node.light_get();
+  Light *light = node.parent_get()->light_get();
 
   if (!light) {
     POLL_ERROR(std::cerr, "Light callback node has no light?");

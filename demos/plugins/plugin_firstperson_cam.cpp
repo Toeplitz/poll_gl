@@ -19,8 +19,8 @@ void Plugin_Firstperson_Camera::common_fpcamera_defaults_set()
 {
   horizontal_angle = 3.14;
   vertical_angle = 0; 
-  speed = 0.5f;
-  mouse_speed = 0.0005f;
+  speed = 0.4f;
+  mouse_speed = 0.0001f;
   position = glm::vec3(0, 5, 16);
   target = glm::vec3(0, 0, 0);
   up = glm::vec3(0, 1, 0);

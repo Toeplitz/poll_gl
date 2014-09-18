@@ -276,6 +276,7 @@ void Window::keyboard_callback_released(SDL_Keysym *keysym)
 
 void Window::mouse_callback_pressed_down(SDL_MouseButtonEvent *ev)
 {
+  POLL_DEBUG(std::cout, "casting ray x/y: " << ev->x << ", " << ev->y << " width/height: " << width << "/" << height);
   raycast.cast(*scene, ev->x, ev->y, width, height);
 }
 

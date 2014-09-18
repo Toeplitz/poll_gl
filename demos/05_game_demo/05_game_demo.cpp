@@ -199,9 +199,12 @@ int main()
   poll.plugin_add(*plugin_light_tool);
   poll.plugin_add(*plugin_firstperson_camera);
 
+  Node &root = scene.node_root_get();
+  root.scale(scene, glm::vec3(0.1, 0.1, 0.1));
+
   {
     room = &scene.load("data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED);
-    room->physics_rigidbody_create(scene, true, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::DYNAMIC, 0);
+ //   room->physics_rigidbody_create(scene, true, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::DYNAMIC, 0);
   }
 
   Node *foo = &scene.load("data/", "cone.dae", MODEL_IMPORT_OPTIMIZED);

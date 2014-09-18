@@ -24,18 +24,13 @@ void  Node::active_set(Scene &scene, const bool flag)
 {
   this->active = flag;
 
-  POLL_DEBUG(std::cout, "setting active state for node: " << name_get());
-
   Physics_Rigidbody *rigidbody = physics_rigidbody_get();
   if (rigidbody) {
     if (flag) {
       POLL_DEBUG(std::cout, "Setting active and adding rigidbody");
       scene.physics_get().rigidbody_add(rigidbody);
-      /* FIXME: use bullet masks */
     } else {
       POLL_DEBUG(std::cout, "Setting active and removing rigidbody:");
-
-      /* FIXME: use bullet masks */
       scene.physics_get().rigidbody_delete(rigidbody);
     }
   }

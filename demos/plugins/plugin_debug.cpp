@@ -10,12 +10,6 @@ Plugin_Debug::Plugin_Debug(Console &console, Scene &scene)
 }
 
 
-void Plugin_Debug::mouse_callback_pressed(SDL_MouseButtonEvent *ev)
-{
-  std::cout << "mouse pressed down" << std::endl;
-}
-
-
 void Plugin_Debug::keyboard_callback_pressed(SDL_Keysym *keysym)
 {
 
