@@ -7,6 +7,7 @@
 #include "glcontext.h"                  
 #include "glshader.h"                   
 #include "physics.h"
+#include "poll_plugin.h"
 #include "scene.h"                      
 #include "ui.h"
 #include "window.h"                     
@@ -16,8 +17,6 @@
 #define GLOBAL_TITLE "Poll"
 #define GLOBAL_CONFIG "./poll.conf"
 
-
-class Poll_Plugin;
 
 
 class Poll {
@@ -29,7 +28,7 @@ class Poll {
     Ui ui;
     Window window;
 
-    std::vector<Poll_Plugin *> plugins;
+    Poll_Plugin_List plugins;
 
     std::string fps_text;
 

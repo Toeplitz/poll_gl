@@ -40,6 +40,8 @@ void Raycast::cast(Scene &scene, const int viewport_x, const int viewport_y, con
   POLL_DEBUG(std::cout, "Hit node: " << hitpoint->node_ptr->name_get());
   POLL_DEBUG(std::cout, "Distance from last hit: " << to_string(distance));
 
+  hitpoint->node_ptr->raycast_collide_callback_call(hitpoint->world_hitpoint);
+
   hitpoint_last = hitpoint;
 }
 

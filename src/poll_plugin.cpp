@@ -12,6 +12,21 @@ Poll_Plugin::~Poll_Plugin()
 }
 
 
+void Poll_Plugin::custom_callback()
+{
+}
+
+
+void Poll_Plugin::custom_callback_draw()
+{
+}
+
+
+void Poll_Plugin::light_callback_create(Node *node)
+{
+}
+
+
 void Poll_Plugin::mouse_callback_pressed(SDL_MouseButtonEvent *ev)
 {
 }
@@ -36,18 +51,4 @@ void Poll_Plugin::keyboard_callback_released(SDL_Keysym *keysym)
 {
 }
 
-
-void Poll_Plugin::custom_callback_event(unsigned int type)
-{
-}
-
-
-void Poll_Plugin::custom_callback()
-{
-}
-
-
-void Poll_Plugin::custom_draw_callback()
-{
-}
 

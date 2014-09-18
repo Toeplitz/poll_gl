@@ -10,6 +10,12 @@
 /**************************************************/
 
 
+Gimbal_Nodes &Light::gimbal_nodes_get()
+{
+  return gimbal_nodes;
+}
+
+
 const unsigned int &Light::illumination_type_get()
 {
   return illumination_type;
@@ -91,4 +97,10 @@ void Light::properties_position_set(const glm::vec3 &position)
 void Light::properties_type_set(const unsigned int type)
 {
   properties.type = type;
+}
+
+
+unsigned int Light::properties_type_get()
+{
+  return properties.type;
 }

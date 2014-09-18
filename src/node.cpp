@@ -125,38 +125,9 @@ Light *Node::light_create(Scene &scene, const unsigned int lamp_type, const unsi
   mesh_set(node_ptr->mesh_get());
   light_set(light_ptr);
 
-  if (lamp_type == Light::POINT || lamp_type == Light::SPOT) {
-    {
-      Node *node_symbol_cone = stock_nodes.cone_get();
-      Node *node = scene.node_create("light_symbol", this, TRANSFORM_INHERIT_POSITION_ONLY);
-      node->mesh_set(node_symbol_cone->mesh_get());
-      node->physics_rigidbody_create(scene, false, Physics_Rigidbody::BOX, Physics_Rigidbody::KINEMATIC, 0);
-    }
-
-    Node *node_symbol_disk = stock_nodes.disk_get();
-    {
-      Node *node = scene.node_create("light_disk", this);
-      node->mesh_set(node_symbol_disk->mesh_get());
-      node->physics_rigidbody_create(scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC, 0);
-      node->active_set(scene, false);
-    }
-
-    {
-      Node *node = scene.node_create("light_disk", this);
-      node->mesh_set(node_symbol_disk->mesh_get());
-      node->physics_rigidbody_create(scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC, 0);
-      node->active_set(scene, false);
-      node->rotate(scene, M_PI / 2, glm::vec3(1, 0, 0));
-    }
-
-    {
-      Node *node = scene.node_create("light_disk", this);
-      node->mesh_set(node_symbol_disk->mesh_get());
-      node->physics_rigidbody_create(scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC, 0);
-      node->active_set(scene, false);
-      node->rotate(scene, M_PI / 2, glm::vec3(0, 0, 1));
-    }
-
+  auto plugins = scene.plugins_get();
+  for (auto &plugin : plugins) {
+    plugin->light_callback_create(this);
   }
 
   assets.light_active_add(std::move(light));
@@ -297,6 +268,21 @@ Mesh *Node::mesh_get()
 void Node::mesh_set(Mesh *mesh)
 {
   this->mesh = mesh;
+}
+
+
+void Node::raycast_collide_callback_call(vec3 &position)
+{
+  if (!raycast_collide_callback)
+    return;
+
+  raycast_collide_callback(*this, position);
+
+}
+
+void Node::raycast_collide_callback_set(const std::function <void (Node &node, vec3 &position)> callback)
+{
+  this->raycast_collide_callback = callback;
 }
 
 

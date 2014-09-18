@@ -108,6 +108,7 @@ std::shared_ptr<Raycast_Hitpoint> Physics::ray_pick(const glm::vec3 &out_origin,
   Node *node_ptr = (Node *) RayCallback.m_collisionObject->getUserPointer();
   hitpoint->node_ptr = node_ptr;
   hitpoint->world_hitpoint = end;
+
   return hitpoint;
 }
 
@@ -115,7 +116,6 @@ std::shared_ptr<Raycast_Hitpoint> Physics::ray_pick(const glm::vec3 &out_origin,
 void Physics::rigidbody_add(Physics_Rigidbody *rigidbody)
 {
   btRigidBody *rb_ptr = rigidbody->bt_rigidbody_get();
-  POLL_DEBUG(std::cout, "adding rigidbody for: " << rigidbody->node_ptr_get()->name_get());
   world->addRigidBody(rb_ptr);
 }
 
@@ -123,8 +123,6 @@ void Physics::rigidbody_add(Physics_Rigidbody *rigidbody)
 void Physics::rigidbody_delete(Physics_Rigidbody *rigidbody)
 {
   btRigidBody *rb_ptr = rigidbody->bt_rigidbody_get();
-  POLL_DEBUG(std::cout, "removing rigidbody for: " << rigidbody->node_ptr_get()->name_get());
-
   world->removeCollisionObject(rb_ptr);
   world->removeRigidBody(rb_ptr);
 }

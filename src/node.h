@@ -72,9 +72,9 @@ class Node: public Animated {
     mat4 transform_local_original = mat4(1.f);
 
     Transform_Inherit transform_inheritance = TRANSFORM_INHERIT_ALL;
+    std::function <void (Node &node, vec3 &position)> raycast_collide_callback = nullptr;
 
   public:
-
 
     Node(const std::string &node_name);
 
@@ -104,6 +104,8 @@ class Node: public Animated {
     Mesh               *mesh_get();
     void                mesh_set(Mesh *mesh);
     mat4               &position_matrix_current_get();
+    void                raycast_collide_callback_set(const std::function <void (Node &node, vec3 &position)> raycast_collide_callback);
+    void                raycast_collide_callback_call(vec3 &position);
     void                rotate(Scene &scene, const float angle, const vec3 &v);
     void                scale(Scene &scene, const vec3 &v);
     Node_State         &state_get();

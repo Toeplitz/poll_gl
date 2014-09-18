@@ -8,6 +8,16 @@
 class Node;
 class Mesh;
 
+
+struct Gimbal_Nodes 
+{
+      Node *center;
+      Node *x;
+      Node *y;
+      Node *z;
+};
+
+
 struct Light_Properties
 {
   glm::vec4 position = glm::vec4(0, 0, 0, 1);
@@ -20,6 +30,7 @@ struct Light_Properties
 class Light
 {
   private:
+    Gimbal_Nodes gimbal_nodes;
     Light_Properties properties;
     Node *node_ptr = nullptr;
     unsigned int illumination_type;
@@ -36,6 +47,7 @@ class Light
       GLOBAL = 5
     };
 
+    Gimbal_Nodes           &gimbal_nodes_get();
     const unsigned int     &illumination_type_get();
     void                    illumination_type_set(const unsigned int illum_type);
     Node                   *node_ptr_get();
@@ -46,4 +58,5 @@ class Light
     const Light_Properties &properties_get() const;
     void                    properties_position_set(const glm::vec3 &position);
     void                    properties_type_set(const unsigned int type);
+    unsigned int            properties_type_get();
 };

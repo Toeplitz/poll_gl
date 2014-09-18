@@ -22,7 +22,7 @@ Poll::Poll(const std::string &config_file)
 
   window.init(config, scene, GLOBAL_TITLE);
   glcontext.init(window);
-  scene.init(window);
+  scene.init(plugins, window);
   assets.init(config, scene);
   console.init(scene, window);
   ui.init(console, glcontext, scene);

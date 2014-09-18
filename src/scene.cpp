@@ -83,9 +83,10 @@ GLcontext &Scene::glcontext_get()
 }
 
 
-void Scene::init(Window &window)
+void Scene::init(Poll_Plugin_List &plugins, Window &window)
 {
   this->window_ptr = &window;
+  this->plugins_ptr = &plugins;
 
   Node *cam_node = node_create("camera", &root);
   cam_node->camera_create(assets_get());
@@ -225,6 +226,11 @@ Physics &Scene::physics_get()
   return physics;
 }
 
+
+const Poll_Plugin_List &Scene::plugins_get() const
+{
+  return *plugins_ptr;
+}
 
 void Scene::transform_update_global_recursive(Node *node)
 {

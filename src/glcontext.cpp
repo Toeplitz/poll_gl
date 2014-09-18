@@ -1,3 +1,4 @@
+#include "poll.h"
 #include "glcontext.h"
 #include "material.h"
 #include "node.h"
@@ -35,7 +36,7 @@ void GLcontext::draw_mesh(Node &node)
 }
 
 
-void GLcontext::draw_scene(Scene &scene, std::vector<Poll_Plugin *> &plugins)
+void GLcontext::draw_scene(Scene &scene, Poll_Plugin_List &plugins)
 {
   GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb));
   GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
@@ -46,7 +47,7 @@ void GLcontext::draw_scene(Scene &scene, std::vector<Poll_Plugin *> &plugins)
 
   GL_ASSERT(glEnable(GL_DEPTH_TEST));
   for (auto plugin : plugins) {
-    plugin->custom_draw_callback();
+    plugin->custom_callback_draw();
   }
   GL_ASSERT(glDisable(GL_DEPTH_TEST));
 

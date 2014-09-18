@@ -6,6 +6,7 @@
 #include "assets.h"
 #include "model.h"
 #include "node.h"
+#include "poll_plugin.h"
 #include "physics.h"
 
 
@@ -28,6 +29,7 @@ class Scene
     Physics physics;
     Node root;
 
+    Poll_Plugin_List *plugins_ptr;
     Window *window_ptr = nullptr;
 
     void  animated_nodes_add(Node &node);
@@ -39,23 +41,24 @@ class Scene
   public:
     Scene();
 
-    const Node_Ptr_List  &animated_nodes_get() const;
-    void                  animated_nodes_update_transforms(Node &node, const double dt);
-    Assets               &assets_get();
-    Camera               *camera_get();
-    GLcontext            &glcontext_get();
-    void                  init(Window &window);
-    Node                 &load(const std::string &prefix,  const std::string &filename, const unsigned int options);
-    const Node_Ptr_List  &mesh_nodes_get() const;
-    void                  scene_graph_print(const bool compact = false);
-    void                  scene_graph_print_by_node(Node &node, const bool compact = false);
-    Node                 *node_camera_get();
-    void                  node_camera_set(Node *camera_node);
-    Node                 *node_create(const std::string &name, Node *parent = nullptr, Transform_Inherit transform_inheritance = TRANSFORM_INHERIT_ALL);
-    Node                 *node_find(Node *root_ptr, const std::string &name);
-    Node                 &node_root_get();
-    Physics              &physics_get();
-    void                 transform_update_global_recursive(Node *node);
-    Window               &window_get();
+    const Node_Ptr_List    &animated_nodes_get() const;
+    void                    animated_nodes_update_transforms(Node &node, const double dt);
+    Assets                 &assets_get();
+    Camera                 *camera_get();
+    GLcontext              &glcontext_get();
+    void                    init(Poll_Plugin_List &plugins, Window &window);
+    Node                   &load(const std::string &prefix,  const std::string &filename, const unsigned int options);
+    const Node_Ptr_List    &mesh_nodes_get() const;
+    void                    scene_graph_print(const bool compact = false);
+    void                    scene_graph_print_by_node(Node &node, const bool compact = false);
+    Node                   *node_camera_get();
+    void                    node_camera_set(Node *camera_node);
+    Node                   *node_create(const std::string &name, Node *parent = nullptr, Transform_Inherit transform_inheritance = TRANSFORM_INHERIT_ALL);
+    Node                   *node_find(Node *root_ptr, const std::string &name);
+    Node                   &node_root_get();
+    Physics                &physics_get();
+    const Poll_Plugin_List &plugins_get() const;
+    void                    transform_update_global_recursive(Node *node);
+    Window                 &window_get();
 };
 
