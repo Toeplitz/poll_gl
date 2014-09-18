@@ -226,14 +226,16 @@ int Physics::bullet_step(Scene &scene, const double dt)
     world->stepSimulation(timestep, max_sub_steps, fixed_time_step);
   }
 
-  shader.world_physics_debug.use();
-  world->debugDrawWorld();
+  if (debug_toggle) {
+    shader.world_physics_debug.use();
+    world->debugDrawWorld();
 
-  debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(1, 0, 0), btVector3(1, 0, 0), btVector3(1, 0, 0));
-  debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(0, 1, 0), btVector3(0, 1, 0), btVector3(0, 1, 0));
-  debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(0, 0, 1), btVector3(0, 0, 1), btVector3(0, 0, 1));
+    debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(1, 0, 0), btVector3(1, 0, 0), btVector3(1, 0, 0));
+    debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(0, 1, 0), btVector3(0, 1, 0), btVector3(0, 1, 0));
+    debug_drawer.drawLine(btVector3(0, 0, 0), btVector3(0, 0, 1), btVector3(0, 0, 1), btVector3(0, 0, 1));
 
-  debug_drawer.draw();
+    debug_drawer.draw();
+  }
 
   /*
      for (auto &character : characters) {

@@ -133,6 +133,9 @@ void Plugin_Light_Tool::custom_callback_draw()
 
 void Plugin_Light_Tool::light_active_set(Light *light)
 {
+  if (light == light_active)
+    return;
+
   if (light_active) {
     Gimbal_Nodes &gimbal_nodes = light_active->gimbal_nodes_get();
     gimbal_nodes.x->active_set(*scene, false);
@@ -229,15 +232,18 @@ void Plugin_Light_Tool::raycast_collide_callback_gimbal_center(Node &node, vec3 
 
 void Plugin_Light_Tool::raycast_collide_callback_gimbal_x(Node &node, vec3 &position)
 {
+  POLL_DEBUG(std::cout, "Clicked gimbal x");
 }
 
 
 void Plugin_Light_Tool::raycast_collide_callback_gimbal_y(Node &node, vec3 &position)
 {
+  POLL_DEBUG(std::cout, "Clicked gimbal y");
 }
 
 
 void Plugin_Light_Tool::raycast_collide_callback_gimbal_z(Node &node, vec3 &position)
 {
+  POLL_DEBUG(std::cout, "Clicked gimbal z");
 }
 
