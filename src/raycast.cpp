@@ -16,11 +16,11 @@ void Raycast::cast(Scene &scene, const int viewport_x, const int viewport_y, con
   vec3 ray_nds = vec3 (x, y, z);
 
   vec4 ray_clip = vec4 (ray_nds.x, ray_nds.y, -1.0, 1.0);
-  vec4 ray_eye = inverse (camera->transform_perspective_get()) * ray_clip;
+  vec4 ray_eye = glm::inverse(camera->transform_perspective_get()) * ray_clip;
   ray_eye = vec4 (ray_eye.x, ray_eye.y,  -1.0, 0.0);
 
-  vec3 ray_wor = vec3((inverse (camera->transform_view_get()) * ray_eye));
-  ray_wor = normalize (ray_wor);
+  vec3 ray_wor = vec3((glm::inverse (camera->transform_view_get()) * ray_eye));
+  ray_wor = glm::normalize (ray_wor);
 
   vec3 pos = camera->position_get();
   auto hitpoint = scene.physics_get().ray_pick(pos, ray_wor);
@@ -38,7 +38,7 @@ void Raycast::cast(Scene &scene, const int viewport_x, const int viewport_y, con
 
 
   POLL_DEBUG(std::cout, "Hit node: " << hitpoint->node_ptr->name_get());
-  POLL_DEBUG(std::cout, "Distance from last hit: " << to_string(distance));
+  POLL_DEBUG(std::cout, "Distance from last hit: " << glm::to_string(distance));
 
   hitpoint->node_ptr->raycast_collide_callback_call(hitpoint->world_hitpoint);
 

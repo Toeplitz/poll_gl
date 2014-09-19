@@ -68,7 +68,7 @@ class Physics_Motion_State: public btMotionState
     virtual void setWorldTransform(const btTransform &t);
 
     void node_set(Node &node);
-    void transform_set(const glm::mat4 &model);
+    void transform_set(glm::mat4 &model);
 };
 
 

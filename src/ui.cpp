@@ -80,6 +80,7 @@ void Ui::callback_object_add(const std::string &prim, const std::string &sec, co
 {
   Camera *camera = scene->camera_get();
   auto pos = camera->position_get();
+  POLL_DEBUG(std::cout, "Camera position: " << glm::to_string(pos));
   int num = 1;
 
   if (val.size() > 0)

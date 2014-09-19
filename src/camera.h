@@ -21,14 +21,7 @@ class Camera
     int width;
     int height;
 
-    std::function<void ()> update_callback;
   public: 
-
-      void update_callback_set(const std::function<void ()> callback)
-      {
-        update_callback = callback;
-      }
-
 
     void               fov_set(const float val);
     const glm::vec3   &position_get();

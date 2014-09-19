@@ -27,10 +27,8 @@ void  Node::active_set(Scene &scene, const bool flag)
   Physics_Rigidbody *rigidbody = physics_rigidbody_get();
   if (rigidbody) {
     if (flag) {
-      POLL_DEBUG(std::cout, "Setting active and adding rigidbody");
       scene.physics_get().rigidbody_add(rigidbody);
     } else {
-      POLL_DEBUG(std::cout, "Setting active and removing rigidbody:");
       scene.physics_get().rigidbody_delete(rigidbody);
     }
   }
@@ -183,6 +181,9 @@ Physics_Rigidbody *Node::physics_rigidbody_create(Scene &scene, bool recursive, 
     scene.physics_get().rigidbody_add(rigidbody_ptr);
     assets.physics_rigidbody_add(std::move(rigidbody));
 
+    /* In case we have done scaling of the node before adding the rigidbody */
+    //transform_update_global_recursive(root_ptr);
+    ///rigidbody_ptr->motionstate_transform_set(transform_global_get());
   }
 
   if (recursive) {
@@ -332,8 +333,16 @@ void Node::text_set(Text *text)
 
 void Node::translate(Scene &scene, const vec3 &v) 
 {
+  Physics_Rigidbody *rigidbody = physics_rigidbody_get();
   mat4 m = glm::translate(transform_local_current_get(), v);
+  POLL_DEBUG(std::cout, glm::to_string(m));
   transform_local_current_set(scene, m);
+  if (rigidbody) {
+    POLL_DEBUG(std::cout, "updating motionstate for: " << name_get());
+    mat4 &model = transform_global_get();
+    POLL_DEBUG(std::cout, glm::to_string(model));
+    rigidbody->motionstate_transform_set(model);
+  }
 }
 
 
@@ -369,7 +378,9 @@ void Node::transform_global_set(const mat4 &transform)
   this->transform_global = transform;
 
   if (rigidbody) {
-    rigidbody->motionstate_transform_set(transform);
+    //rigidbody->motionstate_transform_set(transform);
+  } else {
+   // POLL_DEBUG(std::cout, "No rigidbody for: " << name_get());
   }
 }
 

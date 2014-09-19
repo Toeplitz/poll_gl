@@ -13,7 +13,6 @@ unsigned int direction = 0;
 Armature *armature = nullptr;
 
 Node *panda;
-Node *room;
 
 #if 0
 static void joystick_axis_motion_cb(SDL_JoyAxisEvent *ev)
@@ -203,18 +202,20 @@ int main()
   root.scale(scene, glm::vec3(0.1, 0.1, 0.1));
 
   {
-    room = &scene.load("data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED);
- //   room->physics_rigidbody_create(scene, true, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::DYNAMIC, 0);
+    Node &room = scene.load("data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED);
+    room.physics_rigidbody_create(scene, true, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::DYNAMIC, 0);
   }
 
-  Node *foo = &scene.load("data/", "cone.dae", MODEL_IMPORT_OPTIMIZED);
-  foo->translate(scene, glm::vec3(0, 0, 40));
-  foo->physics_rigidbody_create(scene, false, Physics_Rigidbody::CONVEX_HULL, Physics_Rigidbody::DYNAMIC, 1.f);
+  {
+    Node &node = scene.load("data/", "cone.dae", MODEL_IMPORT_OPTIMIZED);
+    node.physics_rigidbody_create(scene, false, Physics_Rigidbody::CONVEX_HULL, Physics_Rigidbody::DYNAMIC, 1.f);
+    node.translate(scene, glm::vec3(0, 0, 20));
+  }
 
   {
-    Node &node = scene.load("data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED);
-    node.translate(scene, glm::vec3(2, 27, 40));
-    node.physics_rigidbody_create(scene, false, Physics_Rigidbody::BOX, Physics_Rigidbody::DYNAMIC, 1.f);
+    Node &node= scene.load("data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED);
+    node.translate(scene, glm::vec3(-2, 30, 40));
+    //node.physics_rigidbody_create(scene, false, Physics_Rigidbody::BOX, Physics_Rigidbody::DYNAMIC, 1.f);
   }
 
 
@@ -292,6 +293,7 @@ int main()
     }
   }
 
+  scene.physics_get().pause();
 
   poll.run();
   poll.term();

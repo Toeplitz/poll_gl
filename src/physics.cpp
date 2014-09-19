@@ -274,6 +274,7 @@ void Physics_Motion_State::node_set(Node &node)
   glm::mat4 model = node.transform_global_get();
   this->transform.setFromOpenGLMatrix((btScalar *) &model);
   this->node = &node;
+  POLL_DEBUG(std::cout, "initialize motionstate: " << glm::to_string(model) << " " << node.name_get());
 }
 
 
@@ -284,18 +285,23 @@ void Physics_Motion_State::setWorldTransform(const btTransform &t)
   if (!node) return;
 
   t.getOpenGLMatrix((btScalar *) &m);
+  POLL_DEBUG(std::cout, "setWorldTransform: " << glm::to_string(m) << node->name_get());
   node->transform_global_set(m);
 }
 
 
-void Physics_Motion_State::transform_set(const glm::mat4 &model)
+void Physics_Motion_State::transform_set(glm::mat4 &model)
 {
-  transform.setFromOpenGLMatrix((btScalar *) &model);
+  POLL_DEBUG(std::cout, glm::to_string(model)  << node->name_get());
+ // transform.setFromOpenGLMatrix((btScalar *) &model);
+  glm::mat4 model2 = node->transform_global_get();
+  this->transform.setFromOpenGLMatrix((btScalar *) &model2);
 }
 
 
 void Physics_Motion_State::getWorldTransform(btTransform &t) const
 {
+  //POLL_DEBUG(std::cout, "getWorldTransform");
   t = transform;
 }
 

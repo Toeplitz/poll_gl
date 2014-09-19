@@ -88,7 +88,7 @@ void Scene::init(Poll_Plugin_List &plugins, Window &window)
   this->window_ptr = &window;
   this->plugins_ptr = &plugins;
 
-  Node *cam_node = node_create("camera", &root);
+  Node *cam_node = node_create("camera", &root, TRANSFORM_INHERIT_POSITION_ONLY);
   cam_node->camera_create(assets_get());
   cam_node->camera_get()->transform_perspective_create(window.width_get(), window.height_get());
   node_camera_set(cam_node);
@@ -172,12 +172,10 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
     }
   }
 
-  /*
   std::cout << std::endl;
-  std::cout << "global: " << to_string(node.transform_global_get()) << std::endl;
-  std::cout << "cur local: " << to_string(node.transform_local_current_get()) << std::endl;
-  std::cout << "orig local: " << to_string(node.transform_local_original_get()) << std::endl;
-  */
+  std::cout << "global: " << glm::to_string(node.transform_global_get()) << std::endl;
+  std::cout << "cur local: " << glm::to_string(node.transform_local_current_get()) << std::endl;
+  std::cout << "orig local: " << glm::to_string(node.transform_local_original_get()) << std::endl;
 
   std::cout << " active: " << node.active_get();
   std::cout << std::endl;

@@ -6,7 +6,7 @@
 #include <memory>
 
 
-using namespace glm;
+using glm::vec3;
 
 
 class Scene;

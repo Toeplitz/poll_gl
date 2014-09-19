@@ -6,6 +6,14 @@
 #include "utils.h"
 
 
+/**************************************************/
+/********** PHYSICS COLLISION SHAPE CLASS *********/
+/**************************************************/
+/**************************************************/
+/***************** PUBLIC METHODS *****************/
+/**************************************************/
+
+
 void  Physics_Collision_Shape::bt_collision_shape_add(std::unique_ptr<btCollisionShape> &&shape)
 {
   bt_collision_shape = std::move(shape);
@@ -18,8 +26,9 @@ btCollisionShape &Physics_Collision_Shape::bt_collision_shape_get()
 }
 
 
-void Physics_Collision_Shape::bt_mesh_populate(Mesh &mesh, btTriangleMesh &bt_triangle_mesh)
+void Physics_Collision_Shape::bt_mesh_populate(Node &node, btTriangleMesh &bt_triangle_mesh)
 {
+  Mesh &mesh = *node.mesh_get();
   int num_indices = mesh.num_indices_get();
   std::vector<glm::vec3> positions = mesh.positions_get();
   std::vector<GLshort> indices = mesh.indices_get();
@@ -51,20 +60,31 @@ Physics_Box_Shape::Physics_Box_Shape(glm::vec3 &v)
 }
 
 
-Physics_Convex_Hull_Shape::Physics_Convex_Hull_Shape(std::vector<GLshort> &indices, std::vector<glm::vec3> &positions)
+Physics_Convex_Hull_Shape::Physics_Convex_Hull_Shape(Node &node)
 {
-  int num_indices = indices.size();
-
   bt_triangle_mesh = std::unique_ptr<btTriangleMesh>(new btTriangleMesh());
-
-
+  bt_mesh_populate(node, *bt_triangle_mesh);
+  auto shape = std::unique_ptr<btConvexTriangleMeshShape>(new btConvexTriangleMeshShape(bt_triangle_mesh.get()));
+  bt_collision_shape_add(std::move(shape));
 }
 
 
-Physics_Triangle_Mesh_Shape::Physics_Triangle_Mesh_Shape(std::vector<GLshort> &indices, std::vector<glm::vec3> &positions)
+Physics_Triangle_Mesh_Shape::Physics_Triangle_Mesh_Shape(Node &node)
 {
-
+  bt_triangle_mesh = std::unique_ptr<btTriangleMesh>(new btTriangleMesh());
+  bt_mesh_populate(node, *bt_triangle_mesh);
+  btVector3 aabb_min(-1000, -1000, -1000), aabb_max(1000, 1000, 1000);
+  auto shape = std::unique_ptr<btBvhTriangleMeshShape>(new btBvhTriangleMeshShape(bt_triangle_mesh.get(), true, aabb_min, aabb_max));
+  bt_collision_shape_add(std::move(shape));
 }
+
+
+/**************************************************/
+/************* PHYSICS RIGIDBODY CLASS ************/
+/**************************************************/
+/**************************************************/
+/***************** PUBLIC METHODS *****************/
+/**************************************************/
 
 
 btRigidBody *Physics_Rigidbody::bt_rigidbody_get()
@@ -73,8 +93,9 @@ btRigidBody *Physics_Rigidbody::bt_rigidbody_get()
 }
 
 
-void Physics_Rigidbody::create(Node *node_ptr, Physics_Collision_Shape *shape)
+void Physics_Rigidbody::create(Node *node_ptr, Physics_Collision_Shape *shape, unsigned int collision_type, float initial_mass)
 {
+  bt_shape_init(node_ptr, &shape->bt_collision_shape_get(), collision_type, initial_mass);
 }
 
 
@@ -214,7 +235,7 @@ void Physics_Rigidbody::node_ptr_set(Node *node_ptr)
 }
 
 
-void Physics_Rigidbody::motionstate_transform_set(const mat4 &transform)
+void Physics_Rigidbody::motionstate_transform_set(glm::mat4 &transform)
 {
   bt_motion_state->transform_set(transform);
 }

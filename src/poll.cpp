@@ -67,7 +67,6 @@ void Poll::run()
 
     /* Update camera */
     Camera &camera = *scene.camera_get();
-    camera.update();
     glcontext.uniform_buffers_update_camera(camera);
 
     /* Draw scene */

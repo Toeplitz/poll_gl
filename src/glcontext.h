@@ -5,7 +5,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-using namespace glm;
+using glm::vec2;
+using glm::vec3;
+using glm::ivec3;
+using glm::vec4;
+using glm::ivec4;
+using glm::mat4;
+
 
 #include <iostream>
 #include <string>

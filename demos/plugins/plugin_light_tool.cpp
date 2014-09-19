@@ -216,8 +216,6 @@ void Plugin_Light_Tool::light_callback_create(Node *node_ptr)
     }
   }
 
-
-  POLL_DEBUG(std::cout, "Catched light callback when creating light on node: " << node_ptr->name_get());
 }
 
 
@@ -230,7 +228,7 @@ void Plugin_Light_Tool::raycast_collide_callback_gimbal_center(Node &node, vec3 
     return;
   }
 
-  POLL_DEBUG(std::cout, "Clicked on gimbal center of light: " << node.name_get() << " at position: " << to_string(position));
+  POLL_DEBUG(std::cout, "Clicked on gimbal center of light: " << node.name_get() << " at position: " << glm::to_string(position));
   light_active_set(light);
 }
 

@@ -68,9 +68,3 @@ glm::mat4 &Camera::transform_view_projection_update()
 }
 
 
-void Camera::update()
-{
-  if (update_callback)
-    update_callback();
-}
-

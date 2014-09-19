@@ -3,7 +3,7 @@
 #include "poll_plugin.h"
 
 
-using namespace glm;
+using glm::vec3;
 
 
 class Plugin_Light_Tool: public Poll_Plugin

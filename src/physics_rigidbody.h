@@ -8,7 +8,6 @@
 #include <vector>
 
 
-using namespace glm;
 class Physics_Motion_State;
 class Physics;
 
@@ -24,7 +23,7 @@ class Physics_Collision_Shape
   public:
     void              bt_collision_shape_add(std::unique_ptr<btCollisionShape> &&shape);
     btCollisionShape &bt_collision_shape_get();
-    void              bt_mesh_populate(Mesh &mesh, btTriangleMesh &bt_triangle_mesh);
+    void              bt_mesh_populate(Node &node, btTriangleMesh &bt_triangle_mesh);
 };
 
 
@@ -42,15 +41,18 @@ class Physics_Convex_Hull_Shape: public Physics_Collision_Shape
     std::unique_ptr<btTriangleMesh> bt_triangle_mesh;
 
   public:
-    Physics_Convex_Hull_Shape(std::vector<GLshort> &indices, std::vector<glm::vec3> &positions);
+    Physics_Convex_Hull_Shape(Node &node);
 
 };
 
 
 class Physics_Triangle_Mesh_Shape: public Physics_Collision_Shape
 {
+  private:
+    std::unique_ptr<btTriangleMesh> bt_triangle_mesh;
+
   public:
-    Physics_Triangle_Mesh_Shape(std::vector<GLshort> &indices, std::vector<glm::vec3> &positions);
+    Physics_Triangle_Mesh_Shape(Node &node);
 
 };
 
@@ -90,9 +92,9 @@ class Physics_Rigidbody
   public:
 
     btRigidBody *bt_rigidbody_get();
-    void         create(Node *node_ptr, Physics_Collision_Shape *shape);
+    void         create(Node *node_ptr, Physics_Collision_Shape *shape, unsigned int collision_type, float initial_mass);
     void         create(Node *node_ptr, unsigned int shape, unsigned int type, float initial_mass);
-    void         motionstate_transform_set(const mat4 &transform);
+    void         motionstate_transform_set(glm::mat4 &transform);
     void         mass_set(Physics *physics, const float mass);
     float        mass_get();
     Node        *node_ptr_get();
