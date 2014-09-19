@@ -6,9 +6,75 @@
 #include "utils.h"
 
 
+void  Physics_Collision_Shape::bt_collision_shape_add(std::unique_ptr<btCollisionShape> &&shape)
+{
+  bt_collision_shape = std::move(shape);
+}
+
+
+btCollisionShape &Physics_Collision_Shape::bt_collision_shape_get()
+{
+  return *bt_collision_shape;
+}
+
+
+void Physics_Collision_Shape::bt_mesh_populate(Mesh &mesh, btTriangleMesh &bt_triangle_mesh)
+{
+  int num_indices = mesh.num_indices_get();
+  std::vector<glm::vec3> positions = mesh.positions_get();
+  std::vector<GLshort> indices = mesh.indices_get();
+
+  if (num_indices > 0) { 
+    for (unsigned int i = 0; i < mesh.num_indices_get(); i = i + 3) {
+      bt_triangle_mesh.addTriangle(btVector3(positions[indices[i]].x, positions[indices[i]].y, positions[indices[i]].z),
+          btVector3(positions[indices[i + 1]].x, positions[indices[i + 1]].y, positions[indices[i + 1]].z),
+          btVector3(positions[indices[i + 2]].x, positions[indices[i + 2]].y, positions[indices[i + 2]].z));
+    }
+  } else {
+    for (unsigned int i = 0; i < mesh.num_vertices_get(); i = (i + 3)) {
+      vec3 pos_1 = positions[i];
+      vec3 pos_2 = positions[i + 1];
+      vec3 pos_3 = positions[i + 2];
+      bt_triangle_mesh.addTriangle(btVector3(pos_1.x, pos_1.y, pos_1.z),
+          btVector3(pos_2.z, pos_2.y, pos_2.z),
+          btVector3(pos_3.z, pos_3.y, pos_3.z));
+    }
+  }
+
+}
+
+
+Physics_Box_Shape::Physics_Box_Shape(glm::vec3 &v)
+{
+  auto shape = std::unique_ptr<btBoxShape>(new btBoxShape(btVector3(v.x, v.y, v.z)));
+  bt_collision_shape_add(std::move(shape));
+}
+
+
+Physics_Convex_Hull_Shape::Physics_Convex_Hull_Shape(std::vector<GLshort> &indices, std::vector<glm::vec3> &positions)
+{
+  int num_indices = indices.size();
+
+  bt_triangle_mesh = std::unique_ptr<btTriangleMesh>(new btTriangleMesh());
+
+
+}
+
+
+Physics_Triangle_Mesh_Shape::Physics_Triangle_Mesh_Shape(std::vector<GLshort> &indices, std::vector<glm::vec3> &positions)
+{
+
+}
+
+
 btRigidBody *Physics_Rigidbody::bt_rigidbody_get()
 {
   return bt_rigidbody.get();
+}
+
+
+void Physics_Rigidbody::create(Node *node_ptr, Physics_Collision_Shape *shape)
+{
 }
 
 

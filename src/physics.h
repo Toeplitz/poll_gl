@@ -38,7 +38,7 @@ enum EPhysicsCollisionMask {
 };
 
 
-enum Physics_Collision_Shape
+enum Physics_Collision_Shape_old
 {
   PHYSICS_COLLISION_BOX,
   PHYSICS_COLLISION_SPHERE,
