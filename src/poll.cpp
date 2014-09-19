@@ -153,10 +153,12 @@ Window &Poll::window_get()
 // Return delta time in seconds.
 double Poll::delta_time_get()
 {
-  static unsigned long long time_last = std::chrono::system_clock::now().time_since_epoch() /  std::chrono::microseconds(1);
-  unsigned long long time_cur = std::chrono::system_clock::now().time_since_epoch() /  std::chrono::microseconds(1);
-  double dt = (time_cur - time_last) / 1000.0 / 1000.0;
-  time_last = time_cur;
+ // static unsigned long long time_last = std::chrono::system_clock::now().time_since_epoch() /  std::chrono::microseconds(1);
+ // unsigned long long time_cur = std::chrono::system_clock::now().time_since_epoch() /  std::chrono::microseconds(1);
+ // double dt = (time_cur - time_last) / 1000.0 / 1000.0;
+ // time_last = time_cur;
+
+  double dt = 0.1;
 
   return dt;
 }

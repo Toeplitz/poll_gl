@@ -5,9 +5,11 @@
 #include <iostream>
 #include <string>
 
+#include <cmath>
+
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
+//#include <unistd.h>
 
 #define POLL_DEBUG( os, msg ) \
   (os) << "DEBUG: [" << __FILE__ << ":" << __LINE__ << "] " \

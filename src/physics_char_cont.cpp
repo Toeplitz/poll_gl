@@ -122,7 +122,7 @@ void Physics_Character_Controller::reset()
 {
   state = CHARACTER_STATE_IDLE;
   direction = PHYSICS_DIRECTION_NONE;
-  rotation_angle = (float) M_PI / 2.f;
+  rotation_angle = (float) 3.14159265359 / 2.f;
   setJumpSpeed(15);
 }
 
