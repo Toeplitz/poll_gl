@@ -179,6 +179,11 @@ void Plugin_Light_Tool::light_callback_create(Node *node_ptr)
         gimbal_nodes.center = node;
       }
 
+      {
+
+
+      }
+
       Node *node_symbol_disk = stock_nodes.disk_get();
       {
         Node *node = scene->node_create("light_disk", node_ptr);
