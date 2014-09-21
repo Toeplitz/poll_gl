@@ -283,6 +283,7 @@ Node *Model::node_map_create(Scene &scene, const aiNode &node, Node *parent, int
     glm::vec3 position_vec(position.x, position.y, -position.z);
     glm::quat rotation_quat(rotation.x, rotation.y, -rotation.z, rotation.w);
     ai_mat_copy(&node.mTransformation, localTransform);
+
     node_internal->transform_local_original_set(localTransform);
     node_internal->transform_local_current_set(scene, localTransform);
   }

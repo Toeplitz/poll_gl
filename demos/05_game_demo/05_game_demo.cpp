@@ -198,8 +198,8 @@ int main()
   poll.plugin_add(*plugin_light_tool);
   poll.plugin_add(*plugin_firstperson_camera);
 
-  Node &root = scene.node_root_get();
-  root.scale(scene, glm::vec3(0.1, 0.1, 0.1));
+ // Node &root = scene.node_root_get();
+ // root.scale(scene, glm::vec3(0.1, 0.1, 0.1));
 
   {
     Node &room = scene.load("data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED);
@@ -209,7 +209,7 @@ int main()
   {
     Node &node = scene.load("data/", "cone.dae", MODEL_IMPORT_OPTIMIZED);
     node.physics_rigidbody_create(scene, false, Physics_Rigidbody::CONVEX_HULL, Physics_Rigidbody::DYNAMIC, 1.f);
-    node.translate(scene, glm::vec3(0, 0, 20));
+    //node.translate(scene, glm::vec3(0, 0, 20));
   }
 
   {
@@ -221,8 +221,8 @@ int main()
 
   /* Setup panda character */
   {
-//    Node &panda_root = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
- //   panda_root.physics_rigidbody_create(scene, true, Physics_Rigidbody::CONVEX_HULL, Physics_Rigidbody::DYNAMIC, 0.f);
+    Node &panda_root = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
+    panda_root.physics_rigidbody_create(scene, true, Physics_Rigidbody::CONVEX_HULL, Physics_Rigidbody::DYNAMIC, 0.f);
 
     /*
       Physics_Rigidbody *rigidbody = scene.node_find(&panda_root, "Panda")->physics_rigidbody_get();
@@ -291,6 +291,8 @@ int main()
       node->scale(scene, glm::vec3(10, 10, 10));
       light->properties_color_set(glm::vec3(1, 0, 0));
     }
+
+
   }
 
   scene.physics_get().pause();

@@ -62,7 +62,7 @@ class Physics_Motion_State: public btMotionState
     btTransform transform;
 
   public:
-    Physics_Motion_State(const btTransform &start_position, Node &node);
+    Physics_Motion_State(Node &node);
 
     virtual void getWorldTransform(btTransform &t) const;
     virtual void setWorldTransform(const btTransform &t);

@@ -1,61 +1,70 @@
-#include "fragmic.h"
-#include "common.h"
+#include "poll.h"
+#include "poll_plugin.h"
+#include "plugin_debug.h"
+#include "plugin_light_tool.h"
+#include "plugin_firstperson_cam.h"
 #include <iostream>
+#include <memory>
 
-Fragmic fragmic;
 
 
 int main() 
 {
-  Scene &scene = fragmic.scene_get();
-  Assets &assets= scene.assets_get();
-  Physics &physics = fragmic.physics_get();
+  Poll poll;
+
+  Scene &scene = poll.scene_get();
+  Assets &assets = scene.assets_get();
+  Physics &physics = scene.physics_get();
+
+  Node *camera_node = scene.node_camera_get();
+
+  auto plugin_debug = std::unique_ptr<Plugin_Debug>(new Plugin_Debug(poll.console_get(), scene));
+  auto plugin_light_tool = std::unique_ptr<Plugin_Light_Tool>(new Plugin_Light_Tool(poll.console_get(), scene));
+  auto plugin_firstperson_camera = std::unique_ptr<Plugin_Firstperson_Camera>(new Plugin_Firstperson_Camera(poll.console_get(), scene, camera_node));
+  poll.plugin_add(*plugin_debug);
+  poll.plugin_add(*plugin_light_tool);
+  poll.plugin_add(*plugin_firstperson_camera);
+
+
+  Node &node = scene.load("data/", "orientation.dae", MODEL_IMPORT_DEFAULT);
 
   {
-    Node *camera_node = scene.node_camera_get();
-    common_init(fragmic);
-    common_fpcamera_use(camera_node);
-    common_debug_use();
+    Node &suzanne_translated = *scene.node_find(&node, "Suzanne_center");
+    suzanne_translated.translate(scene, glm::vec3(0, 0, 4));
   }
 
-/*
-  Node *light_node = scene.node_create("Light");
-  Light *light = light_node->light_create(assets);
-  light->properties_type_set(LIGHT_DIRECTIONAL);
-  light->properties_direction_set(glm::vec3(0, -1, 0));
-  light->properties_set(glm::vec3(0.2, 0.2, 0.2), glm::vec3(0.5, 0.5, 0.5), glm::vec3(1.0, 1.0, 1.0));
+  {
+    Node &sphere = *scene.node_create("sphere");
+    Mesh &mesh = *sphere.mesh_create(scene);
+    sphere.mesh_set(assets.stock_nodes_get().sphere_get()->mesh_get());
+    scene.mesh_nodes_add(sphere);
+    sphere.translate(scene, glm::vec3(0, 0, 4));
+  }
 
-  Node &box_node_rh = scene.model_load("data/", "box_translated_scaled.dae", MODEL_IMPORT_OPTIMIZED);
-  Light *point_light3 = box_node_rh.light_create(assets);
-  point_light3->properties_type_set(LIGHT_POINT);
-  point_light3->properties_set(glm::vec3(0.2, 0.2, 0.2), glm::vec3(1.0, 1.0, 1.0), glm::vec3(1.0, 1.0, 1.0));
-  point_light3->bias_set(glm::vec3(0, 1.2, 0));
-  physics.collision_shape_add(box_node_rh, PHYSICS_COLLISION_BOX, true, 1.f);
+ // Node &panda = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
+  Node &zombie = scene.load("data/zombie/", "new_thin_zombie.dae", MODEL_IMPORT_OPTIMIZED);
+ // Node &bob = scene.load("data/bob/", "Bob_with_lamp.dae", MODEL_IMPORT_DEFAULT);
 
-  Node &sphere_node = scene.model_load("data/", "sphere_translated_scaled.dae", MODEL_IMPORT_OPTIMIZED);
-  Light *point_light = sphere_node.light_create(assets);
-  point_light->properties_type_set(LIGHT_POINT);
-  point_light->properties_set(glm::vec3(0.2, 0.2, 0.2), glm::vec3(1.0, 1.0, 1.0), glm::vec3(1.0, 1.0, 1.0));
-  point_light->bias_set(glm::vec3(0, 1.2, 0));
+  {
+    Node *node = scene.node_create("Light_Directionl_Global");
+    Light *light = node->light_create(scene, Light::DIRECTIONAL, Light::GLOBAL);
+    node->translate(scene, glm::vec3(0, 40, 0));
+    light->properties_direction_set(glm::vec3(0, -1, 0.5));
+    light->properties_color_set(glm::vec3(1., 1., 1.));
+  }
 
-  physics.collision_shape_add(sphere_node, PHYSICS_COLLISION_SPHERE, true, 1.f);
+  {
+    Node *node = scene.node_create("Light_Directionl_Global");
+    Light *light = node->light_create(scene, Light::DIRECTIONAL, Light::GLOBAL);
+    node->translate(scene, glm::vec3(0, 40, 0));
+    light->properties_direction_set(glm::vec3(0, -1, -0.5));
+    light->properties_color_set(glm::vec3(1., 1., 1.));
+  }
 
-  Node &monkey_node = scene.model_load("data/", "convex_hull.dae", MODEL_IMPORT_OPTIMIZED);
-  Light *point_light2 = monkey_node.light_create(assets);
-  point_light2->properties_type_set(LIGHT_POINT);
-  point_light2->properties_set(glm::vec3(0.2, 0.2, 0.2), glm::vec3(1.0, 1.0, 1.0), glm::vec3(1.0, 1.0, 1.0));
-  point_light2->bias_set(glm::vec3(0, 1.2, 0));
-  physics.collision_shape_add(monkey_node, PHYSICS_COLLISION_CONVEX_HULL, true, 1.f);
-
-  Node &base_node = scene.model_load("data/", "base.dae", MODEL_IMPORT_OPTIMIZED);
-  physics.collision_shape_add(base_node, PHYSICS_COLLISION_BOX, true, 0);
-
-*/
   physics.pause();
-  scene.scene_graph_print(true);
 
-  fragmic.run();
-  fragmic.term();
+  poll.run();
+  poll.term();
 
   return true;
 }

@@ -121,9 +121,18 @@ const std::vector<vec3> &Mesh::positions_get() const
 
 void Mesh::positions_update(const mat4 &model)
 {
-
   for (size_t i = 0; i < positions.size(); i++) {
     positions[i] = vec3(model * vec4(positions[i], 1.0));
+
+
+  }
+
+  for (size_t i = 0; i < normals.size(); i++) {
+    normals[i] = vec3(model * vec4(normals[i], 0.0));
+  }
+
+  for (size_t i = 0; i < tangents.size(); i++) {
+    tangents[i] = vec3(model * vec4(tangents[i], 0.0));
   }
 
 }

@@ -103,7 +103,10 @@ Node &Scene::load(const std::string &prefix, const std::string &filename, const 
   Node *root_ptr = model.load(*this, root, prefix, filename, options);
   node_state_recursive_update(root);
 
+
   transform_update_global_recursive(root_ptr);
+ // node_positions_update_recursive(*root_ptr);
+ // node_reset_transforms_recursive(*root_ptr);
   if (!(options & MODEL_IMPORT_NO_DRAW)) {
     node_recursive_init(glcontext, *root_ptr);
   }
@@ -210,6 +213,32 @@ Node *Scene::node_create(const std::string &name, Node *parent, Transform_Inheri
 
   transform_update_global_recursive(node_ptr);
   return node_ptr;
+}
+
+void Scene::node_reset_transforms_recursive(Node &node)
+{
+  node.transform_global_set(glm::mat4(1.f));
+  node.transform_local_current_set(*this, glm::mat4(1.f));
+
+  for (auto &child : node.children_get()) {
+    node_reset_transforms_recursive(*child);
+  }
+}
+
+void Scene::node_positions_update_recursive(Node &node)
+{
+  Mesh *mesh = node.mesh_get();
+
+  if (mesh) {
+    const glm::mat4 transform = node.transform_global_get();
+    mesh->positions_update(transform);
+  }
+  node.transform_global_set(glm::mat4(1.f));
+  //node.transform_local_current_set(*this, glm::mat4(1.f));
+
+  for (auto &child : node.children_get()) {
+    node_positions_update_recursive(*child);
+  }
 }
 
 

@@ -62,7 +62,6 @@ void Poll::run()
     auto &armatures = assets.armature_get_all();
     for (auto &armature: armatures) {
       armature->bones_update_skinningmatrices();
-      glcontext.uniform_buffers_update_armature(*armature);
     }
 
     /* Update camera */
@@ -153,12 +152,10 @@ Window &Poll::window_get()
 // Return delta time in seconds.
 double Poll::delta_time_get()
 {
- // static unsigned long long time_last = std::chrono::system_clock::now().time_since_epoch() /  std::chrono::microseconds(1);
- // unsigned long long time_cur = std::chrono::system_clock::now().time_since_epoch() /  std::chrono::microseconds(1);
- // double dt = (time_cur - time_last) / 1000.0 / 1000.0;
- // time_last = time_cur;
-
-  double dt = 0.1;
+  static unsigned long long time_last = std::chrono::system_clock::now().time_since_epoch() /  std::chrono::microseconds(1);
+  unsigned long long time_cur = std::chrono::system_clock::now().time_since_epoch() /  std::chrono::microseconds(1);
+  double dt = (time_cur - time_last) / 1000.0 / 1000.0;
+  time_last = time_cur;
 
   return dt;
 }

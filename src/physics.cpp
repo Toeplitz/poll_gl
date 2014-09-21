@@ -263,8 +263,9 @@ void Physics::bullet_term()
 /**************************************************/
 
 
-Physics_Motion_State::Physics_Motion_State(const btTransform &start_position, Node &node)
+Physics_Motion_State::Physics_Motion_State(Node &node)
 {
+  transform.setIdentity();
   node_set(node);
 }
 
@@ -294,8 +295,8 @@ void Physics_Motion_State::transform_set(glm::mat4 &model)
 {
   POLL_DEBUG(std::cout, glm::to_string(model)  << node->name_get());
  // transform.setFromOpenGLMatrix((btScalar *) &model);
-  glm::mat4 model2 = node->transform_global_get();
-  this->transform.setFromOpenGLMatrix((btScalar *) &model2);
+  //glm::mat4 model2 = node->transform_global_get();
+  //this->transform.setFromOpenGLMatrix((btScalar *) &model2);
 }
 
 

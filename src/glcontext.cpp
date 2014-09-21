@@ -818,6 +818,11 @@ void GLcontext::draw_node(Node &node)
 
   uniform_buffers_update_state(node);
   uniform_buffers_update_matrices(node);
+  
+  {
+    Armature *armature = node.armature_get();
+    if (armature) uniform_buffers_update_armature(*armature);
+  }
 
   { 
     Material *material = node.material_get();

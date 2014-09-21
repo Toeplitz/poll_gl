@@ -9,7 +9,8 @@ void main ()
 {
   vec3 diffuse_out = texture(diffuse_texture, st).rgb;
   def_normal = normal_eye;
-  def_diffuse.rgb =  diffuse_out;
+  //def_diffuse.rgb =  diffuse_out;
+  def_diffuse.rgb =  vec3(0.5, 0.5, 0.5);
   def_diffuse.a = 0.5;
 }
 
