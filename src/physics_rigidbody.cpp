@@ -255,10 +255,6 @@ unsigned int Physics_Rigidbody::type_get()
 
 void Physics_Rigidbody::bt_shape_init(Node *node_ptr, btCollisionShape *shape, unsigned int type, float initial_mass)
 {
-  /*
-  btTransform t;
-  t.setFromOpenGLMatrix((btScalar *) &node_ptr->transform_global_get());
-*/
   bt_motion_state = std::unique_ptr<Physics_Motion_State>(new Physics_Motion_State(*node_ptr));
 
   btVector3 inertia(0, 0, 0);

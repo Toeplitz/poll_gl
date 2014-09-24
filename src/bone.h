@@ -12,12 +12,12 @@ class Bone {
   private:
     unsigned int     id;
     std::string      name;
-    const glm::mat4  offset_matrix;
+    glm::mat4  offset_matrix;
 
   public:
     Node            *joint_node;
 
-    Bone(const std::string &name, const unsigned int &id, const glm::mat4 &m, Node *joint_node);
+    Bone(const std::string &name, const unsigned int &id, glm::mat4 &m, Node *joint_node);
 
     unsigned int  index_get();
     glm::mat4     skinning_matrix_update();

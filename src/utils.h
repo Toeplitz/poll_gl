@@ -28,6 +28,7 @@
   if (!node.active_get()) return;
 
 
+extern glm::mat4 blender_transform_get();
 extern std::string basename(std::string const &pathname);
 extern void        indent(std::ostream &os,size_t indent);
 bool               file_exists(const std::string &name);

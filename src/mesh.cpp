@@ -123,16 +123,20 @@ void Mesh::positions_update(const mat4 &model)
 {
   for (size_t i = 0; i < positions.size(); i++) {
     positions[i] = vec3(model * vec4(positions[i], 1.0));
-
-
+   // positions[i] = vec3(positions[i].x, positions[i].z, positions[i].y);
   }
 
   for (size_t i = 0; i < normals.size(); i++) {
     normals[i] = vec3(model * vec4(normals[i], 0.0));
+    //normals[i] = vec3(normals[i].x, normals[i].z, normals[i].y);
   }
 
   for (size_t i = 0; i < tangents.size(); i++) {
     tangents[i] = vec3(model * vec4(tangents[i], 0.0));
+  }
+
+  for (size_t i = 0; i < bone_weights.size(); i++) {
+    //bone_weights[i] = vec3(bone_weights[i].x, bone_weights[i].z, bone_weights[i].y);
   }
 
 }

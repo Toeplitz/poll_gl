@@ -1,4 +1,5 @@
 #include "bone.h"
+#include "utils.h"
 
 
 /**************************************************/
@@ -6,12 +7,12 @@
 /**************************************************/
 
 
-Bone::Bone(const std::string &name, const unsigned int &id, const glm::mat4 &m, Node *joint_node):
-  offset_matrix(m)
+Bone::Bone(const std::string &name, const unsigned int &id, glm::mat4 &m, Node *joint_node)
 {
   this->id = id;
   this->name = name;
   this->joint_node = joint_node;
+  this->offset_matrix = m * glm::inverse(blender_transform_get());
 } 
 
 

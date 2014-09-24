@@ -164,7 +164,7 @@ void Model::ai_mat_copy(const aiMatrix4x4 *from, glm::mat4 &to)
 }
 
 
-void Model::bone_map_create(Scene &scene, BoneForAssimpBone & boneForAssimpBone)
+void Model::bone_map_create(Scene &scene, BoneForAssimpBone &boneForAssimpBone)
 {
   Assets &assets = scene.assets_get();
   size_t boneIndex = 0;
@@ -280,8 +280,8 @@ Node *Model::node_map_create(Scene &scene, const aiNode &node, Node *parent, int
 
     node.mTransformation.Decompose(scaling, rotation, position);
     glm::vec3 scale_vec(scaling.x, scaling.y, scaling.z);
-    glm::vec3 position_vec(position.x, position.y, -position.z);
-    glm::quat rotation_quat(rotation.x, rotation.y, -rotation.z, rotation.w);
+    glm::vec3 position_vec(position.x, position.y, position.z);
+    glm::quat rotation_quat(rotation.x, rotation.y, rotation.z, rotation.w);
     ai_mat_copy(&node.mTransformation, localTransform);
 
     node_internal->transform_local_original_set(localTransform);
