@@ -59,14 +59,6 @@ class Physics_Triangle_Mesh_Shape: public Physics_Collision_Shape
 class Physics_Rigidbody
 {
   public:
-    enum Shape
-    {
-      BOX = 0,
-      SPHERE = 1,
-      CONVEX_HULL = 2,
-      TRIANGLE_MESH = 3
-    };
-
     enum Type
     {
       DYNAMIC = 0,
@@ -82,24 +74,23 @@ class Physics_Rigidbody
     float mass = 0;
 
     Node *node_ptr = nullptr;
+    Physics_Collision_Shape *shape_ptr = nullptr;
     std::unique_ptr<Physics_Motion_State> bt_motion_state;
-    unsigned int shape = -1;
     unsigned int type = -1;
 
-    void bt_shape_init(Node *node_ptr, btCollisionShape *shape, unsigned int type, float inital_mass);
+    void bt_shape_init(Node &node, btCollisionShape *shape, unsigned int type, float inital_mass);
 
 
   public:
 
     btRigidBody *bt_rigidbody_get();
-    void         create(Node *node_ptr, Physics_Collision_Shape *shape, unsigned int collision_type, float initial_mass);
-    void         create(Node *node_ptr, unsigned int shape, unsigned int type, float initial_mass);
+    void         create(Physics &physics, Node &node, Physics_Collision_Shape &shape, unsigned int collision_type, float initial_mass);
     void         motionstate_transform_set(glm::mat4 &transform);
     void         mass_set(Physics *physics, const float mass);
     float        mass_get();
     Node        *node_ptr_get();
     void         node_ptr_set(Node *node_ptr);
-    unsigned int shape_get();
+    Physics_Collision_Shape *shape_get();
     unsigned int type_get();
 
 };

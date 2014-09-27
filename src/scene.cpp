@@ -176,7 +176,7 @@ to
     glm::mat4 global_transform = root_ptr->transform_global_get();
     root_ptr->transform_global_set(global_transform * glm::inverse(transform));
     root_ptr->transform_local_current_set(*this, local_transform * glm::inverse(transform));
-    POLL_DEBUG(std::cout, "scene transform after: " << root_ptr->name_get() << " : "  << glm::to_string(root_ptr->transform_local_current_get()));
+    //POLL_DEBUG(std::cout, "scene transform after: " << root_ptr->name_get() << " : "  << glm::to_string(root_ptr->transform_local_current_get()));
 
     node_positions_update_recursive(*root_ptr);
     node_reset_transforms_recursive(*root_ptr);

@@ -56,7 +56,7 @@ class Model {
 
     void   assimp_material_add_texture(Material &material, aiMaterial &assimp_material, Model_Texture_Type type);
     void   ai_mat_copy(const aiMatrix4x4 *from, glm::mat4 &to);
-    void   bone_map_create(Scene &scene, BoneForAssimpBone &boneForAssimpBone);
+    void   bone_map_create(Scene &scene, BoneForAssimpBone &boneForAssimpBone, const unsigned int options);
     void   lights_parse(Scene &scene);
     void   materials_parse(Scene &scene);
     void   mesh_create_all(Scene &scene, const aiNode &node, const BoneForAssimpBone &boneForAssimpBone);

@@ -52,7 +52,7 @@ Node *Model::load(Scene &scene, Node &root, const std::string &prefix, const std
   Node *rootPtr = node_map_create(scene, *assimp_scene->mRootNode, &root, root.tree_level_get());
 //  rootPtr->transform_update_global_recursive(*rootPtr);
   BoneForAssimpBone boneForAssimpBone;
-  bone_map_create(scene, boneForAssimpBone);
+  bone_map_create(scene, boneForAssimpBone, options);
   materials_parse(scene);
   lights_parse(scene);
 
@@ -164,7 +164,7 @@ void Model::ai_mat_copy(const aiMatrix4x4 *from, glm::mat4 &to)
 }
 
 
-void Model::bone_map_create(Scene &scene, BoneForAssimpBone &boneForAssimpBone)
+void Model::bone_map_create(Scene &scene, BoneForAssimpBone &boneForAssimpBone, const unsigned int options)
 {
   Assets &assets = scene.assets_get();
   size_t boneIndex = 0;
@@ -183,7 +183,7 @@ void Model::bone_map_create(Scene &scene, BoneForAssimpBone &boneForAssimpBone)
       auto key = std::string(assimpBone->mName.data);
       glm::mat4 offsetMatrix;
       ai_mat_copy(&assimpBone->mOffsetMatrix, offsetMatrix);
-      std::unique_ptr<Bone> internalBone(new Bone(key, boneIndex, offsetMatrix, node));
+      std::unique_ptr<Bone> internalBone(new Bone(key, boneIndex, offsetMatrix, node, options));
       assert(!boneForAssimpBone[assimpBone]);
       boneForAssimpBone[assimpBone] = internalBone.get();
       armature->bones_add(std::move(internalBone));
@@ -283,6 +283,16 @@ Node *Model::node_map_create(Scene &scene, const aiNode &node, Node *parent, int
     glm::vec3 position_vec(position.x, position.y, position.z);
     glm::quat rotation_quat(rotation.x, rotation.y, rotation.z, rotation.w);
     ai_mat_copy(&node.mTransformation, localTransform);
+
+    {
+      glm::vec3 v(scaling.x, scaling.z, scaling.y);
+      node_internal->current_scale_set(v);
+    }
+
+    {
+      glm::vec3 v(position.x, position.z, position.y);
+      node_internal->current_translate_set(v);
+    }
 
     node_internal->transform_local_original_set(localTransform);
     node_internal->transform_local_current_set(scene, localTransform);

@@ -89,7 +89,7 @@ void Ui::callback_object_add(const std::string &prim, const std::string &sec, co
   for (int i = 0; i < num; i++) {
     Node &node = scene->load("data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED);
     node.translate(*scene, pos);
-    node.physics_rigidbody_create(*scene, false, Physics_Rigidbody::SPHERE, Physics_Rigidbody::DYNAMIC, 10.f);
+  //  node.physics_rigidbody_create(*scene, false, Physics_Rigidbody::SPHERE, Physics_Rigidbody::DYNAMIC, 10.f);
   }
 
 }

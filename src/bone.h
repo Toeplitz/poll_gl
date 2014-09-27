@@ -17,7 +17,7 @@ class Bone {
   public:
     Node            *joint_node;
 
-    Bone(const std::string &name, const unsigned int &id, glm::mat4 &m, Node *joint_node);
+    Bone(const std::string &name, const unsigned int &id, glm::mat4 &m, Node *joint_node, const unsigned int options);
 
     unsigned int  index_get();
     glm::mat4     skinning_matrix_update();

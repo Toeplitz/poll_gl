@@ -175,7 +175,7 @@ void Plugin_Light_Tool::light_callback_create(Node *node_ptr)
         Node *node = scene->node_create("light_symbol", node_ptr, TRANSFORM_INHERIT_POSITION_ONLY);
         node->scale(*scene, glm::vec3(0.1, 0.1, 0.1));
         node->mesh_set(node_symbol_cone->mesh_get());
-        node->physics_rigidbody_create(*scene, false, Physics_Rigidbody::BOX, Physics_Rigidbody::KINEMATIC, 0);
+        //node->physics_rigidbody_create(*scene, false, Physics_Rigidbody::BOX, Physics_Rigidbody::KINEMATIC, 0);
         gimbal_nodes.center = node;
       }
 
@@ -188,14 +188,14 @@ void Plugin_Light_Tool::light_callback_create(Node *node_ptr)
       {
         Node *node = scene->node_create("light_disk", node_ptr);
         node->mesh_set(node_symbol_disk->mesh_get());
-        node->physics_rigidbody_create(*scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC, 0);
+       // node->physics_rigidbody_create(*scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC, 0);
         node->active_set(*scene, false);
         gimbal_nodes.x = node;
       }
       {
         Node *node = scene->node_create("light_disk", node_ptr);
         node->mesh_set(node_symbol_disk->mesh_get());
-        node->physics_rigidbody_create(*scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC, 0);
+       // node->physics_rigidbody_create(*scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC, 0);
         node->active_set(*scene, false);
         node->rotate(*scene, M_PI / 2, glm::vec3(1, 0, 0));
         gimbal_nodes.y = node;
@@ -203,7 +203,7 @@ void Plugin_Light_Tool::light_callback_create(Node *node_ptr)
       {
         Node *node = scene->node_create("light_disk", node_ptr);
         node->mesh_set(node_symbol_disk->mesh_get());
-        node->physics_rigidbody_create(*scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC, 0);
+      //  node->physics_rigidbody_create(*scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC, 0);
         node->active_set(*scene, false);
         node->rotate(*scene, M_PI / 2, glm::vec3(0, 0, 1));
         gimbal_nodes.z = node;

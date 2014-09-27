@@ -203,12 +203,12 @@ int main()
 
   {
     Node &room = scene.load("data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED);
-    room.physics_rigidbody_create(scene, true, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::DYNAMIC, 0);
+ //   room.physics_rigidbody_create(scene, true, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::DYNAMIC, 0);
   }
 
   {
     Node &node = scene.load("data/", "cone.dae", MODEL_IMPORT_OPTIMIZED);
-    node.physics_rigidbody_create(scene, false, Physics_Rigidbody::CONVEX_HULL, Physics_Rigidbody::DYNAMIC, 1.f);
+  //  node.physics_rigidbody_create(scene, false, Physics_Rigidbody::CONVEX_HULL, Physics_Rigidbody::DYNAMIC, 1.f);
     //node.translate(scene, glm::vec3(0, 0, 20));
   }
 
@@ -222,7 +222,7 @@ int main()
   /* Setup panda character */
   {
     Node &panda_root = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
-    panda_root.physics_rigidbody_create(scene, true, Physics_Rigidbody::CONVEX_HULL, Physics_Rigidbody::DYNAMIC, 0.f);
+  //  panda_root.physics_rigidbody_create(scene, true, Physics_Rigidbody::CONVEX_HULL, Physics_Rigidbody::DYNAMIC, 0.f);
 
     /*
       Physics_Rigidbody *rigidbody = scene.node_find(&panda_root, "Panda")->physics_rigidbody_get();

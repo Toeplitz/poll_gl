@@ -272,22 +272,28 @@ Physics_Motion_State::Physics_Motion_State(Node &node)
 
 void Physics_Motion_State::node_set(Node &node)
 {
+  Physics_Rigidbody *rigidbody = node.physics_rigidbody_get();
+  auto shape = rigidbody->shape_get();
+  auto &bt_shape = shape->bt_collision_shape_get();
+  glm::vec3 current_scale = node.current_scale_get();
+  bt_shape.setLocalScaling(btVector3(current_scale.x, current_scale.y, current_scale. z));
+
   glm::mat4 model = node.transform_global_get();
-  this->transform.setFromOpenGLMatrix((btScalar *) &model);
+  glm::mat4 transform_scale = node.transform_scale_get();
+  glm::mat4 m = model * glm::inverse(transform_scale);
+  this->transform.setFromOpenGLMatrix((btScalar *) &m);
   this->node = &node;
-  POLL_DEBUG(std::cout, "initialize motionstate: " << glm::to_string(model) << " " << node.name_get());
 }
 
 
 void Physics_Motion_State::setWorldTransform(const btTransform &t)
 {
   glm::mat4 m;
-
   if (!node) return;
 
+  glm::mat4 transform_scale = node->transform_scale_get();
   t.getOpenGLMatrix((btScalar *) &m);
-  POLL_DEBUG(std::cout, "setWorldTransform: " << glm::to_string(m) << node->name_get());
-  node->transform_global_set(m);
+  node->transform_global_set(m * transform_scale);
 }
 
 

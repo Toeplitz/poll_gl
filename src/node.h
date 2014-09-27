@@ -72,6 +72,12 @@ class Node: public Animated {
     mat4 transform_global = mat4(1.f);
     mat4 transform_local_current = mat4(1.f);
     mat4 transform_local_original = mat4(1.f);
+    mat4 transform_rotate = mat4(1.f);
+    mat4 transform_scale = mat4(1.f);
+    mat4 transform_translate = mat4(1.f);
+
+    vec3 current_scale = vec3(1.f);
+    vec3 current_translate = vec3(0.f);
 
     Transform_Inherit transform_inheritance = TRANSFORM_INHERIT_ALL;
     std::function <void (Node &node, vec3 &position)> raycast_collide_callback = nullptr;
@@ -89,12 +95,16 @@ class Node: public Animated {
     void                camera_set(Camera *camera);
     Node_List    const &children_get() const;
     void                child_add(std::unique_ptr<Node> &&node, int level);
+    void                current_scale_set(glm::vec3 &v);
+    glm::vec3          &current_scale_get();
+    void                current_translate_set(glm::vec3 &v);
+    glm::vec3          &current_translate_get();
     Light              *light_create(Scene &scene, const unsigned int lamp_type, const unsigned int illumination_type = Light::VOLUME);
     Light              *light_get();
     void                light_set(Light *light);
     Node               *parent_get();
     void                print_state(int indent_level);
-    Physics_Rigidbody  *physics_rigidbody_create(Scene &scene, bool recursivee, unsigned int shape, unsigned int type, float initial_mass);
+    Physics_Rigidbody  *physics_rigidbody_create(Scene &scene, bool recursive = true);
     Physics_Rigidbody  *physics_rigidbody_get();
     void                physics_rigidbody_set(Physics_Rigidbody *rigidbody);
     const std::string  &name_get();
@@ -117,6 +127,7 @@ class Node: public Animated {
     void                translate(Scene &scene, const vec3 &v);
     Transform_Inherit   transform_inheritance_get();
     void                transform_inheritance_set(Transform_Inherit transform_inheritance);
+    glm::mat4           transform_full_update();
     mat4               &transform_global_get();
     mat4               &transform_global_position_get();
     void                transform_global_set(const mat4 &transform);
@@ -125,6 +136,9 @@ class Node: public Animated {
     void                transform_local_current_set_only(const mat4 &transform);
     mat4               &transform_local_original_get();
     void                transform_local_original_set(const mat4 &transform);
+    mat4                transform_rotate_get();
+    mat4                transform_scale_get();
+    mat4                transform_translate_get();
     const int          &tree_level_get();
     void                tree_level_set(const unsigned int &tree_level);
 };

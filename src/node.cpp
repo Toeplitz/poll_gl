@@ -93,6 +93,31 @@ void Node::child_add(std::unique_ptr<Node> &&node, int level)
   children.push_back(std::move(node));
 }
 
+void Node::current_scale_set(glm::vec3 &v)
+{
+  transform_scale = glm::scale(mat4(1.f), v);
+  this->current_scale = v;
+}
+
+
+glm::vec3 &Node::current_scale_get()
+{
+  return current_scale;
+}
+
+
+void Node::current_translate_set(glm::vec3 &v)
+{
+  transform_translate = glm::translate(mat4(1.f), v / current_scale);
+  this->current_translate = v;
+}
+
+
+glm::vec3 &Node::current_translate_get()
+{
+  return current_translate;
+}
+
 
 Light *Node::light_create(Scene &scene, const unsigned int lamp_type, const unsigned int illumination_type)
 {
@@ -165,7 +190,7 @@ Node *Node::parent_get()
 }
 
 
-Physics_Rigidbody *Node::physics_rigidbody_create(Scene &scene, bool recursive, unsigned int shape, unsigned int type, float initial_mass)
+Physics_Rigidbody *Node::physics_rigidbody_create(Scene &scene, bool recursive)
 {
   Assets &assets = scene.assets_get();
   Physics_Rigidbody *rigidbody_ptr = nullptr;
@@ -176,9 +201,9 @@ Physics_Rigidbody *Node::physics_rigidbody_create(Scene &scene, bool recursive, 
     std::unique_ptr<Physics_Rigidbody> rigidbody(new Physics_Rigidbody());
     rigidbody_ptr = rigidbody.get();
 
-    rigidbody_ptr->create(this, shape, type, initial_mass);
+    //rigidbody_ptr->create(this, shape, type, initial_mass);
     physics_rigidbody_set(rigidbody_ptr);
-    scene.physics_get().rigidbody_add(rigidbody_ptr);
+ //   scene.physics_get().rigidbody_add(rigidbody_ptr);
     assets.physics_rigidbody_add(std::move(rigidbody));
 
     /* In case we have done scaling of the node before adding the rigidbody */
@@ -188,7 +213,7 @@ Physics_Rigidbody *Node::physics_rigidbody_create(Scene &scene, bool recursive, 
 
   if (recursive) {
     for (auto &child : children_get()) {
-      child->physics_rigidbody_create(scene, recursive, shape, type, initial_mass);
+      child->physics_rigidbody_create(scene, recursive);
     }
   }
 
@@ -284,14 +309,20 @@ void Node::raycast_collide_callback_set(const std::function <void (Node &node, v
 
 void Node::rotate(Scene &scene, const float angle, const vec3 &v)
 {
-  mat4 m = glm::rotate(transform_local_current_get(), angle, v);
+ // mat4 m = transform_rotate = glm::rotate(transform_local_current_get(), angle, v);
+  transform_rotate = glm::rotate(transform_rotate, angle, v);
+  mat4 m = transform_full_update();
   transform_local_current_set(scene, m);
 }
 
 
 void Node::scale(Scene &scene, const vec3 &v)
 {
-  mat4 m = glm::scale(transform_local_current_get(), v);
+  //mat4 s = glm::scale(transform_local_current_get(), v);
+  transform_scale = glm::scale(transform_scale, v);
+  current_scale = current_scale * v;
+
+  mat4 m = transform_full_update();
   transform_local_current_set(scene, m);
 
 }
@@ -334,11 +365,15 @@ void Node::text_set(Text *text)
 void Node::translate(Scene &scene, const vec3 &v) 
 {
   Physics_Rigidbody *rigidbody = physics_rigidbody_get();
-  mat4 m = glm::translate(transform_local_current_get(), v);
-  POLL_DEBUG(std::cout, glm::to_string(m));
+  //mat4 m = glm::translate(transform_local_current_get(), v / current_scale);
+  transform_translate = glm::translate(transform_translate, v);
+  current_translate = current_translate + v;
+
+  mat4 m = transform_full_update();
+
+  //POLL_DEBUG(std::cout, glm::to_string(m));
   transform_local_current_set(scene, m);
   if (rigidbody) {
-    POLL_DEBUG(std::cout, "updating motionstate for: " << name_get());
     mat4 &model = transform_global_get();
     POLL_DEBUG(std::cout, glm::to_string(model));
     rigidbody->motionstate_transform_set(model);
@@ -360,6 +395,13 @@ Transform_Inherit Node::transform_inheritance_get()
 mat4 &Node::transform_global_get()
 {
   return transform_global;
+}
+
+
+glm::mat4 Node::transform_full_update()
+{
+  //return transform_scale * transform_rotate * transform_translate;
+  return transform_translate * transform_rotate * transform_scale;
 }
 
 
@@ -414,6 +456,25 @@ mat4 &Node::transform_local_original_get()
 {
   return transform_local_original;
 }
+
+
+mat4 Node::transform_rotate_get()
+{
+  return transform_rotate;
+}
+
+
+mat4 Node::transform_scale_get()
+{
+  return transform_scale;
+}
+
+
+mat4 Node::transform_translate_get()
+{
+  return transform_translate;
+}
+
 
 const int &Node::tree_level_get()
 {
