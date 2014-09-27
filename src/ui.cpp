@@ -83,14 +83,15 @@ void Ui::callback_object_add(const std::string &prim, const std::string &sec, co
   POLL_DEBUG(std::cout, "Camera position: " << glm::to_string(pos));
   int num = 1;
 
-  if (val.size() > 0)
+  if (val.size() > 0) {
     num = ::atoi(val.c_str());
-
-  for (int i = 0; i < num; i++) {
-    Node &node = scene->load("data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED);
-    node.translate(*scene, pos);
-  //  node.physics_rigidbody_create(*scene, false, Physics_Rigidbody::SPHERE, Physics_Rigidbody::DYNAMIC, 10.f);
   }
+
+    Node &node = scene->load("data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED);
+    shape = std::unique_ptr<Physics_Convex_Hull_Shape>(new Physics_Convex_Hull_Shape(node));
+    node.translate(*scene, pos);
+    Physics_Rigidbody *rigidbody = node.physics_rigidbody_create(*scene);
+    rigidbody->create(scene->physics_get(), node, *shape, Physics_Rigidbody::DYNAMIC, 1);
 
 }
 

@@ -275,12 +275,20 @@ void Physics_Motion_State::node_set(Node &node)
   Physics_Rigidbody *rigidbody = node.physics_rigidbody_get();
   auto shape = rigidbody->shape_get();
   auto &bt_shape = shape->bt_collision_shape_get();
-  glm::vec3 current_scale = node.current_scale_get();
-  bt_shape.setLocalScaling(btVector3(current_scale.x, current_scale.y, current_scale. z));
+  glm::vec3 scale = node.scale_global_get();
+  bt_shape.setLocalScaling(btVector3(scale.x, scale.y, scale.z));
+  POLL_DEBUG(std::cout, "Motionstate local scale: " << glm::to_string(scale) << " name: " << node.name_get());
 
   glm::mat4 model = node.transform_global_get();
-  glm::mat4 transform_scale = node.transform_scale_get();
-  glm::mat4 m = model * glm::inverse(transform_scale);
+  glm::mat4 transform_global_scale = node.transform_global_scale_get();
+  POLL_DEBUG(std::cout, "transform_global_scale_get: " << glm::to_string(transform_global_scale) << " name: " << node.name_get());
+  POLL_DEBUG(std::cout, "model: " << glm::to_string(model) << " name: " << node.name_get());
+  POLL_DEBUG(std::cout, "final: " << glm::to_string(model * glm::inverse(transform_global_scale)) << " name: " << node.name_get());
+  std::cout << std::endl;
+  glm::mat4 m = model * glm::inverse(transform_global_scale);
+ // glm::mat4 m = model ;
+
+  this->transform.setIdentity();
   this->transform.setFromOpenGLMatrix((btScalar *) &m);
   this->node = &node;
 }
@@ -291,24 +299,14 @@ void Physics_Motion_State::setWorldTransform(const btTransform &t)
   glm::mat4 m;
   if (!node) return;
 
-  glm::mat4 transform_scale = node->transform_scale_get();
+  glm::mat4 transform_global_scale = node->transform_global_scale_get();
   t.getOpenGLMatrix((btScalar *) &m);
-  node->transform_global_set(m * transform_scale);
-}
-
-
-void Physics_Motion_State::transform_set(glm::mat4 &model)
-{
-  POLL_DEBUG(std::cout, glm::to_string(model)  << node->name_get());
- // transform.setFromOpenGLMatrix((btScalar *) &model);
-  //glm::mat4 model2 = node->transform_global_get();
-  //this->transform.setFromOpenGLMatrix((btScalar *) &model2);
+  node->transform_global_set(m * transform_global_scale);
 }
 
 
 void Physics_Motion_State::getWorldTransform(btTransform &t) const
 {
-  //POLL_DEBUG(std::cout, "getWorldTransform");
   t = transform;
 }
 

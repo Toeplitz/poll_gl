@@ -26,34 +26,31 @@ int main()
   poll.plugin_add(*plugin_light_tool);
   poll.plugin_add(*plugin_firstperson_camera);
 
-
   Node &node = scene.load("data/", "orientation.dae", MODEL_IMPORT_DEFAULT | MODEL_IMPORT_BLENDER_FIX);
+  {
+    Node &root = scene.node_root_get();
+    root.scale(scene, vec3(0.5, 0.5, 0.5));
+  }
 
 
   Node &suzanne_center = *scene.node_find(&node, "Suzanne_center");
-
-  Physics_Rigidbody *rigidbody = suzanne_center.physics_rigidbody_create(scene);
-  auto shape = std::unique_ptr<Physics_Convex_Hull_Shape>(new Physics_Convex_Hull_Shape(suzanne_center));
-  rigidbody->create(physics, suzanne_center, *shape, Physics_Rigidbody::DYNAMIC, 1);
-
-  suzanne_center.scale(scene, vec3(2, 2, 2));
+  //suzanne_center.scale(scene, vec3(1, 1, 1));
   suzanne_center.translate(scene, vec3(6, 0, 4));
   suzanne_center.rotate(scene, (float) -M_PI / 2.f, vec3(0, 1, 0));
-  suzanne_center.translate(scene, vec3(0, 0, 4));
 
+  auto shape = std::unique_ptr<Physics_Convex_Hull_Shape>(new Physics_Convex_Hull_Shape(suzanne_center));
+  Physics_Rigidbody *rigidbody = suzanne_center.physics_rigidbody_create(scene);
+  rigidbody->create(physics, suzanne_center, *shape, Physics_Rigidbody::DYNAMIC, 1);
 
   {
     Node &suzanne_translated = *scene.node_find(&node, "Suzanne_translated");
-    //suzanne_translated.physics_rigidbody_create(scene, true, Physics_Rigidbody::CONVEX_HULL, Physics_Rigidbody::DYNAMIC, 1);
     suzanne_translated.translate(scene, vec3(0, 0, 0));
     suzanne_translated.scale(scene, vec3(2, 2, 2));
     suzanne_translated.rotate(scene, (float) M_PI / 2.f, vec3(0, 1, 0));
+    Physics_Rigidbody *rigidbody = suzanne_translated.physics_rigidbody_create(scene);
+    rigidbody->create(physics, suzanne_translated, *shape, Physics_Rigidbody::KINEMATIC, 1);
   }
 
-  {
-    Node &root = scene.node_root_get();
-    //root.scale(scene, vec3(0.5, 0.5, 0.5));
-  }
 
   /*
   {
@@ -73,13 +70,14 @@ int main()
    */
   }
   
+  /*
   {
    Node &panda = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
    panda.translate(scene, vec3(0, 0, 4));
    panda.scale(scene, vec3(0.5, 0.5, 0.5));
    panda.translate(scene, vec3(0, 0, -4));
-//   panda.rotate(scene, (float) M_PI / 4.f, vec3(0, 1, 0));
   }
+  */
 
 
  /*

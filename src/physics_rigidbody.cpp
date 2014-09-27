@@ -95,7 +95,9 @@ btRigidBody *Physics_Rigidbody::bt_rigidbody_get()
 
 void Physics_Rigidbody::create(Physics &physics, Node &node, Physics_Collision_Shape &shape, unsigned int collision_type, float initial_mass)
 {
+  node_ptr_set(&node);
   this->shape_ptr = &shape;
+  this->type = collision_type;
   bt_shape_init(node, &shape.bt_collision_shape_get(), collision_type, initial_mass);
   physics.rigidbody_add(this);
 }
@@ -137,18 +139,20 @@ Node *Physics_Rigidbody::node_ptr_get()
 void Physics_Rigidbody::node_ptr_set(Node *node_ptr)
 {
   this->node_ptr = node_ptr;
-  bt_motion_state->node_set(*node_ptr);
 }
 
 
-void Physics_Rigidbody::motionstate_transform_set(glm::mat4 &transform)
+void Physics_Rigidbody::motionstate_update(Node &node)
 {
-  bt_motion_state->transform_set(transform);
+  bt_motion_state->node_set(node);
 }
 
 
 Physics_Collision_Shape *Physics_Rigidbody::shape_get()
 {
+  if (!shape_ptr) {
+    POLL_ERROR(std::cerr, "no collision shape poiner for rigidbody");
+  }
   return shape_ptr;
 }
 
@@ -162,6 +166,7 @@ unsigned int Physics_Rigidbody::type_get()
 void Physics_Rigidbody::bt_shape_init(Node &node, btCollisionShape *shape, unsigned int type, float initial_mass)
 {
   bt_motion_state = std::unique_ptr<Physics_Motion_State>(new Physics_Motion_State(node));
+  bt_motion_state->node_set(node);
 
   btVector3 inertia(0, 0, 0);
   btScalar bt_mass = initial_mass;
@@ -169,13 +174,13 @@ void Physics_Rigidbody::bt_shape_init(Node &node, btCollisionShape *shape, unsig
   btRigidBody::btRigidBodyConstructionInfo rb_ci(bt_mass, bt_motion_state.get(), shape, inertia);
   this->mass = initial_mass;
 
+
   bt_rigidbody = std::unique_ptr<btRigidBody>(new btRigidBody(rb_ci));
-  bt_rigidbody->setUserPointer((void*) node_ptr);
+  bt_rigidbody->setUserPointer((void*) &node);
 
   if (type == Type::KINEMATIC) {
     bt_rigidbody->setCollisionFlags(bt_rigidbody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT); 
     bt_rigidbody->setActivationState(DISABLE_DEACTIVATION);
   }
-
 
 }

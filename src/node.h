@@ -73,11 +73,9 @@ class Node: public Animated {
     mat4 transform_local_current = mat4(1.f);
     mat4 transform_local_original = mat4(1.f);
     mat4 transform_rotate = mat4(1.f);
+    mat4 global_transform_scale = mat4(1.f);
     mat4 transform_scale = mat4(1.f);
     mat4 transform_translate = mat4(1.f);
-
-    vec3 current_scale = vec3(1.f);
-    vec3 current_translate = vec3(0.f);
 
     Transform_Inherit transform_inheritance = TRANSFORM_INHERIT_ALL;
     std::function <void (Node &node, vec3 &position)> raycast_collide_callback = nullptr;
@@ -95,10 +93,6 @@ class Node: public Animated {
     void                camera_set(Camera *camera);
     Node_List    const &children_get() const;
     void                child_add(std::unique_ptr<Node> &&node, int level);
-    void                current_scale_set(glm::vec3 &v);
-    glm::vec3          &current_scale_get();
-    void                current_translate_set(glm::vec3 &v);
-    glm::vec3          &current_translate_get();
     Light              *light_create(Scene &scene, const unsigned int lamp_type, const unsigned int illumination_type = Light::VOLUME);
     Light              *light_get();
     void                light_set(Light *light);
@@ -107,6 +101,7 @@ class Node: public Animated {
     Physics_Rigidbody  *physics_rigidbody_create(Scene &scene, bool recursive = true);
     Physics_Rigidbody  *physics_rigidbody_get();
     void                physics_rigidbody_set(Physics_Rigidbody *rigidbody);
+    void                physics_rigidbody_update(Scene &scene);
     const std::string  &name_get();
     void                name_set(const std::string &name);
     Material           *material_create(Assets &assets);
@@ -120,6 +115,8 @@ class Node: public Animated {
     void                raycast_collide_callback_call(vec3 &position);
     void                rotate(Scene &scene, const float angle, const vec3 &v);
     void                scale(Scene &scene, const vec3 &v);
+    glm::vec3           scale_get();
+    glm::vec3           scale_global_get();
     Node_State         &state_get();
     Text               *text_create(Font *font, Scene &scene);
     Text               *text_get();
@@ -127,7 +124,7 @@ class Node: public Animated {
     void                translate(Scene &scene, const vec3 &v);
     Transform_Inherit   transform_inheritance_get();
     void                transform_inheritance_set(Transform_Inherit transform_inheritance);
-    glm::mat4           transform_full_update();
+    glm::mat4           transform_full_update(Scene &scene);
     mat4               &transform_global_get();
     mat4               &transform_global_position_get();
     void                transform_global_set(const mat4 &transform);
@@ -138,6 +135,10 @@ class Node: public Animated {
     void                transform_local_original_set(const mat4 &transform);
     mat4                transform_rotate_get();
     mat4                transform_scale_get();
+    void                transform_scale_set(glm::vec3 &v);
+    void                transform_global_scale_set(const mat4 &transform);
+    mat4                transform_global_scale_get();
+    void                transform_translate_set(glm::vec3 &v);
     mat4                transform_translate_get();
     const int          &tree_level_get();
     void                tree_level_set(const unsigned int &tree_level);

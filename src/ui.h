@@ -19,6 +19,8 @@ class Ui
     Node *node_label_cam = nullptr;
     Node *node_label_fps = nullptr;
 
+    std::unique_ptr<Physics_Convex_Hull_Shape> shape;
+
     void callback_asset_list(const std::string &prim, const std::string &sec, const std::string &val);
     void callback_object_add(const std::string &prim, const std::string &sec, const std::string &val);
     void callback_scene_list(const std::string &prim, const std::string &sec, const std::string &val);

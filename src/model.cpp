@@ -284,18 +284,20 @@ Node *Model::node_map_create(Scene &scene, const aiNode &node, Node *parent, int
     glm::quat rotation_quat(rotation.x, rotation.y, rotation.z, rotation.w);
     ai_mat_copy(&node.mTransformation, localTransform);
 
+
+    node_internal->transform_local_original_set(localTransform);
+    node_internal->transform_local_current_set(scene, localTransform);
+
     {
       glm::vec3 v(scaling.x, scaling.z, scaling.y);
-      node_internal->current_scale_set(v);
+      node_internal->transform_scale_set(v);
     }
 
     {
       glm::vec3 v(position.x, position.z, position.y);
-      node_internal->current_translate_set(v);
+      node_internal->transform_translate_set(v);
     }
 
-    node_internal->transform_local_original_set(localTransform);
-    node_internal->transform_local_current_set(scene, localTransform);
   }
 
   nodes[key] = node_internal;

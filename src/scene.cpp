@@ -258,6 +258,9 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
   std::cout << "global: " << glm::to_string(node.transform_global_get()) << std::endl;
   std::cout << "cur local: " << glm::to_string(node.transform_local_current_get()) << std::endl;
   std::cout << "orig local: " << glm::to_string(node.transform_local_original_get()) << std::endl;
+  std::cout << "current scale: " << glm::to_string(node.scale_get()) << std::endl;
+  std::cout << "current global scale: " << glm::to_string(node.scale_global_get()) << std::endl;
+
 
   std::cout << " active: " << node.active_get();
   std::cout << std::endl;
@@ -312,6 +315,7 @@ void Scene::node_reset_transforms_recursive(Node &node)
   }
 }
 
+
 void Scene::node_positions_update_recursive(Node &node)
 {
   auto transform = blender_transform_get();
@@ -344,25 +348,29 @@ const Poll_Plugin_List &Scene::plugins_get() const
   return *plugins_ptr;
 }
 
+
 void Scene::transform_update_global_recursive(Node *node)
 {
   mat4 transform = node->transform_local_current_get();
+  mat4 transform_scale = node->transform_scale_get();
   Node *parent = node->parent_get();
 
   if (parent) {
     mat4 global_transform;
-
-    //std::cout << node.transform_inheritance_get() << std::endl;
+    mat4 global_transform_scale;
 
     if (node->transform_inheritance_get() == TRANSFORM_INHERIT_POSITION_ONLY) {
       global_transform = parent->transform_global_position_get();
     } else {
       global_transform = parent->transform_global_get();
+      global_transform_scale = parent->transform_global_scale_get();
     }
 
     node->transform_global_set(global_transform * transform);
+    node->transform_global_scale_set(global_transform_scale * transform_scale);
   } else {
     node->transform_global_set(transform);
+    node->transform_global_scale_set(transform_scale);
   }
 
   for (auto &child : node->children_get()) {
