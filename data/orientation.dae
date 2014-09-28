@@ -5,8 +5,8 @@
       <author>Blender User</author>
       <authoring_tool>Blender 2.71.0 commit date:2014-06-25, commit time:18:36, hash:9337574</authoring_tool>
     </contributor>
-    <created>2014-09-21T20:40:03</created>
-    <modified>2014-09-21T20:40:03</modified>
+    <created>2014-09-28T11:31:06</created>
+    <modified>2014-09-28T11:31:06</modified>
     <unit name="meter" meter="1"/>
     <up_axis>Z_UP</up_axis>
   </asset>
@@ -223,7 +223,7 @@
         <instance_geometry url="#Suzanne-mesh"/>
       </node>
       <node id="Suzanne_center" name="Suzanne_center" type="NODE">
-        <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+        <matrix sid="transform">-1 1.27952e-6 0 0 -1.27952e-6 -1 0 0 0 0 1 0 0 0 0 1</matrix>
         <instance_geometry url="#Suzanne_001-mesh"/>
       </node>
     </visual_scene>

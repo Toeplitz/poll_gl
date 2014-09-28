@@ -290,7 +290,13 @@ Node *Model::node_map_create(Scene &scene, const aiNode &node, Node *parent, int
 
     {
       glm::vec3 v(scaling.x, scaling.z, scaling.y);
-      node_internal->transform_scale_set(v);
+      node_internal->transform_scale_set(scale_vec);
+    }
+
+    {
+      glm::quat q(rotation_quat.w, rotation_quat.x, rotation_quat.y, rotation_quat.z);
+      //glm::quat q(rotation_quat.x, rotation_quat.y, rotation_quat.z, rotation_quat.w);
+      node_internal->transform_rotate_set(q);
     }
 
     {

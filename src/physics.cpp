@@ -277,17 +277,8 @@ void Physics_Motion_State::node_set(Node &node)
   auto &bt_shape = shape->bt_collision_shape_get();
   glm::vec3 scale = node.scale_global_get();
   bt_shape.setLocalScaling(btVector3(scale.x, scale.y, scale.z));
-  POLL_DEBUG(std::cout, "Motionstate local scale: " << glm::to_string(scale) << " name: " << node.name_get());
 
-  glm::mat4 model = node.transform_global_get();
-  glm::mat4 transform_global_scale = node.transform_global_scale_get();
-  POLL_DEBUG(std::cout, "transform_global_scale_get: " << glm::to_string(transform_global_scale) << " name: " << node.name_get());
-  POLL_DEBUG(std::cout, "model: " << glm::to_string(model) << " name: " << node.name_get());
-  POLL_DEBUG(std::cout, "final: " << glm::to_string(model * glm::inverse(transform_global_scale)) << " name: " << node.name_get());
-  std::cout << std::endl;
-  glm::mat4 m = model * glm::inverse(transform_global_scale);
- // glm::mat4 m = model ;
-
+  glm::mat4 m = node.transform_global_translate_get() * node.transform_global_rotate_get();
   this->transform.setIdentity();
   this->transform.setFromOpenGLMatrix((btScalar *) &m);
   this->node = &node;

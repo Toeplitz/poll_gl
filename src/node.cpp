@@ -384,8 +384,11 @@ mat4 &Node::transform_global_get()
 
 glm::mat4 Node::transform_full_update(Scene &scene)
 {
-  glm::mat4 m = transform_translate_get() * transform_rotate_get() * transform_scale_get();
-  transform_local_current_set(scene, m);
+  scene.transform_update_global_recursive(this);
+  glm::mat4 m = transform_global_translate_get() * transform_global_rotate_get() * transform_global_scale_get();
+  glm::mat4 local = transform_translate_get() * transform_rotate_get() * transform_scale_get();
+  transform_local_current_set(scene, local);
+  transform_global_set(m);
   physics_rigidbody_update(scene);
   return m;
 }
@@ -414,7 +417,6 @@ void Node::transform_local_current_set_only(const mat4 &transform)
 void Node::transform_local_current_set(Scene &scene, const mat4 &transform) 
 {
   this->transform_local_current = transform;
-  scene.transform_update_global_recursive(this);
 }
 
 
@@ -442,6 +444,14 @@ mat4 Node::transform_rotate_get()
 }
 
 
+void Node::transform_rotate_set(glm::quat &q)
+{
+  mat4 rotation = glm::mat4_cast(q);
+ // transform_rotate = blender_transform_get() * rotation;
+ // transform_rotate = rotation;
+}
+
+
 mat4 Node::transform_scale_get()
 {
   return transform_scale;
@@ -454,15 +464,39 @@ void Node::transform_scale_set(glm::vec3 &v)
 }
 
 
+mat4 Node::transform_global_scale_get()
+{
+  return global_transform_scale;
+}
+
+
+void Node::transform_global_rotate_set(const mat4 &transform)
+{
+  this->global_transform_rotate = transform;
+}
+
+
+mat4 Node::transform_global_rotate_get()
+{
+  return global_transform_rotate;
+}
+
+
 void Node::transform_global_scale_set(const mat4 &transform)
 {
   this->global_transform_scale = transform;
 }
 
 
-mat4 Node::transform_global_scale_get()
+mat4 Node::transform_global_translate_get()
 {
-  return global_transform_scale;
+  return global_transform_translate;
+}
+
+
+void Node::transform_global_translate_set(const mat4 &transform)
+{
+  this->global_transform_translate = transform;
 }
 
 

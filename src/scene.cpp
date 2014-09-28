@@ -182,9 +182,9 @@ to
     node_reset_transforms_recursive(*root_ptr);
   }
 
- // root_ptr->transform_global_set(global_transform);
- // root_ptr->transform_local_current_set(*this, local_transform );
- // transform_update_global_recursive(root_ptr);
+ //root_ptr->transform_global_set(global_transform);
+ //root_ptr->transform_local_current_set(*this, local_transform );
+ transform_update_global_recursive(root_ptr);
 
   if (!(options & MODEL_IMPORT_NO_DRAW)) {
     node_recursive_init(glcontext, *root_ptr);
@@ -353,24 +353,34 @@ void Scene::transform_update_global_recursive(Node *node)
 {
   mat4 transform = node->transform_local_current_get();
   mat4 transform_scale = node->transform_scale_get();
+  mat4 transform_translate = node->transform_translate_get();
+  mat4 transform_rotate = node->transform_rotate_get();
   Node *parent = node->parent_get();
 
   if (parent) {
     mat4 global_transform;
     mat4 global_transform_scale;
+    mat4 global_transform_translate;
+    mat4 global_transform_rotate;
 
     if (node->transform_inheritance_get() == TRANSFORM_INHERIT_POSITION_ONLY) {
       global_transform = parent->transform_global_position_get();
     } else {
       global_transform = parent->transform_global_get();
       global_transform_scale = parent->transform_global_scale_get();
+      global_transform_translate = parent->transform_global_translate_get();
+      global_transform_rotate = parent->transform_global_rotate_get();
     }
 
     node->transform_global_set(global_transform * transform);
     node->transform_global_scale_set(global_transform_scale * transform_scale);
+    node->transform_global_translate_set(global_transform_translate * transform_translate);
+    node->transform_global_rotate_set(global_transform_rotate * transform_rotate);
   } else {
     node->transform_global_set(transform);
     node->transform_global_scale_set(transform_scale);
+    node->transform_global_translate_set(transform_translate);
+    node->transform_global_rotate_set(transform_rotate);
   }
 
   for (auto &child : node->children_get()) {

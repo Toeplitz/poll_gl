@@ -72,8 +72,10 @@ class Node: public Animated {
     mat4 transform_global = mat4(1.f);
     mat4 transform_local_current = mat4(1.f);
     mat4 transform_local_original = mat4(1.f);
-    mat4 transform_rotate = mat4(1.f);
+    mat4 global_transform_rotate = mat4(1.f);
     mat4 global_transform_scale = mat4(1.f);
+    mat4 global_transform_translate = mat4(1.f);
+    mat4 transform_rotate = mat4(1.f);
     mat4 transform_scale = mat4(1.f);
     mat4 transform_translate = mat4(1.f);
 
@@ -133,13 +135,18 @@ class Node: public Animated {
     void                transform_local_current_set_only(const mat4 &transform);
     mat4               &transform_local_original_get();
     void                transform_local_original_set(const mat4 &transform);
+    void                transform_rotate_set(glm::quat &q);
     mat4                transform_rotate_get();
     mat4                transform_scale_get();
     void                transform_scale_set(glm::vec3 &v);
-    void                transform_global_scale_set(const mat4 &transform);
-    mat4                transform_global_scale_get();
     void                transform_translate_set(glm::vec3 &v);
     mat4                transform_translate_get();
+    void                transform_global_rotate_set(const mat4 &transform);
+    mat4                transform_global_rotate_get();
+    void                transform_global_scale_set(const mat4 &transform);
+    mat4                transform_global_scale_get();
+    void                transform_global_translate_set(const mat4 &transform);
+    mat4                transform_global_translate_get();
     const int          &tree_level_get();
     void                tree_level_set(const unsigned int &tree_level);
 };
