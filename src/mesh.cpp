@@ -128,7 +128,7 @@ void Mesh::positions_update(const mat4 &model)
 
   for (size_t i = 0; i < normals.size(); i++) {
     normals[i] = vec3(model * vec4(normals[i], 0.0));
-    //normals[i] = vec3(normals[i].x, normals[i].z, normals[i].y);
+   // normals[i] = vec3(normals[i].x, normals[i].z, normals[i].y);
   }
 
   for (size_t i = 0; i < tangents.size(); i++) {

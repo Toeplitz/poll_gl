@@ -289,18 +289,20 @@ Node *Model::node_map_create(Scene &scene, const aiNode &node, Node *parent, int
     node_internal->transform_local_current_set(scene, localTransform);
 
     {
-      glm::vec3 v(scaling.x, scaling.z, scaling.y);
+     // glm::vec3 v(scaling.x, scaling.z, scaling.y);
+      glm::vec3 v(scaling.x, scaling.y, scaling.z);
       node_internal->transform_scale_set(scale_vec);
     }
 
     {
-      glm::quat q(rotation_quat.w, rotation_quat.x, rotation_quat.y, rotation_quat.z);
-      //glm::quat q(rotation_quat.x, rotation_quat.y, rotation_quat.z, rotation_quat.w);
-      node_internal->transform_rotate_set(q);
+    //  glm::quat q(rotation_quat.w, rotation_quat.x, rotation_quat.y, rotation_quat.z);
+     glm::quat q(rotation_quat.x, rotation_quat.y, rotation_quat.z, rotation_quat.w);
+     node_internal->transform_rotate_set(q);
     }
 
     {
-      glm::vec3 v(position.x, position.z, position.y);
+     // glm::vec3 v(position.x, position.z, position.y);
+      glm::vec3 v(position.x, position.y, position.z);
       node_internal->transform_translate_set(v);
     }
 

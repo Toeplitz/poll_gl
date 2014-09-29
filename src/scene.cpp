@@ -166,7 +166,7 @@ to
   }
 
 
- // transform_update_global_recursive(root_ptr);
+  //transform_update_global_recursive(root_ptr);
 
   /* Remove blender transform from root node */
 
@@ -176,15 +176,16 @@ to
     glm::mat4 global_transform = root_ptr->transform_global_get();
     root_ptr->transform_global_set(global_transform * glm::inverse(transform));
     root_ptr->transform_local_current_set(*this, local_transform * glm::inverse(transform));
-    //POLL_DEBUG(std::cout, "scene transform after: " << root_ptr->name_get() << " : "  << glm::to_string(root_ptr->transform_local_current_get()));
+    POLL_DEBUG(std::cout, "scene transform after: " << root_ptr->name_get() << " : "  << glm::to_string(root_ptr->transform_local_current_get()));
 
-    node_positions_update_recursive(*root_ptr);
-    node_reset_transforms_recursive(*root_ptr);
+  //  node_positions_update_recursive(*root_ptr);
+    //node_reset_transforms_recursive(*root_ptr);
   }
 
- //root_ptr->transform_global_set(global_transform);
- //root_ptr->transform_local_current_set(*this, local_transform );
+ //root_ptr->transform_global_set(mat4(1.f));
+ //root_ptr->transform_local_current_set(*this, mat4(1.f));
  transform_update_global_recursive(root_ptr);
+ //root_ptr->transform_full_update(*this);
 
   if (!(options & MODEL_IMPORT_NO_DRAW)) {
     node_recursive_init(glcontext, *root_ptr);
@@ -372,16 +373,19 @@ void Scene::transform_update_global_recursive(Node *node)
       global_transform_rotate = parent->transform_global_rotate_get();
     }
 
-    node->transform_global_set(global_transform * transform);
+ //   node->transform_global_set(global_transform * transform);
     node->transform_global_scale_set(global_transform_scale * transform_scale);
     node->transform_global_translate_set(global_transform_translate * transform_translate);
     node->transform_global_rotate_set(global_transform_rotate * transform_rotate);
   } else {
-    node->transform_global_set(transform);
+   // node->transform_global_set(transform);
     node->transform_global_scale_set(transform_scale);
     node->transform_global_translate_set(transform_translate);
     node->transform_global_rotate_set(transform_rotate);
+
   }
+
+  node->transform_full_update(*this);
 
   for (auto &child : node->children_get()) {
     transform_update_global_recursive(child.get());

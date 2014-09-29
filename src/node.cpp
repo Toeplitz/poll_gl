@@ -384,7 +384,7 @@ mat4 &Node::transform_global_get()
 
 glm::mat4 Node::transform_full_update(Scene &scene)
 {
-  scene.transform_update_global_recursive(this);
+  //scene.transform_update_global_recursive(this);
   glm::mat4 m = transform_global_translate_get() * transform_global_rotate_get() * transform_global_scale_get();
   glm::mat4 local = transform_translate_get() * transform_rotate_get() * transform_scale_get();
   transform_local_current_set(scene, local);
@@ -448,7 +448,11 @@ void Node::transform_rotate_set(glm::quat &q)
 {
   mat4 rotation = glm::mat4_cast(q);
  // transform_rotate = blender_transform_get() * rotation;
- // transform_rotate = rotation;
+ // POLL_DEBUG(std::cout, "fix matrix: " << glm::to_string(fix) << " name: " << name_get());
+  transform_rotate = rotation * blender_transform_get();
+  //transform_rotate = rotation;
+  POLL_DEBUG(std::cout, "rotation matrix: " << glm::to_string(transform_rotate) << " name: " << name_get());
+  std::cout << std::endl;
 }
 
 
@@ -461,6 +465,7 @@ mat4 Node::transform_scale_get()
 void Node::transform_scale_set(glm::vec3 &v)
 {
   transform_scale = glm::scale(mat4(1.f), v);
+  transform_scale = transform_scale * blender_transform_get();
 }
 
 
@@ -503,6 +508,7 @@ void Node::transform_global_translate_set(const mat4 &transform)
 void Node::transform_translate_set(glm::vec3 &v)
 {
   transform_translate = glm::translate(mat4(1.f), v);
+  transform_translate = transform_translate * blender_transform_get();
 }
 
 

@@ -14,7 +14,6 @@ int main()
   Poll poll;
 
   Scene &scene = poll.scene_get();
-  Assets &assets = scene.assets_get();
   Physics &physics = scene.physics_get();
 
   Node *camera_node = scene.node_camera_get();
@@ -26,7 +25,7 @@ int main()
   poll.plugin_add(*plugin_light_tool);
   poll.plugin_add(*plugin_firstperson_camera);
 
-  Node &node = scene.load("data/", "orientation.dae", MODEL_IMPORT_DEFAULT | MODEL_IMPORT_BLENDER_FIX);
+  Node &node = scene.load("data/", "orientation.dae", MODEL_IMPORT_DEFAULT);
   {
     Node &root = scene.node_root_get();
     root.scale(scene, vec3(0.5, 0.5, 0.5));
@@ -35,7 +34,7 @@ int main()
 
   Node &suzanne_center = *scene.node_find(&node, "Suzanne_center");
   //suzanne_center.scale(scene, vec3(1, 1, 1));
-  suzanne_center.translate(scene, vec3(6, 0, 4));
+  //suzanne_center.translate(scene, vec3(6, 0, 4));
   //suzanne_center.rotate(scene, (float) M_PI, glm::vec3(0, 1, 0));
 
   auto suzanne_center_shape = std::unique_ptr<Physics_Convex_Hull_Shape>(new Physics_Convex_Hull_Shape(suzanne_center));
@@ -43,7 +42,8 @@ int main()
   suzanne_center_rigidbody->create(physics, suzanne_center, *suzanne_center_shape, Physics_Rigidbody::DYNAMIC, 1);
 
   Node &suzanne_translated = *scene.node_find(&node, "Suzanne_translated");
-  suzanne_translated.scale(scene, vec3(2, 2, 2));
+  //suzanne_translated.scale(scene, vec3(2, 2, 2));
+  //suzanne_translated.rotate(scene, (float) M_PI, glm::vec3(0, 0, 1));
   auto suzanne_translated_shape = std::unique_ptr<Physics_Convex_Hull_Shape>(new Physics_Convex_Hull_Shape(suzanne_translated));
   Physics_Rigidbody *suzeanne_translated_rigidbody = suzanne_translated.physics_rigidbody_create(scene);
   suzeanne_translated_rigidbody->create(physics, suzanne_translated, *suzanne_translated_shape, Physics_Rigidbody::KINEMATIC, 1);
@@ -59,7 +59,7 @@ int main()
      }*/
 
   {
-       Node &panda = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
+   //    Node &panda = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
   }
 
   /*
