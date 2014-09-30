@@ -17,7 +17,7 @@ glm::mat4 blender_transform_get()
 {
   glm::mat4 transform = glm::mat4(0.f);
   transform[0][0] = 1;
-  transform[1][2] = 1;
+  transform[1][2] = -1;
   transform[2][1] = 1;
   transform[3][3] = 1;
 

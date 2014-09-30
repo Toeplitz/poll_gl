@@ -278,7 +278,7 @@ void Physics_Motion_State::node_set(Node &node)
   glm::vec3 scale = node.scale_global_get();
   bt_shape.setLocalScaling(btVector3(scale.x, scale.y, scale.z));
 
-  glm::mat4 m = node.transform_global_translate_get() * node.transform_global_rotate_get();
+  glm::mat4 m = node.transform_external_global * node.transform_global_translate_get() * node.transform_global_rotate_get();
   this->transform.setIdentity();
   this->transform.setFromOpenGLMatrix((btScalar *) &m);
   this->node = &node;

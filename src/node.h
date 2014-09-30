@@ -84,6 +84,10 @@ class Node: public Animated {
 
   public:
 
+    mat4 transform_external_local = mat4(1.f);
+    mat4 transform_external_global = mat4(1.f);
+    
+
     Node(const std::string &node_name);
 
     void                active_set(Scene &scene, const bool flag);

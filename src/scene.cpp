@@ -169,23 +169,14 @@ to
   //transform_update_global_recursive(root_ptr);
 
   /* Remove blender transform from root node */
-
   if (options & MODEL_IMPORT_BLENDER_FIX) {
-    glm::mat4 transform = blender_transform_get();
-    glm::mat4 local_transform = root_ptr->transform_local_current_get();
-    glm::mat4 global_transform = root_ptr->transform_global_get();
-    root_ptr->transform_global_set(global_transform * glm::inverse(transform));
-    root_ptr->transform_local_current_set(*this, local_transform * glm::inverse(transform));
-    POLL_DEBUG(std::cout, "scene transform after: " << root_ptr->name_get() << " : "  << glm::to_string(root_ptr->transform_local_current_get()));
-
-  //  node_positions_update_recursive(*root_ptr);
+    //node_positions_update_recursive(*root_ptr);
     //node_reset_transforms_recursive(*root_ptr);
   }
 
  //root_ptr->transform_global_set(mat4(1.f));
  //root_ptr->transform_local_current_set(*this, mat4(1.f));
  transform_update_global_recursive(root_ptr);
- //root_ptr->transform_full_update(*this);
 
   if (!(options & MODEL_IMPORT_NO_DRAW)) {
     node_recursive_init(glcontext, *root_ptr);
@@ -259,8 +250,9 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
   std::cout << "global: " << glm::to_string(node.transform_global_get()) << std::endl;
   std::cout << "cur local: " << glm::to_string(node.transform_local_current_get()) << std::endl;
   std::cout << "orig local: " << glm::to_string(node.transform_local_original_get()) << std::endl;
-  std::cout << "current scale: " << glm::to_string(node.scale_get()) << std::endl;
-  std::cout << "current global scale: " << glm::to_string(node.scale_global_get()) << std::endl;
+  std::cout << "global external: " << glm::to_string(node.transform_external_global) << std::endl;
+  std::cout << "local external: " << glm::to_string(node.transform_external_local) << std::endl;
+
 
 
   std::cout << " active: " << node.active_get();
@@ -363,6 +355,7 @@ void Scene::transform_update_global_recursive(Node *node)
     mat4 global_transform_scale;
     mat4 global_transform_translate;
     mat4 global_transform_rotate;
+    mat4 global_transform_external;
 
     if (node->transform_inheritance_get() == TRANSFORM_INHERIT_POSITION_ONLY) {
       global_transform = parent->transform_global_position_get();
@@ -371,18 +364,20 @@ void Scene::transform_update_global_recursive(Node *node)
       global_transform_scale = parent->transform_global_scale_get();
       global_transform_translate = parent->transform_global_translate_get();
       global_transform_rotate = parent->transform_global_rotate_get();
+      global_transform_external = parent->transform_external_global;
     }
 
  //   node->transform_global_set(global_transform * transform);
     node->transform_global_scale_set(global_transform_scale * transform_scale);
     node->transform_global_translate_set(global_transform_translate * transform_translate);
     node->transform_global_rotate_set(global_transform_rotate * transform_rotate);
+    node->transform_external_global = global_transform_external * node->transform_external_local;
   } else {
    // node->transform_global_set(transform);
     node->transform_global_scale_set(transform_scale);
     node->transform_global_translate_set(transform_translate);
     node->transform_global_rotate_set(transform_rotate);
-
+    node->transform_external_global = node->transform_external_local;
   }
 
   node->transform_full_update(*this);

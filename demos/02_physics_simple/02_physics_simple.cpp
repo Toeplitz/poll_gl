@@ -25,7 +25,8 @@ int main()
   poll.plugin_add(*plugin_light_tool);
   poll.plugin_add(*plugin_firstperson_camera);
 
-  Node &node = scene.load("data/", "orientation.dae", MODEL_IMPORT_DEFAULT);
+  Node &node = scene.load("data/", "orientation.fbx", MODEL_IMPORT_DEFAULT);
+  //Node &node = scene.load("data/", "orientation.dae", MODEL_IMPORT_DEFAULT | MODEL_IMPORT_BLENDER_FIX);
   {
     Node &root = scene.node_root_get();
     root.scale(scene, vec3(0.5, 0.5, 0.5));
@@ -42,7 +43,8 @@ int main()
   suzanne_center_rigidbody->create(physics, suzanne_center, *suzanne_center_shape, Physics_Rigidbody::DYNAMIC, 1);
 
   Node &suzanne_translated = *scene.node_find(&node, "Suzanne_translated");
-  //suzanne_translated.scale(scene, vec3(2, 2, 2));
+  suzanne_translated.scale(scene, vec3(3, 3, 3));
+  //suzanne_translated.translate(scene, vec3(0, 0, 4));
   //suzanne_translated.rotate(scene, (float) M_PI, glm::vec3(0, 0, 1));
   auto suzanne_translated_shape = std::unique_ptr<Physics_Convex_Hull_Shape>(new Physics_Convex_Hull_Shape(suzanne_translated));
   Physics_Rigidbody *suzeanne_translated_rigidbody = suzanne_translated.physics_rigidbody_create(scene);
@@ -62,18 +64,19 @@ int main()
    //    Node &panda = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
   }
 
-  /*
      {
      Node &panda = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
+     //Node &panda = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_BLENDER_FIX);
+     //Node &panda = scene.load("data/game_assets/characters/panda/", "panda.fbx", MODEL_IMPORT_OPTIMIZED);
      panda.translate(scene, vec3(0, 0, 4));
-     panda.scale(scene, vec3(0.5, 0.5, 0.5));
-     panda.translate(scene, vec3(0, 0, -4));
+ //    panda.scale(scene, vec3(0.5, 0.5, 0.5));
+ //    panda.translate(scene, vec3(0, 0, -4));
      }
-     */
 
 
-  /*
-     Node &bob = scene.load("data/bob/", "Bob_with_lamp.dae", MODEL_IMPORT_DEFAULT | MODEL_IMPORT_BLENDER_FIX);
+     //Node &bob = scene.load("data/bob/", "Bob_with_lamp.dae", MODEL_IMPORT_DEFAULT | MODEL_IMPORT_BLENDER_FIX);
+     //Node &bob = scene.load("data/bob/", "bob.fbx", MODEL_IMPORT_DEFAULT);
+     /*
      bob.scale(scene, vec3(3, 3, 3));
      bob.rotate(scene, (float) -M_PI/ 2.f, vec3(0, 1, 0));
      bob.translate(scene, vec3(0, 0, 4));

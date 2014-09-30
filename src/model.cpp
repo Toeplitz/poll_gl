@@ -269,7 +269,7 @@ void Model::lights_parse(Scene &scene)
 
 Node *Model::node_map_create(Scene &scene, const aiNode &node, Node *parent, int level)
 {
-  glm::mat4 localTransform;
+  glm::mat4 transform_local;
   std::string key(node.mName.data);
   Node *node_internal = scene.node_create(key, parent);
 
@@ -282,28 +282,30 @@ Node *Model::node_map_create(Scene &scene, const aiNode &node, Node *parent, int
     glm::vec3 scale_vec(scaling.x, scaling.y, scaling.z);
     glm::vec3 position_vec(position.x, position.y, position.z);
     glm::quat rotation_quat(rotation.x, rotation.y, rotation.z, rotation.w);
-    ai_mat_copy(&node.mTransformation, localTransform);
+    ai_mat_copy(&node.mTransformation, transform_local);
 
 
-    node_internal->transform_local_original_set(localTransform);
-    node_internal->transform_local_current_set(scene, localTransform);
+    node_internal->transform_local_original_set(transform_local);
+    node_internal->transform_local_current_set(scene, transform_local);
+
+    node_internal->transform_external_local = transform_local;
 
     {
      // glm::vec3 v(scaling.x, scaling.z, scaling.y);
       glm::vec3 v(scaling.x, scaling.y, scaling.z);
-      node_internal->transform_scale_set(scale_vec);
+    //  node_internal->transform_scale_set(scale_vec);
     }
 
     {
     //  glm::quat q(rotation_quat.w, rotation_quat.x, rotation_quat.y, rotation_quat.z);
      glm::quat q(rotation_quat.x, rotation_quat.y, rotation_quat.z, rotation_quat.w);
-     node_internal->transform_rotate_set(q);
+    // node_internal->transform_rotate_set(q);
     }
 
     {
      // glm::vec3 v(position.x, position.z, position.y);
       glm::vec3 v(position.x, position.y, position.z);
-      node_internal->transform_translate_set(v);
+     // node_internal->transform_translate_set(v);
     }
 
   }
