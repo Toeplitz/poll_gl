@@ -201,10 +201,17 @@ int main()
   Node &root = scene.node_root_get();
   root.scale(scene, glm::vec3(0.1, 0.1, 0.1));
 
-  {
-    Node &room = scene.load("data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED);
- //   room.physics_rigidbody_create(scene, true, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::DYNAMIC, 0);
+  Node &room = scene.load("data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED);
+  std::vector<std::unique_ptr<Physics_Triangle_Mesh_Shape>> shapes;
+  for (auto &child: room.children_get()) {
+    auto shape = std::unique_ptr<Physics_Triangle_Mesh_Shape>(new Physics_Triangle_Mesh_Shape(*child));
+    Physics_Rigidbody *rigidbody = child->physics_rigidbody_create(scene);
+    if (rigidbody)
+      rigidbody->create(scene.physics_get(), *shape, Physics_Rigidbody::DYNAMIC, 0);
+    shapes.push_back(std::move(shape));
+
   }
+
 
   {
     //Node &node = scene.load("data/", "cone.dae", MODEL_IMPORT_OPTIMIZED);
@@ -212,11 +219,12 @@ int main()
    // node.translate(scene, glm::vec3(0, 0, -20));
   }
 
-  {
-    Node &node= scene.load("data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED);
-    node.translate(scene, glm::vec3(-3, 4, 3));
-    //node.physics_rigidbody_create(scene, false, Physics_Rigidbody::BOX, Physics_Rigidbody::DYNAMIC, 1.f);
-  }
+  Node &sphere_node= scene.load("data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED);
+  sphere_node.translate(scene, glm::vec3(-3, 4, 3));
+  auto shape = std::unique_ptr<Physics_Convex_Hull_Shape>(new Physics_Convex_Hull_Shape(sphere_node));
+  Physics_Rigidbody *rigidbody = sphere_node.physics_rigidbody_create(scene);
+  if (rigidbody)
+    rigidbody->create(scene.physics_get(), *shape, Physics_Rigidbody::DYNAMIC, 1);
 
 
   /* Setup panda character */
@@ -269,7 +277,7 @@ int main()
     };
 
     for (int i = 0; i < 4; i++) {
-      Node *node = scene.node_create("Light_Point");
+      Node *node = scene.node_create("Light_Point_" + std::to_string(i));
       Light *light = node->light_create(scene, Light::POINT);
       light->properties_color_set(light_color[i]);
       node->translate(scene, light_positions[i]);
@@ -278,26 +286,24 @@ int main()
 
     {
       Node *node = scene.node_create("Light_Directionl_Global");
-      Light *light = node->light_create(scene, Light::DIRECTIONAL, Light::GLOBAL);
       node->translate(scene, glm::vec3(0, 5, 0));
+      Light *light = node->light_create(scene, Light::DIRECTIONAL, Light::GLOBAL);
       light->properties_direction_set(glm::vec3(0, -1, -1));
       light->properties_color_set(glm::vec3(0.5, 0.5, 0.5));
     }
 
     {
-      /*
       Node *node = scene.node_create("Light_Spot");
       Light *light = node->light_create(scene, Light::SPOT);
-      node->translate(scene, glm::vec3(-4, 3, 0));
+      node->translate(scene, glm::vec3(-4, 1.5, 0));
       node->scale(scene, glm::vec3(30, 30, 30));
       light->properties_color_set(glm::vec3(1, 0, 0));
-      */
     }
 
 
   }
 
-  scene.physics_get().pause();
+  //scene.physics_get().pause();
 
   poll.run();
   poll.term();

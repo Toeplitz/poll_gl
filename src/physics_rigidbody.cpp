@@ -28,19 +28,25 @@ btCollisionShape &Physics_Collision_Shape::bt_collision_shape_get()
 
 void Physics_Collision_Shape::bt_mesh_populate(Node &node, btTriangleMesh &bt_triangle_mesh)
 {
-  Mesh &mesh = *node.mesh_get();
-  int num_indices = mesh.num_indices_get();
-  std::vector<glm::vec3> positions = mesh.positions_get();
-  std::vector<GLshort> indices = mesh.indices_get();
+  Mesh *mesh = node.mesh_get();
+
+  if (!mesh) {
+    POLL_ERROR(std::cerr, "No mesh for node: " << node.name_get());
+    return;
+  }
+
+  int num_indices = mesh->num_indices_get();
+  std::vector<glm::vec3> positions = mesh->positions_get();
+  std::vector<GLshort> indices = mesh->indices_get();
 
   if (num_indices > 0) { 
-    for (unsigned int i = 0; i < mesh.num_indices_get(); i = i + 3) {
+    for (unsigned int i = 0; i < mesh->num_indices_get(); i = i + 3) {
       bt_triangle_mesh.addTriangle(btVector3(positions[indices[i]].x, positions[indices[i]].y, positions[indices[i]].z),
           btVector3(positions[indices[i + 1]].x, positions[indices[i + 1]].y, positions[indices[i + 1]].z),
           btVector3(positions[indices[i + 2]].x, positions[indices[i + 2]].y, positions[indices[i + 2]].z));
     }
   } else {
-    for (unsigned int i = 0; i < mesh.num_vertices_get(); i = (i + 3)) {
+    for (unsigned int i = 0; i < mesh->num_vertices_get(); i = (i + 3)) {
       vec3 pos_1 = positions[i];
       vec3 pos_2 = positions[i + 1];
       vec3 pos_3 = positions[i + 2];
@@ -93,12 +99,11 @@ btRigidBody *Physics_Rigidbody::bt_rigidbody_get()
 }
 
 
-void Physics_Rigidbody::create(Physics &physics, Node &node, Physics_Collision_Shape &shape, unsigned int collision_type, float initial_mass)
+void Physics_Rigidbody::create(Physics &physics, Physics_Collision_Shape &shape, unsigned int collision_type, float initial_mass)
 {
-  node_ptr_set(&node);
   this->shape_ptr = &shape;
   this->type = collision_type;
-  bt_shape_init(node, &shape.bt_collision_shape_get(), collision_type, initial_mass);
+  bt_shape_init(*node_ptr_get(), &shape.bt_collision_shape_get(), collision_type, initial_mass);
   physics.rigidbody_add(this);
 }
 
@@ -142,9 +147,14 @@ void Physics_Rigidbody::node_ptr_set(Node *node_ptr)
 }
 
 
-void Physics_Rigidbody::motionstate_update(Node &node)
+void Physics_Rigidbody::motionstate_update(Node *node)
 {
-  bt_motion_state->node_set(node);
+  if (!node) {
+    POLL_ERROR(std::cerr, "no node linked to the motionstate");
+    return;
+  }
+
+  bt_motion_state->node_set(*node);
 }
 
 
@@ -152,6 +162,12 @@ Physics_Collision_Shape *Physics_Rigidbody::shape_get()
 {
   if (!shape_ptr) {
     POLL_ERROR(std::cerr, "no collision shape poiner for rigidbody");
+
+    if (!node_ptr_get()) {
+      POLL_DEBUG(std::cout, "name: " << node_ptr_get()->name_get());
+    } else {
+      POLL_ERROR(std::cerr, "no node pointer set for rigidbody");
+    }
   }
   return shape_ptr;
 }
@@ -166,6 +182,7 @@ unsigned int Physics_Rigidbody::type_get()
 void Physics_Rigidbody::bt_shape_init(Node &node, btCollisionShape *shape, unsigned int type, float initial_mass)
 {
   bt_motion_state = std::unique_ptr<Physics_Motion_State>(new Physics_Motion_State(node));
+  POLL_DEBUG(std::cout, "name: " << node.name_get());
   bt_motion_state->node_set(node);
 
   btVector3 inertia(0, 0, 0);

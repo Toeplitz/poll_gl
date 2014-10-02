@@ -84,8 +84,8 @@ class Physics_Rigidbody
   public:
 
     btRigidBody *bt_rigidbody_get();
-    void         create(Physics &physics, Node &node, Physics_Collision_Shape &shape, unsigned int collision_type, float initial_mass);
-    void         motionstate_update(Node &node);
+    void         create(Physics &physics, Physics_Collision_Shape &shape, unsigned int collision_type, float initial_mass);
+    void         motionstate_update(Node *node);
     void         mass_set(Physics *physics, const float mass);
     float        mass_get();
     Node        *node_ptr_get();

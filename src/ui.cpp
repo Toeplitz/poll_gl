@@ -91,7 +91,7 @@ void Ui::callback_object_add(const std::string &prim, const std::string &sec, co
     shape = std::unique_ptr<Physics_Convex_Hull_Shape>(new Physics_Convex_Hull_Shape(node));
     node.translate(*scene, pos);
     Physics_Rigidbody *rigidbody = node.physics_rigidbody_create(*scene);
-    rigidbody->create(scene->physics_get(), node, *shape, Physics_Rigidbody::DYNAMIC, 1);
+    rigidbody->create(scene->physics_get(), *shape, Physics_Rigidbody::DYNAMIC, 1);
 
 }
 

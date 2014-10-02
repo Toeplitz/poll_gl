@@ -177,14 +177,9 @@ Physics_Rigidbody *Node::physics_rigidbody_create(Scene &scene, bool recursive)
   } else {
     std::unique_ptr<Physics_Rigidbody> rigidbody(new Physics_Rigidbody());
     rigidbody_ptr = rigidbody.get();
+    rigidbody_ptr->node_ptr_set(this);
     physics_rigidbody_set(rigidbody_ptr);
     assets.physics_rigidbody_add(std::move(rigidbody));
-  }
-
-  if (recursive) {
-    for (auto &child : children_get()) {
-      child->physics_rigidbody_create(scene, recursive);
-    }
   }
 
   return rigidbody_ptr;
@@ -215,7 +210,7 @@ void Node::physics_rigidbody_update(Scene &scene)
     }
 
     POLL_DEBUG(std::cout, "translate rigidbody, updating motionstate for " << name_get());
-    rigidbody->motionstate_update(*this);
+    rigidbody->motionstate_update(this);
   }
 }
 

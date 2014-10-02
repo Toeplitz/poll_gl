@@ -86,7 +86,7 @@ class Node: public Animated {
 
     mat4 transform_external_local = mat4(1.f);
     mat4 transform_external_global = mat4(1.f);
-    unsigned int import_options;
+    unsigned int import_options = 0;
     
 
     Node(const std::string &node_name);

@@ -2,6 +2,7 @@
 #include "poll.h"
 #include "poll_plugin.h"
 
+#include <memory>
 
 using glm::vec3;
 
@@ -12,6 +13,8 @@ class Plugin_Light_Tool: public Poll_Plugin
     Console *console = nullptr;
     Scene *scene = nullptr;
     Light *light_active = nullptr;
+    Node *node_symbol_cone = nullptr;
+    std::unique_ptr<Physics_Convex_Hull_Shape> symbol_shape;
 
     void console_cmd_light_create(const std::string &prim, const std::string &sec, const std::string &val);
     void console_cmd_light_disable(const std::string &prim, const std::string &sec, const std::string &val);

@@ -1,11 +1,18 @@
 #include "plugin_light_tool.h"
+#include "physics_rigidbody.h"
 #include <glm/gtx/string_cast.hpp>
 
 
 Plugin_Light_Tool::Plugin_Light_Tool(Console &console, Scene &scene)
 {
+  Stock_Nodes &stock_nodes = scene.assets_get().stock_nodes_get();
+
   this->console = &console;
   this->scene = &scene;
+
+  symbol_shape.reset(nullptr);
+  node_symbol_cone = stock_nodes.sphere_get();
+  symbol_shape = std::unique_ptr<Physics_Convex_Hull_Shape>(new Physics_Convex_Hull_Shape(*node_symbol_cone));
 
   console.command_add("light", "add", std::bind(&Plugin_Light_Tool::console_cmd_light_create, this, _1, _2, _3));
   console.command_add("light", "disable", std::bind(&Plugin_Light_Tool::console_cmd_light_disable, this, _1, _2, _3));
@@ -171,31 +178,27 @@ void Plugin_Light_Tool::light_callback_create(Node *node_ptr)
       Gimbal_Nodes &gimbal_nodes = light->gimbal_nodes_get();
 
       {
-        Node *node_symbol_cone = stock_nodes.sphere_get();
         Node *node = scene->node_create("light_symbol", node_ptr, TRANSFORM_INHERIT_POSITION_ONLY);
         node->scale(*scene, glm::vec3(0.1, 0.1, 0.1));
         node->mesh_set(node_symbol_cone->mesh_get());
-        //node->physics_rigidbody_create(*scene, false, Physics_Rigidbody::BOX, Physics_Rigidbody::KINEMATIC, 0);
+
+        Physics_Rigidbody *rigidbody = node->physics_rigidbody_create(*scene, false);
+        rigidbody->create(scene->physics_get(), *symbol_shape, Physics_Rigidbody::KINEMATIC, 1);
         gimbal_nodes.center = node;
-      }
-
-      {
-
-
       }
 
       Node *node_symbol_disk = stock_nodes.disk_get();
       {
         Node *node = scene->node_create("light_disk", node_ptr);
         node->mesh_set(node_symbol_disk->mesh_get());
-       // node->physics_rigidbody_create(*scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC, 0);
+        // node->physics_rigidbody_create(*scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC, 0);
         node->active_set(*scene, false);
         gimbal_nodes.x = node;
       }
       {
         Node *node = scene->node_create("light_disk", node_ptr);
         node->mesh_set(node_symbol_disk->mesh_get());
-       // node->physics_rigidbody_create(*scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC, 0);
+        // node->physics_rigidbody_create(*scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC, 0);
         node->active_set(*scene, false);
         node->rotate(*scene, M_PI / 2, glm::vec3(1, 0, 0));
         gimbal_nodes.y = node;
@@ -203,7 +206,7 @@ void Plugin_Light_Tool::light_callback_create(Node *node_ptr)
       {
         Node *node = scene->node_create("light_disk", node_ptr);
         node->mesh_set(node_symbol_disk->mesh_get());
-      //  node->physics_rigidbody_create(*scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC, 0);
+        //  node->physics_rigidbody_create(*scene, false, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::KINEMATIC, 0);
         node->active_set(*scene, false);
         node->rotate(*scene, M_PI / 2, glm::vec3(0, 0, 1));
         gimbal_nodes.z = node;
