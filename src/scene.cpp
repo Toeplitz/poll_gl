@@ -166,17 +166,17 @@ to
   }
 
 
-  //transform_update_global_recursive(root_ptr);
+ // transform_update_global_recursive(root_ptr);
 
   /* Remove blender transform from root node */
   if (options & MODEL_IMPORT_BLENDER_FIX) {
-    //node_positions_update_recursive(*root_ptr);
-    //node_reset_transforms_recursive(*root_ptr);
+  //  node_positions_update_recursive(*root_ptr);
+  //  node_reset_transforms_recursive(*root_ptr);
   }
 
+ transform_update_global_recursive(root_ptr);
  //root_ptr->transform_global_set(mat4(1.f));
  //root_ptr->transform_local_current_set(*this, mat4(1.f));
- transform_update_global_recursive(root_ptr);
 
   if (!(options & MODEL_IMPORT_NO_DRAW)) {
     node_recursive_init(glcontext, *root_ptr);
@@ -246,6 +246,7 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
     }
   }
 
+  /*
   std::cout << std::endl;
   std::cout << "global: " << glm::to_string(node.transform_global_get()) << std::endl;
   std::cout << "cur local: " << glm::to_string(node.transform_local_current_get()) << std::endl;
@@ -255,6 +256,7 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
 
 
 
+*/
   std::cout << " active: " << node.active_get();
   std::cout << std::endl;
 
@@ -358,7 +360,8 @@ void Scene::transform_update_global_recursive(Node *node)
     mat4 global_transform_external;
 
     if (node->transform_inheritance_get() == TRANSFORM_INHERIT_POSITION_ONLY) {
-      global_transform = parent->transform_global_position_get();
+      global_transform_scale = mat4(1.f);
+      global_transform_translate = parent->transform_global_translate_get();
     } else {
       global_transform = parent->transform_global_get();
       global_transform_scale = parent->transform_global_scale_get();

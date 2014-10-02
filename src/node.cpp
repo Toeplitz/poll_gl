@@ -296,7 +296,12 @@ void Node::raycast_collide_callback_set(const std::function <void (Node &node, v
 
 void Node::rotate(Scene &scene, const float angle, const vec3 &v)
 {
-  transform_rotate = glm::rotate(transform_rotate, angle, v);
+  vec3 r = v;
+
+  if (import_options & MODEL_IMPORT_BLENDER_FIX) {
+    r = vec3(blender_transform_get() * vec4(v, 1));
+  }
+  transform_rotate = glm::rotate(transform_rotate, angle, r);
   scene.transform_update_global_recursive(this);
 }
 
@@ -359,7 +364,13 @@ void Node::text_set(Text *text)
 
 void Node::translate(Scene &scene, const vec3 &v) 
 {
-  transform_translate = glm::translate(transform_translate, v);
+  vec3 t = v;
+
+  if (import_options & MODEL_IMPORT_BLENDER_FIX) {
+    t = vec3(blender_transform_get() * vec4(v, 1));
+  }
+
+  transform_translate = glm::translate(transform_translate, t);
   scene.transform_update_global_recursive(this);
 }
 
@@ -386,6 +397,9 @@ glm::mat4 Node::transform_full_update(Scene &scene)
 {
   glm::mat4 m = transform_global_translate_get() * transform_global_rotate_get() * transform_global_scale_get();
   glm::mat4 local = transform_translate_get() * transform_rotate_get() * transform_scale_get();
+
+  //glm::mat4 m = transform_global_scale_get() * transform_global_rotate_get() * transform_global_translate_get();
+ // glm::mat4 local = transform_scale_get() * transform_rotate_get() * transform_translate_get();
   transform_local_current_set(scene, local);
   transform_global_set(transform_external_global * m);
   physics_rigidbody_update(scene);

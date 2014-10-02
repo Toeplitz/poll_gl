@@ -49,7 +49,7 @@ Node *Model::load(Scene &scene, Node &root, const std::string &prefix, const std
     exit(-1);
   }
 
-  Node *rootPtr = node_map_create(scene, *assimp_scene->mRootNode, &root, root.tree_level_get());
+  Node *rootPtr = node_map_create(scene, *assimp_scene->mRootNode, &root, root.tree_level_get(), options);
 //  rootPtr->transform_update_global_recursive(*rootPtr);
   BoneForAssimpBone boneForAssimpBone;
   bone_map_create(scene, boneForAssimpBone, options);
@@ -267,7 +267,7 @@ void Model::lights_parse(Scene &scene)
 }
 
 
-Node *Model::node_map_create(Scene &scene, const aiNode &node, Node *parent, int level)
+Node *Model::node_map_create(Scene &scene, const aiNode &node, Node *parent, int level, unsigned int options)
 {
   glm::mat4 transform_local;
   std::string key(node.mName.data);
@@ -289,6 +289,7 @@ Node *Model::node_map_create(Scene &scene, const aiNode &node, Node *parent, int
     node_internal->transform_local_current_set(scene, transform_local);
 
     node_internal->transform_external_local = transform_local;
+    node_internal->import_options = options;
 
     {
      // glm::vec3 v(scaling.x, scaling.z, scaling.y);
@@ -313,7 +314,7 @@ Node *Model::node_map_create(Scene &scene, const aiNode &node, Node *parent, int
   nodes[key] = node_internal;
 
   for (size_t i = 0; i < node.mNumChildren; i++) {
-    node_map_create(scene, *node.mChildren[i], node_internal, level + 1);
+    node_map_create(scene, *node.mChildren[i], node_internal, level + 1, options);
   }
 
   return node_internal;

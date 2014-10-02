@@ -61,7 +61,7 @@ class Model {
     void   materials_parse(Scene &scene);
     void   mesh_create_all(Scene &scene, const aiNode &node, const BoneForAssimpBone &boneForAssimpBone);
     void   mesh_create(Scene &scene, const aiNode &node, const BoneForAssimpBone &boneForAssimpBone);
-    Node  *node_map_create(Scene &scene, const aiNode &node, Node *parent, int level);
+    Node  *node_map_create(Scene &scene, const aiNode &node, Node *parent, int level, unsigned int options);
     void   key_frames_parse(void);
 
   public:

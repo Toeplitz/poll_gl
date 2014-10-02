@@ -198,8 +198,8 @@ int main()
   poll.plugin_add(*plugin_light_tool);
   poll.plugin_add(*plugin_firstperson_camera);
 
- // Node &root = scene.node_root_get();
- // root.scale(scene, glm::vec3(0.1, 0.1, 0.1));
+  Node &root = scene.node_root_get();
+  root.scale(scene, glm::vec3(0.1, 0.1, 0.1));
 
   {
     Node &room = scene.load("data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED);
@@ -207,21 +207,21 @@ int main()
   }
 
   {
-    Node &node = scene.load("data/", "cone.dae", MODEL_IMPORT_OPTIMIZED);
+    //Node &node = scene.load("data/", "cone.dae", MODEL_IMPORT_OPTIMIZED);
   //  node.physics_rigidbody_create(scene, false, Physics_Rigidbody::CONVEX_HULL, Physics_Rigidbody::DYNAMIC, 1.f);
-    //node.translate(scene, glm::vec3(0, 0, 20));
+   // node.translate(scene, glm::vec3(0, 0, -20));
   }
 
   {
     Node &node= scene.load("data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED);
-    node.translate(scene, glm::vec3(-2, 30, 40));
+    node.translate(scene, glm::vec3(-3, 4, 3));
     //node.physics_rigidbody_create(scene, false, Physics_Rigidbody::BOX, Physics_Rigidbody::DYNAMIC, 1.f);
   }
 
 
   /* Setup panda character */
   {
-    Node &panda_root = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
+  //  Node &panda_root = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
   //  panda_root.physics_rigidbody_create(scene, true, Physics_Rigidbody::CONVEX_HULL, Physics_Rigidbody::DYNAMIC, 0.f);
 
     /*
@@ -254,14 +254,14 @@ int main()
   /* Setup lights */
   {
 
-    glm::vec3 light_positions[5] = {
-      glm::vec3(-50, 15, 45),
-      glm::vec3(-50, 15, -45),
-      glm::vec3(50, 15, 45),
-      glm::vec3(50, 15, -45)
+    glm::vec3 light_positions[4] = {
+      glm::vec3(-5, 1.5, 4.5),
+      glm::vec3(-5, 1.5, -4.5),
+      glm::vec3(5, 1.5, 4.5),
+      glm::vec3(5, 1.5, -4.5)
     };
 
-    glm::vec3 light_color[5] = {
+    glm::vec3 light_color[4] = {
       glm::vec3(1, 0, 0),
       glm::vec3(0, 1, 0),
       glm::vec3(0, 0, 1),
@@ -279,17 +279,19 @@ int main()
     {
       Node *node = scene.node_create("Light_Directionl_Global");
       Light *light = node->light_create(scene, Light::DIRECTIONAL, Light::GLOBAL);
-      node->translate(scene, glm::vec3(0, 40, 0));
+      node->translate(scene, glm::vec3(0, 5, 0));
       light->properties_direction_set(glm::vec3(0, -1, -1));
       light->properties_color_set(glm::vec3(0.5, 0.5, 0.5));
     }
 
     {
+      /*
       Node *node = scene.node_create("Light_Spot");
       Light *light = node->light_create(scene, Light::SPOT);
-      node->translate(scene, glm::vec3(-40, 3, 0));
-      node->scale(scene, glm::vec3(10, 10, 10));
+      node->translate(scene, glm::vec3(-4, 3, 0));
+      node->scale(scene, glm::vec3(30, 30, 30));
       light->properties_color_set(glm::vec3(1, 0, 0));
+      */
     }
 
 

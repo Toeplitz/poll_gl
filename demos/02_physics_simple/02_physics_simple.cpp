@@ -25,7 +25,7 @@ int main()
   poll.plugin_add(*plugin_light_tool);
   poll.plugin_add(*plugin_firstperson_camera);
 
-  Node &node = scene.load("data/", "orientation.fbx", MODEL_IMPORT_DEFAULT);
+  Node &node = scene.load("data/", "orientation.fbx", MODEL_IMPORT_DEFAULT | MODEL_IMPORT_BLENDER_FIX);
   //Node &node = scene.load("data/", "orientation.dae", MODEL_IMPORT_DEFAULT | MODEL_IMPORT_BLENDER_FIX);
   {
     Node &root = scene.node_root_get();
@@ -44,52 +44,33 @@ int main()
 
   Node &suzanne_translated = *scene.node_find(&node, "Suzanne_translated");
   suzanne_translated.scale(scene, vec3(3, 3, 3));
-  //suzanne_translated.translate(scene, vec3(0, 0, 4));
+  suzanne_translated.translate(scene, vec3(3, 4, 8));
   //suzanne_translated.rotate(scene, (float) M_PI, glm::vec3(0, 0, 1));
   auto suzanne_translated_shape = std::unique_ptr<Physics_Convex_Hull_Shape>(new Physics_Convex_Hull_Shape(suzanne_translated));
   Physics_Rigidbody *suzeanne_translated_rigidbody = suzanne_translated.physics_rigidbody_create(scene);
   suzeanne_translated_rigidbody->create(physics, suzanne_translated, *suzanne_translated_shape, Physics_Rigidbody::KINEMATIC, 1);
 
 
-  /*
-     {
-     Node &sphere = *scene.node_create("sphere");
-     Mesh &mesh = *sphere.mesh_create(scene);
-     sphere.mesh_set(assets.stock_nodes_get().sphere_get()->mesh_get());
-     scene.mesh_nodes_add(sphere);
-     sphere.translate(scene, vec3(4, 0, 4));
-     }*/
-
   {
-   //    Node &panda = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
+    Node &panda = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
+    //Node &panda = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_BLENDER_FIX);
+    //Node &panda = scene.load("data/game_assets/characters/panda/", "panda.fbx", MODEL_IMPORT_OPTIMIZED);
+    panda.rotate(scene, (float) -M_PI / 4.f, glm::vec3(1, 0, 0));
+    panda.translate(scene, vec3(3, 4, 4));
+    panda.scale(scene, vec3(0.5, 0.5, 0.5));
+    //    panda.translate(scene, vec3(0, 0, -4));
   }
 
-     {
-     Node &panda = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
-     //Node &panda = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_BLENDER_FIX);
-     //Node &panda = scene.load("data/game_assets/characters/panda/", "panda.fbx", MODEL_IMPORT_OPTIMIZED);
-     panda.translate(scene, vec3(0, 0, 4));
- //    panda.scale(scene, vec3(0.5, 0.5, 0.5));
- //    panda.translate(scene, vec3(0, 0, -4));
-     }
 
-
-     //Node &bob = scene.load("data/bob/", "Bob_with_lamp.dae", MODEL_IMPORT_DEFAULT | MODEL_IMPORT_BLENDER_FIX);
-     //Node &bob = scene.load("data/bob/", "bob.fbx", MODEL_IMPORT_DEFAULT);
-     /*
-     bob.scale(scene, vec3(3, 3, 3));
-     bob.rotate(scene, (float) -M_PI/ 2.f, vec3(0, 1, 0));
-     bob.translate(scene, vec3(0, 0, 4));
-     */
-  /*
-     {
-     Node *node = scene.node_create("Light_Directionl_Global");
-     Light *light = node->light_create(scene, Light::DIRECTIONAL, Light::GLOBAL);
-     node->translate(scene, vec3(0, 40, 0));
-     light->properties_direction_set(vec3(0, -1, 0.5));
-     light->properties_color_set(vec3(1., 1., 1.));
-     }
-     */
+  Node &bob = scene.load("data/bob/", "Bob_with_lamp.dae", MODEL_IMPORT_DEFAULT) ;
+  bob.rotate(scene, (float) M_PI/ 2.f, vec3(0, 0,  1));
+  {
+    Node *node = scene.node_create("Light_Directionl_Global");
+    Light *light = node->light_create(scene, Light::DIRECTIONAL, Light::GLOBAL);
+    node->translate(scene, vec3(0, 40, 0));
+    light->properties_direction_set(vec3(0, -1, 0.5));
+    light->properties_color_set(vec3(1., 1., 1.));
+  }
 
   {
     Node *node = scene.node_create("Light_Directionl_Global");

@@ -16,7 +16,8 @@ Bone::Bone(const std::string &name, const unsigned int &id, glm::mat4 &m, Node *
 
 
   if (options & MODEL_IMPORT_BLENDER_FIX) {
-    this->offset_matrix = m * glm::inverse(blender_transform_get());
+    //this->offset_matrix = m * glm::inverse(blender_transform_get());
+    this->offset_matrix = m;
   } else {
     this->offset_matrix = m;
   }
