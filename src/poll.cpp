@@ -51,7 +51,7 @@ void Poll::run()
       return;
 
     for (auto plugin : plugins) {
-      plugin->custom_callback();
+      plugin->cb_custom();
     }
 
     /* Update animations */

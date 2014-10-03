@@ -47,7 +47,7 @@ void GLcontext::draw_scene(Scene &scene, Poll_Plugin_List &plugins)
 
   GL_ASSERT(glEnable(GL_DEPTH_TEST));
   for (auto plugin : plugins) {
-    plugin->custom_callback_draw();
+    plugin->cb_custom_draw();
   }
   GL_ASSERT(glDisable(GL_DEPTH_TEST));
 

@@ -26,7 +26,6 @@ class Window {
     SDL_Joystick *gamepad;
     SDL_GLContext gl_sdl_context;
     GLcontext glcontext;
-    Raycast raycast;
     Scene *scene;
 
     void check_error();
@@ -62,7 +61,6 @@ class Window {
     unsigned int width_get() const;
 
     GLcontext &glcontext_get();
-    Raycast   &raycast_get();
 
 
       void joystick_axis_motion_callback_set(const std::function<void (SDL_JoyAxisEvent *)> callback)

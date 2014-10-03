@@ -135,13 +135,13 @@ bool Window::poll_events(std::vector<Poll_Plugin *> &plugins)
         break;
       case SDL_KEYUP:
         for (auto plugin : plugins) {
-          plugin->keyboard_callback_released(&event.key.keysym);
+          plugin->cb_keyboard_released(&event.key.keysym);
         }
         keyboard_callback_released(&event.key.keysym);
         break;
       case SDL_KEYDOWN:
         for (auto plugin : plugins) {
-          plugin->keyboard_callback_pressed(&event.key.keysym);
+          plugin->cb_keyboard_pressed(&event.key.keysym);
         }
         return keyboard_callback_pressed(&event.key.keysym);
       case SDL_JOYAXISMOTION:
@@ -155,18 +155,18 @@ bool Window::poll_events(std::vector<Poll_Plugin *> &plugins)
         break;
       case SDL_MOUSEBUTTONDOWN:
         for (auto plugin : plugins) {
-          plugin->mouse_callback_pressed(&event.button);
+          plugin->cb_mouse_pressed(&event.button);
         }
         mouse_callback_pressed_down(&event.button);
         break;
       case SDL_MOUSEBUTTONUP:
         for (auto plugin : plugins) {
-          plugin->mouse_callback_released(&event.button);
+          plugin->cb_mouse_released(&event.button);
         }
         break;
       case SDL_MOUSEMOTION:
         for (auto plugin : plugins) {
-          plugin->mouse_callback_motion(&event.motion);
+          plugin->cb_mouse_motion(&event.motion);
         }
         break;
       default:
@@ -181,12 +181,6 @@ bool Window::poll_events(std::vector<Poll_Plugin *> &plugins)
 GLcontext &Window::glcontext_get()
 {
   return glcontext;
-}
-
-
-Raycast &Window::raycast_get()
-{
-  return raycast;
 }
 
 
@@ -276,8 +270,6 @@ void Window::keyboard_callback_released(SDL_Keysym *keysym)
 
 void Window::mouse_callback_pressed_down(SDL_MouseButtonEvent *ev)
 {
-  POLL_DEBUG(std::cout, "casting ray x/y: " << ev->x << ", " << ev->y << " width/height: " << width << "/" << height);
-  raycast.cast(*scene, ev->x, ev->y, width, height);
 }
 
 

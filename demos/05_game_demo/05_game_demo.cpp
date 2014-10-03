@@ -2,6 +2,7 @@
 #include "poll_plugin.h"
 #include "plugin_debug.h"
 #include "plugin_light_tool.h"
+#include "plugin_node_tool.h"
 #include "plugin_firstperson_cam.h"
 #include "physics.h"
 #include <iostream>
@@ -192,11 +193,13 @@ int main()
   Node *camera_node = scene.node_camera_get();
 
   auto plugin_debug = std::unique_ptr<Plugin_Debug>(new Plugin_Debug(poll.console_get(), scene));
-  auto plugin_light_tool = std::unique_ptr<Plugin_Light_Tool>(new Plugin_Light_Tool(poll.console_get(), scene));
+  //auto plugin_light_tool = std::unique_ptr<Plugin_Light_Tool>(new Plugin_Light_Tool(poll.console_get(), scene));
+  auto plugin_node_tool = std::unique_ptr<Plugin_Node_Tool>(new Plugin_Node_Tool(poll.console_get(), scene));
   auto plugin_firstperson_camera = std::unique_ptr<Plugin_Firstperson_Camera>(new Plugin_Firstperson_Camera(poll.console_get(), scene, camera_node));
   poll.plugin_add(*plugin_debug);
-  poll.plugin_add(*plugin_light_tool);
+  //poll.plugin_add(*plugin_light_tool);
   poll.plugin_add(*plugin_firstperson_camera);
+  poll.plugin_add(*plugin_node_tool);
 
   Node &root = scene.node_root_get();
   root.scale(scene, glm::vec3(0.1, 0.1, 0.1));

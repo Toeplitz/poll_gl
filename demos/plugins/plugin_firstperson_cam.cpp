@@ -15,32 +15,7 @@ Plugin_Firstperson_Camera::Plugin_Firstperson_Camera(Console &console, Scene &sc
 }
 
 
-void Plugin_Firstperson_Camera::common_fpcamera_defaults_set()
-{
-  horizontal_angle = 3.14;
-  vertical_angle = 0; 
-  speed = 0.3f;
-  mouse_speed = 0.00025f;
-  position = glm::vec3(0, 5, 16);
-  target = glm::vec3(0, 0, 0);
-  up = glm::vec3(0, 1, 0);
-  common_fpcamera_directions_calc();
-  camera->transform_view_create(position, direction);
-}
-
-
-void Plugin_Firstperson_Camera::common_fpcamera_directions_calc() 
-{
-  direction = glm::vec3(cosf(vertical_angle) * sinf(horizontal_angle), 
-      sinf(vertical_angle),
-      cosf(vertical_angle) * cosf(horizontal_angle));
-  right = glm::vec3(sinf(horizontal_angle - 3.14f / 2.0f),
-      0, cosf(horizontal_angle - 3.14f / 2.0f) );
-  up = glm::cross(right, direction);
-}  
-
-
-void Plugin_Firstperson_Camera::keyboard_callback_pressed(SDL_Keysym *keysym)
+void Plugin_Firstperson_Camera::cb_keyboard_pressed(SDL_Keysym *keysym)
 {
   if (console->active()) 
     return;
@@ -68,7 +43,7 @@ void Plugin_Firstperson_Camera::keyboard_callback_pressed(SDL_Keysym *keysym)
 }
 
 
-void Plugin_Firstperson_Camera::keyboard_callback_released(SDL_Keysym *keysym)
+void Plugin_Firstperson_Camera::cb_keyboard_released(SDL_Keysym *keysym)
 {
   if (console->active()) 
     return;
@@ -90,6 +65,77 @@ void Plugin_Firstperson_Camera::keyboard_callback_released(SDL_Keysym *keysym)
       break;
   }
 }
+
+
+
+void Plugin_Firstperson_Camera::cb_mouse_pressed(SDL_MouseButtonEvent *ev)
+{
+  if (ev->button != 3 || !mouse_view_toggle)
+    return;
+  common_fpcamera_move_add(FORWARD);
+}
+
+
+void Plugin_Firstperson_Camera::cb_mouse_released(SDL_MouseButtonEvent *ev)
+{
+  if (ev->button != 3 || !mouse_view_toggle)
+    return;
+  common_fpcamera_move_delete(FORWARD);
+}
+
+
+void Plugin_Firstperson_Camera::cb_mouse_motion(SDL_MouseMotionEvent *ev)
+{
+  static int last_x, last_y;
+
+  if (!mouse_view_toggle)
+    return;
+
+  if (!last_x)
+    last_x = ev->x;
+  if (!last_y)
+    last_y = ev->y;
+
+  common_fpcamera_mouse_update(ev->x, ev->y, window->width_get(), window->height_get());
+  window->mouse_cursor_center();
+
+  last_x = ev->x;
+  last_y = ev->y;
+}
+
+
+void Plugin_Firstperson_Camera::cb_custom()
+{
+  common_fpcamera_moves_process();
+}
+
+
+
+
+void Plugin_Firstperson_Camera::common_fpcamera_defaults_set()
+{
+  horizontal_angle = 3.14;
+  vertical_angle = 0; 
+  speed = 0.3f;
+  mouse_speed = 0.00025f;
+  position = glm::vec3(0, 5, 16);
+  target = glm::vec3(0, 0, 0);
+  up = glm::vec3(0, 1, 0);
+  common_fpcamera_directions_calc();
+  camera->transform_view_create(position, direction);
+}
+
+
+void Plugin_Firstperson_Camera::common_fpcamera_directions_calc() 
+{
+  direction = glm::vec3(cosf(vertical_angle) * sinf(horizontal_angle), 
+      sinf(vertical_angle),
+      cosf(vertical_angle) * cosf(horizontal_angle));
+  right = glm::vec3(sinf(horizontal_angle - 3.14f / 2.0f),
+      0, cosf(horizontal_angle - 3.14f / 2.0f) );
+  up = glm::cross(right, direction);
+}  
+
 
 
 void Plugin_Firstperson_Camera::common_fpcamera_move_add(Camera_Move move) 
@@ -159,48 +205,6 @@ void Plugin_Firstperson_Camera::common_fpcamera_moves_process()
   }
 
   camera->transform_view_create(position, direction);
-}
-
-
-void Plugin_Firstperson_Camera::mouse_callback_pressed(SDL_MouseButtonEvent *ev)
-{
-  if (ev->button != 3 || !mouse_view_toggle)
-    return;
-  common_fpcamera_move_add(FORWARD);
-}
-
-
-void Plugin_Firstperson_Camera::mouse_callback_released(SDL_MouseButtonEvent *ev)
-{
-  if (ev->button != 3 || !mouse_view_toggle)
-    return;
-  common_fpcamera_move_delete(FORWARD);
-}
-
-
-void Plugin_Firstperson_Camera::mouse_callback_motion(SDL_MouseMotionEvent *ev)
-{
-  static int last_x, last_y;
-
-  if (!mouse_view_toggle)
-    return;
-
-  if (!last_x)
-    last_x = ev->x;
-  if (!last_y)
-    last_y = ev->y;
-
-  common_fpcamera_mouse_update(ev->x, ev->y, window->width_get(), window->height_get());
-  window->mouse_cursor_center();
-
-  last_x = ev->x;
-  last_y = ev->y;
-}
-
-
-void Plugin_Firstperson_Camera::custom_callback()
-{
-  common_fpcamera_moves_process();
 }
 
 

@@ -122,7 +122,7 @@ Light *Node::light_create(Scene &scene, const unsigned int lamp_type, const unsi
 
   auto plugins = scene.plugins_get();
   for (auto &plugin : plugins) {
-    plugin->light_callback_create(this);
+    plugin->cb_light_create(this);
   }
 
   assets.light_active_add(std::move(light));

@@ -31,18 +31,18 @@ class Plugin_Firstperson_Camera: public Poll_Plugin
     glm::vec3 target;
     bool mouse_view_toggle = false;
 
+    void cb_keyboard_pressed(SDL_Keysym *keysym);
+    void cb_keyboard_released(SDL_Keysym *keysym);
+    void cb_mouse_pressed(SDL_MouseButtonEvent *ev);
+    void cb_mouse_released(SDL_MouseButtonEvent *ev);
+    void cb_mouse_motion(SDL_MouseMotionEvent *ev);
+    void cb_custom();
     void common_fpcamera_defaults_set();
     void common_fpcamera_directions_calc();
-    void keyboard_callback_pressed(SDL_Keysym *keysym);
-    void keyboard_callback_released(SDL_Keysym *keysym);
     void common_fpcamera_move_add(Camera_Move move);
     void common_fpcamera_move_delete(Camera_Move move);
     void common_fpcamera_mouse_update(int x, int y, int width, int height) ;
     void common_fpcamera_moves_process();
-    void mouse_callback_pressed(SDL_MouseButtonEvent *ev);
-    void mouse_callback_released(SDL_MouseButtonEvent *ev);
-    void mouse_callback_motion(SDL_MouseMotionEvent *ev);
-    void custom_callback();
 
   public:
 

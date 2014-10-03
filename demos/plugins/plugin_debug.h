@@ -13,6 +13,6 @@ class Plugin_Debug: public Poll_Plugin
 
   public:
     Plugin_Debug(Console &console, Scene &scene);
-    void keyboard_callback_pressed(SDL_Keysym *keysym);
+    void cb_keyboard_pressed(SDL_Keysym *keysym);
 
 };
