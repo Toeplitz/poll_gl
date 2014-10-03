@@ -22,6 +22,9 @@ class Poll_Plugin
     /* This is called after a light is created */
     virtual void cb_light_create(Node *node);
 
+    /* This is called after a node is created */
+    virtual void cb_node_create(Node *node);
+
     virtual void cb_mouse_pressed(SDL_MouseButtonEvent *ev);
     virtual void cb_mouse_released(SDL_MouseButtonEvent *ev);
     virtual void cb_mouse_motion(SDL_MouseMotionEvent *ev);

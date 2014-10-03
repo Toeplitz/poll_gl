@@ -2,14 +2,22 @@
 
 #include "poll.h"
 #include "poll_plugin.h"
+#include "raycast.h"
 
 #include <memory>
+
+using glm::vec3;
+
 
 class Plugin_Node_Tool: public Poll_Plugin
 {
   private:
     Console *console = nullptr;
     Scene *scene = nullptr;
+
+    Raycast raycast;
+
+    Raycast_Hitpoint *hitpoint_last = nullptr;
 
 
   public:

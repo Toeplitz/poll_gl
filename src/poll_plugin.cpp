@@ -52,3 +52,7 @@ void Poll_Plugin::cb_keyboard_released(SDL_Keysym *keysym)
 }
 
 
+void Poll_Plugin::cb_node_create(Node *node)
+{
+}
+

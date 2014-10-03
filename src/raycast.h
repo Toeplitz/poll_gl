@@ -29,8 +29,9 @@ class Raycast
 
 
   public:
-    void cast(Scene &scene, const int viewport_x, const int viewport_y, const int width, const int height);
-    vec3 distance_last_cast(const Raycast_Hitpoint *current);
+    vec3              cast_empty(Scene &scene, const int viewport_x, const int viewport_y, const int width, const int height);
+    Raycast_Hitpoint *cast(Scene &scene, const int viewport_x, const int viewport_y, const int width, const int height);
+    vec3              distance_last_cast(const Raycast_Hitpoint *current);
 
 
 };

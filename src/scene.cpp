@@ -288,6 +288,11 @@ Node *Scene::node_create(const std::string &name, Node *parent, Transform_Inheri
   else 
     parent->child_add(std::move(node), parent->tree_level_get() + 1);
 
+  auto plugins = plugins_get();
+  for (auto &plugin : plugins) {
+    plugin->cb_node_create(node_ptr);
+  }
+
   transform_update_global_recursive(node_ptr);
   return node_ptr;
 }
