@@ -13,10 +13,14 @@ class Scene;
 class Node;
 
 
-struct Raycast_Hitpoint
+class Raycast_Hitpoint
 {
-  Node *node_ptr;
-  vec3 world_hitpoint;
+  public:
+    Node *node_ptr = nullptr;
+    vec3 world_hitpoint = vec3(0.f);
+    vec3 world_ray = vec3(0.f);
+
+    void print();
 };
 
 
@@ -26,12 +30,8 @@ class Raycast
 
     std::shared_ptr<Raycast_Hitpoint> hitpoint_last;
 
-
-
   public:
     vec3              cast_empty(Scene &scene, const int viewport_x, const int viewport_y, const int width, const int height);
     Raycast_Hitpoint *cast(Scene &scene, const int viewport_x, const int viewport_y, const int width, const int height);
-    vec3              distance_last_cast(const Raycast_Hitpoint *current);
-
 
 };

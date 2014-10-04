@@ -209,7 +209,6 @@ void Node::physics_rigidbody_update(Scene &scene)
       return;
     }
 
-    POLL_DEBUG(std::cout, "translate rigidbody, updating motionstate for " << name_get());
     rigidbody->motionstate_update(this);
   }
 }
@@ -459,7 +458,6 @@ void Node::transform_rotate_set(glm::quat &q)
  // POLL_DEBUG(std::cout, "fix matrix: " << glm::to_string(fix) << " name: " << name_get());
  // transform_rotate = rotation * blender_transform_get();
   transform_rotate = rotation;
-  POLL_DEBUG(std::cout, "rotation matrix: " << glm::to_string(transform_rotate) << " name: " << name_get());
   std::cout << std::endl;
 }
 

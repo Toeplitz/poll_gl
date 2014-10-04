@@ -17,6 +17,7 @@ class Plugin_Node_Tool: public Poll_Plugin
 
     Raycast raycast;
 
+    bool mouse_down = false;
     Raycast_Hitpoint *hitpoint_last = nullptr;
 
 
