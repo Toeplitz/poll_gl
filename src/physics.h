@@ -120,6 +120,8 @@ class Physics
     std::shared_ptr<Raycast_Hitpoint>         ray_pick(const glm::vec3 &out_origin, const glm::vec3 &out_direction);
     void                                      rigidbody_add(Physics_Rigidbody *rigidbody);
     void                                      rigidbody_delete(Physics_Rigidbody *rigidbody);
+    void                                      rigidbody_constraint_add(Physics_Rigidbody *rigidbody);
+    void                                      rigidbody_constraint_delete(Physics_Rigidbody *rigidbody);
     void                                      step(Scene &scene, const double dt);
     void                                      term();
 };

@@ -2,6 +2,7 @@
 #include "node.h"
 #include "physics.h"
 #include "physics_rigidbody.h"
+#include "raycast.h"
 #include <glm/gtx/string_cast.hpp>
 #include "utils.h"
 
@@ -96,6 +97,54 @@ Physics_Triangle_Mesh_Shape::Physics_Triangle_Mesh_Shape(Node &node)
 btRigidBody *Physics_Rigidbody::bt_rigidbody_get()
 {
   return bt_rigidbody.get();
+}
+
+
+btGeneric6DofConstraint *Physics_Rigidbody::bt_dof6_get()
+{
+  return bt_dof6.get();
+}
+
+
+void Physics_Rigidbody::constraint_create(Raycast_Hitpoint &hp)
+{
+  bt_rigidbody->setActivationState(DISABLE_DEACTIVATION);
+  btVector3 pickPos = btVector3(hp.world_hitpoint.x, hp.world_hitpoint.y, hp.world_hitpoint.z);
+  btVector3 localPivot = bt_rigidbody->getCenterOfMassTransform().inverse() * pickPos;
+
+  printf("pickPos=%f,%f,%f\n",pickPos.getX(),pickPos.getY(),pickPos.getZ());
+  printf("localPivot=%f,%f,%f\n",localPivot.getX(),localPivot.getY(),localPivot.getZ());
+
+  btTransform tr;
+  tr.setIdentity();
+  tr.setOrigin(localPivot);
+  bt_dof6 = std::unique_ptr<btGeneric6DofConstraint>(new btGeneric6DofConstraint(*bt_rigidbody, tr, true));
+  bt_dof6->setLinearLowerLimit(btVector3(0, 0, 0));
+  bt_dof6->setLinearUpperLimit(btVector3(0, 0, 0));
+  bt_dof6->setAngularLowerLimit(btVector3(0, 0, 0));
+  bt_dof6->setAngularUpperLimit(btVector3(0, 0, 0));
+
+  bt_dof6->setParam(BT_CONSTRAINT_STOP_CFM,0.8,0);
+  bt_dof6->setParam(BT_CONSTRAINT_STOP_CFM,0.8,1);
+  bt_dof6->setParam(BT_CONSTRAINT_STOP_CFM,0.8,2);
+  bt_dof6->setParam(BT_CONSTRAINT_STOP_CFM,0.8,3);
+  bt_dof6->setParam(BT_CONSTRAINT_STOP_CFM,0.8,4);
+  bt_dof6->setParam(BT_CONSTRAINT_STOP_CFM,0.8,5);
+
+  bt_dof6->setParam(BT_CONSTRAINT_STOP_ERP,0.1,0);
+  bt_dof6->setParam(BT_CONSTRAINT_STOP_ERP,0.1,1);
+  bt_dof6->setParam(BT_CONSTRAINT_STOP_ERP,0.1,2);
+  bt_dof6->setParam(BT_CONSTRAINT_STOP_ERP,0.1,3);
+  bt_dof6->setParam(BT_CONSTRAINT_STOP_ERP,0.1,4);
+  bt_dof6->setParam(BT_CONSTRAINT_STOP_ERP,0.1,5);
+
+}
+
+
+void Physics_Rigidbody::constraint_delete()
+{
+  bt_rigidbody->forceActivationState(ACTIVE_TAG);
+  bt_rigidbody->setDeactivationTime(0.f);
 }
 
 

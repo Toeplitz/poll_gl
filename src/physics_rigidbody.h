@@ -10,8 +10,7 @@
 
 class Physics_Motion_State;
 class Physics;
-
-
+class Raycast_Hitpoint;
 class Mesh;
 class Node;
 
@@ -71,6 +70,7 @@ class Physics_Rigidbody
     std::unique_ptr<btRigidBody> bt_rigidbody;
     std::unique_ptr<btTriangleMesh> bt_triangle_mesh;
     std::unique_ptr<btConvexHullShape> bt_convex_hull_mesh;
+    std::unique_ptr<btGeneric6DofConstraint> bt_dof6;
     float mass = 0;
 
     Node *node_ptr = nullptr;
@@ -83,15 +83,18 @@ class Physics_Rigidbody
 
   public:
 
-    btRigidBody *bt_rigidbody_get();
-    void         create(Physics &physics, Physics_Collision_Shape &shape, unsigned int collision_type, float initial_mass);
-    void         motionstate_update(Node *node);
-    void         mass_set(Physics *physics, const float mass);
-    float        mass_get();
-    Node        *node_ptr_get();
-    void         node_ptr_set(Node *node_ptr);
+    btRigidBody             *bt_rigidbody_get();
+    btGeneric6DofConstraint *bt_dof6_get();
+    void                     create(Physics &physics, Physics_Collision_Shape &shape, unsigned int collision_type, float initial_mass);
+    void                     constraint_create(Raycast_Hitpoint &hp);
+    void                     constraint_delete();
+    void                     motionstate_update(Node *node);
+    void                     mass_set(Physics *physics, const float mass);
+    float                    mass_get();
+    Node                    *node_ptr_get();
+    void                     node_ptr_set(Node *node_ptr);
     Physics_Collision_Shape *shape_get();
-    unsigned int type_get();
+    unsigned int             type_get();
 
 };
 

@@ -19,7 +19,19 @@ int main()
 
   Node &sponza = scene.load("data/crytek-sponza/", "sponza_with_spec.obj", MODEL_IMPORT_DEFAULT);
   sponza.scale(scene, glm::vec3(0.1, 0.1, 0.1));
- // sponza.physics_rigidbody_create(scene, true, Physics_Rigidbody::TRIANGLE_MESH, Physics_Rigidbody::DYNAMIC, 0);
+
+  std::vector<std::unique_ptr<Physics_Triangle_Mesh_Shape>> shapes;
+  for (auto &child: sponza.children_get()) {
+    if (!child->mesh_get())
+      continue;
+
+    auto shape = std::unique_ptr<Physics_Triangle_Mesh_Shape>(new Physics_Triangle_Mesh_Shape(*child));
+    Physics_Rigidbody *rigidbody = child->physics_rigidbody_create(scene);
+    if (rigidbody) {
+      rigidbody->create(scene.physics_get(), *shape, Physics_Rigidbody::DYNAMIC, 0);
+      shapes.push_back(std::move(shape));
+    }
+  }
 
   Node *foo = &scene.load("data/", "cone.dae", MODEL_IMPORT_OPTIMIZED);
   foo->translate(scene, glm::vec3(0, 0, 40));

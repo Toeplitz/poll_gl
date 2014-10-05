@@ -37,7 +37,7 @@ vec3 Raycast::cast_empty(Scene &scene, const int viewport_x, const int viewport_
 }
 
 
-Raycast_Hitpoint *Raycast::cast(Scene &scene, const int viewport_x, const int viewport_y, const int width, const int height)
+std::shared_ptr<Raycast_Hitpoint> Raycast::cast(Scene &scene, const int viewport_x, const int viewport_y, const int width, const int height)
 {
   Camera *camera = scene.camera_get();
 
@@ -60,9 +60,7 @@ Raycast_Hitpoint *Raycast::cast(Scene &scene, const int viewport_x, const int vi
   hitpoint->node_ptr->raycast_collide_callback_call(hitpoint->world_hitpoint);
   hitpoint->world_ray = ray_wor;
 
-  hitpoint_last = hitpoint;
-
-  return hitpoint.get();
+  return hitpoint;
 }
 
 

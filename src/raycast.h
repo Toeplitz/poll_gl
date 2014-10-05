@@ -28,10 +28,8 @@ class Raycast
 {
   private:
 
-    std::shared_ptr<Raycast_Hitpoint> hitpoint_last;
-
   public:
-    vec3              cast_empty(Scene &scene, const int viewport_x, const int viewport_y, const int width, const int height);
-    Raycast_Hitpoint *cast(Scene &scene, const int viewport_x, const int viewport_y, const int width, const int height);
+    vec3                              cast_empty(Scene &scene, const int viewport_x, const int viewport_y, const int width, const int height);
+    std::shared_ptr<Raycast_Hitpoint> cast(Scene &scene, const int viewport_x, const int viewport_y, const int width, const int height);
 
 };

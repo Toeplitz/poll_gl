@@ -128,6 +128,20 @@ void Physics::rigidbody_delete(Physics_Rigidbody *rigidbody)
 }
 
 
+void Physics::rigidbody_constraint_add(Physics_Rigidbody *rigidbody)
+{
+  auto dof6 = rigidbody->bt_dof6_get();
+  world->addConstraint(dof6, true);
+}
+
+
+void Physics::rigidbody_constraint_delete(Physics_Rigidbody *rigidbody)
+{
+  auto dof6 = rigidbody->bt_dof6_get();
+  world->removeConstraint(dof6);
+}
+
+
 void Physics::step(Scene &scene, const double dt)
 {
   if (custom_step_callback)
