@@ -118,25 +118,27 @@ void Physics_Rigidbody::constraint_create(Raycast_Hitpoint &hp)
   btTransform tr;
   tr.setIdentity();
   tr.setOrigin(localPivot);
-  bt_dof6 = std::unique_ptr<btGeneric6DofConstraint>(new btGeneric6DofConstraint(*bt_rigidbody, tr, true));
+  bt_dof6 = std::unique_ptr<btGeneric6DofConstraint>(new btGeneric6DofConstraint(*bt_rigidbody, tr, false));
   bt_dof6->setLinearLowerLimit(btVector3(0, 0, 0));
   bt_dof6->setLinearUpperLimit(btVector3(0, 0, 0));
   bt_dof6->setAngularLowerLimit(btVector3(0, 0, 0));
   bt_dof6->setAngularUpperLimit(btVector3(0, 0, 0));
 
-  bt_dof6->setParam(BT_CONSTRAINT_STOP_CFM,0.8,0);
-  bt_dof6->setParam(BT_CONSTRAINT_STOP_CFM,0.8,1);
-  bt_dof6->setParam(BT_CONSTRAINT_STOP_CFM,0.8,2);
-  bt_dof6->setParam(BT_CONSTRAINT_STOP_CFM,0.8,3);
-  bt_dof6->setParam(BT_CONSTRAINT_STOP_CFM,0.8,4);
-  bt_dof6->setParam(BT_CONSTRAINT_STOP_CFM,0.8,5);
+  float cfm = 0.8;
+  bt_dof6->setParam(BT_CONSTRAINT_STOP_CFM, cfm, 0);
+  bt_dof6->setParam(BT_CONSTRAINT_STOP_CFM, cfm, 1);
+  bt_dof6->setParam(BT_CONSTRAINT_STOP_CFM, cfm, 2);
+  bt_dof6->setParam(BT_CONSTRAINT_STOP_CFM, cfm, 3);
+  bt_dof6->setParam(BT_CONSTRAINT_STOP_CFM, cfm, 4);
+  bt_dof6->setParam(BT_CONSTRAINT_STOP_CFM, cfm, 5);
 
-  bt_dof6->setParam(BT_CONSTRAINT_STOP_ERP,0.1,0);
-  bt_dof6->setParam(BT_CONSTRAINT_STOP_ERP,0.1,1);
-  bt_dof6->setParam(BT_CONSTRAINT_STOP_ERP,0.1,2);
-  bt_dof6->setParam(BT_CONSTRAINT_STOP_ERP,0.1,3);
-  bt_dof6->setParam(BT_CONSTRAINT_STOP_ERP,0.1,4);
-  bt_dof6->setParam(BT_CONSTRAINT_STOP_ERP,0.1,5);
+  float erp = 0.1;
+  bt_dof6->setParam(BT_CONSTRAINT_STOP_ERP, erp, 0);
+  bt_dof6->setParam(BT_CONSTRAINT_STOP_ERP, erp, 1);
+  bt_dof6->setParam(BT_CONSTRAINT_STOP_ERP, erp, 2);
+  bt_dof6->setParam(BT_CONSTRAINT_STOP_ERP, erp, 3);
+  bt_dof6->setParam(BT_CONSTRAINT_STOP_ERP, erp, 4);
+  bt_dof6->setParam(BT_CONSTRAINT_STOP_ERP, erp, 5);
 
 }
 

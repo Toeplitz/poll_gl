@@ -59,6 +59,7 @@ std::shared_ptr<Raycast_Hitpoint> Raycast::cast(Scene &scene, const int viewport
 
   hitpoint->node_ptr->raycast_collide_callback_call(hitpoint->world_hitpoint);
   hitpoint->world_ray = ray_wor;
+  hitpoint->ray_from = pos;
 
   return hitpoint;
 }

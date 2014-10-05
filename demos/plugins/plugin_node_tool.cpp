@@ -49,8 +49,8 @@ void Plugin_Node_Tool::cb_mouse_released(SDL_MouseButtonEvent *ev)
     return;
   }
 
-  //physics.rigidbody_constraint_delete(rb);
-  //rb->constraint_delete();
+  physics.rigidbody_constraint_delete(rb);
+  rb->constraint_delete();
   hitpoint_last = nullptr;
 }
 
@@ -85,10 +85,25 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
 
   auto height = scene->window_get().height_get();
   auto width = scene->window_get().width_get();
-  auto hp = raycast.cast(*scene, ev->x, ev->y, width, height);
-  btVector3 newRayTo = btVector3(hp->world_ray.x, hp->world_ray.y, hp->world_ray.z);
+  auto world_ray = raycast.cast_empty(*scene, ev->x, ev->y, width, height);
+  btVector3 newRayTo = btVector3(world_ray.x, world_ray.y, world_ray.z);
   btVector3 rayFrom;
-  btVector3 oldPivotInB = rb->bt_dof6_get()->getFrameOffsetA().getOrigin();
+
+  vec3 camera_pos = scene->camera_get()->position_get();
+  float dist = glm::length(hitpoint_last->world_hitpoint - hitpoint_last->ray_from);
+
+
+  rayFrom = btVector3(camera_pos.x, camera_pos.y, camera_pos.z);
+  btVector3 dir = newRayTo - rayFrom;
+  dir.normalize();
+  dir *= dist;
+  btVector3 newPivotB = rayFrom + dir;
+
+  dof6->getFrameOffsetA().setOrigin(newPivotB);
+
+  POLL_DEBUG(std::cout, "dist: " << dist);
+
+  printf("newPivotB=%f,%f,%f\n",newPivotB.getX(),newPivotB.getY(),newPivotB.getZ());
 
 }
 

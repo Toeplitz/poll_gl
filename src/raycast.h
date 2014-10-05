@@ -20,6 +20,8 @@ class Raycast_Hitpoint
     vec3 world_hitpoint = vec3(0.f);
     vec3 world_ray = vec3(0.f);
 
+    vec3 ray_from = vec3(0.f);
+
     void print();
 };
 
