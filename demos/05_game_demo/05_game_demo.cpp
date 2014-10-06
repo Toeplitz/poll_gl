@@ -224,6 +224,7 @@ int main()
 
   Node &sphere_node= scene.load("data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED);
   sphere_node.translate(scene, glm::vec3(-3, 4, 3));
+  sphere_node.scale(scene, glm::vec3(4, 4, 4));
   auto shape = std::unique_ptr<Physics_Convex_Hull_Shape>(new Physics_Convex_Hull_Shape(sphere_node));
   Physics_Rigidbody *rigidbody = sphere_node.physics_rigidbody_create(scene);
   if (rigidbody)

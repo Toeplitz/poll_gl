@@ -13,9 +13,21 @@ void Camera::fov_set(const float fov)
 }
 
 
+float Camera::fov_get()
+{
+  return fov;
+}
+
+
 const glm::vec3 &Camera::position_get()
 {
   return position;
+}
+
+
+const glm::vec3 &Camera::target_position_get()
+{
+  return target_position;
 }
 
 
@@ -45,6 +57,7 @@ void Camera::transform_view_create(const glm::vec3 position, const glm::vec3 dir
 {
   view = glm::lookAt(position, position + direction, up);
   this->position = position;
+  this->target_position = position + direction;
   transform_view_projection_update();
 }
 

@@ -18,13 +18,16 @@ class Camera
     glm::mat4 view;
     glm::mat4 view_projection = glm::mat4(1.f);
     glm::vec3 position;
+    glm::vec3 target_position;
     int width;
     int height;
 
   public: 
 
     void               fov_set(const float val);
+    float              fov_get();
     const glm::vec3   &position_get();
+    const glm::vec3   &target_position_get();
     void               transform_perspective_create(const int width, const int height);
     glm::mat4         &transform_perspective_get();
     glm::mat4         &transform_perspective_inverse_get();

@@ -35,13 +35,13 @@ int main()
 
 
   Node &suzanne_center = *scene.node_find(&node, "Suzanne_center");
-  //suzanne_center.scale(scene, vec3(1, 1, 1));
+  suzanne_center.scale(scene, vec3(1, 1, 1));
   //suzanne_center.translate(scene, vec3(6, 0, 4));
   //suzanne_center.rotate(scene, (float) M_PI, glm::vec3(0, 1, 0));
 
   auto suzanne_center_shape = std::unique_ptr<Physics_Convex_Hull_Shape>(new Physics_Convex_Hull_Shape(suzanne_center));
   Physics_Rigidbody *suzanne_center_rigidbody = suzanne_center.physics_rigidbody_create(scene);
-  suzanne_center_rigidbody->create(physics, *suzanne_center_shape, Physics_Rigidbody::DYNAMIC, 1);
+  suzanne_center_rigidbody->create(physics, *suzanne_center_shape, Physics_Rigidbody::KINEMATIC, 1);
 
   Node &suzanne_translated = *scene.node_find(&node, "Suzanne_translated");
   //suzanne_translated.rotate(scene, (float) M_PI, glm::vec3(0, 0, 1));

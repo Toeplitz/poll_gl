@@ -41,7 +41,8 @@ std::shared_ptr<Raycast_Hitpoint> Raycast::cast(Scene &scene, const int viewport
 {
   Camera *camera = scene.camera_get();
 
-  vec3 ray_wor = cast_empty(scene, viewport_x, viewport_y, width, height);
+  //vec3 ray_wor = cast_empty(scene, viewport_x, viewport_y, width, height);
+  vec3 ray_wor = get_ray_to(scene, viewport_x, viewport_y, width, height);
 
   vec3 pos = camera->position_get();
   auto hitpoint = scene.physics_get().ray_pick(pos, ray_wor);
@@ -65,3 +66,56 @@ std::shared_ptr<Raycast_Hitpoint> Raycast::cast(Scene &scene, const int viewport
 }
 
 
+vec3 Raycast::get_ray_to(Scene &scene, int x, int y, const int width, const int height)
+{
+  vec3 camera_pos = scene.camera_get()->position_get();
+  vec3 camera_target_pos = scene.camera_get()->target_position_get();
+
+  float top = 1.f;
+  float bottom = -1.f;
+  float nearPlane = 1.f;
+  //float tanFov = (top-bottom)*0.5f / nearPlane;
+  //float fov = btScalar(2.0) * btAtan(tanFov);
+  float fov = scene.camera_get()->fov_get();
+
+  //btVector3	rayFrom = getCameraPosition();
+
+  btVector3 bt_cam_pos = btVector3(camera_pos.x, camera_pos.y, camera_pos.z);
+  btVector3 bt_cam_target_pos = btVector3(camera_target_pos.x, camera_target_pos.y, camera_target_pos.z);
+  btVector3 rayFrom = bt_cam_pos;
+  btVector3 rayForward = (bt_cam_target_pos - bt_cam_pos);
+  rayForward.normalize();
+  float farPlane = 500.f;
+  rayForward*= farPlane;
+
+  btVector3 rightOffset;
+  //btVector3 vertical = m_cameraUp;
+  btVector3 vertical(0, 1, 0);
+
+  btVector3 hor;
+  hor = rayForward.cross(vertical);
+  hor.normalize();
+  vertical = hor.cross(rayForward);
+  vertical.normalize();
+
+  float tanfov = tanf(0.5f * fov);
+
+
+  hor *= 2.f * farPlane * tanfov;
+  vertical *= 2.f * farPlane * tanfov;
+
+  btScalar aspect;
+
+  aspect = width / (btScalar) height;
+  hor*=aspect;
+
+  btVector3 rayToCenter = rayFrom + rayForward;
+  btVector3 dHor = hor * 1.f / float(width);
+  btVector3 dVert = vertical * 1.f / float(height);
+
+  btVector3 rayTo = rayToCenter - 0.5f * hor + 0.5f * vertical;
+  rayTo += btScalar(x) * dHor;
+  rayTo -= btScalar(y) * dVert;
+
+  return vec3(rayTo.getX(), rayTo.getY(), rayTo.getZ());
+}
