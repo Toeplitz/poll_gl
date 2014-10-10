@@ -392,10 +392,10 @@ glm::mat4 Node::transform_full_update(Scene &scene)
   glm::mat4 m = transform_global_translate_get() * transform_global_rotate_get() * transform_global_scale_get();
   glm::mat4 local = transform_translate_get() * transform_rotate_get() * transform_scale_get();
 
-  //glm::mat4 m = transform_global_scale_get() * transform_global_rotate_get() * transform_global_translate_get();
+ // glm::mat4 m = transform_global_scale_get() * transform_global_rotate_get() * transform_global_translate_get();
  // glm::mat4 local = transform_scale_get() * transform_rotate_get() * transform_translate_get();
   transform_local_current_set(scene, local);
-  transform_global_set(transform_external_global * m);
+  transform_global_set(m);
   physics_rigidbody_update(scene);
   return m;
 }
@@ -457,6 +457,10 @@ void Node::transform_rotate_set(glm::quat &q)
  // transform_rotate = blender_transform_get() * rotation;
  // POLL_DEBUG(std::cout, "fix matrix: " << glm::to_string(fix) << " name: " << name_get());
  // transform_rotate = rotation * blender_transform_get();
+  
+  if (import_options & MODEL_IMPORT_BLENDER_FIX) {
+    rotation = blender_transform_get() * rotation;
+  }
   transform_rotate = rotation;
   std::cout << std::endl;
 }
@@ -513,7 +517,12 @@ void Node::transform_global_translate_set(const mat4 &transform)
 
 void Node::transform_translate_set(glm::vec3 &v)
 {
-  transform_translate = glm::translate(mat4(1.f), v);
+  vec3 t;
+
+  if (import_options & MODEL_IMPORT_BLENDER_FIX) {
+    t = vec3(blender_transform_get() * vec4(v, 1));
+  }
+  transform_translate = glm::translate(mat4(1.f), t);
   //transform_translate = transform_translate * blender_transform_get();
 }
 

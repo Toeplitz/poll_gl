@@ -94,7 +94,8 @@ std::shared_ptr<Raycast_Hitpoint> Physics::ray_pick(const glm::vec3 &out_origin,
   hitpoint->node_ptr = nullptr;
   hitpoint->world_hitpoint = vec3(0, 0, 0);
 
-  vec3 out_direction = direction * 1000.0f;
+  //vec3 out_direction = direction * 1000.0f;
+  vec3 out_direction = direction;
 
   btCollisionWorld::ClosestRayResultCallback RayCallback(btVector3(out_origin.x, out_origin.y, out_origin.z), 
       btVector3(out_direction.x, out_direction.y, out_direction.z));
@@ -292,7 +293,8 @@ void Physics_Motion_State::node_set(Node &node)
   glm::vec3 scale = node.scale_global_get();
   bt_shape.setLocalScaling(btVector3(scale.x, scale.y, scale.z));
 
-  glm::mat4 m = node.transform_external_global * node.transform_global_translate_get() * node.transform_global_rotate_get();
+  //glm::mat4 m = node.transform_external_global * node.transform_global_translate_get() * node.transform_global_rotate_get();
+  glm::mat4 m = node.transform_global_translate_get() * node.transform_global_rotate_get();
 
 //  std::cout << glm::to_string(m) << std::endl;
   this->transform.setIdentity();

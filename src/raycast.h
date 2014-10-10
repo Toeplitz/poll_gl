@@ -34,7 +34,6 @@ class Raycast
     vec3                              cast_empty(Scene &scene, const int viewport_x, const int viewport_y, const int width, const int height);
     std::shared_ptr<Raycast_Hitpoint> cast(Scene &scene, const int viewport_x, const int viewport_y, const int width, const int height);
     vec3                              get_ray_to(Scene &scene, int x, int y, const int width, const int height);
-    vec3                              get_ray_to_glm(Scene &scene, int x, int y, const int width, const int height);
     vec3                              tutor_cast(Scene &scene, int x, int y, const int width, const int height);
 
 };

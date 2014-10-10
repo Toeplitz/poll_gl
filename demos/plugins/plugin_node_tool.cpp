@@ -85,13 +85,15 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
 
   auto height = scene->window_get().height_get();
   auto width = scene->window_get().width_get();
-  //auto world_ray = raycast.cast_empty(*scene, ev->x, ev->y, width, height);
+  auto world_ray_anton = raycast.cast_empty(*scene, ev->x, ev->y, width, height);
   auto world_ray = raycast.get_ray_to(*scene, ev->x, ev->y, width, height);
 
-  //POLL_DEBUG(std::cout, "cast_empty: " << glm::to_string(world_ray));
-  //POLL_DEBUG(std::cout, "get_ray_to: " << glm::to_string(world_ray2));
+  POLL_DEBUG(std::cout, "cast_empty: " << glm::to_string(world_ray_anton));
+  POLL_DEBUG(std::cout, "get_ray_to: " << glm::to_string(world_ray));
 
-  btVector3 newRayTo = btVector3(world_ray.x, world_ray.y, world_ray.z);
+  //btVector3 newRayTo = btVector3(world_ray.x, world_ray.y, world_ray.z);
+  //btVector3 newRayTo = btVector3(world_ray_tutor.x, world_ray_tutor.y, world_ray_tutor.z);
+  btVector3 newRayTo = btVector3(world_ray_anton.x, world_ray_anton.y, world_ray_anton.z);
   btVector3 rayFrom;
 
   vec3 camera_pos = scene->camera_get()->position_get();
@@ -101,7 +103,12 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
   btVector3 dir = newRayTo - rayFrom;
   dir.normalize();
   dir *= dist;
+
+  vec3 dir_glm = vec3(dir.getX(), dir.getY(), dir.getZ());
+  POLL_DEBUG(std::cout, "dir: " << glm::to_string(dir_glm));
   btVector3 newPivotB = rayFrom + dir;
+  vec3 newPivotB_glm = vec3(newPivotB.getX(), newPivotB.getY(), newPivotB.getZ());
+  POLL_DEBUG(std::cout, "newPivotB: " << glm::to_string(newPivotB_glm));
 
   if (rb->type_get() == Physics_Rigidbody::KINEMATIC) {
     //node->translate(*scene, glm::vec3(newPivotB.getX(), 0, 0));
@@ -110,8 +117,6 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
     vec3 last_pos = vec3(t[3][0], 0, 0);
 
     vec3 diff = vec3(newPivotB.getX(), 0, 0) - last_pos;
-    POLL_DEBUG(std::cout, glm::to_string(last_pos));
-    POLL_DEBUG(std::cout, glm::to_string(diff));
     node->translate(*scene, diff);
     //vec3 v = glm::vec3(newPivotB.getX(), 0, 0);
   } else {

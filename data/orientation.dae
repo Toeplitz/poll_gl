@@ -5,8 +5,8 @@
       <author>Blender User</author>
       <authoring_tool>Blender 2.72.0 commit date:2014-09-23, commit time:18:40, hash:eb464ee</authoring_tool>
     </contributor>
-    <created>2014-09-30T18:01:14</created>
-    <modified>2014-09-30T18:01:14</modified>
+    <created>2014-10-10T21:39:22</created>
+    <modified>2014-10-10T21:39:22</modified>
     <unit name="meter" meter="1"/>
     <up_axis>Z_UP</up_axis>
   </asset>
@@ -240,27 +240,51 @@
   <library_visual_scenes>
     <visual_scene id="Scene" name="Scene">
       <node id="Camera" name="Camera" type="NODE">
-        <matrix sid="transform">0.6858805 -0.3173701 0.6548619 7.481132 0.7276338 0.3124686 -0.6106656 -6.50764 -0.01081678 0.8953432 0.4452454 5.343665 0 0 0 1</matrix>
+        <translate sid="location">7.481132 -6.50764 5.343665</translate>
+        <rotate sid="rotationZ">0 0 1 46.69194</rotate>
+        <rotate sid="rotationY">0 1 0 0.619768</rotate>
+        <rotate sid="rotationX">1 0 0 63.5593</rotate>
+        <scale sid="scale">1 0.9999999 1</scale>
         <instance_camera url="#Camera-camera"/>
       </node>
       <node id="Lamp" name="Lamp" type="NODE">
-        <matrix sid="transform">-0.2908646 -0.7711008 0.5663932 4.076245 0.9551712 -0.1998834 0.2183912 1.005454 -0.05518906 0.6045247 0.7946723 5.903862 0 0 0 1</matrix>
+        <translate sid="location">4.076245 1.005454 5.903862</translate>
+        <rotate sid="rotationZ">0 0 1 106.9363</rotate>
+        <rotate sid="rotationY">0 1 0 3.163707</rotate>
+        <rotate sid="rotationX">1 0 0 37.26105</rotate>
+        <scale sid="scale">1 0.9999999 1</scale>
         <instance_light url="#Lamp-light"/>
       </node>
       <node id="Plane" name="Plane" type="NODE">
-        <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 -1 0 0 0 1</matrix>
+        <translate sid="location">0 0 -1</translate>
+        <rotate sid="rotationZ">0 0 1 0</rotate>
+        <rotate sid="rotationY">0 1 0 0</rotate>
+        <rotate sid="rotationX">1 0 0 0</rotate>
+        <scale sid="scale">1 1 1</scale>
         <instance_geometry url="#Plane-mesh"/>
       </node>
       <node id="Suzanne_translated" name="Suzanne_translated" type="NODE">
-        <matrix sid="transform">1 0 0 0 0 1 0 4 0 0 1 0 0 0 0 1</matrix>
+        <translate sid="location">0 4 0</translate>
+        <rotate sid="rotationZ">0 0 1 0</rotate>
+        <rotate sid="rotationY">0 1 0 0</rotate>
+        <rotate sid="rotationX">1 0 0 0</rotate>
+        <scale sid="scale">1 1 1</scale>
         <instance_geometry url="#Suzanne-mesh"/>
       </node>
       <node id="Suzanne_center" name="Suzanne_center" type="NODE">
-        <matrix sid="transform">-1 1.27952e-6 0 0 -1.27952e-6 -1 0 0 0 0 1 0 0 0 0 1</matrix>
+        <translate sid="location">0 0 0</translate>
+        <rotate sid="rotationZ">0 0 1 -180</rotate>
+        <rotate sid="rotationY">0 1 0 0</rotate>
+        <rotate sid="rotationX">1 0 0 0</rotate>
+        <scale sid="scale">1 1 1</scale>
         <instance_geometry url="#Suzanne_001-mesh"/>
       </node>
       <node id="Suzanne" name="Suzanne" type="NODE">
-        <matrix sid="transform">-6.39758e-7 1 0 5 -1 -6.39758e-7 0 0 0 0 1 0 0 0 0 1</matrix>
+        <translate sid="location">5 0 0</translate>
+        <rotate sid="rotationZ">0 0 1 -90</rotate>
+        <rotate sid="rotationY">0 1 0 0</rotate>
+        <rotate sid="rotationX">1 0 0 0</rotate>
+        <scale sid="scale">1 1 1</scale>
         <instance_geometry url="#Suzanne_002-mesh"/>
       </node>
     </visual_scene>
