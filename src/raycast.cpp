@@ -119,3 +119,89 @@ vec3 Raycast::get_ray_to(Scene &scene, int x, int y, const int width, const int 
 
   return vec3(rayTo.getX(), rayTo.getY(), rayTo.getZ());
 }
+
+
+vec3 Raycast::get_ray_to_glm(Scene &scene, int x, int y, const int width, const int height)
+{
+  vec3 camera_pos = scene.camera_get()->position_get();
+  vec3 camera_target_pos = scene.camera_get()->target_position_get();
+  float fov = scene.camera_get()->fov_get();
+
+  vec3 rayFrom = camera_pos;
+  vec3 rayForward = (camera_target_pos - camera_pos);
+  rayForward = glm::normalize(rayForward);
+  float farPlane = 500.f;
+  rayForward *= farPlane;
+
+  vec3 vertical(0, 1, 0);
+
+  vec3 hor = glm::cross(rayForward, vertical);
+  hor = glm::normalize(hor);
+  vertical = glm::cross(hor, rayForward);
+  vertical = glm::normalize(vertical);
+
+  float tanfov = tanf(0.5f * fov);
+
+
+  hor *= 2.f * farPlane * tanfov;
+  vertical *= 2.f * farPlane * tanfov;
+
+  float aspect;
+  aspect = (float) width / (float) height;
+  hor *= aspect;
+
+  vec3 rayToCenter = rayFrom + rayForward;
+  vec3 dHor = hor * 1.f / float(width);
+  vec3 dVert = vertical * 1.f / float(height);
+
+  vec3 rayTo = rayToCenter - 0.5f * hor + 0.5f * vertical;
+  rayTo += btScalar(x) * dHor;
+  rayTo -= btScalar(y) * dVert;
+
+  return rayTo;
+}
+
+
+vec3 Raycast::tutor_cast(Scene &scene, int x, int y, const int width, const int height)
+{
+  Camera *camera = scene.camera_get();
+
+  // The ray Start and End positions, in Normalized Device Coordinates (Have you read Tutorial 4 ?)
+  glm::vec4 lRayStart_NDC(
+      ((float) x/(float)width  - 0.5f) * 2.0f, // [0,1024] -> [-1,1]
+      ((float) y/(float)height - 0.5f) * 2.0f, // [0, 768] -> [-1,1]
+      -1.0, // The near plane maps to Z=-1 in Normalized Device Coordinates
+      1.0f
+  );
+  glm::vec4 lRayEnd_NDC(
+      ((float)x/(float)width  - 0.5f) * 2.0f,
+      ((float)y/(float)height - 0.5f) * 2.0f,
+      0.0,
+      1.0f
+  );
+
+  // The Projection matrix goes from Camera Space to NDC.
+  // So inverse(ProjectionMatrix) goes from NDC to Camera Space.
+  glm::mat4 InverseProjectionMatrix = glm::inverse(camera->transform_perspective_get());
+   
+  // The View Matrix goes from World Space to Camera Space.
+  // So inverse(ViewMatrix) goes from Camera Space to World Space.
+  glm::mat4 InverseViewMatrix = glm::inverse(camera->transform_view_get());
+   
+  /*
+  glm::vec4 lRayStart_camera = InverseProjectionMatrix * lRayStart_NDC;    lRayStart_camera/=lRayStart_camera.w;
+  glm::vec4 lRayStart_world  = InverseViewMatrix       * lRayStart_camera; lRayStart_world /=lRayStart_world .w;
+  glm::vec4 lRayEnd_camera   = InverseProjectionMatrix * lRayEnd_NDC;      lRayEnd_camera  /=lRayEnd_camera  .w;
+  glm::vec4 lRayEnd_world    = InverseViewMatrix       * lRayEnd_camera;   lRayEnd_world   /=lRayEnd_world   .w;
+   */
+
+  // Faster way (just one inverse)
+  glm::mat4 M = glm::inverse(camera->transform_perspective_get() * camera->transform_view_get());
+  glm::vec4 lRayStart_world = M * lRayStart_NDC; lRayStart_world/=lRayStart_world.w;
+  glm::vec4 lRayEnd_world   = M * lRayEnd_NDC  ; lRayEnd_world  /=lRayEnd_world.w;
+
+  glm::vec3 lRayDir_world(lRayEnd_world - lRayStart_world);
+  lRayDir_world = glm::normalize(lRayDir_world);
+
+  return lRayDir_world;
+}
