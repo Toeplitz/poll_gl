@@ -454,15 +454,11 @@ mat4 Node::transform_rotate_get()
 void Node::transform_rotate_set(glm::quat &q)
 {
   mat4 rotation = glm::mat4_cast(q);
- // transform_rotate = blender_transform_get() * rotation;
- // POLL_DEBUG(std::cout, "fix matrix: " << glm::to_string(fix) << " name: " << name_get());
- // transform_rotate = rotation * blender_transform_get();
   
   if (import_options & MODEL_IMPORT_BLENDER_FIX) {
     rotation = blender_transform_get() * rotation;
   }
   transform_rotate = rotation;
-  std::cout << std::endl;
 }
 
 

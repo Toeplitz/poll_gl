@@ -54,17 +54,17 @@ int main()
 
   {
    // Node &panda = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
-    //Node &panda = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_BLENDER_FIX);
+    Node &panda = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_BLENDER_FIX);
     //Node &panda = scene.load("data/game_assets/characters/panda/", "panda.fbx", MODEL_IMPORT_OPTIMIZED);
-   // panda.rotate(scene, (float) -M_PI / 4.f, glm::vec3(1, 0, 0));
-   // panda.translate(scene, vec3(3, 4, 4));
-   // panda.scale(scene, vec3(0.5, 0.5, 0.5));
+    panda.rotate(scene, (float) -M_PI / 4.f, glm::vec3(1, 0, 0));
+    panda.translate(scene, vec3(3, 4, 4));
+    panda.scale(scene, vec3(0.5, 0.5, 0.5));
     //    panda.translate(scene, vec3(0, 0, -4));
   }
 
 
- // Node &bob = scene.load("data/bob/", "Bob_with_lamp.dae", MODEL_IMPORT_DEFAULT) ;
- // bob.rotate(scene, (float) M_PI/ 2.f, vec3(0, 0,  1));
+  Node &bob = scene.load("data/bob/", "Bob_with_lamp.dae", MODEL_IMPORT_DEFAULT | MODEL_IMPORT_BLENDER_FIX) ;
+  bob.rotate(scene, (float) M_PI/ 2.f, vec3(0, 0,  1));
   {
     Node *node = scene.node_create("Light_Directionl_Global");
     Light *light = node->light_create(scene, Light::DIRECTIONAL, Light::GLOBAL);
