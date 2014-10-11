@@ -2,6 +2,22 @@
 #include "physics_rigidbody.h"
 #include <glm/gtx/string_cast.hpp>
 
+/*
+
+
+Usage:
+
+
+'t': translate mode:
+'s': scale mode
+'r': rotate mode
+
+'x': manipulate x-axis sub-mode.
+'y': manipulate y-axis sub-mode.
+'z': manipulate z-axis sub-mode.
+
+
+*/
 
 
 Plugin_Node_Tool::Plugin_Node_Tool(Console &console, Scene &scene)
@@ -57,7 +73,6 @@ void Plugin_Node_Tool::cb_mouse_released(SDL_MouseButtonEvent *ev)
 
 void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
 {
-
   if (!mouse_down)
     return;
 
@@ -91,9 +106,9 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
   POLL_DEBUG(std::cout, "cast_empty: " << glm::to_string(world_ray_anton));
   POLL_DEBUG(std::cout, "get_ray_to: " << glm::to_string(world_ray));
 
-  //btVector3 newRayTo = btVector3(world_ray.x, world_ray.y, world_ray.z);
+  btVector3 newRayTo = btVector3(world_ray.x, world_ray.y, world_ray.z);
   //btVector3 newRayTo = btVector3(world_ray_tutor.x, world_ray_tutor.y, world_ray_tutor.z);
-  btVector3 newRayTo = btVector3(world_ray_anton.x, world_ray_anton.y, world_ray_anton.z);
+  //btVector3 newRayTo = btVector3(world_ray_anton.x, world_ray_anton.y, world_ray_anton.z);
   btVector3 rayFrom;
 
   vec3 camera_pos = scene->camera_get()->position_get();
@@ -112,12 +127,17 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
 
   if (rb->type_get() == Physics_Rigidbody::KINEMATIC) {
     //node->translate(*scene, glm::vec3(newPivotB.getX(), 0, 0));
+    //
+    Node *ptr = node;
+    if (node->grab_parent) {
+      ptr = node->parent_get();
+    }
 
-    mat4 t = node->transform_translate_get();
+    mat4 t = ptr->transform_global_translate_get();
     vec3 last_pos = vec3(t[3][0], 0, 0);
 
     vec3 diff = vec3(newPivotB.getX(), 0, 0) - last_pos;
-    node->translate(*scene, diff);
+    ptr->translate(*scene, diff);
     //vec3 v = glm::vec3(newPivotB.getX(), 0, 0);
   } else {
     dof6->getFrameOffsetA().setOrigin(newPivotB);

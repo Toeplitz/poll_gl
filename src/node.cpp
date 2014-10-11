@@ -360,10 +360,6 @@ void Node::translate(Scene &scene, const vec3 &v)
 {
   vec3 t = v;
 
-  if (import_options & MODEL_IMPORT_BLENDER_FIX) {
-    t = vec3(blender_transform_get() * vec4(v, 1));
-  }
-
   transform_translate = glm::translate(transform_translate, t);
   scene.transform_update_global_recursive(this);
 }
@@ -470,8 +466,13 @@ mat4 Node::transform_scale_get()
 
 void Node::transform_scale_set(glm::vec3 &v)
 {
-  transform_scale = glm::scale(mat4(1.f), v);
-  //transform_scale = transform_scale * blender_transform_get();
+  vec3 t = v;
+
+  if (import_options & MODEL_IMPORT_BLENDER_FIX) {
+    t = vec3(blender_transform_get() * vec4(v, 1));
+  }
+
+  transform_scale = glm::scale(mat4(1.f), t);
 }
 
 

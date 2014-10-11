@@ -245,7 +245,6 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
       node.light_get()->print(node.tree_level_get());
     }
   }
-/*
   std::cout << std::endl;
   std::cout << "global: " << glm::to_string(node.transform_global_get()) << std::endl;
   std::cout << "cur local: " << glm::to_string(node.transform_local_current_get()) << std::endl;
@@ -253,9 +252,9 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
   std::cout << "local scale: " << glm::to_string(node.transform_scale_get()) << std::endl;
   std::cout << "local rotate: " << glm::to_string(node.transform_rotate_get()) << std::endl;
   std::cout << "local translate: " << glm::to_string(node.transform_translate_get()) << std::endl;
+  std::cout << "global translate: " << glm::to_string(node.transform_global_translate_get()) << std::endl;
 
 
-*/
 
   std::cout << " active: " << node.active_get();
   std::cout << std::endl;
@@ -363,22 +362,14 @@ void Scene::transform_update_global_recursive(Node *node)
     mat4 global_transform_translate;
     mat4 global_transform_rotate;
 
-    if (node->transform_inheritance_get() == TRANSFORM_INHERIT_POSITION_ONLY) {
-      global_transform_scale = mat4(1.f);
-      global_transform_translate = parent->transform_global_translate_get();
-    } else {
-      global_transform = parent->transform_global_get();
-      global_transform_scale = parent->transform_global_scale_get();
-      global_transform_translate = parent->transform_global_translate_get();
-      global_transform_rotate = parent->transform_global_rotate_get();
-    }
+    global_transform_scale = parent->transform_global_scale_get();
+    global_transform_translate = parent->transform_global_translate_get();
+    global_transform_rotate = parent->transform_global_rotate_get();
 
- //   node->transform_global_set(global_transform * transform);
     node->transform_global_scale_set(global_transform_scale * transform_scale);
     node->transform_global_translate_set(global_transform_translate * transform_translate);
     node->transform_global_rotate_set(global_transform_rotate * transform_rotate);
   } else {
-   // node->transform_global_set(transform);
     node->transform_global_scale_set(transform_scale);
     node->transform_global_translate_set(transform_translate);
     node->transform_global_rotate_set(transform_rotate);

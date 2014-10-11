@@ -57,13 +57,13 @@ void Plugin_Light_Tool::cb_light_create(Node *node_ptr)
   {
     unsigned int lamp_type = light->properties_type_get();
     if (lamp_type == Light::POINT || lamp_type == Light::SPOT) {
-      Assets &assets = scene->assets_get();
       Gimbal_Nodes &gimbal_nodes = light->gimbal_nodes_get();
 
       {
-        Node *node = scene->node_create("light_symbol", node_ptr, TRANSFORM_INHERIT_POSITION_ONLY);
+        Node *node = scene->node_create("light_symbol", node_ptr);
         node->scale(*scene, glm::vec3(0.1, 0.1, 0.1));
         node->mesh_set(node_symbol_cone->mesh_get());
+        node->grab_parent = true;
 
         Physics_Rigidbody *rigidbody = node->physics_rigidbody_create(*scene, false);
         rigidbody->create(scene->physics_get(), *symbol_shape, Physics_Rigidbody::KINEMATIC, 1);

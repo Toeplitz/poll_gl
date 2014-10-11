@@ -180,6 +180,7 @@ static void physics_update()
 int main() 
 {
   Scene &scene = poll.scene_get();
+  Physics &physics = scene.physics_get();
 
   /*
   window.joystick_axis_motion_callback_set(joystick_axis_motion_cb);
@@ -193,11 +194,11 @@ int main()
   Node *camera_node = scene.node_camera_get();
 
   auto plugin_debug = std::unique_ptr<Plugin_Debug>(new Plugin_Debug(poll.console_get(), scene));
-  //auto plugin_light_tool = std::unique_ptr<Plugin_Light_Tool>(new Plugin_Light_Tool(poll.console_get(), scene));
+  auto plugin_light_tool = std::unique_ptr<Plugin_Light_Tool>(new Plugin_Light_Tool(poll.console_get(), scene));
   auto plugin_node_tool = std::unique_ptr<Plugin_Node_Tool>(new Plugin_Node_Tool(poll.console_get(), scene));
   auto plugin_firstperson_camera = std::unique_ptr<Plugin_Firstperson_Camera>(new Plugin_Firstperson_Camera(poll.console_get(), scene, camera_node));
   poll.plugin_add(*plugin_debug);
-  //poll.plugin_add(*plugin_light_tool);
+  poll.plugin_add(*plugin_light_tool);
   poll.plugin_add(*plugin_firstperson_camera);
   poll.plugin_add(*plugin_node_tool);
 
@@ -212,7 +213,6 @@ int main()
     if (rigidbody)
       rigidbody->create(scene.physics_get(), *shape, Physics_Rigidbody::DYNAMIC, 0);
     shapes.push_back(std::move(shape));
-
   }
 
 
@@ -230,6 +230,22 @@ int main()
   if (rigidbody)
     rigidbody->create(scene.physics_get(), *shape, Physics_Rigidbody::DYNAMIC, 1);
 
+  Node &node = scene.load("data/", "orientation.dae", MODEL_IMPORT_DEFAULT | MODEL_IMPORT_BLENDER_FIX);
+  node.translate(scene, vec3(0, 5, 0));
+
+  Node &suzanne_center = *scene.node_find(&node, "Suzanne_center");
+  suzanne_center.scale(scene, vec3(6, 6, 6));
+  //suzanne_center.rotate(scene, (float) M_PI, glm::vec3(0, 1, 0));
+
+  auto suzanne_center_shape = std::unique_ptr<Physics_Convex_Hull_Shape>(new Physics_Convex_Hull_Shape(suzanne_center));
+  Physics_Rigidbody *suzanne_center_rigidbody = suzanne_center.physics_rigidbody_create(scene);
+  suzanne_center_rigidbody->create(physics, *suzanne_center_shape, Physics_Rigidbody::KINEMATIC, 1);
+
+  Node &suzanne_translated = *scene.node_find(&node, "Suzanne_translated");
+  auto suzanne_translated_shape = std::unique_ptr<Physics_Convex_Hull_Shape>(new Physics_Convex_Hull_Shape(suzanne_translated));
+  Physics_Rigidbody *suzeanne_translated_rigidbody = suzanne_translated.physics_rigidbody_create(scene);
+  suzeanne_translated_rigidbody->create(physics, *suzanne_translated_shape, Physics_Rigidbody::KINEMATIC, 1);
+  suzanne_translated.scale(scene, vec3(3, 3, 3));
 
   /* Setup panda character */
   {

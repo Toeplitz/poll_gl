@@ -41,8 +41,8 @@ std::shared_ptr<Raycast_Hitpoint> Raycast::cast(Scene &scene, const int viewport
 {
   Camera *camera = scene.camera_get();
 
-  vec3 ray_wor = cast_empty(scene, viewport_x, viewport_y, width, height);
- // vec3 ray_wor = get_ray_to(scene, viewport_x, viewport_y, width, height);
+ // vec3 ray_wor = cast_empty(scene, viewport_x, viewport_y, width, height);
+  vec3 ray_wor = get_ray_to(scene, viewport_x, viewport_y, width, height);
 
   vec3 pos = camera->position_get();
   auto hitpoint = scene.physics_get().ray_pick(pos, ray_wor);

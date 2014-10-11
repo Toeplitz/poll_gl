@@ -85,6 +85,7 @@ class Node: public Animated {
   public:
 
     unsigned int import_options = 0;
+    bool                grab_parent = false;
     
 
     Node(const std::string &node_name);
