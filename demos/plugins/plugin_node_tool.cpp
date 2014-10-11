@@ -24,6 +24,33 @@ Plugin_Node_Tool::Plugin_Node_Tool(Console &console, Scene &scene)
 {
   this->console = &console;
   this->scene = &scene;
+
+  keypress_map[SDLK_x] = std::make_pair(false, "maniplation on x-axis");
+  keypress_map[SDLK_y] = std::make_pair(false, "maniplation on y-axis");
+  keypress_map[SDLK_z] = std::make_pair(false, "maniplation on z-axis");
+  keypress_map[SDLK_t] = std::make_pair(false, "translate mode");
+  keypress_map[SDLK_s] = std::make_pair(false, "scale mode");
+  keypress_map[SDLK_LSHIFT] = std::make_pair(false, "shift");
+}
+
+
+void Plugin_Node_Tool::cb_keyboard_pressed(SDL_Keysym *keysym)
+{
+  if (keypress_map.count(keysym->sym) == 0)
+    return;
+
+  keypress_map[keysym->sym].first = !keypress_map[keysym->sym].first;
+
+  if (keypress_map[keysym->sym].first) {
+    std::cout << keypress_map[keysym->sym].second << ": " << "enabled" << std::endl;
+  } else {
+    std::cout << keypress_map[keysym->sym].second << ": " << "disabled" << std::endl;
+  }
+}
+
+
+void Plugin_Node_Tool::cb_keyboard_released(SDL_Keysym *keysym)
+{
 }
 
 
@@ -133,12 +160,55 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
       ptr = node->parent_get();
     }
 
-    mat4 t = ptr->transform_global_translate_get();
-    vec3 last_pos = vec3(t[3][0], 0, 0);
 
-    vec3 diff = vec3(newPivotB.getX(), 0, 0) - last_pos;
-    ptr->translate(*scene, diff);
-    //vec3 v = glm::vec3(newPivotB.getX(), 0, 0);
+    if (keypress_map[SDLK_t].first) {
+
+      vec3 new_pos(0, 0, 0);
+      mat4 t = ptr->transform_global_translate_get();
+      vec3 last_pos = vec3(t[3][0], t[3][1], t[3][2]);
+      vec3 diff = vec3(newPivotB.getX(), newPivotB.getY(), newPivotB.getZ()) - last_pos;
+
+      if (keypress_map[SDLK_x].first) {
+        new_pos.x = diff.x;
+      } 
+      if (keypress_map[SDLK_y].first) {
+        new_pos.y = diff.y;
+      }
+      if (keypress_map[SDLK_z].first) {
+        new_pos.z = diff.z;
+      }
+
+      ptr->translate(*scene, new_pos);
+    }
+    
+    if (keypress_map[SDLK_s].first) {
+      vec3 new_pos(1, 1, 1);
+      mat4 s = ptr->transform_global_scale_get();
+      vec3 last_scale = vec3(s[0][0], s[1][1], s[2][2]);
+      vec3 diff = glm::abs(vec3(newPivotB.getX(), newPivotB.getY(), newPivotB.getZ()) + last_scale);
+      POLL_DEBUG(std::cout, "last_scale: " << glm::to_string(last_scale));
+      POLL_DEBUG(std::cout, "diff: " << glm::to_string(diff));
+
+      if (keypress_map[SDLK_x].first) {
+        new_pos.x = diff.x;
+      } 
+      if (keypress_map[SDLK_y].first) {
+        new_pos.y = diff.y;
+      }
+      if (keypress_map[SDLK_z].first) {
+        new_pos.z = diff.z;
+      }
+
+      //ptr->scale(*scene, new_pos);
+      if (keypress_map[SDLK_LSHIFT].first) {
+        new_pos = vec3(new_pos.x, new_pos.x, new_pos.x);
+        ptr->transform_scale_set(new_pos);
+      } else {
+        ptr->transform_scale_set(new_pos);
+      }
+      scene->transform_update_global_recursive(ptr);
+    }
+
   } else {
     dof6->getFrameOffsetA().setOrigin(newPivotB);
   }
