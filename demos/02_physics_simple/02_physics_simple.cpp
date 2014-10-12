@@ -26,14 +26,27 @@ int main()
   poll.plugin_add(*plugin_node_tool);
   poll.plugin_add(*plugin_firstperson_camera);
 
-  Node &node = scene.load("data/", "orientation.dae", MODEL_IMPORT_DEFAULT | MODEL_IMPORT_BLENDER_FIX);
-  //Node &node = scene.load("data/", "orientation.dae", MODEL_IMPORT_DEFAULT | MODEL_IMPORT_BLENDER_FIX);
+
+
+ // Node &node = scene.load("data/", "orientation.dae", MODEL_IMPORT_DEFAULT | MODEL_IMPORT_BLENDER_FIX);
   {
     Node &root = scene.node_root_get();
-    root.scale(scene, vec3(0.5, 0.5, 0.5));
+  //  root.scale(scene, vec3(0.5, 0.5, 0.5));
+  }
+  Node &gizmo = scene.load("data/", "gizmo_translate.dae", MODEL_IMPORT_OPTIMIZED  | MODEL_IMPORT_BLENDER_FIX);
+  std::vector<std::unique_ptr<Physics_Convex_Hull_Shape>> shapes;
+  for (auto &child: gizmo.children_get()) {
+    child->grab_parent = true;
+    auto shape = std::unique_ptr<Physics_Convex_Hull_Shape>(new Physics_Convex_Hull_Shape(*child));
+    Physics_Rigidbody *rigidbody = child->physics_rigidbody_create(scene);
+    if (rigidbody)
+      rigidbody->create(scene.physics_get(), *shape, Physics_Rigidbody::KINEMATIC, 0);
+    shapes.push_back(std::move(shape));
   }
 
 
+#if 0
+  Node &node = scene.load("data/", "orientation.dae", MODEL_IMPORT_DEFAULT | MODEL_IMPORT_BLENDER_FIX);
   Node &suzanne_center = *scene.node_find(&node, "Suzanne_center");
   suzanne_center.scale(scene, vec3(1, 1, 1));
   //suzanne_center.translate(scene, vec3(6, 0, 4));
@@ -62,9 +75,10 @@ int main()
     //    panda.translate(scene, vec3(0, 0, -4));
   }
 
+#endif
 
-  Node &bob = scene.load("data/bob/", "Bob_with_lamp.dae", MODEL_IMPORT_DEFAULT);
-  bob.rotate(scene, (float) M_PI/ 2.f, vec3(0, 0,  1));
+  //Node &bob = scene.load("data/bob/", "Bob_with_lamp.dae", MODEL_IMPORT_DEFAULT);
+  // bob.rotate(scene, (float) M_PI/ 2.f, vec3(0, 0,  1));
   {
     Node *node = scene.node_create("Light_Directionl_Global");
     Light *light = node->light_create(scene, Light::DIRECTIONAL, Light::GLOBAL);

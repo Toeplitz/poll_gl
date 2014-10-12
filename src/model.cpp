@@ -306,6 +306,7 @@ Node *Model::node_map_create(Scene &scene, const aiNode &node, Node *parent, int
      // glm::vec3 v(position.x, position.z, position.y);
       glm::vec3 v(position.x, position.y, position.z);
       node_internal->transform_translate_set(v);
+      POLL_DEBUG(std::cout, "model transform " << node_internal->name_get() << " = " << glm::to_string(v));
     }
 
   }

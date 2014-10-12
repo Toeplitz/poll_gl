@@ -183,11 +183,17 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
     
     if (keypress_map[SDLK_s].first) {
       vec3 new_pos(1, 1, 1);
-      mat4 s = ptr->transform_global_scale_get();
+      mat4 s;
+      if (ptr->grab_parent) { 
+        s = ptr->parent_get()->transform_global_scale_get();
+      } else {
+        s = ptr->transform_global_scale_get();
+      }
       vec3 last_scale = vec3(s[0][0], s[1][1], s[2][2]);
-      vec3 diff = glm::abs(vec3(newPivotB.getX(), newPivotB.getY(), newPivotB.getZ()) + last_scale);
+     // vec3 diff = glm::abs(vec3(newPivotB.getX(), newPivotB.getY(), newPivotB.getZ()) + last_scale);
+      vec3 diff = last_scale + newPivotB.getX();
       POLL_DEBUG(std::cout, "last_scale: " << glm::to_string(last_scale));
-      POLL_DEBUG(std::cout, "diff: " << glm::to_string(diff));
+      //POLL_DEBUG(std::cout, "diff: " << glm::to_string(diff));
 
       if (keypress_map[SDLK_x].first) {
         new_pos.x = diff.x;
@@ -201,9 +207,9 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
 
       //ptr->scale(*scene, new_pos);
       if (keypress_map[SDLK_LSHIFT].first) {
-        new_pos = vec3(new_pos.x, new_pos.x, new_pos.x);
         ptr->transform_scale_set(new_pos);
       } else {
+        new_pos = vec3(new_pos.x, new_pos.x, new_pos.x);
         ptr->transform_scale_set(new_pos);
       }
       scene->transform_update_global_recursive(ptr);

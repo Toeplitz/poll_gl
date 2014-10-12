@@ -468,9 +468,11 @@ void Node::transform_scale_set(glm::vec3 &v)
 {
   vec3 t = v;
 
+  /*
   if (import_options & MODEL_IMPORT_BLENDER_FIX) {
     t = vec3(blender_transform_get() * vec4(v, 1));
   }
+  */
 
   transform_scale = glm::scale(mat4(1.f), t);
 }
@@ -514,13 +516,12 @@ void Node::transform_global_translate_set(const mat4 &transform)
 
 void Node::transform_translate_set(glm::vec3 &v)
 {
-  vec3 t;
+  vec3 t = v;
 
   if (import_options & MODEL_IMPORT_BLENDER_FIX) {
     t = vec3(blender_transform_get() * vec4(v, 1));
   }
   transform_translate = glm::translate(mat4(1.f), t);
-  //transform_translate = transform_translate * blender_transform_get();
 }
 
 
