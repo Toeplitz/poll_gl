@@ -80,7 +80,8 @@ class Node: public Animated {
     mat4 transform_translate = mat4(1.f);
 
     Transform_Inherit transform_inheritance = TRANSFORM_INHERIT_ALL;
-    std::function <void (Node &node, vec3 &position)> raycast_collide_callback = nullptr;
+    std::function <void (Node &node, vec3 &position)> callback_raycast_collide = nullptr;
+    std::function <void (Node &node)> callback_draw = nullptr;
 
   public:
 
@@ -94,6 +95,10 @@ class Node: public Animated {
     bool                active_get();
     Armature           *armature_get();
     void                armature_set(Armature *armature);
+    void                callback_draw_call();
+    void                callback_draw_set(const std::function <void (Node &node)> callback_draw);
+    void                callback_raycast_collide_call(vec3 &position);
+    void                callback_raycast_collide_set(const std::function <void (Node &node, vec3 &position)> callback_raycast_collide);
     Camera             *camera_create(Assets &assets);
     Camera             *camera_get();
     void                camera_set(Camera *camera);
@@ -117,8 +122,6 @@ class Node: public Animated {
     Mesh               *mesh_get();
     void                mesh_set(Mesh *mesh);
     mat4               &position_matrix_current_get();
-    void                raycast_collide_callback_set(const std::function <void (Node &node, vec3 &position)> raycast_collide_callback);
-    void                raycast_collide_callback_call(vec3 &position);
     void                rotate(Scene &scene, const float angle, const vec3 &v);
     void                scale(Scene &scene, const vec3 &v);
     glm::vec3           scale_get();

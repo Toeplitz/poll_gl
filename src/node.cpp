@@ -273,18 +273,18 @@ void Node::mesh_set(Mesh *mesh)
 }
 
 
-void Node::raycast_collide_callback_call(vec3 &position)
+void Node::callback_raycast_collide_call(vec3 &position)
 {
-  if (!raycast_collide_callback)
+  if (!callback_raycast_collide)
     return;
 
-  raycast_collide_callback(*this, position);
+  callback_raycast_collide(*this, position);
 
 }
 
-void Node::raycast_collide_callback_set(const std::function <void (Node &node, vec3 &position)> callback)
+void Node::callback_raycast_collide_set(const std::function <void (Node &node, vec3 &position)> callback)
 {
-  this->raycast_collide_callback = callback;
+  this->callback_raycast_collide = callback;
 }
 
 

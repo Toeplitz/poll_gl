@@ -70,7 +70,7 @@ void Plugin_Light_Tool::cb_light_create(Node *node_ptr)
         gimbal_nodes.center = node;
       }
 
-      gimbal_nodes.center->raycast_collide_callback_set(std::bind(&Plugin_Light_Tool::raycast_collide_callback_gimbal_center, this, _1, _2));
+      gimbal_nodes.center->callback_raycast_collide_set(std::bind(&Plugin_Light_Tool::raycast_collide_callback_gimbal_center, this, _1, _2));
       /*
       gimbal_nodes.x->raycast_collide_callback_set(std::bind(&Plugin_Light_Tool::raycast_collide_callback_gimbal_x, this, _1, _2));
       gimbal_nodes.y->raycast_collide_callback_set(std::bind(&Plugin_Light_Tool::raycast_collide_callback_gimbal_y, this, _1, _2));

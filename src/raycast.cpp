@@ -58,7 +58,7 @@ std::shared_ptr<Raycast_Hitpoint> Raycast::cast(Scene &scene, const int viewport
 
   POLL_DEBUG(std::cout, "Hit node: " << hitpoint->node_ptr->name_get());
 
-  hitpoint->node_ptr->raycast_collide_callback_call(hitpoint->world_hitpoint);
+  hitpoint->node_ptr->callback_raycast_collide_call(hitpoint->world_hitpoint);
   hitpoint->world_ray = ray_wor;
   hitpoint->ray_from = pos;
 
