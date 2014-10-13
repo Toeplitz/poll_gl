@@ -58,6 +58,39 @@ void Node::armature_set(Armature *armature)
 }
 
 
+void Node::callback_draw_call()
+{
+  if (!callback_draw)
+    return;
+
+  callback_draw(*this);
+
+}
+
+
+void Node::callback_draw_set(const std::function <void (Node &node)> callback)
+{
+  this->callback_draw = callback;
+}
+
+
+void Node::callback_raycast_collide_call(vec3 &position)
+{
+  if (!callback_raycast_collide)
+    return;
+
+  callback_raycast_collide(*this, position);
+
+}
+
+
+void Node::callback_raycast_collide_set(const std::function <void (Node &node, vec3 &position)> callback)
+{
+  this->callback_raycast_collide = callback;
+}
+
+
+
 Camera *Node::camera_create(Assets &assets)
 {
   std::unique_ptr<Camera> camera(new Camera());
@@ -270,21 +303,6 @@ Mesh *Node::mesh_get()
 void Node::mesh_set(Mesh *mesh)
 {
   this->mesh = mesh;
-}
-
-
-void Node::callback_raycast_collide_call(vec3 &position)
-{
-  if (!callback_raycast_collide)
-    return;
-
-  callback_raycast_collide(*this, position);
-
-}
-
-void Node::callback_raycast_collide_set(const std::function <void (Node &node, vec3 &position)> callback)
-{
-  this->callback_raycast_collide = callback;
 }
 
 

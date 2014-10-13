@@ -22,6 +22,8 @@ Usage:
 
 Plugin_Node_Tool::Plugin_Node_Tool(Console &console, Scene &scene)
 {
+  GLcontext &glcontext = scene.glcontext_get();
+
   this->console = &console;
   this->scene = &scene;
 
@@ -29,8 +31,49 @@ Plugin_Node_Tool::Plugin_Node_Tool(Console &console, Scene &scene)
   keypress_map[SDLK_y] = std::make_pair(false, "maniplation on y-axis");
   keypress_map[SDLK_z] = std::make_pair(false, "maniplation on z-axis");
   keypress_map[SDLK_t] = std::make_pair(false, "translate mode");
-  keypress_map[SDLK_s] = std::make_pair(false, "scale mode");
+  keypress_map[SDLK_z] = std::make_pair(false, "scale mode");
   keypress_map[SDLK_LSHIFT] = std::make_pair(false, "shift");
+
+  Node *node_gizmo = &scene.load("data/", "gizmo_translate.dae", MODEL_IMPORT_OPTIMIZED  | MODEL_IMPORT_BLENDER_FIX | MODEL_IMPORT_NO_DRAW);
+  for (auto &child: node_gizmo->children_get()) {
+    child->grab_parent = true;
+    auto shape = std::unique_ptr<Physics_Convex_Hull_Shape>(new Physics_Convex_Hull_Shape(*child));
+    Physics_Rigidbody *rigidbody = child->physics_rigidbody_create(scene);
+    if (rigidbody)
+      rigidbody->create(scene.physics_get(), *shape, Physics_Rigidbody::KINEMATIC, 0);
+    shapes.push_back(std::move(shape));
+  }
+
+  node_gizmo_translate_x = scene.node_find(node_gizmo, "x");
+  node_gizmo_translate_y = scene.node_find(node_gizmo, "y");
+  node_gizmo_translate_z = scene.node_find(node_gizmo, "z");
+
+  node_bounding_box = scene.node_create("bounding_box");
+  Mesh *mesh = node_bounding_box->mesh_create(scene);
+  mesh->generate_cube(1.f);
+  glcontext.vertex_buffers_mesh_create(mesh);
+}
+
+
+void Plugin_Node_Tool::cb_node_draw(Node &node)
+{
+  GLcontext &glcontext = scene->glcontext_get();
+
+  /*
+   *
+   * FIXME:
+   * need to update model matrix uniform buffer
+   * get position only
+  glcontext.draw_mesh(*node_gizmo_translate_x);
+  glcontext.draw_mesh(*node_gizmo_translate_y);
+  glcontext.draw_mesh(*node_gizmo_translate_z);
+  */
+
+  glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+  glLineWidth(3.f);
+  glcontext.draw_mesh(*node_bounding_box);
+  glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+
 }
 
 
@@ -61,14 +104,20 @@ void Plugin_Node_Tool::cb_mouse_pressed(SDL_MouseButtonEvent *ev)
   auto width = scene->window_get().width_get();
   auto hp = raycast.cast(*scene, ev->x, ev->y, width, height);
 
+
   if (!hp)
     return;
 
+  hp->node_ptr->callback_draw_set(std::bind(&Plugin_Node_Tool::cb_node_draw, this, _1));
   Physics_Rigidbody *rb = hp->node_ptr->physics_rigidbody_get();
   rb->constraint_create(*hp);
   physics.rigidbody_constraint_add(rb);
 
   hp->print();
+  if (hitpoint_last) {
+    POLL_DEBUG(std::cout, "Lol");
+    hitpoint_last->node_ptr->callback_draw_set(nullptr);
+  }
   this->hitpoint_last = hp;
   this->mouse_down = true;
 }
@@ -94,7 +143,6 @@ void Plugin_Node_Tool::cb_mouse_released(SDL_MouseButtonEvent *ev)
 
   physics.rigidbody_constraint_delete(rb);
   rb->constraint_delete();
-  hitpoint_last = nullptr;
 }
 
 
@@ -181,7 +229,7 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
       ptr->translate(*scene, new_pos);
     }
     
-    if (keypress_map[SDLK_s].first) {
+    if (keypress_map[SDLK_z].first) {
       vec3 new_pos(1, 1, 1);
       mat4 s;
       if (ptr->grab_parent) { 

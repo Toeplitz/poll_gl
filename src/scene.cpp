@@ -113,74 +113,8 @@ Node &Scene::load(const std::string &prefix, const std::string &filename, const 
   Node *root_ptr = model.load(*this, root, prefix, filename, options);
   node_state_recursive_update(root);
 
-  {
-
-    mat4 lh;
-
-    lh[0][0] = 1;
-    lh[0][1] = 2;
-    lh[0][2] = 3;
-    lh[0][3] = 0;
-
-    lh[1][0] = 5;
-    lh[1][1] = 6;
-    lh[1][2] = 7;
-    lh[1][3] = 0;
-
-    lh[2][0] = 9;
-    lh[2][1] = 10;
-    lh[2][2] = 11;
-    lh[2][3] = 0;
-
-    lh[3][0] = 13; 
-    lh[3][1] = 14;
-    lh[3][2] = 15;
-    lh[3][3] = 0;
-  /*
-  { rx, ry, rz, 0 }  
-  { ux, uy, uz, 0 }  
-  { lx, ly, lz, 0 }  
-  { px, py, pz, 1 }
-to
-  { rx, rz, ry, 0 }  
-  { lx, lz, ly, 0 }  
-  { ux, uz, uy, 0 }  
-  { px, pz, py, 1 }
-*/
-
-/*
-  { 1, 2, 3, 0 }  
-  { 5, 6, 7, 0 }  
-  { 9, 10, 11, 0 }  
-  { 13, 14, 15, 1 }
-
-
-  { 1, 3, 2, 0 }  
-  { 9, 11, 10, 0 }  
-  { 5, 7, 6, 0 }  
-  { 13, 15, 14, 1 }
-*/
-
- // std::cout << glm::to_string(lh) << std::endl;
- // std::cout << glm::to_string(right_handed_to_left_handed(lh)) << std::endl;
-  }
-
-
- // transform_update_global_recursive(root_ptr);
-
-  /* Remove blender transform from root node */
-  if (options & MODEL_IMPORT_BLENDER_FIX) {
-  //  node_positions_update_recursive(*root_ptr);
-  //  node_reset_transforms_recursive(*root_ptr);
-  }
-
- transform_update_global_recursive(root_ptr);
- //root_ptr->transform_global_set(mat4(1.f));
- //root_ptr->transform_local_current_set(*this, mat4(1.f));
-
-  if (!(options & MODEL_IMPORT_NO_DRAW)) {
-    node_recursive_init(glcontext, *root_ptr);
-  }
+  transform_update_global_recursive(root_ptr);
+  node_recursive_init(glcontext, *root_ptr);
 
   return *root_ptr;
 }
@@ -439,13 +373,20 @@ void Scene::node_recursive_init(GLcontext &glcontext, Node &node)
   }
 
   if (mesh) {
-    mesh_nodes_add(node);
-    glcontext.vertex_buffers_mesh_create(mesh);
+    if (!(node.import_options & MODEL_IMPORT_NO_DRAW)) {
+      mesh_nodes_add(node);
+    }
+    if (!(node.import_options & MODEL_IMPORT_NO_UPLOAD)) {
+
+      glcontext.vertex_buffers_mesh_create(mesh);
+    }
   } 
 
 
   if (material) {
-    glcontext.texture_materials_create(material);
+    if (!(node.import_options & MODEL_IMPORT_NO_UPLOAD)) {
+      glcontext.texture_materials_create(material);
+    }
   }
   
   node_state_recursive_update(node);

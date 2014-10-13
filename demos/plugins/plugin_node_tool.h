@@ -22,6 +22,12 @@ class Plugin_Node_Tool: public Poll_Plugin
 
     bool mouse_down = false;
     std::shared_ptr<Raycast_Hitpoint> hitpoint_last;
+    std::vector<std::unique_ptr<Physics_Convex_Hull_Shape>> shapes;
+
+    Node *node_gizmo_translate_x;
+    Node *node_gizmo_translate_y;
+    Node *node_gizmo_translate_z;
+    Node *node_bounding_box;
 
 
   public:
@@ -31,5 +37,6 @@ class Plugin_Node_Tool: public Poll_Plugin
     void cb_mouse_pressed(SDL_MouseButtonEvent *ev);
     void cb_mouse_released(SDL_MouseButtonEvent *ev);
     void cb_mouse_motion(SDL_MouseMotionEvent *ev);
+    void cb_node_draw(Node &node);
 
 };

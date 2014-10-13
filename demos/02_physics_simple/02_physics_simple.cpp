@@ -33,16 +33,6 @@ int main()
     Node &root = scene.node_root_get();
   //  root.scale(scene, vec3(0.5, 0.5, 0.5));
   }
-  Node &gizmo = scene.load("data/", "gizmo_translate.dae", MODEL_IMPORT_OPTIMIZED  | MODEL_IMPORT_BLENDER_FIX);
-  std::vector<std::unique_ptr<Physics_Convex_Hull_Shape>> shapes;
-  for (auto &child: gizmo.children_get()) {
-    child->grab_parent = true;
-    auto shape = std::unique_ptr<Physics_Convex_Hull_Shape>(new Physics_Convex_Hull_Shape(*child));
-    Physics_Rigidbody *rigidbody = child->physics_rigidbody_create(scene);
-    if (rigidbody)
-      rigidbody->create(scene.physics_get(), *shape, Physics_Rigidbody::KINEMATIC, 0);
-    shapes.push_back(std::move(shape));
-  }
 
 
 #if 0

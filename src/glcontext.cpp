@@ -703,6 +703,7 @@ void GLcontext::draw_geometry_all(Scene &scene)
   }
   GL_ASSERT(glDepthMask(GL_FALSE));
   GL_ASSERT(glDisable(GL_DEPTH_TEST));
+
 }
 
 
@@ -832,6 +833,8 @@ void GLcontext::draw_node(Node &node)
   if (node.state_get().cubemap_skybox) glDepthMask(GL_FALSE);
   draw_mesh(node);
   if (node.state_get().cubemap_skybox) glDepthMask(GL_TRUE);
+
+  node.callback_draw_call();
 }
 
 
