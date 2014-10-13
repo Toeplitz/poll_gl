@@ -34,7 +34,7 @@ Plugin_Node_Tool::Plugin_Node_Tool(Console &console, Scene &scene)
   keypress_map[SDLK_z] = std::make_pair(false, "scale mode");
   keypress_map[SDLK_LSHIFT] = std::make_pair(false, "shift");
 
-  Node *node_gizmo = &scene.load("data/", "gizmo_translate.dae", MODEL_IMPORT_OPTIMIZED  | MODEL_IMPORT_BLENDER_FIX | MODEL_IMPORT_NO_DRAW);
+  node_gizmo = &scene.load("data/", "gizmo_translate.dae", MODEL_IMPORT_OPTIMIZED  | MODEL_IMPORT_NO_DRAW);
   for (auto &child: node_gizmo->children_get()) {
     child->grab_parent = true;
     auto shape = std::unique_ptr<Physics_Convex_Hull_Shape>(new Physics_Convex_Hull_Shape(*child));
@@ -42,6 +42,7 @@ Plugin_Node_Tool::Plugin_Node_Tool(Console &console, Scene &scene)
     if (rigidbody)
       rigidbody->create(scene.physics_get(), *shape, Physics_Rigidbody::KINEMATIC, 0);
     shapes.push_back(std::move(shape));
+
   }
 
   node_gizmo_translate_x = scene.node_find(node_gizmo, "x");
@@ -59,20 +60,31 @@ void Plugin_Node_Tool::cb_node_draw(Node &node)
 {
   GLcontext &glcontext = scene->glcontext_get();
 
-  /*
-   *
-   * FIXME:
-   * need to update model matrix uniform buffer
-   * get position only
-  glcontext.draw_mesh(*node_gizmo_translate_x);
-  glcontext.draw_mesh(*node_gizmo_translate_y);
-  glcontext.draw_mesh(*node_gizmo_translate_z);
-  */
-
   glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
   glLineWidth(3.f);
   glcontext.draw_mesh(*node_bounding_box);
   glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+
+  mat4 m;
+
+  mat4 global_translate = node.transform_global_translate_get();
+
+  glDisable(GL_DEPTH_TEST);
+  m = node_gizmo_translate_x->transform_local_current_get();
+  node_gizmo_translate_x->transform_global_set(global_translate * m);
+  glcontext.uniform_buffers_update_matrices(*node_gizmo_translate_x);
+  glcontext.draw_mesh(*node_gizmo_translate_x);
+
+  m = node_gizmo_translate_y->transform_local_current_get();
+  node_gizmo_translate_y->transform_global_set(global_translate * m);
+  glcontext.uniform_buffers_update_matrices(*node_gizmo_translate_y);
+  glcontext.draw_mesh(*node_gizmo_translate_y);
+
+  m = node_gizmo_translate_z->transform_local_current_get();
+  node_gizmo_translate_z->transform_global_set(global_translate * m);
+  glcontext.uniform_buffers_update_matrices(*node_gizmo_translate_z);
+  glcontext.draw_mesh(*node_gizmo_translate_z);
+  glEnable(GL_DEPTH_TEST);
 
 }
 

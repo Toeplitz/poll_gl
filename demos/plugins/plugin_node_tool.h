@@ -24,6 +24,7 @@ class Plugin_Node_Tool: public Poll_Plugin
     std::shared_ptr<Raycast_Hitpoint> hitpoint_last;
     std::vector<std::unique_ptr<Physics_Convex_Hull_Shape>> shapes;
 
+    Node *node_gizmo;
     Node *node_gizmo_translate_x;
     Node *node_gizmo_translate_y;
     Node *node_gizmo_translate_z;
