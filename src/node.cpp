@@ -415,12 +415,15 @@ glm::mat4 Node::transform_full_update(Scene &scene)
 }
 
 
+/*
 mat4 &Node::transform_global_position_get()
 {
   mat4 &model = transform_global;
   transform_position_current = glm::translate(mat4(1.f), vec3(model[3][0], model[3][1], model[3][2]));
   return transform_position_current;
 }
+
+*/
 
 
 void Node::transform_global_set(const mat4 &transform)

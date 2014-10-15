@@ -135,7 +135,6 @@ class Node: public Animated {
     void                transform_inheritance_set(Transform_Inherit transform_inheritance);
     glm::mat4           transform_full_update(Scene &scene);
     mat4               &transform_global_get();
-    mat4               &transform_global_position_get();
     void                transform_global_set(const mat4 &transform);
     mat4               &transform_local_current_get();
     void                transform_local_current_set(Scene &scene, const mat4 &transform);

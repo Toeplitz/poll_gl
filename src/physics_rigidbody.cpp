@@ -105,7 +105,30 @@ std::shared_ptr<Aabb> Physics_Rigidbody::aabb_get()
   aabb->min = vec3(aabb_min.getX(), aabb_min.getY(), aabb_min.getZ());
   aabb->max = vec3(aabb_max.getX(), aabb_max.getY(), aabb_max.getZ());
 
+  aabb->r = (aabb->max - aabb->min) / 2.f;
+  aabb->c = aabb->min + aabb->r;
+
   return aabb;
+}
+
+
+std::shared_ptr<Bounding_Sphere> Physics_Rigidbody::bounding_sphere_get()
+{
+  auto bs = std::shared_ptr<Bounding_Sphere>(new Bounding_Sphere());
+
+  btVector3 center;
+  btScalar radius;
+
+  if (!shape_ptr) {
+    POLL_DEBUG(std::cerr, "No shape connected to the rigidbody, not possible??");
+  }
+
+  shape_ptr->bt_collision_shape_get().getBoundingSphere(center, radius);
+
+  bs->r = (float) radius;
+  bs->c = vec3(center.getX(), center.getY(), center.getZ());
+
+  return bs;
 }
 
 btRigidBody *Physics_Rigidbody::bt_rigidbody_get()
@@ -185,12 +208,12 @@ void Physics_Rigidbody::mass_set(Physics *physics, const float mass)
 
   bt_rigidbody.release();
   btVector3 inertia(0, 0, 0);
-  btRigidBody::btRigidBodyConstructionInfo rb_ci(mass, bt_motion_state.get(), bt_collision_shape.get(), inertia);
+ // btRigidBody::btRigidBodyConstructionInfo rb_ci(mass, bt_motion_state.get(), bt_collision_shape.get(), inertia);
 
-  bt_rigidbody = std::unique_ptr<btRigidBody>(new btRigidBody(rb_ci));
+ // bt_rigidbody = std::unique_ptr<btRigidBody>(new btRigidBody(rb_ci));
   //bt_rigidbody->getCollisionShape()->calculateLocalInertia(bt_mass, inertia);
   //bt_rigidbody->setMassProps(bt_mass, inertia);
-  physics->rigidbody_add(this);
+  //physics->rigidbody_add(this);
 }
 
 

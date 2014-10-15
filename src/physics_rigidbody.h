@@ -62,6 +62,14 @@ class Physics_Triangle_Mesh_Shape: public Physics_Collision_Shape
 struct Aabb {
   vec3 min;
   vec3 max;
+  vec3 c;
+  vec3 r;
+};
+
+
+struct Bounding_Sphere {
+  vec3 c;
+  float r;
 };
 
 
@@ -77,7 +85,6 @@ class Physics_Rigidbody
 
 
   private:
-    std::unique_ptr<btCollisionShape> bt_collision_shape;
     std::unique_ptr<btRigidBody> bt_rigidbody;
     std::unique_ptr<btTriangleMesh> bt_triangle_mesh;
     std::unique_ptr<btConvexHullShape> bt_convex_hull_mesh;
@@ -94,6 +101,7 @@ class Physics_Rigidbody
 
   public:
     std::shared_ptr<Aabb>    aabb_get();
+    std::shared_ptr<Bounding_Sphere> bounding_sphere_get();
     btRigidBody             *bt_rigidbody_get();
     btGeneric6DofConstraint *bt_dof6_get();
     void                     create(Physics &physics, Physics_Collision_Shape &shape, unsigned int collision_type, float initial_mass);

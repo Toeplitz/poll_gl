@@ -65,21 +65,24 @@ void Plugin_Node_Tool::cb_node_draw(Node &node)
   mat4 global_scale = node.transform_global_scale_get();
   mat4 global_rotate = node.transform_global_rotate_get();
 
-  glDisable(GL_DEPTH_TEST);
+  //glDisable(GL_DEPTH_TEST);
 
   if (rigidbody) {
-    auto aabb = rigidbody->aabb_get();
 
-    POLL_DEBUG(std::cout, "aabb min: " << glm::to_string(aabb->min) << " aabb max: " << glm::to_string(aabb->max));
-    POLL_DEBUG(std::cout, "aabb diff: " << glm::to_string(aabb->min - aabb->max));
+    Node *node_outline = scene->assets_get().stock_nodes_get().sphere_get();
+    //Node *node = node_bounding_box;
+    auto aabb = rigidbody->bounding_sphere_get();
 
-    vec3 v = aabb->max - aabb->min;
-    node_bounding_box->transform_global_set(global_translate * global_rotate * global_scale * glm::scale(glm::mat4(1.f), v));
-    glcontext.uniform_buffers_update_matrices(*node_bounding_box);
+    //POLL_DEBUG(std::cout, "aabb min: " << glm::to_string(aabb->min) << " aabb max: " << glm::to_string(aabb->max));
+    POLL_DEBUG(std::cout, "aabb r: " << glm::to_string(aabb->r) << " aabb c: " << glm::to_string(aabb->c));
+   // POLL_DEBUG(std::cout, "aabb diff: " << glm::to_string(aabb->min - aabb->max));
+
+    node_outline->transform_global_set(global_translate * global_rotate * global_scale * glm::scale(glm::mat4(1.f), vec3(aabb->r, aabb->r, aabb->r)));
+    glcontext.uniform_buffers_update_matrices(*node_outline);
 
     glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
     glLineWidth(3.f);
-    glcontext.draw_mesh(*node_bounding_box);
+    glcontext.draw_mesh(*node_outline);
     glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
   }
 
