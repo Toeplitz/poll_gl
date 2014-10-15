@@ -59,32 +59,49 @@ Plugin_Node_Tool::Plugin_Node_Tool(Console &console, Scene &scene)
 void Plugin_Node_Tool::cb_node_draw(Node &node)
 {
   GLcontext &glcontext = scene->glcontext_get();
-
-  glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-  glLineWidth(3.f);
-  glcontext.draw_mesh(*node_bounding_box);
-  glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-
-  mat4 m;
+  Physics_Rigidbody *rigidbody = node.physics_rigidbody_get();
 
   mat4 global_translate = node.transform_global_translate_get();
+  mat4 global_scale = node.transform_global_scale_get();
+  mat4 global_rotate = node.transform_global_rotate_get();
 
   glDisable(GL_DEPTH_TEST);
-  m = node_gizmo_translate_x->transform_local_current_get();
-  node_gizmo_translate_x->transform_global_set(global_translate * m);
-  glcontext.uniform_buffers_update_matrices(*node_gizmo_translate_x);
-  glcontext.draw_mesh(*node_gizmo_translate_x);
 
-  m = node_gizmo_translate_y->transform_local_current_get();
-  node_gizmo_translate_y->transform_global_set(global_translate * m);
-  glcontext.uniform_buffers_update_matrices(*node_gizmo_translate_y);
-  glcontext.draw_mesh(*node_gizmo_translate_y);
+  if (rigidbody) {
+    auto aabb = rigidbody->aabb_get();
 
-  m = node_gizmo_translate_z->transform_local_current_get();
-  node_gizmo_translate_z->transform_global_set(global_translate * m);
-  glcontext.uniform_buffers_update_matrices(*node_gizmo_translate_z);
-  glcontext.draw_mesh(*node_gizmo_translate_z);
-  glEnable(GL_DEPTH_TEST);
+    POLL_DEBUG(std::cout, "aabb min: " << glm::to_string(aabb->min) << " aabb max: " << glm::to_string(aabb->max));
+    POLL_DEBUG(std::cout, "aabb diff: " << glm::to_string(aabb->min - aabb->max));
+
+    vec3 v = aabb->max - aabb->min;
+    node_bounding_box->transform_global_set(global_translate * global_rotate * global_scale * glm::scale(glm::mat4(1.f), v));
+    glcontext.uniform_buffers_update_matrices(*node_bounding_box);
+
+    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    glLineWidth(3.f);
+    glcontext.draw_mesh(*node_bounding_box);
+    glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+  }
+
+  {
+    mat4 m;
+
+    m = node_gizmo_translate_x->transform_local_current_get();
+    node_gizmo_translate_x->transform_global_set(global_translate * m);
+    glcontext.uniform_buffers_update_matrices(*node_gizmo_translate_x);
+    glcontext.draw_mesh(*node_gizmo_translate_x);
+
+    m = node_gizmo_translate_y->transform_local_current_get();
+    node_gizmo_translate_y->transform_global_set(global_translate * m);
+    glcontext.uniform_buffers_update_matrices(*node_gizmo_translate_y);
+    glcontext.draw_mesh(*node_gizmo_translate_y);
+
+    m = node_gizmo_translate_z->transform_local_current_get();
+    node_gizmo_translate_z->transform_global_set(global_translate * m);
+    glcontext.uniform_buffers_update_matrices(*node_gizmo_translate_z);
+    glcontext.draw_mesh(*node_gizmo_translate_z);
+    glEnable(GL_DEPTH_TEST);
+  }
 
 }
 
@@ -116,6 +133,8 @@ void Plugin_Node_Tool::cb_mouse_pressed(SDL_MouseButtonEvent *ev)
   auto width = scene->window_get().width_get();
   auto hp = raycast.cast(*scene, ev->x, ev->y, width, height);
 
+  if (ev->button != SDL_BUTTON_LEFT)
+    return;
 
   if (!hp)
     return;

@@ -14,6 +14,9 @@ class Raycast_Hitpoint;
 class Mesh;
 class Node;
 
+using glm::vec3;
+
+
 class Physics_Collision_Shape
 {
   private:
@@ -55,6 +58,13 @@ class Physics_Triangle_Mesh_Shape: public Physics_Collision_Shape
 
 };
 
+
+struct Aabb {
+  vec3 min;
+  vec3 max;
+};
+
+
 class Physics_Rigidbody
 {
   public:
@@ -63,6 +73,7 @@ class Physics_Rigidbody
       DYNAMIC = 0,
       KINEMATIC = 1
     };
+
 
 
   private:
@@ -82,7 +93,7 @@ class Physics_Rigidbody
 
 
   public:
-
+    std::shared_ptr<Aabb>    aabb_get();
     btRigidBody             *bt_rigidbody_get();
     btGeneric6DofConstraint *bt_dof6_get();
     void                     create(Physics &physics, Physics_Collision_Shape &shape, unsigned int collision_type, float initial_mass);

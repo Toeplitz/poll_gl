@@ -5,6 +5,7 @@
 #include "raycast.h"
 #include <glm/gtx/string_cast.hpp>
 #include "utils.h"
+#include <memory>
 
 
 /**************************************************/
@@ -93,6 +94,19 @@ Physics_Triangle_Mesh_Shape::Physics_Triangle_Mesh_Shape(Node &node)
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
 
+std::shared_ptr<Aabb> Physics_Rigidbody::aabb_get()
+{
+  auto aabb = std::shared_ptr<Aabb>(new Aabb());
+  btVector3 aabb_min;
+  btVector3 aabb_max;
+
+  bt_rigidbody->getAabb(aabb_min, aabb_max);
+
+  aabb->min = vec3(aabb_min.getX(), aabb_min.getY(), aabb_min.getZ());
+  aabb->max = vec3(aabb_max.getX(), aabb_max.getY(), aabb_max.getZ());
+
+  return aabb;
+}
 
 btRigidBody *Physics_Rigidbody::bt_rigidbody_get()
 {
