@@ -35,6 +35,7 @@ class Mesh {
     const std::vector<vec3>    &bitangents_get() const;
     const std::vector<ivec3>   &bone_indices_get() const;
     const std::vector<vec3>    &bone_weights_get() const;
+    void                        generate_line_cube(const float &size);
     void                        generate_cube(const float &size);
     void                        generate_pyramid(const float &size);
     void                        generate_quad(const float &size);

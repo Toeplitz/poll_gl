@@ -97,18 +97,27 @@ std::shared_ptr<Raycast_Hitpoint> Physics::ray_pick(const glm::vec3 &out_origin,
   //vec3 out_direction = direction * 1000.0f;
   vec3 out_direction = direction;
 
-  btCollisionWorld::ClosestRayResultCallback RayCallback(btVector3(out_origin.x, out_origin.y, out_origin.z), 
+  //btCollisionWorld::ClosestRayResultCallback RayCallback(btVector3(out_origin.x, out_origin.y, out_origin.z), 
+  //    btVector3(out_direction.x, out_direction.y, out_direction.z));
+
+  btCollisionWorld::AllHitsRayResultCallback RayCallback(btVector3(out_origin.x, out_origin.y, out_origin.z), 
       btVector3(out_direction.x, out_direction.y, out_direction.z));
+
   world->rayTest(btVector3(out_origin.x, out_origin.y, out_origin.z), 
       btVector3(out_direction.x, out_direction.y, out_direction.z), RayCallback);
 
   if (!RayCallback.hasHit())
     return nullptr;
 
-  end = glm::vec3(RayCallback.m_hitPointWorld.getX(), RayCallback.m_hitPointWorld.getY(), RayCallback.m_hitPointWorld.getZ());
-  Node *node_ptr = (Node *) RayCallback.m_collisionObject->getUserPointer();
-  hitpoint->node_ptr = node_ptr;
-  hitpoint->world_hitpoint = end;
+  for (int i = 0; i < RayCallback.m_hitPointWorld.size(); i++) {
+    end = glm::vec3(RayCallback.m_hitPointWorld[i].getX(), RayCallback.m_hitPointWorld[i].getY(), RayCallback.m_hitPointWorld[i].getZ());
+    Node *node_ptr = (Node *) RayCallback.m_collisionObjects[i]->getUserPointer();
+    POLL_DEBUG(std::cout, "The ray hit: " << node_ptr->name_get());
+    hitpoint->node_ptr = node_ptr;
+    hitpoint->world_hitpoint = end;
+
+  }
+
 
   return hitpoint;
 }

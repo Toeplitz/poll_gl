@@ -37,10 +37,12 @@ Plugin_Node_Tool::Plugin_Node_Tool(Console &console, Scene &scene)
   node_gizmo = &scene.load("data/", "gizmo_translate.dae", MODEL_IMPORT_OPTIMIZED  | MODEL_IMPORT_NO_DRAW);
   for (auto &child: node_gizmo->children_get()) {
     child->grab_parent = true;
-    auto shape = std::unique_ptr<Physics_Convex_Hull_Shape>(new Physics_Convex_Hull_Shape(*child));
+    auto shape = std::unique_ptr<Physics_Triangle_Mesh_Shape>(new Physics_Triangle_Mesh_Shape(*child));
     Physics_Rigidbody *rigidbody = child->physics_rigidbody_create(scene);
-    if (rigidbody)
+    if (rigidbody) {
       rigidbody->create(scene.physics_get(), *shape, Physics_Rigidbody::KINEMATIC, 0);
+      POLL_DEBUG(std::cout, "Creating rb for node: " << child->name_get());
+    }
     shapes.push_back(std::move(shape));
 
   }
@@ -51,7 +53,7 @@ Plugin_Node_Tool::Plugin_Node_Tool(Console &console, Scene &scene)
 
   node_bounding_box = scene.node_create("bounding_box");
   Mesh *mesh = node_bounding_box->mesh_create(scene);
-  mesh->generate_cube(1.f);
+  mesh->generate_line_cube(1.f);
   glcontext.vertex_buffers_mesh_create(mesh);
 }
 
@@ -72,15 +74,11 @@ void Plugin_Node_Tool::cb_node_draw(Node &node)
     //auto aabb = rigidbody->bounding_sphere_get();
     Aabb &aabb = node.aabb_get();
 
-    POLL_DEBUG(std::cout, "aabb r: " << glm::to_string(aabb.r) << " aabb c: " << glm::to_string(aabb.c));
-
     node_outline->transform_global_from_node_set(node, glm::scale(glm::mat4(1.f), aabb.r / node.scale_global_get()));
     glcontext.uniform_buffers_update_matrices(*node_outline);
 
-    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
     glLineWidth(2.f);
     glcontext.draw_mesh(*node_outline);
-    glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
   }
 
   {
@@ -136,8 +134,12 @@ void Plugin_Node_Tool::cb_mouse_pressed(SDL_MouseButtonEvent *ev)
   if (ev->button != SDL_BUTTON_LEFT)
     return;
 
-  if (!hp)
+  if (!hp) {
+    if (hitpoint_last) {
+      hitpoint_last->node_ptr->callback_draw_set(nullptr);
+    }
     return;
+  }
 
   hp->node_ptr->callback_draw_set(std::bind(&Plugin_Node_Tool::cb_node_draw, this, _1));
   Physics_Rigidbody *rb = hp->node_ptr->physics_rigidbody_get();
@@ -145,7 +147,7 @@ void Plugin_Node_Tool::cb_mouse_pressed(SDL_MouseButtonEvent *ev)
   physics.rigidbody_constraint_add(rb);
 
   hp->print();
-  if (hitpoint_last) {
+  if (hitpoint_last && (hitpoint_last->node_ptr != hp->node_ptr)) {
     POLL_DEBUG(std::cout, "Lol");
     hitpoint_last->node_ptr->callback_draw_set(nullptr);
   }

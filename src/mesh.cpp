@@ -14,6 +14,43 @@ const std::vector<vec3> &Mesh::bone_weights_get() const
   return bone_weights;
 }
 
+void Mesh::generate_line_cube(const float &size)
+{
+  //front
+  positions_add(size * vec3(-1.0f, 1.0f, 1.0f));
+  positions_add(size * vec3(1.0f, 1.0f, 1.0f));
+  positions_add(size * vec3(1.0f, 1.0f, 1.0f));
+  positions_add(size * vec3(1.0f, -1.0f, 1.0f));
+  positions_add(size * vec3(1.0f, -1.0f, 1.0f));
+  positions_add(size * vec3(-1.0f, -1.0f, 1.0f));
+  positions_add(size * vec3(-1.0f, -1.0f, 1.0f));
+  positions_add(size * vec3(-1.0f, 1.0f, 1.0f));
+
+  //right
+  positions_add(size * vec3(1.0f, 1.0f, 1.0f));
+  positions_add(size * vec3(1.0f, 1.0f, -1.0f));
+  positions_add(size * vec3(1.0f, 1.0f, -1.0f));
+  positions_add(size * vec3(1.0f, -1.0f, -1.0f));
+  positions_add(size * vec3(1.0f, -1.0f, -1.0f)); 
+  positions_add(size * vec3(1.0f, -1.0f, 1.0f));
+
+  //back
+  positions_add(size * vec3(1.0f, 1.0f, -1.0f));
+  positions_add(size * vec3(-1.0f, 1.0f, -1.0f));
+  positions_add(size * vec3(-1.0f, -1.0f, -1.0f));
+  positions_add(size * vec3(1.0f, -1.0f, -1.0f));
+  positions_add(size * vec3(-1.0f, -1.0f, -1.0f));
+  positions_add(size * vec3(-1.0f, 1.0f, -1.0f));
+
+  //left
+  positions_add(size * vec3(-1.0f, 1.0f, -1.0f));
+  positions_add(size * vec3(-1.0f, 1.0f, 1.0f));
+  positions_add(size * vec3(-1.0f, -1.0f, 1.0f));
+  positions_add(size * vec3(-1.0f, -1.0f, -1.0f));
+
+  mode = GL_LINES;
+}
+
 
 void Mesh::generate_cube(const float &size)
 {
