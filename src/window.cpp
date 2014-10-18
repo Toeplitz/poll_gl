@@ -207,11 +207,11 @@ void Window::check_error()
     const char *sdl_error = SDL_GetError();
     if ('\0' != sdl_error[0]) {
       throw std::runtime_error(std::string("SDL error: ") + sdl_error);
-      SDL_ClearError();
     }
   }
   catch(std::exception & e) {
     POLL_WARN(std::cerr, e.what());
+    SDL_ClearError();
   }
 }
 

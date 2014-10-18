@@ -697,6 +697,7 @@ void GLcontext::draw_geometry_all(Scene &scene)
   GL_ASSERT(glDrawBuffers(2, draw_bufs));
   GL_ASSERT(glDepthMask(GL_TRUE));
   GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+  GL_ASSERT(glClearColor(0.2f, 0.2f, 0.2f, 1.f));
   GL_ASSERT(glEnable(GL_DEPTH_TEST));
   for (auto &node: scene.mesh_nodes_get()) {
     draw_node(*node);

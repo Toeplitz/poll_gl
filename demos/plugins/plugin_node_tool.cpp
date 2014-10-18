@@ -31,7 +31,7 @@ Plugin_Node_Tool::Plugin_Node_Tool(Console &console, Scene &scene)
   keypress_map[SDLK_y] = std::make_pair(false, "maniplation on y-axis");
   keypress_map[SDLK_z] = std::make_pair(false, "maniplation on z-axis");
   keypress_map[SDLK_t] = std::make_pair(false, "translate mode");
-  keypress_map[SDLK_z] = std::make_pair(false, "scale mode");
+  keypress_map[SDLK_g] = std::make_pair(false, "scale mode");
   keypress_map[SDLK_LSHIFT] = std::make_pair(false, "shift");
 
   node_gizmo = &scene.load("data/", "gizmo_translate.dae", MODEL_IMPORT_OPTIMIZED  | MODEL_IMPORT_NO_DRAW);
@@ -62,26 +62,23 @@ void Plugin_Node_Tool::cb_node_draw(Node &node)
   Physics_Rigidbody *rigidbody = node.physics_rigidbody_get();
 
   mat4 global_translate = node.transform_global_translate_get();
-  mat4 global_scale = node.transform_global_scale_get();
-  mat4 global_rotate = node.transform_global_rotate_get();
 
-  //glDisable(GL_DEPTH_TEST);
+  glDisable(GL_DEPTH_TEST);
 
   if (rigidbody) {
 
-    Node *node_outline = scene->assets_get().stock_nodes_get().sphere_get();
-    //Node *node = node_bounding_box;
-    auto aabb = rigidbody->bounding_sphere_get();
+    //Node *node_outline = scene->assets_get().stock_nodes_get().sphere_get();
+    Node *node_outline = node_bounding_box;
+    //auto aabb = rigidbody->bounding_sphere_get();
+    Aabb &aabb = node.aabb_get();
 
-    //POLL_DEBUG(std::cout, "aabb min: " << glm::to_string(aabb->min) << " aabb max: " << glm::to_string(aabb->max));
-    POLL_DEBUG(std::cout, "aabb r: " << glm::to_string(aabb->r) << " aabb c: " << glm::to_string(aabb->c));
-   // POLL_DEBUG(std::cout, "aabb diff: " << glm::to_string(aabb->min - aabb->max));
+    POLL_DEBUG(std::cout, "aabb r: " << glm::to_string(aabb.r) << " aabb c: " << glm::to_string(aabb.c));
 
-    node_outline->transform_global_set(global_translate * global_rotate * global_scale * glm::scale(glm::mat4(1.f), vec3(aabb->r, aabb->r, aabb->r)));
+    node_outline->transform_global_from_node_set(node, glm::scale(glm::mat4(1.f), aabb.r / node.scale_global_get()));
     glcontext.uniform_buffers_update_matrices(*node_outline);
 
     glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-    glLineWidth(3.f);
+    glLineWidth(2.f);
     glcontext.draw_mesh(*node_outline);
     glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
   }
@@ -263,7 +260,7 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
       ptr->translate(*scene, new_pos);
     }
     
-    if (keypress_map[SDLK_z].first) {
+    if (keypress_map[SDLK_g].first) {
       vec3 new_pos(1, 1, 1);
       mat4 s;
       if (ptr->grab_parent) { 

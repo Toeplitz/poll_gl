@@ -19,6 +19,21 @@ Node::Node(const std::string &node_name)
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
 
+Aabb &Node::aabb_get()
+{
+  if (!rigidbody) {
+    POLL_ERROR(std::cerr, "no rigidbody attached to node, cannot get aabb");
+    return *aabb;
+  }
+
+  if (import_options & MODEL_IMPORT_BLENDER_FIX) {
+    aabb = rigidbody->aabb_get(true);
+  }
+  aabb = rigidbody->aabb_get(false);
+
+  return *aabb;
+}
+
 
 void  Node::active_set(Scene &scene, const bool flag)
 {
@@ -321,7 +336,12 @@ void Node::rotate(Scene &scene, const float angle, const vec3 &v)
 
 void Node::scale(Scene &scene, const vec3 &v)
 {
-  transform_scale = glm::scale(transform_scale, v);
+  vec3 t = v;
+
+  if (import_options & MODEL_IMPORT_BLENDER_FIX) {
+    t = vec3(v.x, v.z, v.y);
+  }
+  transform_scale = glm::scale(transform_scale, t);
   scene.transform_update_global_recursive(this);
 }
 
@@ -335,8 +355,7 @@ glm::vec3 Node::scale_get()
 
 glm::vec3 Node::scale_global_get()
 {
-  glm::vec3 diagonal(global_transform_scale[0][0], global_transform_scale[1][1], global_transform_scale[2][2]);
-  return diagonal;
+  return vec3(global_transform_scale[0][0], global_transform_scale[1][1], global_transform_scale[2][2]);
 }
 
 
@@ -415,22 +434,21 @@ glm::mat4 Node::transform_full_update(Scene &scene)
 }
 
 
-/*
-mat4 &Node::transform_global_position_get()
-{
-  mat4 &model = transform_global;
-  transform_position_current = glm::translate(mat4(1.f), vec3(model[3][0], model[3][1], model[3][2]));
-  return transform_position_current;
-}
-
-*/
-
-
 void Node::transform_global_set(const mat4 &transform)
 {
   this->transform_global = transform;
 }
 
+void Node::transform_global_from_node_set(Node &node, const mat4 &transform)
+{
+  mat4 m = transform;
+  //if (node.import_options & MODEL_IMPORT_BLENDER_FIX) {
+    //m = blender_transform_get() * transform;
+  //} 
+
+  this->transform_global = node.transform_global_translate_get() * 
+    node.transform_global_rotate_get() * node.transform_global_scale_get() * m;
+}
 
 void Node::transform_local_current_set_only(const mat4 &transform)
 {

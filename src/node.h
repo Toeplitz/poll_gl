@@ -82,6 +82,7 @@ class Node: public Animated {
     Transform_Inherit transform_inheritance = TRANSFORM_INHERIT_ALL;
     std::function <void (Node &node, vec3 &position)> callback_raycast_collide = nullptr;
     std::function <void (Node &node)> callback_draw = nullptr;
+    std::shared_ptr<Aabb> aabb;
 
   public:
 
@@ -91,6 +92,8 @@ class Node: public Animated {
 
     Node(const std::string &node_name);
 
+
+    Aabb               &aabb_get();
     void                active_set(Scene &scene, const bool flag);
     bool                active_get();
     Armature           *armature_get();
@@ -134,8 +137,6 @@ class Node: public Animated {
     Transform_Inherit   transform_inheritance_get();
     void                transform_inheritance_set(Transform_Inherit transform_inheritance);
     glm::mat4           transform_full_update(Scene &scene);
-    mat4               &transform_global_get();
-    void                transform_global_set(const mat4 &transform);
     mat4               &transform_local_current_get();
     void                transform_local_current_set(Scene &scene, const mat4 &transform);
     void                transform_local_current_set_only(const mat4 &transform);
@@ -147,6 +148,9 @@ class Node: public Animated {
     void                transform_scale_set(glm::vec3 &v);
     void                transform_translate_set(glm::vec3 &v);
     mat4                transform_translate_get();
+    mat4               &transform_global_get();
+    void                transform_global_set(const mat4 &transform);
+    void                transform_global_from_node_set(Node &node, const mat4 &transform);
     void                transform_global_rotate_set(const mat4 &transform);
     mat4                transform_global_rotate_get();
     void                transform_global_scale_set(const mat4 &transform);

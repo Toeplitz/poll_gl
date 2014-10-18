@@ -72,7 +72,7 @@ Physics_Convex_Hull_Shape::Physics_Convex_Hull_Shape(Node &node)
 {
   bt_triangle_mesh = std::unique_ptr<btTriangleMesh>(new btTriangleMesh());
   bt_mesh_populate(node, *bt_triangle_mesh);
-  auto shape = std::unique_ptr<btConvexTriangleMeshShape>(new btConvexTriangleMeshShape(bt_triangle_mesh.get()));
+  auto shape = std::unique_ptr<btConvexTriangleMeshShape>(new btConvexTriangleMeshShape(bt_triangle_mesh.get(), false));
   bt_collision_shape_add(std::move(shape));
 }
 
@@ -94,7 +94,8 @@ Physics_Triangle_Mesh_Shape::Physics_Triangle_Mesh_Shape(Node &node)
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
 
-std::shared_ptr<Aabb> Physics_Rigidbody::aabb_get()
+
+std::shared_ptr<Aabb> Physics_Rigidbody::aabb_get(bool switch_yz)
 {
   auto aabb = std::shared_ptr<Aabb>(new Aabb());
   btVector3 aabb_min;
@@ -102,8 +103,13 @@ std::shared_ptr<Aabb> Physics_Rigidbody::aabb_get()
 
   bt_rigidbody->getAabb(aabb_min, aabb_max);
 
-  aabb->min = vec3(aabb_min.getX(), aabb_min.getY(), aabb_min.getZ());
-  aabb->max = vec3(aabb_max.getX(), aabb_max.getY(), aabb_max.getZ());
+  if (switch_yz) {
+    aabb->min = vec3(aabb_min.getX(), aabb_min.getY(), aabb_min.getZ());
+    aabb->max = vec3(aabb_max.getX(), aabb_max.getY(), aabb_max.getZ());
+  } else {
+    aabb->min = vec3(aabb_min.getX(), aabb_min.getZ(), aabb_min.getY());
+    aabb->max = vec3(aabb_max.getX(), aabb_max.getZ(), aabb_max.getY());
+  }
 
   aabb->r = (aabb->max - aabb->min) / 2.f;
   aabb->c = aabb->min + aabb->r;
@@ -117,6 +123,7 @@ std::shared_ptr<Bounding_Sphere> Physics_Rigidbody::bounding_sphere_get()
   auto bs = std::shared_ptr<Bounding_Sphere>(new Bounding_Sphere());
 
   btVector3 center;
+  btVector3 local_scaling;
   btScalar radius;
 
   if (!shape_ptr) {
@@ -124,9 +131,11 @@ std::shared_ptr<Bounding_Sphere> Physics_Rigidbody::bounding_sphere_get()
   }
 
   shape_ptr->bt_collision_shape_get().getBoundingSphere(center, radius);
+  local_scaling = shape_ptr->bt_collision_shape_get().getLocalScaling();
 
   bs->r = (float) radius;
   bs->c = vec3(center.getX(), center.getY(), center.getZ());
+  bs->local_scaling = vec3(local_scaling.getX(), local_scaling.getY(), local_scaling.getZ());
 
   return bs;
 }

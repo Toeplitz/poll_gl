@@ -31,30 +31,32 @@ int main()
  // Node &node = scene.load("data/", "orientation.dae", MODEL_IMPORT_DEFAULT | MODEL_IMPORT_BLENDER_FIX);
   {
     Node &root = scene.node_root_get();
-  //  root.scale(scene, vec3(0.5, 0.5, 0.5));
+    root.scale(scene, vec3(0.5, 0.5, 0.5));
   }
 
 
-#if 0
   Node &node = scene.load("data/", "orientation.dae", MODEL_IMPORT_DEFAULT | MODEL_IMPORT_BLENDER_FIX);
   Node &suzanne_center = *scene.node_find(&node, "Suzanne_center");
   suzanne_center.scale(scene, vec3(1, 1, 1));
-  //suzanne_center.translate(scene, vec3(6, 0, 4));
-  //suzanne_center.rotate(scene, (float) M_PI, glm::vec3(0, 1, 0));
 
   auto suzanne_center_shape = std::unique_ptr<Physics_Convex_Hull_Shape>(new Physics_Convex_Hull_Shape(suzanne_center));
   Physics_Rigidbody *suzanne_center_rigidbody = suzanne_center.physics_rigidbody_create(scene);
   suzanne_center_rigidbody->create(physics, *suzanne_center_shape, Physics_Rigidbody::KINEMATIC, 1);
 
   Node &suzanne_translated = *scene.node_find(&node, "Suzanne_translated");
-  //suzanne_translated.rotate(scene, (float) M_PI, glm::vec3(0, 0, 1));
-  auto suzanne_translated_shape = std::unique_ptr<Physics_Convex_Hull_Shape>(new Physics_Convex_Hull_Shape(suzanne_translated));
+  auto suzanne_translated_shape = std::unique_ptr<Physics_Triangle_Mesh_Shape>(new Physics_Triangle_Mesh_Shape(suzanne_translated));
   Physics_Rigidbody *suzeanne_translated_rigidbody = suzanne_translated.physics_rigidbody_create(scene);
   suzeanne_translated_rigidbody->create(physics, *suzanne_translated_shape, Physics_Rigidbody::KINEMATIC, 1);
   suzanne_translated.scale(scene, vec3(3, 3, 3));
-  //suzanne_translated.translate(scene, vec3(3, 4, 8));
+
+  Node &sphere = *scene.node_find(&node, "Sphere_ms");
+  glm::vec3 v = vec3(1.f, 1.f, 1.f);
+  auto sphere_shape = std::unique_ptr<Physics_Box_Shape>(new Physics_Box_Shape(v));
+  Physics_Rigidbody *sphere_rigidbody = sphere.physics_rigidbody_create(scene);
+  sphere_rigidbody->create(physics, *sphere_shape, Physics_Rigidbody::KINEMATIC, 1);
 
 
+#if 0
   {
    // Node &panda = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
     Node &panda = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED | MODEL_IMPORT_BLENDER_FIX);

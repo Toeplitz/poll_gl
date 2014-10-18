@@ -70,6 +70,7 @@ struct Aabb {
 struct Bounding_Sphere {
   vec3 c;
   float r;
+  vec3 local_scaling;
 };
 
 
@@ -100,7 +101,7 @@ class Physics_Rigidbody
 
 
   public:
-    std::shared_ptr<Aabb>    aabb_get();
+    std::shared_ptr<Aabb>    aabb_get(bool switch_yz = false);
     std::shared_ptr<Bounding_Sphere> bounding_sphere_get();
     btRigidBody             *bt_rigidbody_get();
     btGeneric6DofConstraint *bt_dof6_get();
