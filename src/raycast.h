@@ -13,16 +13,21 @@ class Scene;
 class Node;
 
 
-class Raycast_Hitpoint
+struct Raycast_Hitpoint
 {
-  public:
-    Node *node_ptr = nullptr;
-    vec3 world_hitpoint = vec3(0.f);
-    vec3 world_ray = vec3(0.f);
+  vec3 world_hitpoint;
+  vec3 world_ray;
+  vec3 ray_from;
+  float length;
+  Node *node_ptr;
 
-    vec3 ray_from = vec3(0.f);
+  Raycast_Hitpoint(vec3 hp, vec3 ray, vec3 f, float l, Node *ptr): 
+    world_hitpoint(hp), world_ray(ray), ray_from(f), length(l), node_ptr(ptr)  {}
 
-    void print();
+  bool operator < (const Raycast_Hitpoint &hp) const
+  {
+    return (length < hp.length);
+  }
 };
 
 
@@ -32,7 +37,7 @@ class Raycast
 
   public:
     vec3                              cast_empty(Scene &scene, const int viewport_x, const int viewport_y, const int width, const int height);
-    std::shared_ptr<Raycast_Hitpoint> cast(Scene &scene, const int viewport_x, const int viewport_y, const int width, const int height);
+    Raycast_Hitpoint                  cast(Scene &scene, const int viewport_x, const int viewport_y, const int width, const int height);
     vec3                              get_ray_to(Scene &scene, int x, int y, const int width, const int height);
     vec3                              tutor_cast(Scene &scene, int x, int y, const int width, const int height);
 

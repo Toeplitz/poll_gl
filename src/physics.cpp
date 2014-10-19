@@ -86,13 +86,12 @@ void Physics::pause()
 }
 
 
-std::shared_ptr<Raycast_Hitpoint> Physics::ray_pick(const glm::vec3 &out_origin, const glm::vec3 &direction)
+Raycast_Hitpoint Physics::ray_pick(glm::vec3 &out_origin, glm::vec3 &direction)
 {
   glm::vec3 end;
 
-  auto hitpoint = std::shared_ptr<Raycast_Hitpoint>(new Raycast_Hitpoint);
-  hitpoint->node_ptr = nullptr;
-  hitpoint->world_hitpoint = vec3(0, 0, 0);
+  vec3 zero_vector = vec3(0, 0, 0);
+  Raycast_Hitpoint hitpoint(zero_vector, direction, out_origin, 0, nullptr);
 
   //vec3 out_direction = direction * 1000.0f;
   vec3 out_direction = direction;
@@ -107,19 +106,36 @@ std::shared_ptr<Raycast_Hitpoint> Physics::ray_pick(const glm::vec3 &out_origin,
       btVector3(out_direction.x, out_direction.y, out_direction.z), RayCallback);
 
   if (!RayCallback.hasHit())
-    return nullptr;
+    return hitpoint;
 
+  std::vector<Raycast_Hitpoint> hitpoint_list;
+
+  POLL_DEBUG(std::cout, "Num hitpoins: " << RayCallback.m_collisionObjects.size());
   for (int i = 0; i < RayCallback.m_hitPointWorld.size(); i++) {
-    end = glm::vec3(RayCallback.m_hitPointWorld[i].getX(), RayCallback.m_hitPointWorld[i].getY(), RayCallback.m_hitPointWorld[i].getZ());
     Node *node_ptr = (Node *) RayCallback.m_collisionObjects[i]->getUserPointer();
-    POLL_DEBUG(std::cout, "The ray hit: " << node_ptr->name_get());
-    hitpoint->node_ptr = node_ptr;
-    hitpoint->world_hitpoint = end;
+    vec3 v = vec3(RayCallback.m_hitPointWorld[i].getX(), RayCallback.m_hitPointWorld[i].getY(), RayCallback.m_hitPointWorld[i].getZ());
+    float len = glm::length(out_origin - v);
 
+    hitpoint.node_ptr = node_ptr;
+    hitpoint.world_hitpoint = v;
+    hitpoint.length = len;
+    hitpoint_list.push_back(hitpoint);
+    POLL_DEBUG(std::cout, "The ray hit: " << node_ptr->name_get() << " world pos: " << glm::to_string(v) << " len: " << len);
   }
 
+  std::sort(hitpoint_list.begin(), hitpoint_list.end());
 
-  return hitpoint;
+  POLL_DEBUG(std::cout, "After sorting");
+  for (auto &h : hitpoint_list) {
+    POLL_DEBUG(std::cout, "The ray hit: " << h.node_ptr->name_get() << " world pos: " << 
+        glm::to_string(h.world_hitpoint) << " len: " << h.length);
+  }
+
+  auto first = *hitpoint_list.begin();
+  POLL_DEBUG(std::cout, "Closest hit: " << first.node_ptr->name_get() << " world pos: " << 
+      glm::to_string(first.world_hitpoint) << " len: " << first.length);
+
+  return first;
 }
 
 

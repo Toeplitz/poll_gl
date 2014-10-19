@@ -279,7 +279,6 @@ unsigned int Physics_Rigidbody::type_get()
 void Physics_Rigidbody::bt_shape_init(Node &node, btCollisionShape *shape, unsigned int type, float initial_mass)
 {
   bt_motion_state = std::unique_ptr<Physics_Motion_State>(new Physics_Motion_State(node));
-  POLL_DEBUG(std::cout, "name: " << node.name_get());
   bt_motion_state->node_set(node);
 
   btVector3 inertia(0, 0, 0);

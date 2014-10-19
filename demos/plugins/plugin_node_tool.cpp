@@ -81,6 +81,7 @@ void Plugin_Node_Tool::cb_node_draw(Node &node)
     glcontext.draw_mesh(*node_outline);
   }
 
+  /*
   {
     mat4 m;
 
@@ -100,6 +101,7 @@ void Plugin_Node_Tool::cb_node_draw(Node &node)
     glcontext.draw_mesh(*node_gizmo_translate_z);
     glEnable(GL_DEPTH_TEST);
   }
+  */
 
 }
 
@@ -134,25 +136,25 @@ void Plugin_Node_Tool::cb_mouse_pressed(SDL_MouseButtonEvent *ev)
   if (ev->button != SDL_BUTTON_LEFT)
     return;
 
-  if (!hp) {
+  if (!hp.length) {
     if (hitpoint_last) {
       hitpoint_last->node_ptr->callback_draw_set(nullptr);
     }
     return;
   }
 
-  hp->node_ptr->callback_draw_set(std::bind(&Plugin_Node_Tool::cb_node_draw, this, _1));
-  Physics_Rigidbody *rb = hp->node_ptr->physics_rigidbody_get();
-  rb->constraint_create(*hp);
+  /*
+  hp.node_ptr->callback_draw_set(std::bind(&Plugin_Node_Tool::cb_node_draw, this, _1));
+  Physics_Rigidbody *rb = hp.node_ptr->physics_rigidbody_get();
+  rb->constraint_create(&hp);
   physics.rigidbody_constraint_add(rb);
 
-  hp->print();
   if (hitpoint_last && (hitpoint_last->node_ptr != hp->node_ptr)) {
-    POLL_DEBUG(std::cout, "Lol");
     hitpoint_last->node_ptr->callback_draw_set(nullptr);
   }
-  this->hitpoint_last = hp;
+  this->hitpoint_last = &hp;
   this->mouse_down = true;
+  */
 }
 
 
@@ -211,8 +213,8 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
   auto world_ray_anton = raycast.cast_empty(*scene, ev->x, ev->y, width, height);
   auto world_ray = raycast.get_ray_to(*scene, ev->x, ev->y, width, height);
 
-  POLL_DEBUG(std::cout, "cast_empty: " << glm::to_string(world_ray_anton));
-  POLL_DEBUG(std::cout, "get_ray_to: " << glm::to_string(world_ray));
+  //POLL_DEBUG(std::cout, "cast_empty: " << glm::to_string(world_ray_anton));
+  //POLL_DEBUG(std::cout, "get_ray_to: " << glm::to_string(world_ray));
 
   btVector3 newRayTo = btVector3(world_ray.x, world_ray.y, world_ray.z);
   //btVector3 newRayTo = btVector3(world_ray_tutor.x, world_ray_tutor.y, world_ray_tutor.z);
@@ -228,10 +230,10 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
   dir *= dist;
 
   vec3 dir_glm = vec3(dir.getX(), dir.getY(), dir.getZ());
-  POLL_DEBUG(std::cout, "dir: " << glm::to_string(dir_glm));
+  //POLL_DEBUG(std::cout, "dir: " << glm::to_string(dir_glm));
   btVector3 newPivotB = rayFrom + dir;
   vec3 newPivotB_glm = vec3(newPivotB.getX(), newPivotB.getY(), newPivotB.getZ());
-  POLL_DEBUG(std::cout, "newPivotB: " << glm::to_string(newPivotB_glm));
+  //POLL_DEBUG(std::cout, "newPivotB: " << glm::to_string(newPivotB_glm));
 
   if (rb->type_get() == Physics_Rigidbody::KINEMATIC) {
     //node->translate(*scene, glm::vec3(newPivotB.getX(), 0, 0));
@@ -273,7 +275,7 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
       vec3 last_scale = vec3(s[0][0], s[1][1], s[2][2]);
      // vec3 diff = glm::abs(vec3(newPivotB.getX(), newPivotB.getY(), newPivotB.getZ()) + last_scale);
       vec3 diff = last_scale + newPivotB.getX();
-      POLL_DEBUG(std::cout, "last_scale: " << glm::to_string(last_scale));
+      //POLL_DEBUG(std::cout, "last_scale: " << glm::to_string(last_scale));
       //POLL_DEBUG(std::cout, "diff: " << glm::to_string(diff));
 
       if (keypress_map[SDLK_x].first) {
@@ -302,7 +304,7 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
 
   //POLL_DEBUG(std::cout, "dist: " << dist);
 
-  printf("newPivotB=%f,%f,%f\n",newPivotB.getX(),newPivotB.getY(),newPivotB.getZ());
+  //printf("newPivotB=%f,%f,%f\n",newPivotB.getX(),newPivotB.getY(),newPivotB.getZ());
 
 }
 
