@@ -9,6 +9,7 @@
 #include <functional>
 #include "gldebug.h"
 #include "physics_char_cont.h"
+#include "utils.h"
 
 //
 // User manual:
@@ -21,21 +22,6 @@ class Node;
 class Mesh;
 class Physics_Rigidbody;
 class Scene;
-struct Raycast_Hitpoint;
-
-
-enum EPhysicsCollisionMask {
-
-  E_Static   = 1 << 0,
-  E_Riggid   = 1 << 1,
-  E_Actor      = 1 << 2,
-  E_Trigger   = 1 << 3,
-
-  E_StaticGroup   = E_Riggid | E_Actor,
-  E_ActorGroup   = E_Static | E_Riggid | E_Actor | E_Trigger,
-  E_RiggidGroup   = E_Static | E_Riggid | E_Actor | E_Trigger ,
-  E_TriggerGroup   = E_Riggid | E_Actor
-};
 
 
 enum Physics_Collision_Shape_old
@@ -46,6 +32,15 @@ enum Physics_Collision_Shape_old
   PHYSICS_COLLISION_TRIANGLE_MESH
 };
 
+
+
+class Physics_Custom_AllHitsRayResultCallback: public btCollisionWorld::AllHitsRayResultCallback
+{
+  public:
+    Physics_Custom_AllHitsRayResultCallback(const btVector3 &rayFromWorld, const btVector3 &rayToWorld);
+    bool needsCollision(btBroadphaseProxy *proxy0) const;
+
+};
 
 
 typedef struct 

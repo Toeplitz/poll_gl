@@ -59,6 +59,14 @@ class Physics_Triangle_Mesh_Shape: public Physics_Collision_Shape
 };
 
 
+enum Physics_Collision_Filter
+{
+  PHYSICS_FILTER_DEFAULT  = 1 << 0,
+  PHYSICS_RAYCAST_ENABLED = 1 << 1
+};
+
+
+
 struct Aabb {
   vec3 min;
   vec3 max;
@@ -96,6 +104,7 @@ class Physics_Rigidbody
     Physics_Collision_Shape *shape_ptr = nullptr;
     std::unique_ptr<Physics_Motion_State> bt_motion_state;
     unsigned int type = -1;
+    Physics_Collision_Filter filter = PHYSICS_RAYCAST_ENABLED;
 
     void bt_shape_init(Node &node, btCollisionShape *shape, unsigned int type, float inital_mass);
 
@@ -108,6 +117,9 @@ class Physics_Rigidbody
     void                     create(Physics &physics, Physics_Collision_Shape &shape, unsigned int collision_type, float initial_mass);
     void                     constraint_create(Raycast_Hitpoint &hp);
     void                     constraint_delete();
+    void                     filter_group_add(const Physics_Collision_Filter &filter);
+    void                     filter_group_raycast_toggle();
+    void                     filter_group_remove(const Physics_Collision_Filter &filter);
     void                     motionstate_update(Node *node);
     void                     mass_set(Physics *physics, const float mass);
     float                    mass_get();

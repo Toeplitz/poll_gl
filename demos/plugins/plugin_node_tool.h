@@ -6,6 +6,7 @@
 
 #include <map>
 #include <memory>
+#include <vector>
 
 using glm::vec3;
 
@@ -29,6 +30,8 @@ class Plugin_Node_Tool: public Poll_Plugin
     Node *node_gizmo_translate_y;
     Node *node_gizmo_translate_z;
     Node *node_bounding_box;
+
+    std::vector<Raycast_Hitpoint> hitpoints;
 
 
   public:

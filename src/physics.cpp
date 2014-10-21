@@ -9,6 +9,7 @@
 
 
 
+#if 0
 struct FilterCallback : public btOverlapFilterCallback {
 
   // return true when pairs need collision
@@ -20,6 +21,27 @@ struct FilterCallback : public btOverlapFilterCallback {
     return collides;
   }
 };
+#endif
+
+
+Physics_Custom_AllHitsRayResultCallback::Physics_Custom_AllHitsRayResultCallback(const btVector3 &rayFromWorld, const btVector3 &rayToWorld):
+  btCollisionWorld::AllHitsRayResultCallback(rayFromWorld, rayToWorld)
+{
+
+}
+
+
+bool Physics_Custom_AllHitsRayResultCallback::needsCollision(btBroadphaseProxy *proxy0) const
+{
+  POLL_DEBUG(std::cout, "custom ray result callback called");
+
+  if (proxy0->m_collisionFilterGroup & PHYSICS_RAYCAST_ENABLED) {
+    POLL_DEBUG(std::cout, "Raycast is enabled for this rigidbody");
+    return true;
+  }
+
+  return false;
+}
 
 
 /**************************************************/
@@ -99,21 +121,24 @@ Raycast_Hitpoint Physics::ray_pick(glm::vec3 &out_origin, glm::vec3 &direction)
   //btCollisionWorld::ClosestRayResultCallback RayCallback(btVector3(out_origin.x, out_origin.y, out_origin.z), 
   //    btVector3(out_direction.x, out_direction.y, out_direction.z));
 
-  btCollisionWorld::AllHitsRayResultCallback RayCallback(btVector3(out_origin.x, out_origin.y, out_origin.z), 
-      btVector3(out_direction.x, out_direction.y, out_direction.z));
+  // btCollisionWorld::AllHitsRayResultCallback RayCallback(btVector3(out_origin.x, out_origin.y, out_origin.z), 
+  auto ray_callback = std::unique_ptr<Physics_Custom_AllHitsRayResultCallback>(new Physics_Custom_AllHitsRayResultCallback(
+        btVector3(out_origin.x, out_origin.y, out_origin.z),
+        btVector3(out_direction.x, out_direction.y, out_direction.z)
+        ));
 
   world->rayTest(btVector3(out_origin.x, out_origin.y, out_origin.z), 
-      btVector3(out_direction.x, out_direction.y, out_direction.z), RayCallback);
+      btVector3(out_direction.x, out_direction.y, out_direction.z), *ray_callback);
 
-  if (!RayCallback.hasHit())
+  if (!ray_callback->hasHit())
     return hitpoint;
 
   std::vector<Raycast_Hitpoint> hitpoint_list;
 
-  POLL_DEBUG(std::cout, "Num hitpoins: " << RayCallback.m_collisionObjects.size());
-  for (int i = 0; i < RayCallback.m_hitPointWorld.size(); i++) {
-    Node *node_ptr = (Node *) RayCallback.m_collisionObjects[i]->getUserPointer();
-    vec3 v = vec3(RayCallback.m_hitPointWorld[i].getX(), RayCallback.m_hitPointWorld[i].getY(), RayCallback.m_hitPointWorld[i].getZ());
+  POLL_DEBUG(std::cout, "Num hitpoins: " << ray_callback->m_collisionObjects.size());
+  for (int i = 0; i < ray_callback->m_hitPointWorld.size(); i++) {
+    Node *node_ptr = (Node *) ray_callback->m_collisionObjects[i]->getUserPointer();
+    vec3 v = vec3(ray_callback->m_hitPointWorld[i].getX(), ray_callback->m_hitPointWorld[i].getY(), ray_callback->m_hitPointWorld[i].getZ());
     float len = glm::length(out_origin - v);
 
     hitpoint.node_ptr = node_ptr;
@@ -195,11 +220,11 @@ void Physics::bullet_init()
   dispatcher = new btCollisionDispatcher(collision_config);
   solver = new btSequentialImpulseConstraintSolver;
 
-   btVector3 worldMin(-1000,-1000,-1000);
-   btVector3 worldMax(1000,1000,1000);
-   sweep_bp = new btAxisSweep3(worldMin, worldMax);
-//  broadphase = new btDbvtBroadphase();
-   sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+  btVector3 worldMin(-1000,-1000,-1000);
+  btVector3 worldMax(1000,1000,1000);
+  sweep_bp = new btAxisSweep3(worldMin, worldMax);
+  //  broadphase = new btDbvtBroadphase();
+  sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
   // broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 
   //world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collision_config);
@@ -207,7 +232,7 @@ void Physics::bullet_init()
   world->getDispatchInfo().m_allowedCcdPenetration=0.0001f;
 
   //broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
-   sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+  sweep_bp->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
 
   // broadphase filter callback
   // btOverlapFilterCallback *filterCallback = new FilterCallback();
@@ -321,7 +346,7 @@ void Physics_Motion_State::node_set(Node &node)
   //glm::mat4 m = node.transform_external_global * node.transform_global_translate_get() * node.transform_global_rotate_get();
   glm::mat4 m = node.transform_global_translate_get() * node.transform_global_rotate_get();
 
-//  std::cout << glm::to_string(m) << std::endl;
+  //  std::cout << glm::to_string(m) << std::endl;
   this->transform.setIdentity();
   this->transform.setFromOpenGLMatrix((btScalar *) &m);
   this->node = &node;

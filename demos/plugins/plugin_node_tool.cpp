@@ -128,7 +128,6 @@ void Plugin_Node_Tool::cb_keyboard_released(SDL_Keysym *keysym)
 
 void Plugin_Node_Tool::cb_mouse_pressed(SDL_MouseButtonEvent *ev)
 {
-  Physics &physics = scene->physics_get();
   auto height = scene->window_get().height_get();
   auto width = scene->window_get().width_get();
   auto hp = raycast.cast(*scene, ev->x, ev->y, width, height);
@@ -136,24 +135,45 @@ void Plugin_Node_Tool::cb_mouse_pressed(SDL_MouseButtonEvent *ev)
   if (ev->button != SDL_BUTTON_LEFT)
     return;
 
-  if (!hp.length) {
-    if (hitpoint_last) {
-      hitpoint_last->node_ptr->callback_draw_set(nullptr);
-    }
+  if (!hp.length)
     return;
+
+  Node *node_current = hp.node_ptr;
+
+  POLL_DEBUG(std::cout ,"Number of hitpoins in history list: " << hitpoints.size());
+  if (hitpoints.size() > 0) {
+    Node *node_last = nullptr;
+    auto &hitpoint_last = *hitpoints.begin();
+    node_last = hitpoint_last.node_ptr;
+    if (node_last) {
+      Physics_Rigidbody *rb_last = node_last->physics_rigidbody_get();
+      rb_last->filter_group_raycast_toggle();
+      node_last->callback_draw_set(nullptr);
+    }
+    hitpoints.pop_back();
   }
 
+  node_current->callback_draw_set(std::bind(&Plugin_Node_Tool::cb_node_draw, this, _1));
+  Physics_Rigidbody *rb_current = node_current->physics_rigidbody_get();
+  rb_current->filter_group_raycast_toggle();
+  hitpoints.push_back(hp);
+
+  /*
+
+  if (hitpoint_last && (hitpoint_last->node_ptr != hp.node_ptr)) {
+    Physics_Rigidbody *rb = hitpoint_last->node_ptr->physics_rigidbody_get();
+    rb->filter_group_raycast_toggle();
+    hitpoint_last->node_ptr->callback_draw_set(nullptr);
+  }
+
+  this->hitpoint_last = &hp;
+  this->mouse_down = true;
+*/
   /*
   hp.node_ptr->callback_draw_set(std::bind(&Plugin_Node_Tool::cb_node_draw, this, _1));
-  Physics_Rigidbody *rb = hp.node_ptr->physics_rigidbody_get();
   rb->constraint_create(&hp);
   physics.rigidbody_constraint_add(rb);
 
-  if (hitpoint_last && (hitpoint_last->node_ptr != hp->node_ptr)) {
-    hitpoint_last->node_ptr->callback_draw_set(nullptr);
-  }
-  this->hitpoint_last = &hp;
-  this->mouse_down = true;
   */
 }
 

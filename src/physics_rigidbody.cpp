@@ -204,6 +204,29 @@ void Physics_Rigidbody::create(Physics &physics, Physics_Collision_Shape &shape,
   physics.rigidbody_add(this);
 }
 
+  
+void  Physics_Rigidbody::filter_group_add(const Physics_Collision_Filter &filter)
+{
+  bt_rigidbody_get()->getBroadphaseProxy()->m_collisionFilterGroup |= filter;
+}
+
+
+void  Physics_Rigidbody::filter_group_remove(const Physics_Collision_Filter &filter)
+{
+  bt_rigidbody_get()->getBroadphaseProxy()->m_collisionFilterGroup &= ~filter;
+}
+
+
+void Physics_Rigidbody::filter_group_raycast_toggle()
+{
+  if (bt_rigidbody_get()->getBroadphaseProxy()->m_collisionFilterGroup & PHYSICS_RAYCAST_ENABLED) {
+    filter_group_remove(PHYSICS_RAYCAST_ENABLED);
+  } else {
+    filter_group_add(PHYSICS_RAYCAST_ENABLED);
+  }
+
+}
+
 
 void Physics_Rigidbody::mass_set(Physics *physics, const float mass)
 {
