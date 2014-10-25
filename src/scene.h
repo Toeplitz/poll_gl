@@ -56,7 +56,6 @@ class Scene
     Node                   *node_create(const std::string &name, Node *parent = nullptr, Transform_Inherit transform_inheritance = TRANSFORM_INHERIT_ALL);
     Node                   *node_find(Node *root_ptr, const std::string &name);
     void                    node_positions_update_recursive(Node &node);
-    void                    node_reset_transforms_recursive(Node &node);
     Node                   &node_root_get();
     Physics                &physics_get();
     const Poll_Plugin_List &plugins_get() const;

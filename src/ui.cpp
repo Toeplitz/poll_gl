@@ -51,7 +51,7 @@ void Ui::draw(const std::string &fps_text)
     text->string_set(cam_pos_str); 
     text->bake(glcontext, node_label_cam->mesh_get(), CONSOLE_X, 700);
   }
-  
+
   {
     Text *text = node_label_fps->text_get();
     text->string_set(fps_text); 
@@ -81,17 +81,19 @@ void Ui::callback_object_add(const std::string &prim, const std::string &sec, co
   Camera *camera = scene->camera_get();
   auto pos = camera->position_get();
   POLL_DEBUG(std::cout, "Camera position: " << glm::to_string(pos));
+  /*
   int num = 1;
 
   if (val.size() > 0) {
     num = ::atoi(val.c_str());
   }
+  */
 
-    Node &node = scene->load("data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED);
-    shape = std::unique_ptr<Physics_Convex_Hull_Shape>(new Physics_Convex_Hull_Shape(node));
-    node.translate(*scene, pos);
-    Physics_Rigidbody *rigidbody = node.physics_rigidbody_create(*scene);
-    rigidbody->create(scene->physics_get(), *shape, Physics_Rigidbody::DYNAMIC, 1);
+  Node &node = scene->load("data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED);
+  shape = std::unique_ptr<Physics_Convex_Hull_Shape>(new Physics_Convex_Hull_Shape(node));
+  node.translate(*scene, pos);
+  Physics_Rigidbody *rigidbody = node.physics_rigidbody_create(*scene);
+  rigidbody->create(scene->physics_get(), *shape, Physics_Rigidbody::DYNAMIC, 1);
 
 }
 
@@ -104,7 +106,7 @@ void Ui::callback_scene_list(const std::string &prim, const std::string &sec, co
     compact = ::atoi(val.c_str());
 
   scene->scene_graph_print(compact);
- 
+
 }
 
 

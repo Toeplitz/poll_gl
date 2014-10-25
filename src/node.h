@@ -60,6 +60,7 @@ class Node: public Animated {
     Material           *material = nullptr;
     Mesh               *mesh = nullptr;
     Node               *parent = nullptr;
+    Node               *link = nullptr;
 
     bool                active = true;
     Node_List           children;
@@ -83,6 +84,7 @@ class Node: public Animated {
     std::function <void (Node &node, vec3 &position)> callback_raycast_collide = nullptr;
     std::function <void (Node &node)> callback_draw = nullptr;
     std::shared_ptr<Aabb> aabb;
+    short raycast_priority = 0;
 
   public:
 
@@ -110,12 +112,14 @@ class Node: public Animated {
     Light              *light_create(Scene &scene, const unsigned int lamp_type, const unsigned int illumination_type = Light::VOLUME);
     Light              *light_get();
     void                light_set(Light *light);
+    void                link_set(Node *node);
+    Node               *link_get();
     Node               *parent_get();
     void                print_state(int indent_level);
     Physics_Rigidbody  *physics_rigidbody_create(Scene &scene, bool recursive = true);
     Physics_Rigidbody  *physics_rigidbody_get();
     void                physics_rigidbody_set(Physics_Rigidbody *rigidbody);
-    void                physics_rigidbody_update(Scene &scene);
+    void                physics_rigidbody_update();
     const std::string  &name_get();
     void                name_set(const std::string &name);
     Material           *material_create(Assets &assets);
@@ -125,6 +129,8 @@ class Node: public Animated {
     Mesh               *mesh_get();
     void                mesh_set(Mesh *mesh);
     mat4               &position_matrix_current_get();
+    short               raycast_priority_get();
+    void                raycast_priority_set(const short priority);
     void                rotate(Scene &scene, const float angle, const vec3 &v);
     void                scale(Scene &scene, const vec3 &v);
     glm::vec3           scale_get();
@@ -136,9 +142,9 @@ class Node: public Animated {
     void                translate(Scene &scene, const vec3 &v);
     Transform_Inherit   transform_inheritance_get();
     void                transform_inheritance_set(Transform_Inherit transform_inheritance);
-    glm::mat4           transform_full_update(Scene &scene);
+    glm::mat4           transform_full_update();
     mat4               &transform_local_current_get();
-    void                transform_local_current_set(Scene &scene, const mat4 &transform);
+    void                transform_local_current_set(const mat4 &transform);
     void                transform_local_current_set_only(const mat4 &transform);
     mat4               &transform_local_original_get();
     void                transform_local_original_set(const mat4 &transform);

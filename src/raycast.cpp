@@ -4,6 +4,15 @@
 #include <glm/gtx/string_cast.hpp>
 
 
+bool Raycast_Hitpoint::operator < (const Raycast_Hitpoint &hp) const
+{
+  Node *node = hp.node_ptr;
+
+  return ((length < hp.length) && 
+      (node->raycast_priority_get() < node_ptr->raycast_priority_get()));
+}
+
+
 vec3 Raycast::cast_empty(Scene &scene, const int viewport_x, const int viewport_y, const int width, const int height)
 {
 

@@ -231,24 +231,6 @@ Node *Scene::node_create(const std::string &name, Node *parent, Transform_Inheri
 }
 
 
-void Scene::node_reset_transforms_recursive(Node &node)
-{
-  auto blender_transform = blender_transform_get();
-
- // glm::mat4 global_transform = node.transform_global_get();
- // node.transform_global_set(node.transform_global_get() * blender_transform);
-  glm::mat4 local_transform = node.transform_local_current_get();
-  glm::mat4 global_transform = node.transform_global_get();
- // node.transform_local_current_set(*this, right_handed_to_left_handed(local_transform));
- // node.transform_global_set(right_handed_to_left_handed(global_transform));
- // std::cout << std::endl;
-
-  for (auto &child : node.children_get()) {
-    node_reset_transforms_recursive(*child);
-  }
-}
-
-
 void Scene::node_positions_update_recursive(Node &node)
 {
   auto transform = blender_transform_get();
@@ -284,7 +266,6 @@ const Poll_Plugin_List &Scene::plugins_get() const
 
 void Scene::transform_update_global_recursive(Node *node)
 {
-  mat4 transform = node->transform_local_current_get();
   mat4 transform_scale = node->transform_scale_get();
   mat4 transform_translate = node->transform_translate_get();
   mat4 transform_rotate = node->transform_rotate_get();
@@ -309,7 +290,7 @@ void Scene::transform_update_global_recursive(Node *node)
     node->transform_global_rotate_set(transform_rotate);
   }
 
-  node->transform_full_update(*this);
+  node->transform_full_update();
 
   for (auto &child : node->children_get()) {
     transform_update_global_recursive(child.get());

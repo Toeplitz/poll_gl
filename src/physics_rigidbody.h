@@ -7,7 +7,6 @@
 #include <memory>
 #include <vector>
 
-
 class Physics_Motion_State;
 class Physics;
 class Raycast_Hitpoint;

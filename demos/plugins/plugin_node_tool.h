@@ -33,6 +33,9 @@ class Plugin_Node_Tool: public Poll_Plugin
 
     std::vector<Raycast_Hitpoint> hitpoints;
 
+    Raycast_Hitpoint *hitpoint_last_get();
+    Node             *hitpoint_last_node_get();
+
 
   public:
     Plugin_Node_Tool(Console &console, Scene &scene);
@@ -41,6 +44,7 @@ class Plugin_Node_Tool: public Poll_Plugin
     void cb_mouse_pressed(SDL_MouseButtonEvent *ev);
     void cb_mouse_released(SDL_MouseButtonEvent *ev);
     void cb_mouse_motion(SDL_MouseMotionEvent *ev);
+    void cb_mouse_motion_old(SDL_MouseMotionEvent *ev);
     void cb_node_draw(Node &node);
 
 };

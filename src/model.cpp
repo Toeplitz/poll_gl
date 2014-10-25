@@ -526,7 +526,7 @@ void Model::mesh_create(Scene &scene, const aiNode &node, const BoneForAssimpBon
       // We can set mesh.skeletonNode to mesh.node and mesh.skeletonTransform
       // to identity if the mesh has no bones.
       glm::mat4 m = bone->skinning_matrix_update();
-      mesh_node->transform_local_current_set(scene, m);
+      mesh_node->transform_local_current_set(m);
 
 
       //m.model = bone->joint_node->transform_global * bone->offset_matrix;

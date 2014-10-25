@@ -194,6 +194,18 @@ void Node::light_set(Light *light)
 }
 
 
+void Node::link_set(Node *node)
+{
+  this->link = node;
+}
+
+
+Node *Node::link_get()
+{
+  return link;
+}
+
+
 void Node::print_state(int indent_level)
 {
   indent(std::cout, indent_level);
@@ -246,7 +258,7 @@ void Node::physics_rigidbody_set(Physics_Rigidbody *rigidbody)
 }
 
 
-void Node::physics_rigidbody_update(Scene &scene)
+void Node::physics_rigidbody_update()
 {
   Physics_Rigidbody *rigidbody = physics_rigidbody_get();
   if (rigidbody) {
@@ -318,6 +330,17 @@ Mesh *Node::mesh_get()
 void Node::mesh_set(Mesh *mesh)
 {
   this->mesh = mesh;
+}
+
+short Node::raycast_priority_get()
+{
+  return raycast_priority;
+}
+
+
+void Node::raycast_priority_set(const short priority)
+{
+  this->raycast_priority = priority;
 }
 
 
@@ -420,16 +443,16 @@ mat4 &Node::transform_global_get()
 }
 
 
-glm::mat4 Node::transform_full_update(Scene &scene)
+glm::mat4 Node::transform_full_update()
 {
   glm::mat4 m = transform_global_translate_get() * transform_global_rotate_get() * transform_global_scale_get();
   glm::mat4 local = transform_translate_get() * transform_rotate_get() * transform_scale_get();
 
  // glm::mat4 m = transform_global_scale_get() * transform_global_rotate_get() * transform_global_translate_get();
  // glm::mat4 local = transform_scale_get() * transform_rotate_get() * transform_translate_get();
-  transform_local_current_set(scene, local);
+  transform_local_current_set(local);
   transform_global_set(m);
-  physics_rigidbody_update(scene);
+  physics_rigidbody_update();
   return m;
 }
 
@@ -439,12 +462,10 @@ void Node::transform_global_set(const mat4 &transform)
   this->transform_global = transform;
 }
 
+
 void Node::transform_global_from_node_set(Node &node, const mat4 &transform)
 {
   mat4 m = transform;
-  //if (node.import_options & MODEL_IMPORT_BLENDER_FIX) {
-    //m = blender_transform_get() * transform;
-  //} 
 
   this->transform_global = node.transform_global_translate_get() * 
     node.transform_global_rotate_get() * node.transform_global_scale_get() * m;
@@ -456,7 +477,7 @@ void Node::transform_local_current_set_only(const mat4 &transform)
 }
 
 
-void Node::transform_local_current_set(Scene &scene, const mat4 &transform) 
+void Node::transform_local_current_set(const mat4 &transform) 
 {
   this->transform_local_current = transform;
 }

@@ -13,21 +13,19 @@ class Scene;
 class Node;
 
 
-struct Raycast_Hitpoint
+class Raycast_Hitpoint
 {
-  vec3 world_hitpoint;
-  vec3 world_ray;
-  vec3 ray_from;
-  float length;
-  Node *node_ptr;
+  public:
+    vec3 world_hitpoint;
+    vec3 world_ray;
+    vec3 ray_from;
+    float length;
+    Node *node_ptr;
 
-  Raycast_Hitpoint(vec3 hp, vec3 ray, vec3 f, float l, Node *ptr): 
-    world_hitpoint(hp), world_ray(ray), ray_from(f), length(l), node_ptr(ptr)  {}
+    Raycast_Hitpoint(vec3 hp, vec3 ray, vec3 f, float l, Node *ptr): 
+      world_hitpoint(hp), world_ray(ray), ray_from(f), length(l), node_ptr(ptr)  {}
 
-  bool operator < (const Raycast_Hitpoint &hp) const
-  {
-    return (length < hp.length);
-  }
+    bool operator < (const Raycast_Hitpoint &hp) const;
 };
 
 
