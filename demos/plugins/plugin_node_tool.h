@@ -37,6 +37,7 @@ class Plugin_Node_Tool: public Poll_Plugin
     Node             *hitpoint_last_node_get();
     Node             *node_motion = nullptr;
     vec3              hitpoint_world;
+    vec3              ray_from;
 
 
   public:

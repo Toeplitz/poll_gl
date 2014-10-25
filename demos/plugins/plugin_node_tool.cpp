@@ -73,9 +73,9 @@ void Plugin_Node_Tool::cb_node_draw(Node &node)
   float len = glm::length(camera.target_position_get() - pos);
   //POLL_DEBUG(std::cout,  "Length for camera to node: " << node.name_get() << " is " << len);
 
-  const float gizmo_zoom_factor_x = 0.5f;
-  const float gizmo_zoom_factor_y = 0.5f;
-  const float gizmo_zoom_factor_z = 0.5f;
+  const float gizmo_zoom_factor_x = 0.7f;
+  const float gizmo_zoom_factor_y = 0.7f;
+  const float gizmo_zoom_factor_z = 0.7f;
   vec3 v = vec3(len * gizmo_zoom_factor_x, len * gizmo_zoom_factor_y, len * gizmo_zoom_factor_z);
   node_gizmo->scale_identity(*scene, v);
   node_gizmo->translate_identity(*scene, pos);
@@ -146,9 +146,10 @@ void Plugin_Node_Tool::cb_mouse_pressed(SDL_MouseButtonEvent *ev)
   if (!hp.length)
     return;
 
-  hitpoint_world = hp.world_hitpoint;
   Node *node_current = hp.node_ptr;
   Node *node_last = hitpoint_last_node_get();
+  hitpoint_world = hp.world_hitpoint;
+  ray_from = hp.ray_from;
 
   if (node_current == node_last) return;
 
@@ -273,7 +274,7 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
   btVector3 rayFrom;
 
   vec3 camera_pos = scene->camera_get()->position_get();
-  float dist = glm::length(hitpoint_last_get()->world_hitpoint - hitpoint_last_get()->ray_from);
+  float dist = glm::length(hitpoint_world - ray_from);
 
   rayFrom = btVector3(camera_pos.x, camera_pos.y, camera_pos.z);
   btVector3 dir = newRayTo - rayFrom;
@@ -294,26 +295,30 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
     if (keypress_map[SDLK_t].first) {
       vec3 move_to = vec3(newPivotB.getX(), newPivotB.getY(), newPivotB.getZ());
       vec3 pos = vec3(global_translate[3][0], global_translate[3][1], global_translate[3][2]);
-      vec3 diff = move_to;
+
+      vec3 relative_pos = vec3(0, 0, 0);
+      relative_pos = (glm::abs(pos) + glm::abs(hitpoint_world));
+
       POLL_DEBUG(std::cout, "object pos: " << glm::to_string(pos));
       POLL_DEBUG(std::cout, "click pos: " << glm::to_string(hitpoint_world));
-      POLL_DEBUG(std::cout, "move_to: " << glm::to_string(move_to));
+      POLL_DEBUG(std::cout, "relative pos: " << glm::to_string(relative_pos));
+      POLL_DEBUG(std::cout, "move to: " << glm::to_string(move_to + relative_pos) << "\n");
+
       vec3 new_pos(pos.x, pos.y, pos.z);
 
 
       if (keypress_map[SDLK_x].first) {
-        new_pos.x = move_to.x - (pos.x + hitpoint_world.x);
+        new_pos.x = move_to.x;
       } 
       if (keypress_map[SDLK_y].first) {
-        new_pos.y = diff.y;
+        new_pos.y = move_to.y;
       }
       if (keypress_map[SDLK_z].first) {
-        new_pos.z = diff.z;
+        new_pos.z = move_to.z;
       }
 
       ptr->translate_identity(*scene, new_pos);
       node_link->translate_identity(*scene, new_pos);
-      POLL_DEBUG(std::cout, "diff: " << glm::to_string(new_pos) <<"\n");
     }
   }
 }
