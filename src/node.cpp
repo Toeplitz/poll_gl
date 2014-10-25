@@ -370,6 +370,18 @@ void Node::scale(Scene &scene, const vec3 &v)
 }
 
 
+void Node::scale_identity(Scene &scene, const vec3 &v)
+{
+  vec3 t = v;
+
+  if (import_options & MODEL_IMPORT_BLENDER_FIX) {
+    t = vec3(v.x, v.z, v.y);
+  }
+  transform_scale = glm::scale(mat4(1.f), t);
+  scene.transform_update_global_recursive(this);
+}
+
+
 glm::vec3 Node::scale_get()
 {
   glm::vec3 diagonal(transform_scale[0][0], transform_scale[1][1], transform_scale[2][2]);
@@ -422,6 +434,19 @@ void Node::translate(Scene &scene, const vec3 &v)
   vec3 t = v;
 
   transform_translate = glm::translate(transform_translate, t);
+  scene.transform_update_global_recursive(this);
+}
+
+
+void Node::translate_identity(Scene &scene, const vec3 &v) 
+{
+  vec3 t = v;
+
+  if (import_options & MODEL_IMPORT_BLENDER_FIX) {
+  //  t = vec3(blender_transform_get() * vec4(v, 1));
+  }
+
+  transform_translate = glm::translate(mat4(1.f), t);
   scene.transform_update_global_recursive(this);
 }
 

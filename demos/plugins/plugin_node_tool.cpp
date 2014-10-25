@@ -2,23 +2,6 @@
 #include "physics_rigidbody.h"
 #include <glm/gtx/string_cast.hpp>
 
-/*
-
-
-Usage:
-
-
-'t': translate mode:
-'s': scale mode
-'r': rotate mode
-
-'x': manipulate x-axis sub-mode.
-'y': manipulate y-axis sub-mode.
-'z': manipulate z-axis sub-mode.
-
-
-*/
-
 
 Plugin_Node_Tool::Plugin_Node_Tool(Console &console, Scene &scene)
 {
@@ -64,13 +47,13 @@ void Plugin_Node_Tool::cb_node_draw(Node &node)
 {
   GLcontext &glcontext = scene->glcontext_get();
   Physics_Rigidbody *rigidbody = node.physics_rigidbody_get();
+  Camera &camera = *scene->camera_get();
 
   if (!rigidbody) 
     return;
 
   mat4 global_translate = node.transform_global_translate_get();
 
-  glDisable(GL_DEPTH_TEST);
 
   /* DRAW SELECTION OUTLINE */
   Node *node_outline = node_bounding_box;
@@ -83,21 +66,29 @@ void Plugin_Node_Tool::cb_node_draw(Node &node)
 
 
   /* DRAW GIZMO */
-  node_gizmo_translate_x->transform_global_translate_set(global_translate);
+  glDisable(GL_DEPTH_TEST);
+
+  vec3 pos = vec3(global_translate[3][0], global_translate[3][1], global_translate[3][2]);
+
+  float len = glm::length(camera.target_position_get() - pos);
+  POLL_DEBUG(std::cout,  "Length for camera to node: " << node.name_get() << " is " << len);
+
+  const float gizmo_zoom_factor_x = 0.5f;
+  const float gizmo_zoom_factor_y = 0.5f;
+  const float gizmo_zoom_factor_z = 0.5f;
+  vec3 v = vec3(len * gizmo_zoom_factor_x, len * gizmo_zoom_factor_y, len * gizmo_zoom_factor_z);
+  node_gizmo->scale_identity(*scene, v);
+  node_gizmo->translate_identity(*scene, pos);
+
+
   glcontext.uniform_buffers_update_matrices(*node_gizmo_translate_x);
   glcontext.draw_mesh(*node_gizmo_translate_x);
 
-  node_gizmo_translate_y->transform_global_translate_set(global_translate);
   glcontext.uniform_buffers_update_matrices(*node_gizmo_translate_y);
   glcontext.draw_mesh(*node_gizmo_translate_y);
 
-  node_gizmo_translate_z->transform_global_translate_set(global_translate);
   glcontext.uniform_buffers_update_matrices(*node_gizmo_translate_z);
   glcontext.draw_mesh(*node_gizmo_translate_z);
-
-  node_gizmo_translate_x->transform_full_update();
-  node_gizmo_translate_y->transform_full_update();
-  node_gizmo_translate_z->transform_full_update();
 
   glEnable(GL_DEPTH_TEST);
 }
@@ -158,20 +149,45 @@ void Plugin_Node_Tool::cb_mouse_pressed(SDL_MouseButtonEvent *ev)
   Node *node_current = hp.node_ptr;
   Node *node_last = hitpoint_last_node_get();
 
-  POLL_DEBUG(std::cout, "clicked on new node: " << node_current->name_get());
+  if (node_current == node_last) return;
+
+  POLL_DEBUG(std::cout, "node current: " << node_current->name_get());
+
+  if (node_last)
+    POLL_DEBUG(std::cout, "node last: " << node_last->name_get());
 
   if (node_current == node_gizmo_translate_x) {
+    keypress_map[SDLK_y].first = false;
+    keypress_map[SDLK_z].first = false;
     keypress_map[SDLK_x].first = true;
     keypress_map[SDLK_t].first = true;
+    node_motion = node_gizmo_translate_x;
+    node_gizmo_translate_x->link_set(node_last);
     this->mouse_down = true;
     return;
-
+  } 
+  if (node_current == node_gizmo_translate_y) {
+    keypress_map[SDLK_x].first = false;
+    keypress_map[SDLK_z].first = false;
+    keypress_map[SDLK_y].first = true;
+    keypress_map[SDLK_t].first = true;
+    node_motion = node_gizmo_translate_y;
+    node_gizmo_translate_y->link_set(node_last);
+    this->mouse_down = true;
+    return;
+  } 
+  if (node_current == node_gizmo_translate_z) {
+    keypress_map[SDLK_x].first = false;
+    keypress_map[SDLK_y].first = false;
+    keypress_map[SDLK_z].first = true;
+    keypress_map[SDLK_t].first = true;
+    node_motion = node_gizmo_translate_z;
+    node_gizmo_translate_z->link_set(node_last);
+    this->mouse_down = true;
+    return;
   } 
 
   node_current->callback_draw_set(std::bind(&Plugin_Node_Tool::cb_node_draw, this, _1));
-  node_gizmo_translate_x->link_set(node_current);
-  node_gizmo_translate_y->link_set(node_current);
-  node_gizmo_translate_z->link_set(node_current);
 
   if (node_last) {
     node_last->callback_draw_set(nullptr);
@@ -201,8 +217,9 @@ void Plugin_Node_Tool::cb_mouse_pressed(SDL_MouseButtonEvent *ev)
 
 void Plugin_Node_Tool::cb_mouse_released(SDL_MouseButtonEvent *ev)
 {
-  Physics &physics = scene->physics_get();
   this->mouse_down = false;
+  /*
+  Physics &physics = scene->physics_get();
   if (!hitpoint_last)
     return;
 
@@ -219,6 +236,7 @@ void Plugin_Node_Tool::cb_mouse_released(SDL_MouseButtonEvent *ev)
 
   physics.rigidbody_constraint_delete(rb);
   rb->constraint_delete();
+  */
 }
 
 
@@ -227,7 +245,8 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
   if (!mouse_down)
     return;
 
-  Node *node = hitpoint_last_node_get();
+  Node *node = node_motion;
+  //POLL_DEBUG(std::cout, "Mouse down for node: " << node->name_get());
   if (!node) {
     POLL_ERROR(std::cerr, "No node attached to the last hipoint.");
     return;
@@ -262,20 +281,19 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
 
   btVector3 newPivotB = rayFrom + dir;
 
-  POLL_DEBUG(std::cout, "mouse motion for node: " << node->name_get() << " linked to: " << node_link->name_get());
+  //POLL_DEBUG(std::cout, "mouse motion for node: " << node->name_get() << " linked to: " << node_link->name_get());
   if (rb->type_get() == Physics_Rigidbody::KINEMATIC) {
-    Node *ptr = node;
-    if (node->grab_parent) {
-      ptr = node->parent_get();
+    Node *ptr = node_motion;
+    if (node_motion->grab_parent) {
+      ptr = node_motion->parent_get();
     }
 
 
     if (keypress_map[SDLK_t].first) {
 
       vec3 new_pos(0, 0, 0);
-      mat4 t = ptr->transform_global_translate_get();
-      vec3 last_pos = vec3(t[3][0], t[3][1], t[3][2]);
-      vec3 diff = vec3(newPivotB.getX(), newPivotB.getY(), newPivotB.getZ()) - last_pos;
+      vec3 move_to = vec3(newPivotB.getX(), newPivotB.getY(), newPivotB.getZ());
+      vec3 diff = move_to + (hitpoint_last_get()->world_hitpoint);
 
       if (keypress_map[SDLK_x].first) {
         new_pos.x = diff.x;

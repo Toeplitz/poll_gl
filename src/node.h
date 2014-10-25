@@ -128,11 +128,11 @@ class Node: public Animated {
     Mesh               *mesh_create(Scene &scene);
     Mesh               *mesh_get();
     void                mesh_set(Mesh *mesh);
-    mat4               &position_matrix_current_get();
     short               raycast_priority_get();
     void                raycast_priority_set(const short priority);
     void                rotate(Scene &scene, const float angle, const vec3 &v);
     void                scale(Scene &scene, const vec3 &v);
+    void                scale_identity(Scene &scene, const vec3 &v);
     glm::vec3           scale_get();
     glm::vec3           scale_global_get();
     Node_State         &state_get();
@@ -140,6 +140,7 @@ class Node: public Animated {
     Text               *text_get();
     void                text_set(Text *text);
     void                translate(Scene &scene, const vec3 &v);
+    void                translate_identity(Scene &scene, const vec3 &v);
     Transform_Inherit   transform_inheritance_get();
     void                transform_inheritance_set(Transform_Inherit transform_inheritance);
     glm::mat4           transform_full_update();
