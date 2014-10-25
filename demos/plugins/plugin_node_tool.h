@@ -36,6 +36,7 @@ class Plugin_Node_Tool: public Poll_Plugin
     Raycast_Hitpoint *hitpoint_last_get();
     Node             *hitpoint_last_node_get();
     Node             *node_motion = nullptr;
+    vec3              hitpoint_world;
 
 
   public:

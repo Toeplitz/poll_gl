@@ -71,7 +71,7 @@ void Plugin_Node_Tool::cb_node_draw(Node &node)
   vec3 pos = vec3(global_translate[3][0], global_translate[3][1], global_translate[3][2]);
 
   float len = glm::length(camera.target_position_get() - pos);
-  POLL_DEBUG(std::cout,  "Length for camera to node: " << node.name_get() << " is " << len);
+  //POLL_DEBUG(std::cout,  "Length for camera to node: " << node.name_get() << " is " << len);
 
   const float gizmo_zoom_factor_x = 0.5f;
   const float gizmo_zoom_factor_y = 0.5f;
@@ -146,6 +146,7 @@ void Plugin_Node_Tool::cb_mouse_pressed(SDL_MouseButtonEvent *ev)
   if (!hp.length)
     return;
 
+  hitpoint_world = hp.world_hitpoint;
   Node *node_current = hp.node_ptr;
   Node *node_last = hitpoint_last_node_get();
 
@@ -288,15 +289,20 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
       ptr = node_motion->parent_get();
     }
 
+    mat4 global_translate = ptr->transform_global_translate_get();
 
     if (keypress_map[SDLK_t].first) {
-
-      vec3 new_pos(0, 0, 0);
       vec3 move_to = vec3(newPivotB.getX(), newPivotB.getY(), newPivotB.getZ());
-      vec3 diff = move_to + (hitpoint_last_get()->world_hitpoint);
+      vec3 pos = vec3(global_translate[3][0], global_translate[3][1], global_translate[3][2]);
+      vec3 diff = move_to;
+      POLL_DEBUG(std::cout, "object pos: " << glm::to_string(pos));
+      POLL_DEBUG(std::cout, "click pos: " << glm::to_string(hitpoint_world));
+      POLL_DEBUG(std::cout, "move_to: " << glm::to_string(move_to));
+      vec3 new_pos(pos.x, pos.y, pos.z);
+
 
       if (keypress_map[SDLK_x].first) {
-        new_pos.x = diff.x;
+        new_pos.x = move_to.x - (pos.x + hitpoint_world.x);
       } 
       if (keypress_map[SDLK_y].first) {
         new_pos.y = diff.y;
@@ -305,8 +311,9 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
         new_pos.z = diff.z;
       }
 
-      ptr->translate(*scene, new_pos);
-      node_link->translate(*scene, new_pos);
+      ptr->translate_identity(*scene, new_pos);
+      node_link->translate_identity(*scene, new_pos);
+      POLL_DEBUG(std::cout, "diff: " << glm::to_string(new_pos) <<"\n");
     }
   }
 }
