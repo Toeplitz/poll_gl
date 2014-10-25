@@ -196,6 +196,7 @@ void Node::light_set(Light *light)
 
 void Node::link_set(Node *node)
 {
+  POLL_DEBUG(std::cout, "Setting node: " << name_get() << " to link against: " << node->name_get());
   this->link = node;
 }
 

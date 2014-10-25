@@ -8,8 +8,13 @@ bool Raycast_Hitpoint::operator < (const Raycast_Hitpoint &hp) const
 {
   Node *node = hp.node_ptr;
 
-  return ((length < hp.length) && 
-      (node->raycast_priority_get() < node_ptr->raycast_priority_get()));
+  if (node_ptr->raycast_priority_get() < node->raycast_priority_get())
+    return false;
+
+  if (node_ptr->raycast_priority_get() == node->raycast_priority_get())
+    return (length < hp.length);
+
+  return true;
 }
 
 

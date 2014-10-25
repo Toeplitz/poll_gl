@@ -140,7 +140,7 @@ void Physics_Character_Controller::move(Physics_Direction direction)
 }
 
 
-const Physics_Character_State  Physics_Character_Controller::state_get()
+Physics_Character_State  Physics_Character_Controller::state_get()
 {
   if (!onGround()) {
     state = CHARACTER_STATE_JUMPING;
@@ -152,3 +152,4 @@ const Physics_Character_State  Physics_Character_Controller::state_get()
 
   return state;
 }
+

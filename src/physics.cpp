@@ -153,7 +153,7 @@ Raycast_Hitpoint Physics::ray_pick(glm::vec3 &out_origin, glm::vec3 &direction)
   POLL_DEBUG(std::cout, "After sorting");
   for (auto &h : hitpoint_list) {
     POLL_DEBUG(std::cout, "The ray hit: " << h.node_ptr->name_get() << " world pos: " << 
-        glm::to_string(h.world_hitpoint) << " len: " << h.length);
+        glm::to_string(h.world_hitpoint) << " len: " << h.length << " priority: " << h.node_ptr->raycast_priority_get());
   }
 
   auto first = *hitpoint_list.begin();

@@ -51,7 +51,7 @@ class Physics_Character_Controller: public btKinematicCharacterController
     void                           reset();
     void                           node_set(Node &node);
     void                           move(Physics_Direction dir);
-    const Physics_Character_State  state_get();
+    Physics_Character_State        state_get();
     void                           rotate(const float x);
 
 

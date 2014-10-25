@@ -156,34 +156,27 @@ void Plugin_Node_Tool::cb_mouse_pressed(SDL_MouseButtonEvent *ev)
     return;
 
   Node *node_current = hp.node_ptr;
-
-  if (hitpoint_last_node_get() == node_current) {
-    POLL_DEBUG(std::cout, "clicking same node as last, doing nothing");
-    return;
-  }
+  Node *node_last = hitpoint_last_node_get();
 
   POLL_DEBUG(std::cout, "clicked on new node: " << node_current->name_get());
-  node_current->callback_draw_set(std::bind(&Plugin_Node_Tool::cb_node_draw, this, _1));
 
   if (node_current == node_gizmo_translate_x) {
     keypress_map[SDLK_x].first = true;
     keypress_map[SDLK_t].first = true;
     this->mouse_down = true;
-    POLL_DEBUG(std::cout, "This is the X gizmo, do nothing more");
-    hitpoints.pop_back();
-    hitpoints.push_back(hp);
     return;
-  }
 
-  Node *node_last = hitpoint_last_node_get();
+  } 
+
+  node_current->callback_draw_set(std::bind(&Plugin_Node_Tool::cb_node_draw, this, _1));
+  node_gizmo_translate_x->link_set(node_current);
+  node_gizmo_translate_y->link_set(node_current);
+  node_gizmo_translate_z->link_set(node_current);
+
   if (node_last) {
     node_last->callback_draw_set(nullptr);
     hitpoints.pop_back();
   }
-
-  node_gizmo_translate_x->link_set(node_current);
-  node_gizmo_translate_y->link_set(node_current);
-  node_gizmo_translate_z->link_set(node_current);
 
   hitpoints.push_back(hp);
 
