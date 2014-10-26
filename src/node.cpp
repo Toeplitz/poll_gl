@@ -228,6 +228,13 @@ Node *Node::parent_get()
 }
 
 
+vec3 Node::position_get()
+{
+  mat4 m = transform_global_translate_get();
+  return vec3(m[3][0], m[3][1], m[3][2]);
+}
+
+
 Physics_Rigidbody *Node::physics_rigidbody_create(Scene &scene, bool recursive)
 {
   Assets &assets = scene.assets_get();

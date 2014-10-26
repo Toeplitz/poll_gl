@@ -3,7 +3,7 @@
 #include <glm/gtx/string_cast.hpp>
 
 
-Plugin_Node_Tool::Plugin_Node_Tool(Console &console, Scene &scene)
+Plugin_Node_Tool::Plugin_Node_Tool(Console &console, Scene &scene, float gizmo_zoom_factor = 1.f)
 {
   GLcontext &glcontext = scene.glcontext_get();
 
@@ -17,6 +17,7 @@ Plugin_Node_Tool::Plugin_Node_Tool(Console &console, Scene &scene)
   keypress_map[SDLK_g] = std::make_pair(false, "scale mode");
   keypress_map[SDLK_LSHIFT] = std::make_pair(false, "shift");
 
+  this->gizmo_zoom_factor = gizmo_zoom_factor;
   node_gizmo = &scene.load("data/", "gizmo_translate.dae", MODEL_IMPORT_OPTIMIZED  | MODEL_IMPORT_NO_DRAW);
   for (auto &child: node_gizmo->children_get()) {
     child->grab_parent = true;
@@ -59,9 +60,6 @@ void Plugin_Node_Tool::cb_node_draw(Node &node)
   if (!rigidbody) 
     return;
 
-  mat4 global_translate = node.transform_global_translate_get();
-
-
   /* DRAW SELECTION OUTLINE */
   Node *node_outline = node_bounding_box;
   Aabb &aabb = node.aabb_get();
@@ -73,20 +71,12 @@ void Plugin_Node_Tool::cb_node_draw(Node &node)
 
 
   /* DRAW GIZMO */
-  //glDisable(GL_DEPTH_TEST);
-
-  vec3 pos = vec3(global_translate[3][0], global_translate[3][1], global_translate[3][2]);
-
+  vec3 pos = node.position_get();
   float len = glm::length(camera.target_position_get() - pos);
-  //POLL_DEBUG(std::cout,  "Length for camera to node: " << node.name_get() << " is " << len);
 
-  const float gizmo_zoom_factor_x = 0.7f;
-  const float gizmo_zoom_factor_y = 0.7f;
-  const float gizmo_zoom_factor_z = 0.7f;
-  vec3 v = vec3(len * gizmo_zoom_factor_x, len * gizmo_zoom_factor_y, len * gizmo_zoom_factor_z);
+  vec3 v = vec3(len, len, len) * gizmo_zoom_factor;
   node_gizmo->scale_identity(*scene, v);
   node_gizmo->translate_identity(*scene, pos);
-
 
   glcontext.uniform_buffers_update_matrices(*node_gizmo_translate_x);
   glcontext.uniform_buffers_update_material(*node_gizmo_translate_x->material_get());
@@ -99,8 +89,6 @@ void Plugin_Node_Tool::cb_node_draw(Node &node)
   glcontext.uniform_buffers_update_matrices(*node_gizmo_translate_z);
   glcontext.uniform_buffers_update_material(*node_gizmo_translate_z->material_get());
   glcontext.draw_mesh(*node_gizmo_translate_z);
-
- // glEnable(GL_DEPTH_TEST);
 }
 
 
@@ -174,6 +162,7 @@ void Plugin_Node_Tool::cb_mouse_pressed(SDL_MouseButtonEvent *ev)
     keypress_map[SDLK_x].first = true;
     keypress_map[SDLK_t].first = true;
     node_motion = node_gizmo_translate_x;
+    relative_position = node_last->position_get() - hitpoint_world;
     node_gizmo_translate_x->link_set(node_last);
     this->mouse_down = true;
     return;
@@ -184,6 +173,7 @@ void Plugin_Node_Tool::cb_mouse_pressed(SDL_MouseButtonEvent *ev)
     keypress_map[SDLK_y].first = true;
     keypress_map[SDLK_t].first = true;
     node_motion = node_gizmo_translate_y;
+    relative_position = node_last->position_get() - hitpoint_world;
     node_gizmo_translate_y->link_set(node_last);
     this->mouse_down = true;
     return;
@@ -194,6 +184,7 @@ void Plugin_Node_Tool::cb_mouse_pressed(SDL_MouseButtonEvent *ev)
     keypress_map[SDLK_z].first = true;
     keypress_map[SDLK_t].first = true;
     node_motion = node_gizmo_translate_z;
+    relative_position = node_last->position_get() - hitpoint_world;
     node_gizmo_translate_z->link_set(node_last);
     this->mouse_down = true;
     return;
@@ -300,31 +291,28 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
       ptr = node_motion->parent_get();
     }
 
-    mat4 global_translate = ptr->transform_global_translate_get();
-
     if (keypress_map[SDLK_t].first) {
       vec3 move_to = vec3(newPivotB.getX(), newPivotB.getY(), newPivotB.getZ());
-      vec3 pos = vec3(global_translate[3][0], global_translate[3][1], global_translate[3][2]);
+      vec3 pos = node_link->position_get();
 
       vec3 relative_pos = vec3(0, 0, 0);
-      relative_pos = (glm::abs(pos) + glm::abs(hitpoint_world));
 
       POLL_DEBUG(std::cout, "object pos: " << glm::to_string(pos));
       POLL_DEBUG(std::cout, "click pos: " << glm::to_string(hitpoint_world));
-      POLL_DEBUG(std::cout, "relative pos: " << glm::to_string(relative_pos));
+      POLL_DEBUG(std::cout, "relative pos: " << glm::to_string(relative_position));
       POLL_DEBUG(std::cout, "move to: " << glm::to_string(move_to + relative_pos) << "\n");
 
       vec3 new_pos(pos.x, pos.y, pos.z);
 
 
       if (keypress_map[SDLK_x].first) {
-        new_pos.x = move_to.x;
+        new_pos.x = (move_to.x + relative_position.x);
       } 
       if (keypress_map[SDLK_y].first) {
-        new_pos.y = move_to.y;
+        new_pos.y = move_to.y + relative_position.y;
       }
       if (keypress_map[SDLK_z].first) {
-        new_pos.z = move_to.z;
+        new_pos.z = move_to.z + relative_position.z;
       }
 
       ptr->translate_identity(*scene, new_pos);
@@ -400,8 +388,7 @@ void Plugin_Node_Tool::cb_mouse_motion_old(SDL_MouseMotionEvent *ev)
     if (keypress_map[SDLK_t].first) {
 
       vec3 new_pos(0, 0, 0);
-      mat4 t = ptr->transform_global_translate_get();
-      vec3 last_pos = vec3(t[3][0], t[3][1], t[3][2]);
+      vec3 last_pos = ptr->position_get();
       vec3 diff = vec3(newPivotB.getX(), newPivotB.getY(), newPivotB.getZ()) - last_pos;
 
       if (keypress_map[SDLK_x].first) {

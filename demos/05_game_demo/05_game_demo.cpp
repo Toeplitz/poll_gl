@@ -195,7 +195,7 @@ int main()
 
   auto plugin_debug = std::unique_ptr<Plugin_Debug>(new Plugin_Debug(poll.console_get(), scene));
   auto plugin_light_tool = std::unique_ptr<Plugin_Light_Tool>(new Plugin_Light_Tool(poll.console_get(), scene));
-  auto plugin_node_tool = std::unique_ptr<Plugin_Node_Tool>(new Plugin_Node_Tool(poll.console_get(), scene));
+  auto plugin_node_tool = std::unique_ptr<Plugin_Node_Tool>(new Plugin_Node_Tool(poll.console_get(), scene, 3.f));
   auto plugin_firstperson_camera = std::unique_ptr<Plugin_Firstperson_Camera>(new Plugin_Firstperson_Camera(poll.console_get(), scene, camera_node));
   poll.plugin_add(*plugin_debug);
   poll.plugin_add(*plugin_light_tool);
@@ -205,6 +205,30 @@ int main()
   Node &root = scene.node_root_get();
   root.scale(scene, glm::vec3(0.1, 0.1, 0.1));
 
+  Node &node = scene.load("data/", "orientation.dae", MODEL_IMPORT_DEFAULT | MODEL_IMPORT_BLENDER_FIX);
+  node.translate(scene, vec3(0, 5, 0));
+
+  Node &suzanne_center = *scene.node_find(&node, "Suzanne_center");
+ // suzanne_center.scale(scene, vec3(1, 1, 1));
+
+  auto suzanne_center_shape = std::unique_ptr<Physics_Convex_Hull_Shape>(new Physics_Convex_Hull_Shape(suzanne_center));
+  Physics_Rigidbody *suzanne_center_rigidbody = suzanne_center.physics_rigidbody_create(scene);
+  suzanne_center_rigidbody->create(physics, *suzanne_center_shape, Physics_Rigidbody::KINEMATIC, 1);
+
+  Node &suzanne_translated = *scene.node_find(&node, "Suzanne_translated");
+  auto suzanne_translated_shape = std::unique_ptr<Physics_Triangle_Mesh_Shape>(new Physics_Triangle_Mesh_Shape(suzanne_translated));
+  Physics_Rigidbody *suzeanne_translated_rigidbody = suzanne_translated.physics_rigidbody_create(scene);
+  suzeanne_translated_rigidbody->create(physics, *suzanne_translated_shape, Physics_Rigidbody::KINEMATIC, 1);
+  suzanne_translated.scale(scene, vec3(3, 3, 3));
+
+  Node &sphere = *scene.node_find(&node, "Sphere_ms");
+  glm::vec3 v = vec3(1.f, 1.f, 1.f);
+  auto sphere_shape = std::unique_ptr<Physics_Box_Shape>(new Physics_Box_Shape(v));
+  Physics_Rigidbody *sphere_rigidbody = sphere.physics_rigidbody_create(scene);
+  sphere_rigidbody->create(physics, *sphere_shape, Physics_Rigidbody::KINEMATIC, 1);
+
+
+  /*
   Node &room = scene.load("data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED);
   std::vector<std::unique_ptr<Physics_Triangle_Mesh_Shape>> shapes;
   for (auto &child: room.children_get()) {
@@ -214,6 +238,7 @@ int main()
       rigidbody->create(scene.physics_get(), *shape, Physics_Rigidbody::DYNAMIC, 0);
     shapes.push_back(std::move(shape));
   }
+  */
 
 
   {
@@ -222,6 +247,7 @@ int main()
    // node.translate(scene, glm::vec3(0, 0, -20));
   }
 
+  /*
   Node &sphere_node= scene.load("data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED);
   sphere_node.translate(scene, glm::vec3(-3, 4, 3));
   sphere_node.scale(scene, glm::vec3(4, 4, 4));
@@ -229,7 +255,9 @@ int main()
   Physics_Rigidbody *rigidbody = sphere_node.physics_rigidbody_create(scene);
   if (rigidbody)
     rigidbody->create(scene.physics_get(), *shape, Physics_Rigidbody::DYNAMIC, 1);
+*/
 
+#if 0
   Node &node = scene.load("data/", "orientation.dae", MODEL_IMPORT_DEFAULT | MODEL_IMPORT_BLENDER_FIX);
   node.translate(scene, vec3(0, 5, 0));
 
@@ -250,6 +278,9 @@ int main()
   auto sphere_shape = std::unique_ptr<Physics_Box_Shape>(new Physics_Box_Shape(v));
   Physics_Rigidbody *sphere_rigidbody = sphere.physics_rigidbody_create(scene);
   sphere_rigidbody->create(physics, *sphere_shape, Physics_Rigidbody::KINEMATIC, 1);
+
+#endif
+
   /* Setup panda character */
   {
   //  Node &panda_root = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);

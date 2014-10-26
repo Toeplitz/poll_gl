@@ -20,15 +20,12 @@ int main()
   Node *camera_node = scene.node_camera_get();
 
   auto plugin_debug = std::unique_ptr<Plugin_Debug>(new Plugin_Debug(poll.console_get(), scene));
-  auto plugin_node_tool = std::unique_ptr<Plugin_Node_Tool>(new Plugin_Node_Tool(poll.console_get(), scene));
+  auto plugin_node_tool = std::unique_ptr<Plugin_Node_Tool>(new Plugin_Node_Tool(poll.console_get(), scene, 0.5f));
   auto plugin_firstperson_camera = std::unique_ptr<Plugin_Firstperson_Camera>(new Plugin_Firstperson_Camera(poll.console_get(), scene, camera_node));
   poll.plugin_add(*plugin_debug);
   poll.plugin_add(*plugin_node_tool);
   poll.plugin_add(*plugin_firstperson_camera);
 
-
-
- // Node &node = scene.load("data/", "orientation.dae", MODEL_IMPORT_DEFAULT | MODEL_IMPORT_BLENDER_FIX);
   {
     Node &root = scene.node_root_get();
     root.scale(scene, vec3(0.5, 0.5, 0.5));

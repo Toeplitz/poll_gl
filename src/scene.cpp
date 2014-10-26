@@ -189,8 +189,6 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
   std::cout << "local translate: " << glm::to_string(node.transform_translate_get()) << std::endl;
   std::cout << "global translate: " << glm::to_string(node.transform_global_translate_get()) << std::endl;
 
-
-
   std::cout << " active: " << node.active_get();
   */
   std::cout << std::endl;

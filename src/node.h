@@ -115,6 +115,7 @@ class Node: public Animated {
     void                link_set(Node *node);
     Node               *link_get();
     Node               *parent_get();
+    vec3                position_get();
     void                print_state(int indent_level);
     Physics_Rigidbody  *physics_rigidbody_create(Scene &scene, bool recursive = true);
     Physics_Rigidbody  *physics_rigidbody_get();

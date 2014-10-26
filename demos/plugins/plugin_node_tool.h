@@ -42,10 +42,12 @@ class Plugin_Node_Tool: public Poll_Plugin
     Node             *node_motion = nullptr;
     vec3              hitpoint_world;
     vec3              ray_from;
+    vec3              relative_position;
+    float             gizmo_zoom_factor = 1.f;
 
 
   public:
-    Plugin_Node_Tool(Console &console, Scene &scene);
+    Plugin_Node_Tool(Console &console, Scene &scene, float gizmo_zoom_factor);
     void cb_keyboard_pressed(SDL_Keysym *keysym);
     void cb_keyboard_released(SDL_Keysym *keysym);
     void cb_mouse_pressed(SDL_MouseButtonEvent *ev);
