@@ -195,7 +195,7 @@ int main()
 
   auto plugin_debug = std::unique_ptr<Plugin_Debug>(new Plugin_Debug(poll.console_get(), scene));
   auto plugin_light_tool = std::unique_ptr<Plugin_Light_Tool>(new Plugin_Light_Tool(poll.console_get(), scene));
-  auto plugin_node_tool = std::unique_ptr<Plugin_Node_Tool>(new Plugin_Node_Tool(poll.console_get(), scene, 3.f));
+  auto plugin_node_tool = std::unique_ptr<Plugin_Node_Tool>(new Plugin_Node_Tool(poll.console_get(), scene, 5.f));
   auto plugin_firstperson_camera = std::unique_ptr<Plugin_Firstperson_Camera>(new Plugin_Firstperson_Camera(poll.console_get(), scene, camera_node));
   poll.plugin_add(*plugin_debug);
   poll.plugin_add(*plugin_light_tool);
@@ -228,7 +228,6 @@ int main()
   sphere_rigidbody->create(physics, *sphere_shape, Physics_Rigidbody::KINEMATIC, 1);
 
 
-  /*
   Node &room = scene.load("data/game_assets/", "Room.dae", MODEL_IMPORT_OPTIMIZED);
   std::vector<std::unique_ptr<Physics_Triangle_Mesh_Shape>> shapes;
   for (auto &child: room.children_get()) {
@@ -238,7 +237,6 @@ int main()
       rigidbody->create(scene.physics_get(), *shape, Physics_Rigidbody::DYNAMIC, 0);
     shapes.push_back(std::move(shape));
   }
-  */
 
 
   {
@@ -247,7 +245,6 @@ int main()
    // node.translate(scene, glm::vec3(0, 0, -20));
   }
 
-  /*
   Node &sphere_node= scene.load("data/", "sphere.obj", MODEL_IMPORT_OPTIMIZED);
   sphere_node.translate(scene, glm::vec3(-3, 4, 3));
   sphere_node.scale(scene, glm::vec3(4, 4, 4));
@@ -255,7 +252,6 @@ int main()
   Physics_Rigidbody *rigidbody = sphere_node.physics_rigidbody_create(scene);
   if (rigidbody)
     rigidbody->create(scene.physics_get(), *shape, Physics_Rigidbody::DYNAMIC, 1);
-*/
 
 #if 0
   Node &node = scene.load("data/", "orientation.dae", MODEL_IMPORT_DEFAULT | MODEL_IMPORT_BLENDER_FIX);
