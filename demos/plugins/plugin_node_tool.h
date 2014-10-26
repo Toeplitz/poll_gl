@@ -31,6 +31,10 @@ class Plugin_Node_Tool: public Poll_Plugin
     Node *node_gizmo_translate_z;
     Node *node_bounding_box;
 
+    Material material_red;
+    Material material_green;
+    Material material_blue;
+
     std::vector<Raycast_Hitpoint> hitpoints;
 
     Raycast_Hitpoint *hitpoint_last_get();

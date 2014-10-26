@@ -222,6 +222,11 @@ std::vector<std::string> GLshader::block_names_get()
 }
 
 
+std::string GLshader::filename_get()
+{
+  return vertex_shader_file;
+}
+
 void GLshader::print_subroutines()
 {
   int maxSub,maxSubU,countActiveSU;

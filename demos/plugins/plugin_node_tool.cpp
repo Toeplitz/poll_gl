@@ -36,6 +36,13 @@ Plugin_Node_Tool::Plugin_Node_Tool(Console &console, Scene &scene)
   node_gizmo_translate_y->raycast_priority_set(1);
   node_gizmo_translate_z->raycast_priority_set(1);
 
+  material_red.color_set(vec3(0, 0, 0), vec3(1, 0, 0), vec3(0, 0, 0), 100);
+  material_green.color_set(vec3(0, 0, 0), vec3(0, 1, 0), vec3(0, 0, 0), 100);
+  material_blue.color_set(vec3(0, 0, 0), vec3(0, 0, 1), vec3(0, 0, 0), 100);
+  node_gizmo_translate_x->material_set(&material_red);
+  node_gizmo_translate_y->material_set(&material_green);
+  node_gizmo_translate_z->material_set(&material_blue);
+
   node_bounding_box = scene.node_create("bounding_box");
   Mesh *mesh = node_bounding_box->mesh_create(scene);
   mesh->generate_line_cube(1.f);
@@ -66,7 +73,7 @@ void Plugin_Node_Tool::cb_node_draw(Node &node)
 
 
   /* DRAW GIZMO */
-  glDisable(GL_DEPTH_TEST);
+  //glDisable(GL_DEPTH_TEST);
 
   vec3 pos = vec3(global_translate[3][0], global_translate[3][1], global_translate[3][2]);
 
@@ -82,15 +89,18 @@ void Plugin_Node_Tool::cb_node_draw(Node &node)
 
 
   glcontext.uniform_buffers_update_matrices(*node_gizmo_translate_x);
+  glcontext.uniform_buffers_update_material(*node_gizmo_translate_x->material_get());
   glcontext.draw_mesh(*node_gizmo_translate_x);
 
   glcontext.uniform_buffers_update_matrices(*node_gizmo_translate_y);
+  glcontext.uniform_buffers_update_material(*node_gizmo_translate_y->material_get());
   glcontext.draw_mesh(*node_gizmo_translate_y);
 
   glcontext.uniform_buffers_update_matrices(*node_gizmo_translate_z);
+  glcontext.uniform_buffers_update_material(*node_gizmo_translate_z->material_get());
   glcontext.draw_mesh(*node_gizmo_translate_z);
 
-  glEnable(GL_DEPTH_TEST);
+ // glEnable(GL_DEPTH_TEST);
 }
 
 

@@ -40,8 +40,9 @@ class GLshader {
   public:
 
     std::vector<std::string> block_names_get();
-    void                     load(const std::string &vertex, const std::string &fragment, const std::string &geometry = "");
+    std::string              filename_get();
     int                      get_block_index(std::string blockName);
+    void                     load(const std::string &vertex, const std::string &fragment, const std::string &geometry = "");
     void                     print_block_names();
     void                     print_subroutines();
     GLuint                  &program_get();

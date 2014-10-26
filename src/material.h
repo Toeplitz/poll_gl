@@ -7,6 +7,10 @@
 #include "texture.h"
 
 
+using glm::vec3;
+using glm::vec4;
+
+
 struct Material_Properties
 {
   glm::vec4 Ka;

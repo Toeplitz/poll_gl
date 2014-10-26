@@ -179,6 +179,7 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
       node.light_get()->print(node.tree_level_get());
     }
   }
+  /*
   std::cout << std::endl;
   std::cout << "global: " << glm::to_string(node.transform_global_get()) << std::endl;
   std::cout << "cur local: " << glm::to_string(node.transform_local_current_get()) << std::endl;
@@ -191,6 +192,7 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
 
 
   std::cout << " active: " << node.active_get();
+  */
   std::cout << std::endl;
 
   for (auto &child : node.children_get()) {

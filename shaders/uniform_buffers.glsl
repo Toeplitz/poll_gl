@@ -52,3 +52,10 @@ layout(std140) uniform Light
   int light_type;
 };
 
+layout(std140) uniform Material
+{
+  vec4 material_ka;
+  vec4 material_kd;
+  vec4 material_ks;
+  float material_shininess;
+};
