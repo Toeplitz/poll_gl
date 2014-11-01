@@ -36,6 +36,10 @@ void Stock_Shaders::init(Config &config, Scene &scene)
   glcontext.uniform_locations_geometry_init(world_geometry);
   glcontext.uniform_buffers_block_bind(world_geometry);
 
+  world_geometry_shadow.load("world_geometry_shadow.v", "world_geometry_shadow.f");
+  glcontext.uniform_locations_geometry_init(world_geometry_shadow);
+  glcontext.uniform_buffers_block_bind(world_geometry_shadow);
+
   world_light.load("world_light.v", "world_light.f");
   glcontext.uniform_locations_lighting_init(world_light);
   glcontext.uniform_buffers_block_bind(world_light);

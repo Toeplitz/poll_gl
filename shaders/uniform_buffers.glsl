@@ -49,6 +49,8 @@ layout(std140) uniform Light
   vec4 light_position;
   vec4 light_color;
   vec4 light_direction;
+  mat4 light_projection;
+  mat4 light_view;
   int light_type;
 };
 

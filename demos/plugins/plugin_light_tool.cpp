@@ -57,7 +57,6 @@ void Plugin_Light_Tool::cb_light_create(Node *node_ptr)
   {
     unsigned int lamp_type = light->properties_type_get();
     if (lamp_type == Light::POINT || lamp_type == Light::SPOT) {
-      Gimbal_Nodes &gimbal_nodes = light->gimbal_nodes_get();
 
       {
         Node *node = scene->node_create("light_symbol", node_ptr);
@@ -65,12 +64,17 @@ void Plugin_Light_Tool::cb_light_create(Node *node_ptr)
         node->mesh_set(node_symbol_cone->mesh_get());
         node->grab_parent = true;
 
+    /*
+        Gimbal_Nodes &gimbal_nodes = light->gimbal_nodes_get();
         Physics_Rigidbody *rigidbody = node->physics_rigidbody_create(*scene, false);
         rigidbody->create(scene->physics_get(), *symbol_shape, Physics_Rigidbody::KINEMATIC, 1);
         gimbal_nodes.center = node;
+        */
       }
 
+      /*
       gimbal_nodes.center->callback_raycast_collide_set(std::bind(&Plugin_Light_Tool::raycast_collide_callback_gimbal_center, this, _1, _2));
+      */
       /*
       gimbal_nodes.x->raycast_collide_callback_set(std::bind(&Plugin_Light_Tool::raycast_collide_callback_gimbal_x, this, _1, _2));
       gimbal_nodes.y->raycast_collide_callback_set(std::bind(&Plugin_Light_Tool::raycast_collide_callback_gimbal_y, this, _1, _2));
@@ -182,8 +186,8 @@ void Plugin_Light_Tool::light_active_set(Light *light)
     return;
 
   if (light_active) {
-    Gimbal_Nodes &gimbal_nodes = light_active->gimbal_nodes_get();
     /*
+    Gimbal_Nodes &gimbal_nodes = light_active->gimbal_nodes_get();
     gimbal_nodes.x->active_set(*scene, false);
     gimbal_nodes.y->active_set(*scene, false);
     gimbal_nodes.z->active_set(*scene, false);
@@ -193,8 +197,8 @@ void Plugin_Light_Tool::light_active_set(Light *light)
   light_active = light;
 
   if (light_active) {
-    Gimbal_Nodes &gimbal_nodes = light_active->gimbal_nodes_get();
     /*
+    Gimbal_Nodes &gimbal_nodes = light_active->gimbal_nodes_get();
     gimbal_nodes.x->active_set(*scene, true);
     gimbal_nodes.y->active_set(*scene, true);
     gimbal_nodes.z->active_set(*scene, true);
@@ -204,6 +208,7 @@ void Plugin_Light_Tool::light_active_set(Light *light)
 
 
 
+/*
 void Plugin_Light_Tool::raycast_collide_callback_gimbal_center(Node &node, vec3 &position)
 {
   Light *light = node.parent_get()->light_get();
@@ -235,3 +240,4 @@ void Plugin_Light_Tool::raycast_collide_callback_gimbal_z(Node &node, vec3 &posi
   POLL_DEBUG(std::cout, "Clicked gimbal z");
 }
 
+*/

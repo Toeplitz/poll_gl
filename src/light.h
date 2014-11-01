@@ -4,25 +4,21 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+using glm::vec4;
+using glm::vec3;
+using glm::mat4;
 
 class Node;
 class Mesh;
 
 
-struct Gimbal_Nodes 
-{
-      Node *center;
-      Node *x;
-      Node *y;
-      Node *z;
-};
-
-
 struct Light_Properties
 {
-  glm::vec4 position = glm::vec4(0, 0, 0, 1);
-  glm::vec4 color = glm::vec4(0.5f);
-  glm::vec4 direction = glm::vec4(0, -1, 0, 0);
+  vec4 position = vec4(0, 0, 0, 1);
+  vec4 color = vec4(0.5f);
+  vec4 direction = vec4(0, -1, 0, 0);
+  mat4 projection = mat4(1.f);
+  mat4 view = mat4(1.f);
   int type = 0;
 };
 
@@ -30,7 +26,6 @@ struct Light_Properties
 class Light
 {
   private:
-    Gimbal_Nodes gimbal_nodes;
     Light_Properties properties;
     Node *node_ptr = nullptr;
     unsigned int illumination_type;
@@ -47,7 +42,6 @@ class Light
       GLOBAL = 5
     };
 
-    Gimbal_Nodes           &gimbal_nodes_get();
     const unsigned int     &illumination_type_get();
     void                    illumination_type_set(const unsigned int illum_type);
     Node                   *node_ptr_get();

@@ -53,6 +53,7 @@ class Stock_Shaders
     GLshader text;
     GLshader world_basic_color;
     GLshader world_geometry;
+    GLshader world_geometry_shadow;
     GLshader world_light;
     GLshader world_stencil;
     GLshader world_physics_debug;

@@ -68,7 +68,27 @@ void GLcontext::draw_scene(Scene &scene, Poll_Plugin_List &plugins)
     draw_mesh(*node);
   }
 
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  {
+    const int dest_width = 200;
+    const int dest_height = 200;
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, gl_fb);
+    glReadBuffer(GL_COLOR_ATTACHMENT0);
+    glBlitFramebuffer(0, 0, scene.window_get().width_get(), scene.window_get().height_get(),
+        0, 0, dest_width, dest_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+    glReadBuffer(GL_COLOR_ATTACHMENT1);
+    glBlitFramebuffer(0, 0, scene.window_get().width_get(), scene.window_get().height_get(),
+        dest_width * 2, 0, dest_width * 3, 200, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+    glReadBuffer(GL_COLOR_ATTACHMENT2);
+    glBlitFramebuffer(0, 0, scene.window_get().width_get(), scene.window_get().height_get(),
+        dest_width * 5, 0, dest_width * 6, 200, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER_EXT, 0);
+  }
+
 }
 
 
@@ -692,20 +712,59 @@ void GLcontext::draw_geometry_all(Scene &scene)
   Assets &assets = scene.assets_get();
   Stock_Shaders &shader = assets.stock_shaders_get();
 
-  shader.world_geometry.use();
-  GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb));
-  GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-  GL_ASSERT(glDrawBuffers(2, draw_bufs));
-  GL_ASSERT(glDepthMask(GL_TRUE));
-  GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-  GL_ASSERT(glClearColor(0.2f, 0.2f, 0.2f, 1.f));
-  GL_ASSERT(glEnable(GL_DEPTH_TEST));
-  for (auto &node: scene.mesh_nodes_get()) {
-    draw_node(*node);
-  }
-  GL_ASSERT(glDepthMask(GL_FALSE));
-  GL_ASSERT(glDisable(GL_DEPTH_TEST));
 
+  /* FIXME:
+   * Temp shadow code to test concept
+   *
+   */
+
+  {
+    shader.world_geometry_shadow.use();
+    //glm::vec3 lightInvDir = glm::vec3(0.5f,2,2);
+    glm::vec3 lightInvDir = glm::vec3(0, -1, 0);
+     // Compute the MVP matrix from the light's point of view
+    glm::mat4 depthProjectionMatrix = glm::ortho<float>(-10,10,-10,10,-10,20);
+    glm::mat4 depthViewMatrix = glm::lookAt(lightInvDir, glm::vec3(0,0,0), glm::vec3(0,1,0));
+    glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix;
+    // Send our transformation to the currently bound shader, in the "MVP" uniform
+    GLint loc = glGetUniformLocation(shader.world_geometry.program_get(), "shadow_view_projection");
+    GL_ASSERT(glUniformMatrix4fv(loc, 1, GL_FALSE, &depthMVP[0][0]));
+
+    GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb));
+    GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+    GL_ASSERT(glDrawBuffers(2, draw_bufs));
+    //glDrawBuffer(GL_COLOR_ATTACHMENT1);
+    GL_ASSERT(glDepthMask(GL_TRUE));
+    GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+    GL_ASSERT(glEnable(GL_DEPTH_TEST));
+
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
+    for (auto &node: scene.mesh_nodes_get()) {
+      draw_node(*node);
+    }
+    GL_ASSERT(glDepthMask(GL_FALSE));
+    GL_ASSERT(glDisable(GL_DEPTH_TEST));
+  }
+
+  {
+    shader.world_geometry.use();
+    GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb));
+    GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+    GL_ASSERT(glDrawBuffers(2, draw_bufs));
+    GL_ASSERT(glDepthMask(GL_TRUE));
+    //GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+    GL_ASSERT(glEnable(GL_DEPTH_TEST));
+
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+    GL_ASSERT(glClearColor(0.2f, 0.2f, 0.2f, 1.f));
+    for (auto &node: scene.mesh_nodes_get()) {
+      draw_node(*node);
+    }
+    GL_ASSERT(glDepthMask(GL_FALSE));
+    GL_ASSERT(glDisable(GL_DEPTH_TEST));
+  }
+
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 }
 
 

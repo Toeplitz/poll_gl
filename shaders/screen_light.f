@@ -27,6 +27,7 @@ void main ()
   vec3 pos_eye = vec3(view * vec4(p_texel.rgb, 1.0));
 
   out_color.rgb = light_apply(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel));
+  //out_color.rgb = vec3(diffuse_texel.a, diffuse_texel.a, diffuse_texel.a);
  // out_color.rgb = vec3(0, 1, 0);
   //frag_color.rgb = occlusion * phong(pos_eye, normalize(n_texel.rgb), vec3(0.5, 0.5, 0.5));
  // frag_color.rgb = vec3(n_texel);

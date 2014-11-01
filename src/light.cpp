@@ -10,12 +10,6 @@
 /**************************************************/
 
 
-Gimbal_Nodes &Light::gimbal_nodes_get()
-{
-  return gimbal_nodes;
-}
-
-
 const unsigned int &Light::illumination_type_get()
 {
   return illumination_type;
@@ -82,6 +76,8 @@ const Light_Properties &Light::properties_get() const
 
 void Light::properties_direction_set(const glm::vec3 &direction)
 {
+  properties.projection = glm::ortho<float>(-10, 10, -10, 10, -10, 20);
+  properties.view = glm::lookAt(direction, glm::vec3(0,0,0), glm::vec3(0,1,0));
   properties.direction = glm::vec4(direction, 0);
 }
 
