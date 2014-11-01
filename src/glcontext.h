@@ -43,6 +43,7 @@ class GLcontext {
     GLuint gl_fb_tex_normal;
     GLuint gl_fb_tex_diffuse;
     GLuint gl_fb_tex_depth;
+    GLuint gl_fb_tex_shadow;
     GLuint gl_fb_tex_final;
     GLuint gl_fb_vertex_buffers[1];
 

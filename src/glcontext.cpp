@@ -65,6 +65,8 @@ void GLcontext::draw_scene(Scene &scene, Poll_Plugin_List &plugins)
     shader.screen_post_proc.use();
     GL_ASSERT(glActiveTexture(GL_TEXTURE0));
     GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_final));
+    GL_ASSERT(glActiveTexture(GL_TEXTURE1));
+    GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_shadow));
     draw_mesh(*node);
   }
 
@@ -510,6 +512,9 @@ void GLcontext::uniform_locations_post_proc_init(GLshader &shader)
 
   location = glGetUniformLocation(program, "tex");
   GL_ASSERT(glUniform1i(location, 0));
+
+  location = glGetUniformLocation(program, "shadow_tex");
+  GL_ASSERT(glUniform1i(location, 1));
 }
 
 
@@ -720,42 +725,40 @@ void GLcontext::draw_geometry_all(Scene &scene)
 
   {
     shader.world_geometry_shadow.use();
-    //glm::vec3 lightInvDir = glm::vec3(0.5f,2,2);
-    glm::vec3 lightInvDir = glm::vec3(0, -1, 0);
+    glm::vec3 lightInvDir = glm::vec3(0.5f,2,2);
+    //glm::vec3 lightInvDir = glm::vec3(0, 1, 0);
      // Compute the MVP matrix from the light's point of view
     glm::mat4 depthProjectionMatrix = glm::ortho<float>(-10,10,-10,10,-10,20);
     glm::mat4 depthViewMatrix = glm::lookAt(lightInvDir, glm::vec3(0,0,0), glm::vec3(0,1,0));
     glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix;
     // Send our transformation to the currently bound shader, in the "MVP" uniform
-    GLint loc = glGetUniformLocation(shader.world_geometry.program_get(), "shadow_view_projection");
+    GLint loc = glGetUniformLocation(shader.world_geometry_shadow.program_get(), "shadow_view_projection");
     GL_ASSERT(glUniformMatrix4fv(loc, 1, GL_FALSE, &depthMVP[0][0]));
 
     GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb));
-    GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-    GL_ASSERT(glDrawBuffers(2, draw_bufs));
-    //glDrawBuffer(GL_COLOR_ATTACHMENT1);
+    //GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT3 };
+    //GL_ASSERT(glDrawBuffers(3, draw_bufs));
+    glDrawBuffer(GL_COLOR_ATTACHMENT3);
     GL_ASSERT(glDepthMask(GL_TRUE));
     GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     GL_ASSERT(glEnable(GL_DEPTH_TEST));
 
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
+   // glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
     for (auto &node: scene.mesh_nodes_get()) {
       draw_node(*node);
     }
-    GL_ASSERT(glDepthMask(GL_FALSE));
-    GL_ASSERT(glDisable(GL_DEPTH_TEST));
   }
 
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
   {
     shader.world_geometry.use();
     GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb));
     GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
     GL_ASSERT(glDrawBuffers(2, draw_bufs));
     GL_ASSERT(glDepthMask(GL_TRUE));
-    //GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+    GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     GL_ASSERT(glEnable(GL_DEPTH_TEST));
 
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
     GL_ASSERT(glClearColor(0.2f, 0.2f, 0.2f, 1.f));
     for (auto &node: scene.mesh_nodes_get()) {
       draw_node(*node);
@@ -955,12 +958,21 @@ void GLcontext::framebuffer_create()
   GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
   GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 
+  GL_ASSERT(glGenTextures(1, &gl_fb_tex_shadow));
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_shadow));
+  GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+
   GL_ASSERT(glGenFramebuffers (1, &gl_fb));
   GL_ASSERT(glBindFramebuffer(GL_FRAMEBUFFER, gl_fb));
   GL_ASSERT(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl_fb_tex_normal, 0));
   GL_ASSERT(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gl_fb_tex_diffuse, 0));
-  GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-  GL_ASSERT(glDrawBuffers(2, draw_bufs));
+  GL_ASSERT(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gl_fb_tex_shadow, 0));
+  //GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+  //GL_ASSERT(glDrawBuffers(2, draw_bufs));
 
   framebuffer_check_status();
 
