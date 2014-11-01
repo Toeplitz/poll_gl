@@ -7,10 +7,13 @@
 uniform sampler2D normal_tex;
 uniform sampler2D diffuse_tex;
 uniform sampler2D depth_tex;
+uniform sampler2D shadow_tex;
+
 
 layout (location = 0) out vec4 out_color;
 //out vec4 frag_color;
 
+uniform mat4 shadow_bias;
 
 void main () 
 {
@@ -26,7 +29,16 @@ void main ()
   vec3 p_texel = reconstruct_position(d_texel, st);
   vec3 pos_eye = vec3(view * vec4(p_texel.rgb, 1.0));
 
-  out_color.rgb = light_apply(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel));
+  float bias = 0.005;
+  float visibility = 1.0;
+  vec3 shadow_coord = vec3(shadow_bias * vec4(p_texel, 1.0));
+  float p_shadow_map = texture(shadow_tex, shadow_coord.xy).r;
+  if (p_shadow_map < shadow_coord.z - bias) {
+      visibility = 0.5;
+   }
+
+  out_color.rgb = visibility * light_apply(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel));
+  //out_color.rgb = vec3(p_shadow_map, p_shadow_map, p_shadow_map);
   //out_color.rgb = vec3(diffuse_texel.a, diffuse_texel.a, diffuse_texel.a);
  // out_color.rgb = vec3(0, 1, 0);
   //frag_color.rgb = occlusion * phong(pos_eye, normalize(n_texel.rgb), vec3(0.5, 0.5, 0.5));

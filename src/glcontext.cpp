@@ -484,6 +484,8 @@ void GLcontext::uniform_locations_lighting_init(GLshader &shader)
   GL_ASSERT(glUniform1i(location, 1));
   location = glGetUniformLocation(program, "depth_tex");
   GL_ASSERT(glUniform1i(location, 2));
+  location = glGetUniformLocation(program, "shadow_tex");
+  GL_ASSERT(glUniform1i(location, 3));
 }
 
 
@@ -727,7 +729,7 @@ void GLcontext::draw_geometry_all(Scene &scene)
     shader.world_geometry_shadow.use();
     glm::vec3 lightInvDir = glm::vec3(0.5f,2,2);
     //glm::vec3 lightInvDir = glm::vec3(0, 1, 0);
-     // Compute the MVP matrix from the light's point of view
+    // Compute the MVP matrix from the light's point of view
     glm::mat4 depthProjectionMatrix = glm::ortho<float>(-10,10,-10,10,-10,20);
     glm::mat4 depthViewMatrix = glm::lookAt(lightInvDir, glm::vec3(0,0,0), glm::vec3(0,1,0));
     glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix;
@@ -743,7 +745,7 @@ void GLcontext::draw_geometry_all(Scene &scene)
     GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     GL_ASSERT(glEnable(GL_DEPTH_TEST));
 
-   // glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
+    // glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
     for (auto &node: scene.mesh_nodes_get()) {
       draw_node(*node);
     }
@@ -786,7 +788,10 @@ void GLcontext::draw_light_all(Scene &scene)
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_diffuse));
   GL_ASSERT(glActiveTexture(GL_TEXTURE2));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_depth));
+  GL_ASSERT(glActiveTexture(GL_TEXTURE3));
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_shadow));
   GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
+
 
   for (auto &light: lights) {
     Node *node = light->node_ptr_get();
@@ -858,6 +863,28 @@ void GLcontext::draw_light_screen(Node &node, GLshader &shader_quad_light)
   NODE_VALIDATE(node);
 
   shader_quad_light.use();
+  /* FIXME: shadow stuff, temp 
+   *
+   */
+
+  glm::vec3 lightInvDir = glm::vec3(0.5f,2,2);
+  //glm::vec3 lightInvDir = glm::vec3(0, 1, 0);
+  // Compute the MVP matrix from the light's point of view
+  glm::mat4 depthProjectionMatrix = glm::ortho<float>(-10,10,-10,10,-10,20);
+  glm::mat4 depthViewMatrix = glm::lookAt(lightInvDir, glm::vec3(0,0,0), glm::vec3(0,1,0));
+  glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix;
+
+  glm::mat4 biasMatrix(
+      0.5, 0.0, 0.0, 0.0,
+      0.0, 0.5, 0.0, 0.0,
+      0.0, 0.0, 0.5, 0.0,
+      0.5, 0.5, 0.5, 1.0
+      );
+  mat4 depthBias = biasMatrix * depthMVP;
+
+  // Send our transformation to the currently bound shader, in the "MVP" uniform
+  GLint loc = glGetUniformLocation(shader_quad_light.program_get(), "shadow_bias");
+  GL_ASSERT(glUniformMatrix4fv(loc, 1, GL_FALSE, &depthBias[0][0]));
 
   GL_ASSERT(glClear(GL_STENCIL_BUFFER_BIT));
   GL_ASSERT(glDisable(GL_STENCIL_TEST));
@@ -883,7 +910,7 @@ void GLcontext::draw_node(Node &node)
 
   uniform_buffers_update_state(node);
   uniform_buffers_update_matrices(node);
-  
+
   {
     Armature *armature = node.armature_get();
     if (armature) uniform_buffers_update_armature(*armature);
@@ -990,8 +1017,8 @@ void GLcontext::framebuffer_create()
   GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
   GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
   GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
- // GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
- // GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+  // GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+  // GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
   GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
   GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
   GL_ASSERT(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gl_fb_tex_final, 0));
