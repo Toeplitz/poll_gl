@@ -727,28 +727,30 @@ void GLcontext::draw_geometry_all(Scene &scene)
 
   {
     shader.world_geometry_shadow.use();
-    glm::vec3 lightInvDir = glm::vec3(0.5f,2,2);
+   // glm::vec3 lightInvDir = glm::vec3(0.5f,2,2);
+  glm::vec3 lightInvDir = glm::vec3(0.f,1.f,0.f);
     //glm::vec3 lightInvDir = glm::vec3(0, 1, 0);
     // Compute the MVP matrix from the light's point of view
-    glm::mat4 depthProjectionMatrix = glm::ortho<float>(-10,10,-10,10,-10,20);
-    glm::mat4 depthViewMatrix = glm::lookAt(lightInvDir, glm::vec3(0,0,0), glm::vec3(0,1,0));
+    //glm::mat4 depthProjectionMatrix = glm::ortho<float>(-10,10,-10,10,-10,20);
+    glm::mat4 depthProjectionMatrix = glm::perspective(20.f, (float) 720 / (float) 1280, 1.0f, 50.0f);
+    glm::mat4 depthViewMatrix = glm::lookAt(lightInvDir, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
     glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix;
     // Send our transformation to the currently bound shader, in the "MVP" uniform
     GLint loc = glGetUniformLocation(shader.world_geometry_shadow.program_get(), "shadow_view_projection");
     GL_ASSERT(glUniformMatrix4fv(loc, 1, GL_FALSE, &depthMVP[0][0]));
 
-    GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb));
-    //GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT3 };
-    //GL_ASSERT(glDrawBuffers(3, draw_bufs));
-    glDrawBuffer(GL_COLOR_ATTACHMENT3);
+    GL_ASSERT(glBindFramebuffer(GL_FRAMEBUFFER, gl_fb_shadow));
+    glDrawBuffer(GL_NONE);
     GL_ASSERT(glDepthMask(GL_TRUE));
-    GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+    GL_ASSERT(glClear(GL_DEPTH_BUFFER_BIT));
     GL_ASSERT(glEnable(GL_DEPTH_TEST));
+    glCullFace(GL_FRONT);
 
     // glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_TRUE);
     for (auto &node: scene.mesh_nodes_get()) {
       draw_node(*node);
     }
+    glCullFace(GL_BACK);
   }
 
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
@@ -867,10 +869,12 @@ void GLcontext::draw_light_screen(Node &node, GLshader &shader_quad_light)
    *
    */
 
-  glm::vec3 lightInvDir = glm::vec3(0.5f,2,2);
+  //glm::vec3 lightInvDir = glm::vec3(0.5f,2,2);
+  glm::vec3 lightInvDir = glm::vec3(10.f,10.f,10.f);
   //glm::vec3 lightInvDir = glm::vec3(0, 1, 0);
   // Compute the MVP matrix from the light's point of view
-  glm::mat4 depthProjectionMatrix = glm::ortho<float>(-10,10,-10,10,-10,20);
+ // glm::mat4 depthProjectionMatrix = glm::ortho<float>(-10,10,-10,10,-10,20);
+  glm::mat4 depthProjectionMatrix = glm::perspective(45.f, (float) 720 / (float) 1280, 1.0f, 50.0f);
   glm::mat4 depthViewMatrix = glm::lookAt(lightInvDir, glm::vec3(0,0,0), glm::vec3(0,1,0));
   glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix;
 
@@ -880,6 +884,14 @@ void GLcontext::draw_light_screen(Node &node, GLshader &shader_quad_light)
       0.0, 0.0, 0.5, 0.0,
       0.5, 0.5, 0.5, 1.0
       );
+  /*
+  glm::mat4 biasMatrix(
+      0.5, 0.0, 0.0, 0.5,
+      0.0, 0.5, 0.0, 0.5,
+      0.0, 0.0, 0.5, 0.5,
+      0.0, 0.0, 0.0, 1.0
+      );
+  */
   mat4 depthBias = biasMatrix * depthMVP;
 
   // Send our transformation to the currently bound shader, in the "MVP" uniform
@@ -985,19 +997,10 @@ void GLcontext::framebuffer_create()
   GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
   GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 
-  GL_ASSERT(glGenTextures(1, &gl_fb_tex_shadow));
-  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_shadow));
-  GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
-  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-
   GL_ASSERT(glGenFramebuffers (1, &gl_fb));
   GL_ASSERT(glBindFramebuffer(GL_FRAMEBUFFER, gl_fb));
   GL_ASSERT(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl_fb_tex_normal, 0));
   GL_ASSERT(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gl_fb_tex_diffuse, 0));
-  GL_ASSERT(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gl_fb_tex_shadow, 0));
   //GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
   //GL_ASSERT(glDrawBuffers(2, draw_bufs));
 
@@ -1023,6 +1026,24 @@ void GLcontext::framebuffer_create()
   GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
   GL_ASSERT(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gl_fb_tex_final, 0));
 
+  GL_ASSERT(glGenFramebuffers (1, &gl_fb_shadow));
+  GL_ASSERT(glBindFramebuffer(GL_FRAMEBUFFER, gl_fb_shadow));
+
+  const int shadow_map_width = width;
+  const int shadow_map_height = height;
+
+  GL_ASSERT(glGenTextures(1, &gl_fb_tex_shadow));
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_shadow));
+  GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, shadow_map_width, shadow_map_height,
+        0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+  GL_ASSERT(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, gl_fb_tex_shadow, 0));
+
+  GL_ASSERT(glDrawBuffer(GL_NONE));
+  GL_ASSERT(glReadBuffer(GL_NONE));
 }
 
 

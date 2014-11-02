@@ -40,6 +40,7 @@ class GLcontext {
     GLuint gl_buffer_state;
 
     GLuint gl_fb;
+    GLuint gl_fb_shadow;
     GLuint gl_fb_tex_normal;
     GLuint gl_fb_tex_diffuse;
     GLuint gl_fb_tex_depth;

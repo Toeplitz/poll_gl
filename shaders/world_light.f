@@ -23,9 +23,10 @@ void main ()
   vec3 p_texel = reconstruct_position(d_texel, st);
   vec3 pos_eye = vec3(view * vec4(p_texel.rgb, 1.0));
 
-  float occlusion = ssoa(st, d_texel, pos_eye, n_texel.rgb, depth_tex);
+  //float occlusion = ssoa(st, d_texel, pos_eye, n_texel.rgb, depth_tex);
 
-  out_color.rgb = occlusion * light_apply(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel));
+  //out_color.rgb = occlusion * light_apply(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel));
+  out_color.rgb = light_apply(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel), 1.0);
   out_color.a = 1.0;
 }
 

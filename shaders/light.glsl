@@ -23,7 +23,7 @@ vec3 light_point(in vec3 position_eye)
   return direction_to_light_eye;
 }
 
-vec3 light_apply(in vec3 position_eye, in vec3 normal_eye, vec3 material_diffuse)
+vec3 light_apply(in vec3 position_eye, in vec3 normal_eye, vec3 material_diffuse, float shadow)
 {
   vec3 d_Ks = vec3 (0.5, 0.5, 0.5); // fully reflect specular light
   vec3 d_Ka = vec3 (0, 0, 0); // fully reflect ambient light
@@ -83,7 +83,7 @@ vec3 light_apply(in vec3 position_eye, in vec3 normal_eye, vec3 material_diffuse
   vec3 Is = d_Ls * d_Ks * specular_factor; // final specular intensity
   Is *= spot_factor;
 
-  return vec3(Ia + Id + Is);
+  return vec3(Ia + shadow * Id + Is);
   //ret += vec3(spot_factor, spot_factor, spot_factor);
 }
 
