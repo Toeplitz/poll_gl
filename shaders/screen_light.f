@@ -76,6 +76,19 @@ float shadow_cookbook_get(vec4 shadow_coord)
 }
 
 
+float shadow_cookbook_pcf_get(vec4 shadow_coord)
+{
+  float sum = 0;
+
+  sum += textureProjOffset(shadow_tex, shadow_coord, ivec2(-1, -1));
+  sum += textureProjOffset(shadow_tex, shadow_coord, ivec2(-1, 1));
+  sum += textureProjOffset(shadow_tex, shadow_coord, ivec2(1, 1));
+  sum += textureProjOffset(shadow_tex, shadow_coord, ivec2(1, -1));
+
+  return sum * 0.25;
+}
+
+
 vec4 shadow_coord_get(mat4 vp, vec3 position)
 {
   vec4 shadow_coord = vp * vec4(position, 1.0);
@@ -103,7 +116,8 @@ void main ()
 
   vec4 shadow_coord = shadow_coord_get(shadow_view_projection, p_texel);
   //float shadow = shadow_opengl_tut_get(shadow_coord);
-  float shadow = shadow_cookbook_get(shadow_coord);
+  //float shadow = shadow_cookbook_get(shadow_coord);
+  float shadow = shadow_cookbook_pcf_get(shadow_coord);
 
   out_color.rgb = light_apply(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel), shadow);
   //out_color.rgb = vec3(p_shadow_map, p_shadow_map, p_shadow_map);

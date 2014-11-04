@@ -748,11 +748,11 @@ void GLcontext::draw_geometry_all(Scene &scene)
 
     GL_ASSERT(glBindFramebuffer(GL_FRAMEBUFFER, gl_fb_shadow));
     glDrawBuffer(GL_NONE);
-    glReadBuffer(GL_NONE);
+  //  glReadBuffer(GL_NONE);
     GL_ASSERT(glClear(GL_DEPTH_BUFFER_BIT));
     glCullFace(GL_FRONT);
 
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+ //   glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     for (auto &node: scene.mesh_nodes_get()) {
       draw_node(*node);
     }
@@ -876,8 +876,6 @@ void GLcontext::draw_light_screen(Node &node, GLshader &shader_quad_light)
    */
 
   mat4 m = shadow_view_projection_get();
-
-  // Send our transformation to the currently bound shader, in the "MVP" uniform
   GLint loc = glGetUniformLocation(shader_quad_light.program_get(), "shadow_view_projection");
   GL_ASSERT(glUniformMatrix4fv(loc, 1, GL_FALSE, &m[0][0]));
 
