@@ -8,8 +8,6 @@ layout(location = 6) in vec2 texture_coord;
 #include uniform_buffers.glsl
 #include skinning.glsl
 
-uniform mat4 shadow_mvp;
-
 out vec3 normal_eye;
 out vec2 st;
 

@@ -13,7 +13,7 @@ void main(void)
 {
   mat4 m = model;
   if (state_animated == 1) {
-    m = model * func_animation_matrix_get();
+    m = func_animation_matrix_get();
   }
 
   // Out variables

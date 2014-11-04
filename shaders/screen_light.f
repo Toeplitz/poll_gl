@@ -14,7 +14,7 @@ uniform sampler2DShadow shadow_tex;
 layout (location = 0) out vec4 out_color;
 //out vec4 frag_color;
 
-uniform mat4 shadow_bias;
+uniform mat4 shadow_view_projection;
 
 vec2 poisson_disk[4] = vec2[](
   vec2( -0.94201624, -0.39906216 ),
@@ -50,24 +50,41 @@ float random(vec3 seed, int i){
 	return fract(sin(dot_product) * 43758.5453);
 }
 
-/*
-float chebyshevUpperBound(vec2 ShadowCoordPostW, float distance)
+
+float shadow_opengl_tut_get(vec4 shadow_coord)
 {
-  vec2 moments = texture2D(shadow_tex, ShadowCoordPostW).rg;
-  
-  if (distance <= moments.x)
-    return 1.0 ;
+  float bias = 0.005;
 
-  float variance = moments.y - (moments.x*moments.x);
-  variance = max(variance,0.00002);
+  float shadow = 1.0;
+  for (int i = 0; i < 4; i++) {
+		int index = i;
+		//int index = int(16.0*random(gl_FragCoord.xyy, i))%16;
+		//int index = int(16.0*random(floor(p_texel.xyz*1000.0), i))%16;
 
-  float d = distance - moments.x;
-  float p_max = variance / (variance + d*d);
+		shadow -= 0.2* (1.0 - texture(shadow_tex, vec3(shadow_coord.xy + poisson_disk[index] / 700.0,
+    (shadow_coord.z-bias)/shadow_coord.w) ));
+  }
 
-  return p_max;
+  return shadow;
 }
-*/
 
+float shadow_cookbook_get(vec4 shadow_coord)
+{
+  float shadow = textureProj(shadow_tex, shadow_coord);
+
+  return shadow;
+}
+
+
+vec4 shadow_coord_get(mat4 vp, vec3 position)
+{
+  vec4 shadow_coord = vp * vec4(position, 1.0);
+  shadow_coord.xyz /= shadow_coord.w;
+  shadow_coord.xyz += 1.0;
+  shadow_coord.xyz *= 0.5;
+
+  return shadow_coord;
+}
 
 
 void main () 
@@ -84,33 +101,11 @@ void main ()
   vec3 p_texel = reconstruct_position(d_texel, st);
   vec3 pos_eye = vec3(view * vec4(p_texel, 1.0));
 
-  float bias = 0.005;
-  float visibility = 1.0;
-  vec4 shadow_coord = shadow_bias * vec4(p_texel, 1.0);
+  vec4 shadow_coord = shadow_coord_get(shadow_view_projection, p_texel);
+  //float shadow = shadow_opengl_tut_get(shadow_coord);
+  float shadow = shadow_cookbook_get(shadow_coord);
 
-/*
-  for (int i = 0; i < 4; i++) {
-		int index = i;
-
-		visibility -= 0.2* (1.0 - texture(shadow_tex, vec3(shadow_coord.xy + poisson_disk_16samples[index] / 700.0,
-    (shadow_coord.z-bias)/shadow_coord.w) ));
-  }
-*/
-
-  /*
-  float p_shadow_map = texture(shadow_tex, shadow_coord.xy).r;
-  if (p_shadow_map < shadow_coord.z) {
-      visibility = 0.5;
-   }
-   */
-
- // vec4 ShadowCoordPostW = shadow_coord / shadow_coord.w;
-//  float shadow = chebyshevUpperBound(ShadowCoordPostW.xy, ShadowCoordPostW.z);
- // visibility = shadow;
-
-  visibility = textureProj(shadow_tex, shadow_coord / shadow_coord.w);
-
-  out_color.rgb = light_apply(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel), visibility);
+  out_color.rgb = light_apply(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel), shadow);
   //out_color.rgb = vec3(p_shadow_map, p_shadow_map, p_shadow_map);
   //out_color.rgb = vec3(diffuse_texel.a, diffuse_texel.a, diffuse_texel.a);
  // out_color.rgb = vec3(0, 1, 0);

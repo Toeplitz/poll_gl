@@ -13,9 +13,11 @@ void main()
 
   //vec3 shadow = texture(shadow_tex, st).rgb;
  // frag_color.rgb = shadow;
+ /*
   float shadow = texture(shadow_tex, st).x;
-  shadow = 1.0 - (1.0 - shadow) * 25 ;
+  shadow = 1.0 - (1.0 - shadow) * 2;
   frag_color.rgb = vec3(shadow, shadow, shadow);
+  */
   frag_color.a = 1.0; 
 }
 

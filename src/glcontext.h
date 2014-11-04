@@ -66,6 +66,8 @@ class GLcontext {
     void draw_light_screen(Node &node, GLshader &shader_light);
     void draw_node(Node &node);
 
+    mat4 shadow_view_projection_get();
+
   public:
     
     void check_error();

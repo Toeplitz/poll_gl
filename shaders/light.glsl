@@ -83,7 +83,7 @@ vec3 light_apply(in vec3 position_eye, in vec3 normal_eye, vec3 material_diffuse
   vec3 Is = d_Ls * d_Ks * specular_factor; // final specular intensity
   Is *= spot_factor;
 
-  return vec3(Ia + shadow * Id + Is);
+  return vec3(Ia + shadow * (Id + Is));
   //ret += vec3(spot_factor, spot_factor, spot_factor);
 }
 

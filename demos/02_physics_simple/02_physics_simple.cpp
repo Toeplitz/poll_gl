@@ -66,8 +66,8 @@ int main()
 
 #endif
 
-  //Node &bob = scene.load("data/bob/", "Bob_with_lamp.dae", MODEL_IMPORT_DEFAULT);
-  // bob.rotate(scene, (float) M_PI/ 2.f, vec3(0, 0,  1));
+  Node &bob = scene.load("data/bob/", "Bob_with_lamp.dae", MODEL_IMPORT_DEFAULT);
+  bob.rotate(scene, (float) M_PI/ 2.f, vec3(0, 0,  1));
   {
     Node *node = scene.node_create("Light_Directionl_Global");
     Light *light = node->light_create(scene, Light::DIRECTIONAL, Light::GLOBAL);
