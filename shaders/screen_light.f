@@ -115,9 +115,16 @@ void main ()
   vec3 pos_eye = vec3(view * vec4(p_texel, 1.0));
 
   vec4 shadow_coord = shadow_coord_get(shadow_view_projection, p_texel);
-  //float shadow = shadow_opengl_tut_get(shadow_coord);
+  float shadow = shadow_opengl_tut_get(shadow_coord);
   //float shadow = shadow_cookbook_get(shadow_coord);
-  float shadow = shadow_cookbook_pcf_get(shadow_coord);
+  //float shadow = shadow_cookbook_pcf_get(shadow_coord);
+
+  /*
+  float f = texture(shadow_tex, shadow_coord.xy).z;
+  if (f < shadow_coord.z) {
+    shadow = 0.5;
+  }
+  */
 
   out_color.rgb = light_apply(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel), shadow);
   //out_color.rgb = vec3(p_shadow_map, p_shadow_map, p_shadow_map);

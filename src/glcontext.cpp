@@ -740,25 +740,6 @@ void GLcontext::draw_geometry_all(Scene &scene)
    *
    */
 
-  {
-    shader.world_geometry_shadow.use();
-    mat4 m = shadow_view_projection_get();
-    GLint loc = glGetUniformLocation(shader.world_geometry_shadow.program_get(), "shadow_view_projection");
-    GL_ASSERT(glUniformMatrix4fv(loc, 1, GL_FALSE, &m[0][0]));
-
-    GL_ASSERT(glBindFramebuffer(GL_FRAMEBUFFER, gl_fb_shadow));
-    glDrawBuffer(GL_NONE);
-  //  glReadBuffer(GL_NONE);
-    GL_ASSERT(glClear(GL_DEPTH_BUFFER_BIT));
-    glCullFace(GL_FRONT);
-
- //   glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    for (auto &node: scene.mesh_nodes_get()) {
-      draw_node(*node);
-    }
-    glCullFace(GL_BACK);
-  }
-
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
   {
     shader.world_geometry.use();
@@ -773,9 +754,29 @@ void GLcontext::draw_geometry_all(Scene &scene)
     for (auto &node: scene.mesh_nodes_get()) {
       draw_node(*node);
     }
-    GL_ASSERT(glDepthMask(GL_FALSE));
-    GL_ASSERT(glDisable(GL_DEPTH_TEST));
   }
+
+  {
+    shader.world_geometry_shadow.use();
+    mat4 m = shadow_view_projection_get();
+    GLint loc = glGetUniformLocation(shader.world_geometry_shadow.program_get(), "shadow_view_projection");
+    GL_ASSERT(glUniformMatrix4fv(loc, 1, GL_FALSE, &m[0][0]));
+
+    GL_ASSERT(glBindFramebuffer(GL_FRAMEBUFFER, gl_fb_shadow));
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    GL_ASSERT(glClear(GL_DEPTH_BUFFER_BIT));
+    //glCullFace(GL_FRONT);
+
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    for (auto &node: scene.mesh_nodes_get()) {
+      draw_node(*node);
+    }
+    //glCullFace(GL_BACK);
+  }
+
+  GL_ASSERT(glDepthMask(GL_FALSE));
+  GL_ASSERT(glDisable(GL_DEPTH_TEST));
 
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 }
@@ -788,6 +789,9 @@ void GLcontext::draw_light_all(Scene &scene)
   auto &lights = assets.light_active_get();
   Node *node_screen_quad = assets.stock_nodes_get().screen_quad_get();
 
+  GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb));
+  GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
+
   GL_ASSERT(glEnable(GL_STENCIL_TEST));
 
   GL_ASSERT(glActiveTexture(GL_TEXTURE0));
@@ -798,7 +802,6 @@ void GLcontext::draw_light_all(Scene &scene)
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_depth));
   GL_ASSERT(glActiveTexture(GL_TEXTURE3));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_shadow));
-  GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
 
 
   for (auto &light: lights) {
@@ -1019,6 +1022,12 @@ void GLcontext::framebuffer_create()
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_shadow));
   GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, shadow_map_width, shadow_map_height,
         0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL));
+  /*
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+  */
   GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
   GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
   GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER));
