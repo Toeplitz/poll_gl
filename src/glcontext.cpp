@@ -146,6 +146,7 @@ void GLcontext::init(Window &window)
   GL_ASSERT(glEnable(GL_DEPTH_TEST));
 
   framebuffer_create();
+  shadow_texture_offset_build(8, 4, 8);
 }
 
 
@@ -486,6 +487,8 @@ void GLcontext::uniform_locations_lighting_init(GLshader &shader)
   GL_ASSERT(glUniform1i(location, 2));
   location = glGetUniformLocation(program, "shadow_tex");
   GL_ASSERT(glUniform1i(location, 3));
+  location = glGetUniformLocation(program, "offset_tex");
+  GL_ASSERT(glUniform1i(location, 4));
 }
 
 
@@ -714,6 +717,62 @@ bool GLcontext::check_version(const int &major)
 }
 
 
+float GLcontext::shadow_jitter_get() 
+{
+  return ((float) rand() / RAND_MAX) - 0.5f;
+}
+
+
+void GLcontext::shadow_texture_offset_build(int tex_size, int samples_u, int samples_v)
+{
+  int size = tex_size;
+  int samples = samples_u * samples_v;
+  int buf_size = size * size * samples * 2;
+  float *data = new float[buf_size];
+
+  for (int i = 0; i < size; i++) {
+    for (int j = 0; j < size; j++) {
+      for (int k = 0; k < samples; k += 2) {
+        int x1, y1, x2, y2;
+
+        x1 = k % (samples_u);
+        y1 = (samples - 1 - k) / samples_u;
+        x2 = (k + 1) % samples_u;
+        y2 = (samples - 1 - k - 1) / samples_u;
+
+        vec4 v;
+        v.x = (x1 + 0.5f) + shadow_jitter_get();
+        v.y = (y1 + 0.5f) + shadow_jitter_get();
+        v.z = (x2 + 0.5f) + shadow_jitter_get();
+        v.w = (y2 + 0.5f) + shadow_jitter_get();
+
+        v.x /= samples_u;
+        v.y /= samples_v;
+        v.z /= samples_u;
+        v.w /= samples_v;
+
+        int cell = ((k / 2) * size * size + j * size + i) * 4;
+        POLL_DEBUG(std::cout, "cell: " << cell);
+
+        data[cell + 0] = sqrtf(v.y) * cosf(2.0f * M_PI * v.x);
+        data[cell + 1] = sqrtf(v.y) * sinf(2.0f * M_PI * v.x);
+        data[cell + 2] = sqrtf(v.w) * cosf(2.0f * M_PI * v.z);
+        data[cell + 3] = sqrtf(v.w) * sinf(2.0f * M_PI * v.z);
+      }
+    }
+  }
+
+  GL_ASSERT(glGenTextures(1, &gl_tex_shadow_sampler));
+  GL_ASSERT(glBindTexture(GL_TEXTURE_3D, gl_tex_shadow_sampler));
+  GL_ASSERT(glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA32F, size, size, samples / 2, 0, GL_RGBA, GL_FLOAT, data));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+
+  delete [] data;
+}
+
+
+
 mat4 GLcontext::shadow_view_projection_get()
 {
   //glm::vec3 lightInvDir = glm::vec3(0.f,1.f,0.f);
@@ -775,7 +834,7 @@ void GLcontext::draw_geometry_all(Scene &scene)
       draw_node(*node);
     }
     glViewport(0, 0, scene.window_get().width_get(), scene.window_get().height_get());
-   // glCullFace(GL_BACK);
+    //glCullFace(GL_BACK);
   }
 
   GL_ASSERT(glDepthMask(GL_FALSE));
@@ -805,6 +864,8 @@ void GLcontext::draw_light_all(Scene &scene)
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_depth));
   GL_ASSERT(glActiveTexture(GL_TEXTURE3));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_shadow));
+  GL_ASSERT(glActiveTexture(GL_TEXTURE4));
+  GL_ASSERT(glBindTexture(GL_TEXTURE_3D, gl_tex_shadow_sampler));
 
 
   for (auto &light: lights) {

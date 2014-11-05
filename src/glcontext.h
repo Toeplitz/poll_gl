@@ -48,6 +48,8 @@ class GLcontext {
     GLuint gl_fb_tex_final;
     GLuint gl_fb_vertex_buffers[1];
 
+    GLuint gl_tex_shadow_sampler;
+
     Window *window_ptr = nullptr;
 
     bool check_version(const int &major);
@@ -66,10 +68,12 @@ class GLcontext {
     void draw_light_screen(Node &node, GLshader &shader_light);
     void draw_node(Node &node);
 
+    float shadow_jitter_get();
+    void shadow_texture_offset_build(int tex_size, int samples_u, int samples_v);
     mat4 shadow_view_projection_get();
 
-    const int shadow_map_width = 1024;
-    const int shadow_map_height = 1024;
+    const int shadow_map_width = 512;
+    const int shadow_map_height = 512;
 
   public:
     

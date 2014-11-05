@@ -9,7 +9,9 @@ uniform sampler2D diffuse_tex;
 uniform sampler2D depth_tex;
 uniform sampler2DShadow shadow_tex;
 //uniform sampler2D shadow_tex;
-
+uniform sampler3D offset_tex;
+vec3 offset_tex_size = vec3(4, 8, (4 * 8) /2);
+float radius = .03;
 
 layout (location = 0) out vec4 out_color;
 //out vec4 frag_color;
@@ -89,6 +91,41 @@ float shadow_cookbook_pcf_get(vec4 shadow_coord)
 }
 
 
+float shadow_cookbook_pcf_soft_get(vec4 shadow_coord)
+{
+  ivec3 offset_coord;
+  offset_coord.xy = ivec2(mod(gl_FragCoord.xy, offset_tex_size.xy));
+
+  float sum = 0.0;
+  int samples_div2 = int(offset_tex_size.z);
+  vec4 sc = shadow_coord;
+
+  for (int i = 0; i < 4; i++) {
+    offset_coord.z = i;
+    vec4 offsets = texelFetch(offset_tex, offset_coord, 0) * radius * shadow_coord.w;
+    sc.xy = shadow_coord.xy + offsets.xy;
+    sum += textureProj(shadow_tex, sc);
+    sc.xy = shadow_coord.xy + offsets.zw;
+    sum += textureProj(shadow_tex, sc);
+  }
+
+  float shadow = sum / 8.0;
+  if (shadow != 1.0 && shadow != 0.0) {
+    for (int i = 4; i < samples_div2; i++) {
+      offset_coord.z = i;
+      vec4 offsets = texelFetch(offset_tex, offset_coord, 0) * radius * shadow_coord.w;
+      sc.xy = shadow_coord.xy + offsets.xy;
+      sum += textureProj(shadow_tex, sc);
+      sc.xy = shadow_coord.xy + offsets.zw;
+      sum += textureProj(shadow_tex, sc);
+    }
+    shadow = sum / float(samples_div2 * 2.0);
+  }
+
+  return shadow;
+}
+
+
 vec4 shadow_coord_get(mat4 vp, vec3 position)
 {
   vec4 shadow_coord = vp * vec4(position, 1.0);
@@ -115,10 +152,11 @@ void main ()
   vec3 pos_eye = vec3(view * vec4(p_texel, 1.0));
 
   vec4 shadow_coord = shadow_coord_get(shadow_view_projection, p_texel);
-  shadow_coord.z += 0.0001;
+  shadow_coord.z -= 0.001;
   //float shadow = shadow_opengl_tut_get(shadow_coord);
   //float shadow = shadow_cookbook_get(shadow_coord);
-  float shadow = shadow_cookbook_pcf_get(shadow_coord);
+  //float shadow = shadow_cookbook_pcf_get(shadow_coord);
+  float shadow = shadow_cookbook_pcf_soft_get(shadow_coord);
 
   /*
   float f = texture(shadow_tex, shadow_coord.xy).z;
