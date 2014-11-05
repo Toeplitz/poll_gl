@@ -763,16 +763,19 @@ void GLcontext::draw_geometry_all(Scene &scene)
     GL_ASSERT(glUniformMatrix4fv(loc, 1, GL_FALSE, &m[0][0]));
 
     GL_ASSERT(glBindFramebuffer(GL_FRAMEBUFFER, gl_fb_shadow));
+    glViewport(0, 0, shadow_map_width, shadow_map_height);
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     GL_ASSERT(glClear(GL_DEPTH_BUFFER_BIT));
     //glCullFace(GL_FRONT);
+    //glPolygonOffset(100.f, 100.f);
 
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     for (auto &node: scene.mesh_nodes_get()) {
       draw_node(*node);
     }
-    //glCullFace(GL_BACK);
+    glViewport(0, 0, scene.window_get().width_get(), scene.window_get().height_get());
+   // glCullFace(GL_BACK);
   }
 
   GL_ASSERT(glDepthMask(GL_FALSE));
@@ -1014,9 +1017,6 @@ void GLcontext::framebuffer_create()
 
   GL_ASSERT(glGenFramebuffers (1, &gl_fb_shadow));
   GL_ASSERT(glBindFramebuffer(GL_FRAMEBUFFER, gl_fb_shadow));
-
-  const int shadow_map_width = width;
-  const int shadow_map_height = height;
 
   GL_ASSERT(glGenTextures(1, &gl_fb_tex_shadow));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_shadow));

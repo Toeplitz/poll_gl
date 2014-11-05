@@ -68,6 +68,9 @@ class GLcontext {
 
     mat4 shadow_view_projection_get();
 
+    const int shadow_map_width = 1024;
+    const int shadow_map_height = 1024;
+
   public:
     
     void check_error();
