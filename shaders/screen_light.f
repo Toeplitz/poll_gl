@@ -152,7 +152,6 @@ void main ()
   vec3 pos_eye = vec3(view * vec4(p_texel, 1.0));
 
   vec4 shadow_coord = shadow_coord_get(shadow_view_projection, p_texel);
-  shadow_coord.z -= 0.001;
   //float shadow = shadow_opengl_tut_get(shadow_coord);
   //float shadow = shadow_cookbook_get(shadow_coord);
   //float shadow = shadow_cookbook_pcf_get(shadow_coord);

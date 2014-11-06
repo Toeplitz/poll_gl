@@ -14,7 +14,7 @@ class Plugin_Light_Tool: public Poll_Plugin
     Scene *scene = nullptr;
     Light *light_active = nullptr;
     Node *node_symbol_cone = nullptr;
-    std::unique_ptr<Physics_Convex_Hull_Shape> symbol_shape;
+    std::unique_ptr<Physics_Triangle_Mesh_Shape> symbol_shape;
 
     void cb_custom_draw();
     void cb_light_create(Node *node);

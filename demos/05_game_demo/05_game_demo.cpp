@@ -279,7 +279,7 @@ int main()
 
   /* Setup panda character */
   {
-    Node &panda_root = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
+  //  Node &panda_root = scene.load("data/game_assets/characters/panda/", "PandaSingle.dae", MODEL_IMPORT_OPTIMIZED);
   //  panda_root.physics_rigidbody_create(scene, true, Physics_Rigidbody::CONVEX_HULL, Physics_Rigidbody::DYNAMIC, 0.f);
 
     /*

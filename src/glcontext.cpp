@@ -33,6 +33,8 @@ void GLcontext::draw_mesh(Node &node)
   } else {
     GL_ASSERT(glDrawElements(mesh.mode, count, GL_UNSIGNED_SHORT, 0));
   }
+
+  node.callback_draw_call();
 }
 
 
@@ -827,14 +829,14 @@ void GLcontext::draw_geometry_all(Scene &scene)
     glReadBuffer(GL_NONE);
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     GL_ASSERT(glClear(GL_DEPTH_BUFFER_BIT));
-    //glCullFace(GL_FRONT);
+    glCullFace(GL_FRONT);
     //glPolygonOffset(100.f, 100.f);
 
     for (auto &node: scene.mesh_nodes_get()) {
       draw_node(*node);
     }
     glViewport(0, 0, scene.window_get().width_get(), scene.window_get().height_get());
-    //glCullFace(GL_BACK);
+    glCullFace(GL_BACK);
   }
 
   GL_ASSERT(glDepthMask(GL_FALSE));
@@ -985,7 +987,6 @@ void GLcontext::draw_node(Node &node)
   draw_mesh(node);
   if (node.state_get().cubemap_skybox) glDepthMask(GL_TRUE);
 
-  node.callback_draw_call();
 }
 
 

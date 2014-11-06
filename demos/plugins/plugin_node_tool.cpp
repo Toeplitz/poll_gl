@@ -2,6 +2,25 @@
 #include "physics_rigidbody.h"
 #include <glm/gtx/string_cast.hpp>
 
+/**************************************************/
+/***************** PRIVATE METHODS ****************/
+/**************************************************/
+
+
+void Plugin_Node_Tool::relative_position_set(Node *node, vec3 hitpoint)
+{
+  if (node->grab_parent) {
+    relative_position = node->parent_get()->position_local_get() - hitpoint;
+  } else {
+    relative_position = node->position_local_get() - hitpoint;
+  }
+}
+
+
+/**************************************************/
+/***************** PUBLIC METHODS *****************/
+/**************************************************/
+
 
 Plugin_Node_Tool::Plugin_Node_Tool(Console &console, Scene &scene, float gizmo_zoom_factor = 1.f)
 {
@@ -57,8 +76,9 @@ void Plugin_Node_Tool::cb_node_draw(Node &node)
   Physics_Rigidbody *rigidbody = node.physics_rigidbody_get();
   Camera &camera = *scene->camera_get();
 
-  if (!rigidbody) 
+  if (!rigidbody) {
     return;
+  }
 
   /* DRAW SELECTION OUTLINE */
   Node *node_outline = node_bounding_box;
@@ -132,6 +152,7 @@ Raycast_Hitpoint *Plugin_Node_Tool::hitpoint_last_get()
 }
 
 
+
 void Plugin_Node_Tool::cb_mouse_pressed(SDL_MouseButtonEvent *ev)
 {
   auto height = scene->window_get().height_get();
@@ -166,7 +187,7 @@ void Plugin_Node_Tool::cb_mouse_pressed(SDL_MouseButtonEvent *ev)
     keypress_map[SDLK_x].first = true;
     keypress_map[SDLK_t].first = true;
     node_motion = node_gizmo_translate_x;
-    relative_position = node_last->position_local_get() - hitpoint_world;
+    relative_position_set(node_last, hitpoint_world);
     node_gizmo_translate_x->link_set(node_last);
     this->mouse_down = true;
     return;
@@ -177,7 +198,7 @@ void Plugin_Node_Tool::cb_mouse_pressed(SDL_MouseButtonEvent *ev)
     keypress_map[SDLK_y].first = true;
     keypress_map[SDLK_t].first = true;
     node_motion = node_gizmo_translate_y;
-    relative_position = node_last->position_local_get() - hitpoint_world;
+    relative_position_set(node_last, hitpoint_world);
     node_gizmo_translate_y->link_set(node_last);
     this->mouse_down = true;
     return;
@@ -188,7 +209,7 @@ void Plugin_Node_Tool::cb_mouse_pressed(SDL_MouseButtonEvent *ev)
     keypress_map[SDLK_z].first = true;
     keypress_map[SDLK_t].first = true;
     node_motion = node_gizmo_translate_z;
-    relative_position = node_last->position_local_get() - hitpoint_world;
+    relative_position_set(node_last, hitpoint_world);
     node_gizmo_translate_z->link_set(node_last);
     this->mouse_down = true;
     return;
@@ -202,48 +223,12 @@ void Plugin_Node_Tool::cb_mouse_pressed(SDL_MouseButtonEvent *ev)
   }
 
   hitpoints.push_back(hp);
-
-  /*
-
-     if (hitpoint_last && (hitpoint_last->node_ptr != hp.node_ptr)) {
-     Physics_Rigidbody *rb = hitpoint_last->node_ptr->physics_rigidbody_get();
-     rb->filter_group_raycast_toggle();
-     hitpoint_last->node_ptr->callback_draw_set(nullptr);
-     }
-
-     this->hitpoint_last = &hp;
-     */
-  /*
-     hp.node_ptr->callback_draw_set(std::bind(&Plugin_Node_Tool::cb_node_draw, this, _1));
-     rb->constraint_create(&hp);
-     physics.rigidbody_constraint_add(rb);
-
-*/
 }
 
 
 void Plugin_Node_Tool::cb_mouse_released(SDL_MouseButtonEvent *ev)
 {
   this->mouse_down = false;
-  /*
-  Physics &physics = scene->physics_get();
-  if (!hitpoint_last)
-    return;
-
-  Node *node = hitpoint_last->node_ptr;
-  if (!node) {
-    POLL_ERROR(std::cerr, "No node attached to hitpoint");
-    return;
-  }
-  Physics_Rigidbody *rb = node->physics_rigidbody_get();
-  if (!rb) {
-    POLL_ERROR(std::cerr, "No rigidbody on object which was clicked??");
-    return;
-  }
-
-  physics.rigidbody_constraint_delete(rb);
-  rb->constraint_delete();
-  */
 }
 
 
@@ -253,7 +238,6 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
     return;
 
   Node *node = node_motion;
-  //POLL_DEBUG(std::cout, "Mouse down for node: " << node->name_get());
   if (!node) {
     POLL_ERROR(std::cerr, "No node attached to the last hipoint.");
     return;
@@ -296,17 +280,15 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
 
     if (keypress_map[SDLK_t].first) {
       vec3 move_to = vec3(newPivotB.getX(), newPivotB.getY(), newPivotB.getZ());
-      vec3 pos = node_link->position_local_get();
 
-      vec3 relative_pos = vec3(0, 0, 0);
-
-      POLL_DEBUG(std::cout, "object pos: " << glm::to_string(pos));
-      POLL_DEBUG(std::cout, "click pos: " << glm::to_string(hitpoint_world));
-      POLL_DEBUG(std::cout, "relative pos: " << glm::to_string(relative_position));
-      POLL_DEBUG(std::cout, "move to: " << glm::to_string(move_to + relative_pos) << "\n");
+      vec3 pos;
+      if (node_link->grab_parent) {
+        pos = node_link->parent_get()->position_local_get();
+      } else {
+        pos = node_link->position_local_get();
+      }
 
       vec3 new_pos(pos.x, pos.y, pos.z);
-
       if (keypress_map[SDLK_x].first) {
         new_pos.x = (move_to.x + relative_position.x);
       } 
@@ -317,8 +299,15 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
         new_pos.z = move_to.z + relative_position.z;
       }
 
+      // This is the parent object of the gizmo axis object.
       ptr->translate_identity(*scene, new_pos);
-      node_link->translate_identity(*scene, new_pos);
+
+      // This is the actual object you are clicking.
+      if (node_link->grab_parent) {
+        node_link->parent_get()->translate_identity(*scene, new_pos);
+      } else {
+        node_link->translate_identity(*scene, new_pos);
+      }
     }
   }
 }

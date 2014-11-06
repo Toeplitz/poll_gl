@@ -45,6 +45,7 @@ class Plugin_Node_Tool: public Poll_Plugin
     vec3              relative_position;
     float             gizmo_zoom_factor = 1.f;
 
+    void relative_position_set(Node *node, vec3 hitpoint);
 
   public:
     Plugin_Node_Tool(Console &console, Scene &scene, float gizmo_zoom_factor);

@@ -79,7 +79,6 @@ void Node::callback_draw_call()
     return;
 
   callback_draw(*this);
-
 }
 
 
