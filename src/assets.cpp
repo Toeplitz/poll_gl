@@ -36,6 +36,10 @@ void Stock_Shaders::init(Config &config, Scene &scene)
   glcontext.uniform_locations_geometry_init(world_geometry);
   glcontext.uniform_buffers_block_bind(world_geometry);
 
+  world_geometry_textured_diffuse.load("world_geometry.v", "world_geometry_textured_diffuse.f");
+  glcontext.uniform_locations_geometry_init(world_geometry_textured_diffuse);
+  glcontext.uniform_buffers_block_bind(world_geometry_textured_diffuse);
+
   world_geometry_shadow.load("world_geometry_shadow.v", "world_geometry_shadow.f");
   glcontext.uniform_locations_geometry_init(world_geometry_shadow);
   glcontext.uniform_buffers_block_bind(world_geometry_shadow);
@@ -62,7 +66,9 @@ void Stock_Shaders::term()
   screen_light.term();
   text.term();
   world_basic_color.term();
+  world_geometry_shadow.term();
   world_geometry.term();
+  world_geometry_textured_diffuse.term();
   world_light.term();
   world_stencil.term();
   world_physics_debug.term();

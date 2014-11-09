@@ -85,6 +85,7 @@ class Node: public Animated {
     std::function <void (Node &node)> callback_draw = nullptr;
     std::shared_ptr<Aabb> aabb;
     short raycast_priority = 0;
+    bool  shadow_cast = true;
 
   public:
 
@@ -137,6 +138,8 @@ class Node: public Animated {
     void                scale_identity(Scene &scene, const vec3 &v);
     glm::vec3           scale_get();
     glm::vec3           scale_global_get();
+    bool                shadow_cast_get();
+    void                shadow_cast_set(const bool shadow_cast);
     Node_State         &state_get();
     Text               *text_create(Font *font, Scene &scene);
     Text               *text_get();

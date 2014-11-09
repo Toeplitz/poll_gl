@@ -62,7 +62,7 @@ class GLcontext {
                         GLint wrap, GLint internal_format, GLenum format,
                         const bool unpack_align);
 
-    void draw_geometry_all(Scene &scene);
+    void draw_geometry_all(Scene &scene, Poll_Plugin_List &plugins);
     void draw_light_all(Scene &scene);
     void draw_light_volume(Node &node, GLshader &shader_stencil, GLshader &shader_light);
     void draw_light_screen(Node &node, GLshader &shader_light);

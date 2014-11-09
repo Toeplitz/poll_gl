@@ -408,6 +408,18 @@ glm::vec3 Node::scale_global_get()
 }
 
 
+bool Node::shadow_cast_get()
+{
+  return shadow_cast;
+}
+
+
+void Node::shadow_cast_set(const bool shadow_cast)
+{
+  this->shadow_cast = shadow_cast;
+}
+
+
 Node_State &Node::state_get()
 {
   return state;

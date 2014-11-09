@@ -88,6 +88,57 @@ Camera *Scene::camera_get()
 }
 
 
+void Scene::draw_nodes_add(Node &node)
+{
+  Material *material = node.material_get();
+
+  if (node.shadow_cast_get()) {
+    draw_nodes_shadow_cast.push_back(&node);
+  }
+
+  if (!material) {
+    draw_nodes_solid_white.push_back(&node);
+    return;
+  }
+
+  if (material->diffuse) {
+    POLL_DEBUG(std::cout, "Found node with diffuse texture");
+    draw_nodes_texture_diffuse.push_back(&node);
+  }
+
+  draw_nodes_solid_diffuse.push_back(&node);
+}
+
+
+void Scene::draw_nodes_remove(Node &node)
+{
+}
+
+
+const Node_Ptr_List &Scene::draw_nodes_shadow_cast_get() const
+{
+  return draw_nodes_shadow_cast;
+}
+
+
+const Node_Ptr_List &Scene::draw_nodes_solid_diffuse_get() const
+{
+  return draw_nodes_solid_diffuse;
+}
+
+
+const Node_Ptr_List &Scene::draw_nodes_solid_white_get() const
+{
+  return draw_nodes_solid_white;
+}
+
+
+const Node_Ptr_List &Scene::draw_nodes_texture_diffuse_get() const
+{
+  return draw_nodes_texture_diffuse;
+}
+
+
 GLcontext &Scene::glcontext_get()
 {
   return window_ptr->glcontext_get();
@@ -111,7 +162,7 @@ Node &Scene::load(const std::string &prefix, const std::string &filename, const 
   GLcontext &glcontext = glcontext_get();
   Model model;
   Node *root_ptr = model.load(*this, root, prefix, filename, options);
-  node_state_recursive_update(root);
+  //node_state_recursive_update(root);
 
   transform_update_global_recursive(root_ptr);
   node_recursive_init(glcontext, *root_ptr);
@@ -323,7 +374,8 @@ void Scene::animated_nodes_add(Node &node)
 
 void Scene::mesh_nodes_add(Node &node) 
 {
-  mesh_nodes.push_back(&node);
+  draw_nodes_add(node);
+  //mesh_nodes.push_back(&node);
 }
 
 
@@ -358,7 +410,6 @@ void Scene::node_recursive_init(GLcontext &glcontext, Node &node)
       mesh_nodes_add(node);
     }
     if (!(node.import_options & MODEL_IMPORT_NO_UPLOAD)) {
-
       glcontext.vertex_buffers_mesh_create(mesh);
     }
   } 
@@ -370,7 +421,7 @@ void Scene::node_recursive_init(GLcontext &glcontext, Node &node)
     }
   }
   
-  node_state_recursive_update(node);
+ // node_state_recursive_update(node);
 
   for (auto &child : node.children_get()) {
     node_recursive_init(glcontext, *child);
@@ -378,6 +429,7 @@ void Scene::node_recursive_init(GLcontext &glcontext, Node &node)
 }
 
 
+/*
 void Scene::node_state_recursive_update(Node &node)
 {
   Node_State &state = node.state_get();
@@ -414,4 +466,5 @@ void Scene::node_state_recursive_update(Node &node)
     node_state_recursive_update(*child);
   }
 }
+*/
 

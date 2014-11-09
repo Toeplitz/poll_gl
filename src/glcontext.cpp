@@ -44,14 +44,9 @@ void GLcontext::draw_scene(Scene &scene, Poll_Plugin_List &plugins)
   GL_ASSERT(glDrawBuffer(GL_COLOR_ATTACHMENT2));
   GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT));
 
-  draw_geometry_all(scene);
+  draw_geometry_all(scene, plugins);
   draw_light_all(scene);
 
-  GL_ASSERT(glEnable(GL_DEPTH_TEST));
-  for (auto plugin : plugins) {
-    plugin->cb_custom_draw();
-  }
-  GL_ASSERT(glDisable(GL_DEPTH_TEST));
 
   /* Step physics simulation */
   scene.physics_get().step(scene, 1/60);
@@ -71,6 +66,7 @@ void GLcontext::draw_scene(Scene &scene, Poll_Plugin_List &plugins)
     GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_shadow));
     draw_mesh(*node);
   }
+
 
   {
     const int dest_width = 200;
@@ -754,7 +750,6 @@ void GLcontext::shadow_texture_offset_build(int tex_size, int samples_u, int sam
         v.w /= samples_v;
 
         int cell = ((k / 2) * size * size + j * size + i) * 4;
-        POLL_DEBUG(std::cout, "cell: " << cell);
 
         data[cell + 0] = sqrtf(v.y) * cosf(2.0f * M_PI * v.x);
         data[cell + 1] = sqrtf(v.y) * sinf(2.0f * M_PI * v.x);
@@ -790,20 +785,13 @@ mat4 GLcontext::shadow_view_projection_get()
 }
 
 
-void GLcontext::draw_geometry_all(Scene &scene)
+void GLcontext::draw_geometry_all(Scene &scene, Poll_Plugin_List &plugins)
 {
   Assets &assets = scene.assets_get();
   Stock_Shaders &shader = assets.stock_shaders_get();
 
-
-  /* FIXME:
-   * Temp shadow code to test concept
-   *
-   */
-
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
   {
-    shader.world_geometry.use();
     GL_ASSERT(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gl_fb));
     GLenum draw_bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
     GL_ASSERT(glDrawBuffers(2, draw_bufs));
@@ -812,9 +800,28 @@ void GLcontext::draw_geometry_all(Scene &scene)
     GL_ASSERT(glEnable(GL_DEPTH_TEST));
 
     GL_ASSERT(glClearColor(0.2f, 0.2f, 0.2f, 1.f));
-    for (auto &node: scene.mesh_nodes_get()) {
+
+    shader.world_geometry.use();
+    for (auto &node: scene.draw_nodes_solid_white_get()) {
+      POLL_DEBUG(std::cout, "Node has white: " << node->name_get());
       draw_node(*node);
     }
+
+    for (auto &node: scene.draw_nodes_solid_diffuse_get()) {
+      POLL_DEBUG(std::cout, "Node has solid: " << node->name_get());
+      draw_node(*node);
+    }
+
+    shader.world_geometry_textured_diffuse.use();
+    for (auto &node: scene.draw_nodes_texture_diffuse_get()) {
+      POLL_DEBUG(std::cout, "Node has texture: " << node->name_get());
+      draw_node(*node);
+    }
+
+    for (auto plugin : plugins) {
+      plugin->cb_custom_draw();
+    }
+    GL_ASSERT(glDisable(GL_DEPTH_TEST));
   }
 
   {
@@ -825,16 +832,17 @@ void GLcontext::draw_geometry_all(Scene &scene)
 
     GL_ASSERT(glBindFramebuffer(GL_FRAMEBUFFER, gl_fb_shadow));
     glViewport(0, 0, shadow_map_width, shadow_map_height);
+    GL_ASSERT(glEnable(GL_DEPTH_TEST));
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     GL_ASSERT(glClear(GL_DEPTH_BUFFER_BIT));
     glCullFace(GL_FRONT);
-    //glPolygonOffset(100.f, 100.f);
 
-    for (auto &node: scene.mesh_nodes_get()) {
+    for (auto &node: scene.draw_nodes_shadow_cast_get()) {
       draw_node(*node);
     }
+
     glViewport(0, 0, scene.window_get().width_get(), scene.window_get().height_get());
     glCullFace(GL_BACK);
   }

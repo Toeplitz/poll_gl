@@ -208,6 +208,10 @@ int main()
   Node &node = scene.load("data/", "orientation.dae", MODEL_IMPORT_DEFAULT | MODEL_IMPORT_BLENDER_FIX);
   node.translate(scene, vec3(0, 5, 0));
 
+
+  Node &box = *scene.node_find(&node, "box");
+  box.shadow_cast_set(false);
+
   Node &suzanne_center = *scene.node_find(&node, "Suzanne_center");
  // suzanne_center.scale(scene, vec3(1, 1, 1));
 

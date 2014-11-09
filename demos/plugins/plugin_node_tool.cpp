@@ -75,10 +75,14 @@ void Plugin_Node_Tool::cb_node_draw(Node &node)
   GLcontext &glcontext = scene->glcontext_get();
   Physics_Rigidbody *rigidbody = node.physics_rigidbody_get();
   Camera &camera = *scene->camera_get();
+  Assets &assets = scene->assets_get();
+  GLshader &shader_world_geometry = assets.stock_shaders_get().world_geometry;
 
   if (!rigidbody) {
     return;
   }
+
+  shader_world_geometry.use();
 
   /* DRAW SELECTION OUTLINE */
   Node *node_outline = node_bounding_box;

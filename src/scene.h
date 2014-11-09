@@ -25,6 +25,19 @@ class Scene
     Node_Ptr_List mesh_nodes;
     Node *node_cur_camera = nullptr;
 
+    /* Nodes without material */
+    Node_Ptr_List draw_nodes_solid_white;
+
+    /* Nodes with material as solid colors */
+    Node_Ptr_List draw_nodes_solid_diffuse;
+
+    /* Nodes to draw during shadow pass */
+    Node_Ptr_List draw_nodes_shadow_cast;
+
+    /* Nodes with material as diffuse texture only */
+    Node_Ptr_List draw_nodes_texture_diffuse;
+
+
     Assets assets;
     Physics physics;
     Node root;
@@ -35,7 +48,7 @@ class Scene
     void  animated_nodes_add(Node &node);
     Node *node_find_recursive(Node &node, const std::string &name);
     void  node_recursive_init(GLcontext &glcontext, Node &node);
-    void  node_state_recursive_update(Node &node);
+    //void  node_state_recursive_update(Node &node);
 
   public:
     Scene();
@@ -44,6 +57,12 @@ class Scene
     void                    animated_nodes_update_transforms(Node &node, const double dt);
     Assets                 &assets_get();
     Camera                 *camera_get();
+    void                    draw_nodes_add(Node &node);
+    void                    draw_nodes_remove(Node &node);
+    const Node_Ptr_List    &draw_nodes_shadow_cast_get() const;
+    const Node_Ptr_List    &draw_nodes_solid_diffuse_get() const;
+    const Node_Ptr_List    &draw_nodes_solid_white_get() const;
+    const Node_Ptr_List    &draw_nodes_texture_diffuse_get() const;
     GLcontext              &glcontext_get();
     void                    init(Poll_Plugin_List &plugins, Window &window);
     Node                   &load(const std::string &prefix,  const std::string &filename, const unsigned int options);
