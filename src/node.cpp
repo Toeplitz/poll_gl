@@ -206,21 +206,6 @@ Node *Node::link_get()
 }
 
 
-void Node::print_state(int indent_level)
-{
-  indent(std::cout, indent_level);
-
-  std::cout << "\t\tAnimation: " << state.animated << std::endl;
-  std::cout << "\t\tDebug: " << state.debug << std::endl;
-  std::cout << "\t\tDiffuse: " << state.diffuse << std::endl;
-  std::cout << "\t\tDiffuse normal: " << state.diffuse_normal << std::endl;
-  std::cout << "\t\tDiffuse normal specular: " << state.diffuse_specular_normal << std::endl;
-  std::cout << "\t\tCubemap reflect: " << state.cubemap_reflect << std::endl;
-  std::cout << "\t\tCubemap skybox: " << state.cubemap_skybox << std::endl;
-  std::cout << "\t\tStandard: " << state.standard << std::endl;
-}
-
-
 Node *Node::parent_get()
 {
   return parent;
@@ -417,12 +402,6 @@ bool Node::shadow_cast_get()
 void Node::shadow_cast_set(const bool shadow_cast)
 {
   this->shadow_cast = shadow_cast;
-}
-
-
-Node_State &Node::state_get()
-{
-  return state;
 }
 
 

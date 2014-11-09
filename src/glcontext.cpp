@@ -267,7 +267,7 @@ void GLcontext::uniform_buffers_create(Config &config)
     bind_index = UB_MATRICES;
     GL_ASSERT(glGenBuffers(1, &gl_buffer_matrices));
     GL_ASSERT(glBindBuffer(target, gl_buffer_matrices));
-    GL_ASSERT(glBufferData(target, sizeof(matrix), &matrix, GL_STREAM_DRAW));
+    GL_ASSERT(glBufferData(target, sizeof(matrix) + sizeof(vec4), &matrix, GL_STREAM_DRAW));
     GL_ASSERT(glBindBufferBase(target, bind_index, gl_buffer_matrices));
     GL_ASSERT(glBindBuffer(target, 0));
   }
@@ -294,25 +294,6 @@ void GLcontext::uniform_buffers_create(Config &config)
     GL_ASSERT(glBindBuffer(target, gl_buffer_material));
     GL_ASSERT(glBufferData(target, sizeof(properties), &properties, GL_STREAM_DRAW));
     GL_ASSERT(glBindBufferBase(target, bind_index, gl_buffer_material));
-    GL_ASSERT(glBindBuffer(target, 0));
-  }
-
-  {
-    Node_State state;
-    state.animated = false;
-    state.debug = false;
-    state.diffuse = false;
-    state.diffuse_normal = false;
-    state.diffuse_specular_normal = false;
-    state.cubemap_reflect = false;
-    state.cubemap_skybox = false;
-    state.standard = false;
-
-    bind_index = UB_STATE;
-    GL_ASSERT(glGenBuffers(1, &gl_buffer_state));
-    GL_ASSERT(glBindBuffer(target, gl_buffer_state));
-    GL_ASSERT(glBufferData(target, sizeof(state), &state, GL_STREAM_DRAW));
-    GL_ASSERT(glBindBufferBase(target, bind_index, gl_buffer_state));
     GL_ASSERT(glBindBuffer(target, 0));
   }
 
@@ -451,6 +432,17 @@ void GLcontext::uniform_buffers_update_matrices(Node &node)
   mat4 m;
   m = node.transform_global_get();
   uniform_buffers_update_matrices(m);
+
+  vec4 v;
+
+  if (node.armature_get()) {
+    v.x = 1;
+  } else {
+    v.x = 0;
+  }
+
+  GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_matrices));
+  GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, sizeof(m), sizeof(vec4), &v));
 }
 
 
@@ -458,14 +450,6 @@ void GLcontext::uniform_buffers_update_matrices(mat4 &model)
 {
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_matrices));
   GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(model), &model));
-  GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, 0));
-}
-
-
-void GLcontext::uniform_buffers_update_state(Node &node)
-{
-  GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_state));
-  GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(node.state_get()), &node.state_get()));
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 }
 
@@ -802,19 +786,12 @@ void GLcontext::draw_geometry_all(Scene &scene, Poll_Plugin_List &plugins)
     GL_ASSERT(glClearColor(0.2f, 0.2f, 0.2f, 1.f));
 
     shader.world_geometry.use();
-    for (auto &node: scene.draw_nodes_solid_white_get()) {
-      POLL_DEBUG(std::cout, "Node has white: " << node->name_get());
-      draw_node(*node);
-    }
-
     for (auto &node: scene.draw_nodes_solid_diffuse_get()) {
-      POLL_DEBUG(std::cout, "Node has solid: " << node->name_get());
       draw_node(*node);
     }
 
     shader.world_geometry_textured_diffuse.use();
     for (auto &node: scene.draw_nodes_texture_diffuse_get()) {
-      POLL_DEBUG(std::cout, "Node has texture: " << node->name_get());
       draw_node(*node);
     }
 
@@ -876,7 +853,6 @@ void GLcontext::draw_light_all(Scene &scene)
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_shadow));
   GL_ASSERT(glActiveTexture(GL_TEXTURE4));
   GL_ASSERT(glBindTexture(GL_TEXTURE_3D, gl_tex_shadow_sampler));
-
 
   for (auto &light: lights) {
     Node *node = light->node_ptr_get();
@@ -948,9 +924,6 @@ void GLcontext::draw_light_screen(Node &node, GLshader &shader_quad_light)
   NODE_VALIDATE(node);
 
   shader_quad_light.use();
-  /* FIXME: shadow stuff, temp 
-   *
-   */
 
   mat4 m = shadow_view_projection_get();
   GLint loc = glGetUniformLocation(shader_quad_light.program_get(), "shadow_view_projection");
@@ -962,7 +935,6 @@ void GLcontext::draw_light_screen(Node &node, GLshader &shader_quad_light)
   GL_ASSERT(glBlendEquation(GL_FUNC_ADD));
   GL_ASSERT(glBlendFunc(GL_ONE, GL_ONE));
   draw_mesh(node);
-
   GL_ASSERT(glDisable(GL_BLEND));
   GL_ASSERT(glEnable(GL_STENCIL_TEST));
 }
@@ -978,7 +950,6 @@ void GLcontext::draw_node(Node &node)
     return;
   }
 
-  uniform_buffers_update_state(node);
   uniform_buffers_update_matrices(node);
 
   {
@@ -991,10 +962,9 @@ void GLcontext::draw_node(Node &node)
     if (material) uniform_buffers_update_material(*material);
   }
 
-  if (node.state_get().cubemap_skybox) glDepthMask(GL_FALSE);
+ // if (node.state_get().cubemap_skybox) glDepthMask(GL_FALSE);
   draw_mesh(node);
-  if (node.state_get().cubemap_skybox) glDepthMask(GL_TRUE);
-
+ // if (node.state_get().cubemap_skybox) glDepthMask(GL_TRUE);
 }
 
 

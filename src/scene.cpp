@@ -97,13 +97,14 @@ void Scene::draw_nodes_add(Node &node)
   }
 
   if (!material) {
-    draw_nodes_solid_white.push_back(&node);
+    POLL_ERROR(std::cerr, "No material attached to node: " << node.name_get());
     return;
   }
 
   if (material->diffuse) {
     POLL_DEBUG(std::cout, "Found node with diffuse texture");
     draw_nodes_texture_diffuse.push_back(&node);
+    return;
   }
 
   draw_nodes_solid_diffuse.push_back(&node);
@@ -124,12 +125,6 @@ const Node_Ptr_List &Scene::draw_nodes_shadow_cast_get() const
 const Node_Ptr_List &Scene::draw_nodes_solid_diffuse_get() const
 {
   return draw_nodes_solid_diffuse;
-}
-
-
-const Node_Ptr_List &Scene::draw_nodes_solid_white_get() const
-{
-  return draw_nodes_solid_white;
 }
 
 

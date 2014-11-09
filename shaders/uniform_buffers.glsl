@@ -7,22 +7,13 @@ layout(std140) uniform GlobalMatrices {
 
 layout(std140) uniform Matrices {
   mat4 model;
+  vec4 animated;
 };
 
 layout(std140) uniform Armature {
   mat4 skinning[64];
 };
 
-layout(std140) uniform Node_State {
-  int state_animated;
-  int state_debug;
-  int state_diffuse;
-  int state_diffuse_normal;
-  int state_diffuse_specular_normal;
-  int state_cubemap_reflect;
-  int state_cubemap_skybox;
-  int state_standard;
-};
 
 struct Config_Ssoa 
 {

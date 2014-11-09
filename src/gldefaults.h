@@ -6,10 +6,9 @@
 #define UB_GLOBALMATRICES 0
 #define UB_MATRICES 1
 #define UB_ARMATURE 2
-#define UB_STATE 3
-#define UB_LIGHT 4
-#define UB_MATERIAL 5
-#define UB_CONFIG 6
+#define UB_LIGHT 3
+#define UB_MATERIAL 4
+#define UB_CONFIG 5
 
 #include <GL/glew.h>
 #include <GL/glu.h>
@@ -21,7 +20,6 @@ const Uniform_Map::value_type uniform_buffer_map_def[] = {
   std::make_pair("GlobalMatrices", UB_GLOBALMATRICES ),
   std::make_pair("Matrices", UB_MATRICES),
   std::make_pair("Armature", UB_ARMATURE), 
-  std::make_pair("Node_State", UB_STATE), 
   std::make_pair("Material", UB_MATERIAL), 
   std::make_pair("Light", UB_LIGHT),
   std::make_pair("Config", UB_CONFIG)

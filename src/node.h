@@ -27,19 +27,6 @@ class Physics_Rigidbody;
 class Node;
 
 
-struct Node_State 
-{
-  int animated = false;
-  int debug = false;
-  int diffuse = false;
-  int diffuse_normal = false;
-  int diffuse_specular_normal = false;
-  int cubemap_reflect = false;
-  int cubemap_skybox = false;
-  int standard = false;
-};
-
-
 enum Transform_Inherit {
   TRANSFORM_INHERIT_ALL = 0,
   TRANSFORM_INHERIT_POSITION_ONLY = 1
@@ -65,7 +52,6 @@ class Node: public Animated {
     bool                active = true;
     Node_List           children;
     std::string         name;
-    Node_State          state;
     int                 tree_level = 0;
 
     mat4 transform_position_current = mat4(1.f);
@@ -118,7 +104,6 @@ class Node: public Animated {
     Node               *parent_get();
     vec3                position_get();
     vec3                position_local_get();
-    void                print_state(int indent_level);
     Physics_Rigidbody  *physics_rigidbody_create(Scene &scene, bool recursive = true);
     Physics_Rigidbody  *physics_rigidbody_get();
     void                physics_rigidbody_set(Physics_Rigidbody *rigidbody);
@@ -140,7 +125,6 @@ class Node: public Animated {
     glm::vec3           scale_global_get();
     bool                shadow_cast_get();
     void                shadow_cast_set(const bool shadow_cast);
-    Node_State         &state_get();
     Text               *text_create(Font *font, Scene &scene);
     Text               *text_get();
     void                text_set(Text *text);

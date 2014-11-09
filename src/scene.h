@@ -25,9 +25,6 @@ class Scene
     Node_Ptr_List mesh_nodes;
     Node *node_cur_camera = nullptr;
 
-    /* Nodes without material */
-    Node_Ptr_List draw_nodes_solid_white;
-
     /* Nodes with material as solid colors */
     Node_Ptr_List draw_nodes_solid_diffuse;
 
@@ -61,7 +58,6 @@ class Scene
     void                    draw_nodes_remove(Node &node);
     const Node_Ptr_List    &draw_nodes_shadow_cast_get() const;
     const Node_Ptr_List    &draw_nodes_solid_diffuse_get() const;
-    const Node_Ptr_List    &draw_nodes_solid_white_get() const;
     const Node_Ptr_List    &draw_nodes_texture_diffuse_get() const;
     GLcontext              &glcontext_get();
     void                    init(Poll_Plugin_List &plugins, Window &window);

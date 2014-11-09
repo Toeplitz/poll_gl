@@ -13,7 +13,7 @@ uniform mat4 shadow_view_projection;
 void main(void) 
 {
   mat4 m = model;
-  if (state_animated == 1) {
+  if (animated.x == 1.0) {
     m = model * func_animation_matrix_get();
   }
 
