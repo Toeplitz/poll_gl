@@ -399,9 +399,10 @@ bool Node::shadow_cast_get()
 }
 
 
-void Node::shadow_cast_set(const bool shadow_cast)
+void Node::shadow_cast_set(Scene &scene, const bool shadow_cast)
 {
   this->shadow_cast = shadow_cast;
+  scene.draw_nodes_remove(*this);
 }
 
 

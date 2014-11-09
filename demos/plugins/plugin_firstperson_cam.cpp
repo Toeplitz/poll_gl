@@ -104,9 +104,9 @@ void Plugin_Firstperson_Camera::cb_mouse_motion(SDL_MouseMotionEvent *ev)
 }
 
 
-void Plugin_Firstperson_Camera::cb_custom()
+void Plugin_Firstperson_Camera::cb_custom(const float dt)
 {
-  common_fpcamera_moves_process();
+  common_fpcamera_moves_process(dt);
 }
 
 
@@ -116,7 +116,7 @@ void Plugin_Firstperson_Camera::common_fpcamera_defaults_set()
 {
   horizontal_angle = 3.14;
   vertical_angle = 0; 
-  speed = 0.3f;
+  speed = 10.f;
   mouse_speed = 0.00025f;
   position = glm::vec3(0, 5, 16);
   target = glm::vec3(0, 0, 0);
@@ -146,7 +146,7 @@ void Plugin_Firstperson_Camera::common_fpcamera_move_add(Camera_Move move)
       return;
   }
   move_queue.push_back(move);
-  common_fpcamera_moves_process();
+ // common_fpcamera_moves_process();
 }
 
 
@@ -163,7 +163,7 @@ void Plugin_Firstperson_Camera::common_fpcamera_move_delete(Camera_Move move)
   if (unique_hit >= 0)
     move_queue.erase(move_queue.begin() + unique_hit);
 
-  common_fpcamera_moves_process();
+ // common_fpcamera_moves_process();
 }
 
 
@@ -177,26 +177,27 @@ void Plugin_Firstperson_Camera::common_fpcamera_mouse_update(int x, int y, int w
 }
 
 
-void Plugin_Firstperson_Camera::common_fpcamera_moves_process() 
+void Plugin_Firstperson_Camera::common_fpcamera_moves_process(const float dt) 
 {
   int n = move_queue.size();
   if (n == 0) return;
 
   common_fpcamera_directions_calc();
+  float dt_speed = speed * dt;
 
   for (int i = 0; i < n; i++) {
     switch (move_queue[i]) {
       case FORWARD:
-        position += direction * speed;
+        position += direction * dt_speed;
         break;
       case BACKWARD:
-        position -= direction * speed;
+        position -= direction * dt_speed;
         break;
       case SIDESTEP_RIGHT:
-        position += right * speed;
+        position += right * dt_speed;
         break;
       case SIDESTEP_LEFT:
-        position -= right * speed;
+        position -= right * dt_speed;
         break;
       default:
         fprintf(stderr, "Fragmic error: move is not implemented\n");

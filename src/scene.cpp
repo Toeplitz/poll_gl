@@ -102,7 +102,6 @@ void Scene::draw_nodes_add(Node &node)
   }
 
   if (material->diffuse) {
-    POLL_DEBUG(std::cout, "Found node with diffuse texture");
     draw_nodes_texture_diffuse.push_back(&node);
     return;
   }
@@ -113,6 +112,8 @@ void Scene::draw_nodes_add(Node &node)
 
 void Scene::draw_nodes_remove(Node &node)
 {
+  draw_nodes_shadow_cast.erase(std::remove(draw_nodes_shadow_cast.begin(),
+        draw_nodes_shadow_cast.end(), &node), draw_nodes_shadow_cast.end());
 }
 
 
@@ -214,6 +215,21 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
     std::cout << " (text)";
   }
 
+  if(std::find(draw_nodes_shadow_cast.begin(),
+        draw_nodes_shadow_cast.end(), &node) != draw_nodes_shadow_cast.end()) {
+    std::cout << " {shadow cast}";
+  }
+
+  if(std::find(draw_nodes_solid_diffuse.begin(),
+        draw_nodes_solid_diffuse.end(), &node) != draw_nodes_solid_diffuse.end()) {
+    std::cout << " {draw solid diffuse}";
+  }
+
+  if(std::find(draw_nodes_texture_diffuse.begin(),
+        draw_nodes_texture_diffuse.end(), &node) != draw_nodes_texture_diffuse.end()) {
+    std::cout << " {draw texture diffuse}";
+  }
+
   if (!compact) {
     if (node.mesh_get()) {
       node.mesh_get()->print(node.tree_level_get());
@@ -225,6 +241,7 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
       node.light_get()->print(node.tree_level_get());
     }
   }
+
   /*
   std::cout << std::endl;
   std::cout << "global: " << glm::to_string(node.transform_global_get()) << std::endl;

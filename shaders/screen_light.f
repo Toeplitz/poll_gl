@@ -155,7 +155,7 @@ void main ()
   //float shadow = shadow_opengl_tut_get(shadow_coord);
   //float shadow = shadow_cookbook_get(shadow_coord);
   //float shadow = shadow_cookbook_pcf_get(shadow_coord);
-  float shadow = shadow_cookbook_pcf_soft_get(shadow_coord);
+  float shadow = shadow_cookbook_pcf_get(shadow_coord);
 
   /*
   float f = texture(shadow_tex, shadow_coord.xy).z;

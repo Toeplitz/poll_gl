@@ -14,7 +14,7 @@ class Poll_Plugin
     ~Poll_Plugin();
 
     /* This is called every loop, straight after the SDL event polling */
-    virtual void cb_custom();
+    virtual void cb_custom(const float dt);
 
     /* This is called after the lighting pass, but before the final screen quad */
     virtual void cb_custom_draw();

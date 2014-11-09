@@ -124,7 +124,7 @@ class Node: public Animated {
     glm::vec3           scale_get();
     glm::vec3           scale_global_get();
     bool                shadow_cast_get();
-    void                shadow_cast_set(const bool shadow_cast);
+    void                shadow_cast_set(Scene &scene, const bool shadow_cast);
     Text               *text_create(Font *font, Scene &scene);
     Text               *text_get();
     void                text_set(Text *text);

@@ -12,7 +12,7 @@ Poll_Plugin::~Poll_Plugin()
 }
 
 
-void Poll_Plugin::cb_custom()
+void Poll_Plugin::cb_custom(const float dt)
 {
 }
 

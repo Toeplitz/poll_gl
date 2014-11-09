@@ -210,7 +210,7 @@ int main()
 
 
   Node &box = *scene.node_find(&node, "box");
-  box.shadow_cast_set(false);
+  box.shadow_cast_set(scene, false);
 
   Node &suzanne_center = *scene.node_find(&node, "Suzanne_center");
  // suzanne_center.scale(scene, vec3(1, 1, 1));
