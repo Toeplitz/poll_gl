@@ -14,7 +14,6 @@ add build folder to LD_LIBRARY_PATH:
 > export LD_LIBRARY_PATH="~/git/poll/build"
 
 
-
 Resources:
 http://dhpoware.com/demos/index.html
 
@@ -32,7 +31,7 @@ Relieff techniques:
 
 Lighting:
 - Baked light maps for static scenes
-- Icons for light types and lines indicating direction.
+
 
 Shadows:
 - Baked shadow maps for static scenes
