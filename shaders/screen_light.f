@@ -153,9 +153,9 @@ void main ()
 
   vec4 shadow_coord = shadow_coord_get(shadow_view_projection, p_texel);
   //float shadow = shadow_opengl_tut_get(shadow_coord);
-  //float shadow = shadow_cookbook_get(shadow_coord);
-  //float shadow = shadow_cookbook_pcf_get(shadow_coord);
+ // float shadow = shadow_cookbook_get(shadow_coord);
   float shadow = shadow_cookbook_pcf_get(shadow_coord);
+ // float shadow = shadow_cookbook_pcf_get(shadow_coord);
 
   /*
   float f = texture(shadow_tex, shadow_coord.xy).z;

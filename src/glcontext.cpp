@@ -760,7 +760,7 @@ mat4 GLcontext::shadow_view_projection_get()
   //glm::vec3 lightInvDir = glm::vec3(0, 1, 0);
   glm::vec3 lightInvDir = glm::vec3(0.5f,10,10);
   // Compute the MVP matrix from the light's point of view
-  glm::mat4 depthProjectionMatrix = glm::ortho<float>(-10,10,-10,10,-10,20);
+  glm::mat4 depthProjectionMatrix = glm::ortho<float>(-20,20,-20,20,-10,20);
  // glm::mat4 depthProjectionMatrix = glm::perspective(103.f, (float) 720 / (float) 1280, 1.0f, 500.0f);
   glm::mat4 depthViewMatrix = glm::lookAt(lightInvDir, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
   glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix;
@@ -814,14 +814,18 @@ void GLcontext::draw_geometry_all(Scene &scene, Poll_Plugin_List &plugins)
     glReadBuffer(GL_NONE);
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     GL_ASSERT(glClear(GL_DEPTH_BUFFER_BIT));
-    glCullFace(GL_FRONT);
+   // glCullFace(GL_FRONT);
 
+    //glPolygonOffset(2.5f, 10.f);
+    glPolygonOffset(7.5f, 10.f);
+    glEnable(GL_POLYGON_OFFSET_FILL);
     for (auto &node: scene.draw_nodes_shadow_cast_get()) {
       draw_node(*node);
     }
+    glDisable(GL_POLYGON_OFFSET_FILL);
 
     glViewport(0, 0, scene.window_get().width_get(), scene.window_get().height_get());
-    glCullFace(GL_BACK);
+   // glCullFace(GL_BACK);
   }
 
   GL_ASSERT(glDepthMask(GL_FALSE));
@@ -1034,7 +1038,6 @@ void GLcontext::framebuffer_create()
   framebuffer_check_status();
 
 
-  GLfloat border[] = { 1.0f, 0.0f, 0.0f, 0.0f };
   GL_ASSERT(glGenTextures(1, &gl_fb_tex_depth));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_depth));
   GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
@@ -1061,7 +1064,7 @@ void GLcontext::framebuffer_create()
 
   GL_ASSERT(glGenTextures(1, &gl_fb_tex_shadow));
   GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_shadow));
-  GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, shadow_map_width, shadow_map_height,
+  GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, shadow_map_width, shadow_map_height,
         0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL));
   /*
   GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
@@ -1073,9 +1076,10 @@ void GLcontext::framebuffer_create()
   GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
   GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER));
   GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER));
+  GLfloat border[] = { 1.0f, 1.0f, 1.0f, 1.0f };
   GL_ASSERT(glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, border));
   GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE));
-  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LESS));
+  GL_ASSERT(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL));
   GL_ASSERT(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, gl_fb_tex_shadow, 0));
 
   GL_ASSERT(glDrawBuffer(GL_NONE));

@@ -72,8 +72,8 @@ class GLcontext {
     void shadow_texture_offset_build(int tex_size, int samples_u, int samples_v);
     mat4 shadow_view_projection_get();
 
-    const int shadow_map_width = 512;
-    const int shadow_map_height = 512;
+    const int shadow_map_width = 2048;
+    const int shadow_map_height = 2048;
 
   public:
     
