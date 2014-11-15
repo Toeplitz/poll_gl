@@ -53,23 +53,6 @@ float random(vec3 seed, int i){
 }
 
 
-float shadow_opengl_tut_get(vec4 shadow_coord)
-{
-  float bias = 0.005;
-
-  float shadow = 1.0;
-  for (int i = 0; i < 4; i++) {
-		int index = i;
-		//int index = int(16.0*random(gl_FragCoord.xyy, i))%16;
-		//int index = int(16.0*random(floor(p_texel.xyz*1000.0), i))%16;
-
-		shadow -= 0.2* (1.0 - texture(shadow_tex, vec3(shadow_coord.xy + poisson_disk[index] / 700.0,
-    (shadow_coord.z-bias)/shadow_coord.w) ));
-  }
-
-  return shadow;
-}
-
 float shadow_cookbook_get(vec4 shadow_coord)
 {
   float shadow = textureProj(shadow_tex, shadow_coord);
@@ -152,10 +135,9 @@ void main ()
   vec3 pos_eye = vec3(view * vec4(p_texel, 1.0));
 
   vec4 shadow_coord = shadow_coord_get(shadow_view_projection, p_texel);
-  //float shadow = shadow_opengl_tut_get(shadow_coord);
- // float shadow = shadow_cookbook_get(shadow_coord);
+  //float shadow = shadow_cookbook_get(shadow_coord);
   float shadow = shadow_cookbook_pcf_get(shadow_coord);
- // float shadow = shadow_cookbook_pcf_get(shadow_coord);
+ // float shadow = shadow_cookbook_pcf_soft_get(shadow_coord);
 
   /*
   float f = texture(shadow_tex, shadow_coord.xy).z;

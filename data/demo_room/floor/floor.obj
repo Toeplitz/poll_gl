@@ -1,0 +1,12 @@
+# Blender v2.72 (sub 0) OBJ File: 'floor.blend'
+# www.blender.org
+mtllib floor.mtl
+o Plane
+v -482.685699 -0.079373 482.685699
+v 482.685699 -0.079373 482.685699
+v -482.685699 -0.079373 -482.685699
+v 482.685699 -0.079373 -482.685699
+usemtl Material
+s off
+f 2 4 3
+f 1 2 3
