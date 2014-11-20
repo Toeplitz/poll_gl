@@ -6,7 +6,7 @@
 
 TARGET = poll_core
 TEMPLATE = lib
-CONFIG+= sharedlib
+CONFIG+= staticlib
 
 SOURCES += \
     animated.cpp \

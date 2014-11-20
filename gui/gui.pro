@@ -57,5 +57,5 @@ win32 {
     INCLUDEPATH += $$PWD/../../../../poll_qt_external/assimp-3.1.1/include
     DEPENDPATH += $$PWD/../../../../poll_qt_external/assimp-3.1.1/include
 
-    LIBS += -L"C:\Users\ms\poll_qt\core\debug" -lpoll_core
+    LIBS += -L"C:\Users\ms\poll\core\debug" -lpoll_core
 }
