@@ -36,12 +36,41 @@ Poll::Poll(const std::string &config_file)
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
 
+// Return delta time in seconds.
+double Poll::delta_time_get()
+{
+ // double dt = 0.01;
+  static unsigned long long time_last = std::chrono::system_clock::now().time_since_epoch() /  std::chrono::microseconds(1);
+  unsigned long long time_cur = std::chrono::system_clock::now().time_since_epoch() /  std::chrono::microseconds(1);
+  double dt = (time_cur - time_last) / 1000.0 / 1000.0;
+  time_last = time_cur;
+
+  return dt;
+}
 
 void Poll::init()
 {
   glcontext.init();
 }
 
+
+void Poll::profile_fps(const double dt)
+{
+  static int numFrames = 0;
+  static double t;
+
+  numFrames++;
+  t += dt; 
+
+  if (t >= 1) {
+    char buf[30];
+    sprintf(buf, "%d frames/sec %.2f ms/frame", numFrames, 1000.0 / numFrames);
+    fps_text = std::string(buf);
+    POLL_DEBUG(std::cout, fps_text);
+    t = 0;
+    numFrames = 0;
+  }
+}
 
 void Poll::run()
 {
@@ -140,39 +169,9 @@ void Poll::plugin_add(Poll_Plugin &plugin)
 /**************************************************/
 
 
-// Return delta time in seconds.
-double Poll::delta_time_get()
-{
-  double dt = 0.01;
-    /*
-  static unsigned long long time_last = std::chrono::system_clock::now().time_since_epoch() /  std::chrono::microseconds(1);
-  unsigned long long time_cur = std::chrono::system_clock::now().time_since_epoch() /  std::chrono::microseconds(1);
-  double dt = (time_cur - time_last) / 1000.0 / 1000.0;
-  time_last = time_cur;
-  */
-
-  return dt;
-}
 
 std::string &Poll::fps_text_get()
 {
   return fps_text;
 }
 
-
-void Poll::profile_fps(const double dt)
-{
-  static int numFrames = 0;
-  static double t;
-
-  numFrames++;
-  t += dt; 
-
-  if (t >= 1) {
-    char buf[30];
-    sprintf(buf, "%d frames/sec %.2f ms/frame", numFrames, 1000.0 / numFrames);
-    fps_text = std::string(buf);
-    t = 0;
-    numFrames = 0;
-  }
-}

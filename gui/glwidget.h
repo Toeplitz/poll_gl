@@ -6,25 +6,35 @@
 #include "glew.h"
 
 #include <QGLWidget>
+#include <QBasicTimer>
+#include <QTimer>
 
 class GLwidget : public QGLWidget
 {
-    Q_OBJECT
+  Q_OBJECT
 
 
-private:
+  private:
+    Assets assets;
     Poll poll;
+    Scene scene;
+
+    QTimer timer;
 
 
     bool check_version(const int &major);
 
-public:
+  public:
     explicit GLwidget(QWidget *parent = 0);
-    void check_error();
+
+
+    /* QT specifics */
     void initializeGL();
+    void mousePressEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e);
     void paintGL();
     void resizeGL(int w, int h);
 
 };
 
-#endif // GLWIDGET_H
+#endif 

@@ -22,27 +22,28 @@ class Poll {
   private:
 
 //    Config config;
+    Assets assets;
     Console console;
     GLcontext glcontext;
     GLui ui;
 
-    Poll_Plugin_List plugins;
 
     std::string fps_text;
 
-    double       delta_time_get();
     std::string &fps_text_get();
-    void         profile_fps(const double dt);
 
   public:
+    Poll_Plugin_List plugins;
+
+
     Poll(const std::string &config_file = ""); 
 
-   // Assets      &assets_get();
     Config      &config_get();
     Console     &console_get();
     GLcontext   &glcontext_get();
     void         init();
-    //Physics     &physics_get();
+    double       delta_time_get();
+    void         profile_fps(const double dt);
     void         plugin_add(Poll_Plugin &plugin);
     void         run();
     void         term();

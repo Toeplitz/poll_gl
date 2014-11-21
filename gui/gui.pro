@@ -26,7 +26,7 @@ linux {
 
     QMAKE_CXXFLAGS += -fPIC -Wall -pedantic -g -std=c++11 -DGLM_FORCE_RADIANS
     INCLUDEPATH  += /usr/include/ /usr/include/bullet/ /usr/include/jsoncpp /usr/include/GL ../core
-    LIBS += -lGLU -lGLEW -lassimp -lBulletCollision -lBulletDynamics -lLinearMath -ljsoncpp -L/home/ms/git/build-poll_qt-Desktop-Release/core -lpoll_core
+    LIBS += -L/home/ms/git/build-poll_qt-Desktop-Release/core -lpoll_core -lGLU -lGLEW -lassimp -lBulletCollision -lBulletDynamics -lLinearMath -ljsoncpp
 }
 
 win32 {
