@@ -5,6 +5,7 @@
 
 #include <QMouseEvent>
 #include <QKeyEvent>
+#include <QGLWidget>
 
 class Console;
 class Scene;
@@ -34,13 +35,13 @@ class Plugin_Firstperson_Camera: public Poll_Plugin
     glm::vec3 target;
     bool mouse_view_toggle = false;
 
-    void cb_keyboard_pressed(QKeyEvent *e);
-    void cb_keyboard_released(QKeyEvent *e);
+    void cb_keyboard_pressed(QWidget *w, QKeyEvent *e);
+    void cb_keyboard_released(QWidget *w, QKeyEvent *e);
     /*
     void cb_mouse_pressed(SDL_MouseButtonEvent *ev);
     void cb_mouse_released(SDL_MouseButtonEvent *ev);
-    void cb_mouse_motion(SDL_MouseMotionEvent *ev);
     */
+    void cb_mouse_motion(QWidget *w, QMouseEvent *ev);
     void cb_custom(const float dt);
     void common_fpcamera_defaults_set();
     void common_fpcamera_directions_calc();

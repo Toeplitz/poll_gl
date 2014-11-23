@@ -22,6 +22,7 @@
 
 #endif
 
+
 bool Image::load(const std::string &filename)
 {
   unsigned char *buf = stbi_load(filename.c_str(), &width, &height, &components, 4);

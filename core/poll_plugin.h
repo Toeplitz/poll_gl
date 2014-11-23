@@ -5,6 +5,7 @@
 #include <vector>
 #include <QMouseEvent>
 #include <QKeyEvent>
+#include  <QWidget>
 
 class Node;
 
@@ -29,9 +30,9 @@ class Poll_Plugin
 
     virtual void cb_mouse_pressed(QMouseEvent *ev);
     virtual void cb_mouse_released(QMouseEvent *ev);
-    virtual void cb_mouse_motion(QMouseEvent *ev);
-    virtual void cb_keyboard_pressed(QKeyEvent *ev);
-    virtual void cb_keyboard_released(QKeyEvent *ev);
+    virtual void cb_mouse_motion(QWidget *w, QMouseEvent *ev);
+    virtual void cb_keyboard_pressed(QWidget *w, QKeyEvent *ev);
+    virtual void cb_keyboard_released(QWidget *w, QKeyEvent *ev);
 
 };
 

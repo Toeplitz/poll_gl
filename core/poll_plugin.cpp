@@ -38,17 +38,17 @@ void Poll_Plugin::cb_mouse_released(QMouseEvent *ev)
 }
 
 
-void Poll_Plugin::cb_mouse_motion(QMouseEvent *ev)
+void Poll_Plugin::cb_mouse_motion(QWidget *w, QMouseEvent *ev)
 {
 }
 
 
-void Poll_Plugin::cb_keyboard_pressed(QKeyEvent *keysym)
+void Poll_Plugin::cb_keyboard_pressed(QWidget *w, QKeyEvent *ev)
 {
 }
 
 
-void Poll_Plugin::cb_keyboard_released(QKeyEvent *keysym)
+void Poll_Plugin::cb_keyboard_released(QWidget *w, QKeyEvent *ev)
 {
 }
 

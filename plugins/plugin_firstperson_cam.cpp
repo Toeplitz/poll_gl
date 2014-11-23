@@ -15,7 +15,7 @@ Plugin_Firstperson_Camera::Plugin_Firstperson_Camera(Scene &scene, Node *node)
 }
 
 
-void Plugin_Firstperson_Camera::cb_keyboard_pressed(QKeyEvent *e)
+void Plugin_Firstperson_Camera::cb_keyboard_pressed(QWidget *w, QKeyEvent *e)
 {
   //if (console->active())
    // return;
@@ -33,17 +33,26 @@ void Plugin_Firstperson_Camera::cb_keyboard_pressed(QKeyEvent *e)
     case Qt::Key_E:
       common_fpcamera_move_add(SIDESTEP_RIGHT);
       break;
-    //case SDLK_m:
+    case Qt::Key_M:
     //  window->mouse_cursor_toggle();
-    //  mouse_view_toggle = !mouse_view_toggle;
-    //  break;
+      if (!mouse_view_toggle) {
+        w->setCursor(Qt::BlankCursor);
+        w->setMouseTracking(true);
+        w->grabMouse();
+      } else {
+        w->setCursor(Qt::ArrowCursor);
+        w->setMouseTracking(false);
+        w->releaseMouse();
+      }
+      mouse_view_toggle = !mouse_view_toggle;
+      break;
     default:
       break;
   }
 }
 
 
-void Plugin_Firstperson_Camera::cb_keyboard_released(QKeyEvent *e)
+void Plugin_Firstperson_Camera::cb_keyboard_released(QWidget *w, QKeyEvent *e)
 {
  // if (console->active())
  //   return;
@@ -84,27 +93,23 @@ void Plugin_Firstperson_Camera::cb_mouse_released(SDL_MouseButtonEvent *ev)
   common_fpcamera_move_delete(FORWARD);
 }
 
+*/
 
-void Plugin_Firstperson_Camera::cb_mouse_motion(SDL_MouseMotionEvent *ev)
+void Plugin_Firstperson_Camera::cb_mouse_motion(QWidget *w, QMouseEvent *ev)
 {
-  static int last_x, last_y;
-
   if (!mouse_view_toggle)
     return;
 
-  if (!last_x)
-    last_x = ev->x;
-  if (!last_y)
-    last_y = ev->y;
+  auto width = w->width();
+  auto height = w->height();
+  common_fpcamera_mouse_update(ev->x(), ev->y(), width, height);
 
-  common_fpcamera_mouse_update(ev->x, ev->y, window->width_get(), window->height_get());
-  window->mouse_cursor_center();
-
-  last_x = ev->x;
-  last_y = ev->y;
+  QCursor c = w->cursor();
+  c.setPos(w->mapToGlobal(QPoint(width / 2, height / 2)));
+ // c.setShape(Qt::BlankCursor);
+  w->setCursor(c);
 }
 
-*/
 
 
 void Plugin_Firstperson_Camera::cb_custom(const float dt)

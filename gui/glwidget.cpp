@@ -125,7 +125,7 @@ void GLwidget::keyPressEvent(QKeyEvent *event)
   POLL_DEBUG(std::cout, "Key press: " << event->key());
 
   for (auto plugin : poll.plugins_get()) {
-    plugin->cb_keyboard_pressed(event);
+    plugin->cb_keyboard_pressed(this, event);
   }
 }
 
@@ -135,7 +135,7 @@ void GLwidget::keyReleaseEvent(QKeyEvent *event)
   POLL_DEBUG(std::cout, "Key release: " << event->key());
 
   for (auto plugin : poll.plugins_get()) {
-    plugin->cb_keyboard_released(event);
+    plugin->cb_keyboard_released(this, event);
   }
 }
 
@@ -154,7 +154,7 @@ void GLwidget::mouseMoveEvent(QMouseEvent *e)
 {
   POLL_DEBUG(std::cout, "Mouse move: " << e->globalX() << ", " << e->globalY());
   for (auto plugin : poll.plugins_get()) {
-    plugin->cb_mouse_motion(e);
+    plugin->cb_mouse_motion(this, e);
   }
 }
 
