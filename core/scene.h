@@ -37,7 +37,6 @@ class Scene
     Node root;
 
     Poll *poll_ptr = nullptr;
-    Poll_Plugin_List *plugins_ptr = nullptr;
 
     void  animated_nodes_add(Node &node);
     Node *node_find_recursive(Node &node, const std::string &name);

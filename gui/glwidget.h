@@ -10,6 +10,9 @@
 #include <QBasicTimer>
 #include <QTimer>
 
+#include <memory>
+
+
 class GLwidget : public QGLWidget
 {
   Q_OBJECT
@@ -21,6 +24,8 @@ class GLwidget : public QGLWidget
 
     QTimer timer;
 
+    std::unique_ptr<Poll_Plugin> plugin_firstperson_camera;
+
 
   public:
     explicit GLwidget(QWidget *parent = 0);
@@ -29,6 +34,7 @@ class GLwidget : public QGLWidget
     /* QT specifics */
     void initializeGL();
     void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
     void mousePressEvent(QMouseEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);

@@ -2,9 +2,9 @@
 
 
 
-Plugin_Firstperson_Camera::Plugin_Firstperson_Camera(Console &console, Scene &scene, Node *node)
+Plugin_Firstperson_Camera::Plugin_Firstperson_Camera(Scene &scene, Node *node)
 {
-  this->console = &console;
+ // this->console = &console;
   this->scene = &scene;
  // this->window = &scene.window_get();
 
@@ -15,51 +15,50 @@ Plugin_Firstperson_Camera::Plugin_Firstperson_Camera(Console &console, Scene &sc
 }
 
 
-/*
-void Plugin_Firstperson_Camera::cb_keyboard_pressed(SDL_Keysym *keysym)
+void Plugin_Firstperson_Camera::cb_keyboard_pressed(QKeyEvent *e)
 {
-  if (console->active()) 
-    return;
+  //if (console->active())
+   // return;
 
-  switch (keysym->sym) {
-    case SDLK_w:
+  switch (e->key()) {
+    case Qt::Key_W:
       common_fpcamera_move_add(FORWARD);
       break;
-    case SDLK_q:
+    case Qt::Key_Q:
       common_fpcamera_move_add(SIDESTEP_LEFT);
       break;
-    case SDLK_s:
+    case Qt::Key_S:
       common_fpcamera_move_add(BACKWARD);
       break;
-    case SDLK_e:
+    case Qt::Key_E:
       common_fpcamera_move_add(SIDESTEP_RIGHT);
       break;
-    case SDLK_m:
-      window->mouse_cursor_toggle();
-      mouse_view_toggle = !mouse_view_toggle;
-      break;
+    //case SDLK_m:
+    //  window->mouse_cursor_toggle();
+    //  mouse_view_toggle = !mouse_view_toggle;
+    //  break;
     default:
       break;
   }
 }
 
 
-void Plugin_Firstperson_Camera::cb_keyboard_released(SDL_Keysym *keysym)
+void Plugin_Firstperson_Camera::cb_keyboard_released(QKeyEvent *e)
 {
-  if (console->active()) 
-    return;
+ // if (console->active())
+ //   return;
 
-  switch (keysym->sym) {
-    case SDLK_w:
+  switch (e->key()) {
+    case Qt::Key_W:
       common_fpcamera_move_delete(FORWARD);
       break;
-    case SDLK_q:
+    case Qt::Key_Q:
       common_fpcamera_move_delete(SIDESTEP_LEFT);
       break;
-    case SDLK_s:
+    case Qt::Key_S:
       common_fpcamera_move_delete(BACKWARD);
       break;
-    case SDLK_e:
+    case Qt::Key_E:
       common_fpcamera_move_delete(SIDESTEP_RIGHT);
       break;
     default:
@@ -69,6 +68,7 @@ void Plugin_Firstperson_Camera::cb_keyboard_released(SDL_Keysym *keysym)
 
 
 
+/*
 void Plugin_Firstperson_Camera::cb_mouse_pressed(SDL_MouseButtonEvent *ev)
 {
   if (ev->button != 3 || !mouse_view_toggle)

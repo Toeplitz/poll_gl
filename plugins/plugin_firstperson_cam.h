@@ -3,6 +3,9 @@
 #include "poll.h"
 #include "poll_plugin.h"
 
+#include <QMouseEvent>
+#include <QKeyEvent>
+
 class Console;
 class Scene;
 class Window;
@@ -31,9 +34,9 @@ class Plugin_Firstperson_Camera: public Poll_Plugin
     glm::vec3 target;
     bool mouse_view_toggle = false;
 
+    void cb_keyboard_pressed(QKeyEvent *e);
+    void cb_keyboard_released(QKeyEvent *e);
     /*
-    void cb_keyboard_pressed(SDL_Keysym *keysym);
-    void cb_keyboard_released(SDL_Keysym *keysym);
     void cb_mouse_pressed(SDL_MouseButtonEvent *ev);
     void cb_mouse_released(SDL_MouseButtonEvent *ev);
     void cb_mouse_motion(SDL_MouseMotionEvent *ev);
@@ -48,7 +51,7 @@ class Plugin_Firstperson_Camera: public Poll_Plugin
 
   public:
 
-    Plugin_Firstperson_Camera(Console &console, Scene &scene, Node *node);
+    Plugin_Firstperson_Camera(Scene &scene, Node *node);
 
 };
 

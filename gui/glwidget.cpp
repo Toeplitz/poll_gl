@@ -1,6 +1,7 @@
 #include "glwidget.h"
 #include "gldefaults.h"
 #include "poll.h"
+#include "plugin_firstperson_cam.h"
 #include "utils.h"
 
 #include <QGLFormat>
@@ -39,6 +40,16 @@ void GLwidget::initializeGL()
 
   poll.init();
   scene.init(poll);
+
+  Node *camera_node = scene.node_camera_get();
+  //auto plugin_debug = std::unique_ptr<Plugin_Debug>(new Plugin_Debug(poll.console_get(), scene));
+  //auto plugin_light_tool = std::unique_ptr<Plugin_Light_Tool>(new Plugin_Light_Tool(poll.console_get(), scene));
+  //auto plugin_node_tool = std::unique_ptr<Plugin_Node_Tool>(new Plugin_Node_Tool(poll.console_get(), scene, 0.7f));
+  plugin_firstperson_camera = std::unique_ptr<Plugin_Firstperson_Camera>(new Plugin_Firstperson_Camera(scene, camera_node));
+ // poll.plugin_add(*plugin_debug);
+ // poll.plugin_add(*plugin_light_tool);
+  poll.plugin_add(*plugin_firstperson_camera);
+ // poll.plugin_add(*plugin_node_tool);
 
   const float scene_scalar = 0.7;
 
@@ -92,12 +103,12 @@ void GLwidget::initializeGL()
   }
 
   {
-   Node *node = scene.node_create("Light_Directionl_Global");
-   Light *light = node->light_create(scene, Light::DIRECTIONAL, Light::GLOBAL);
-   node->translate(scene, glm::vec3(0, 40, 0));
-   light->properties_direction_set(glm::vec3(0, -1, -1));
-   light->properties_color_set(glm::vec3(0.5, 0.5, 0.5));
- }
+    Node *node = scene.node_create("Light_Directionl_Global");
+    Light *light = node->light_create(scene, Light::DIRECTIONAL, Light::GLOBAL);
+    node->translate(scene, glm::vec3(0, 40, 0));
+    light->properties_direction_set(glm::vec3(0, -1, -1));
+    light->properties_color_set(glm::vec3(0.5, 0.5, 0.5));
+  }
 
   scene.scene_graph_print(true);
 
@@ -112,30 +123,54 @@ void GLwidget::initializeGL()
 void GLwidget::keyPressEvent(QKeyEvent *event)
 {
   POLL_DEBUG(std::cout, "Key press: " << event->key());
+
+  for (auto plugin : poll.plugins_get()) {
+    plugin->cb_keyboard_pressed(event);
+  }
 }
+
+
+void GLwidget::keyReleaseEvent(QKeyEvent *event)
+{
+  POLL_DEBUG(std::cout, "Key release: " << event->key());
+
+  for (auto plugin : poll.plugins_get()) {
+    plugin->cb_keyboard_released(event);
+  }
+}
+
 
 
 void GLwidget::mousePressEvent(QMouseEvent *e)
 {
   POLL_DEBUG(std::cout, "Mouse press GLwidget");
+  for (auto plugin : poll.plugins_get()) {
+    plugin->cb_mouse_pressed(e);
+  }
 }
 
 
 void GLwidget::mouseMoveEvent(QMouseEvent *e)
 {
   POLL_DEBUG(std::cout, "Mouse move: " << e->globalX() << ", " << e->globalY());
+  for (auto plugin : poll.plugins_get()) {
+    plugin->cb_mouse_motion(e);
+  }
 }
 
 
 void GLwidget::mouseReleaseEvent(QMouseEvent *e)
 {
   POLL_DEBUG(std::cout, "Mouse release GLwidget");
+  for (auto plugin : poll.plugins_get()) {
+    plugin->cb_mouse_released(e);
+  }
 }
 
 
 void GLwidget::paintGL()
 {
- poll.step(scene);
+  poll.step(scene);
 }
 
 

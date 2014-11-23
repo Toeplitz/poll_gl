@@ -4,13 +4,6 @@
 #
 #-------------------------------------------------
 
-POLL_DATA_ROOT = "C:/\Users/\ms/\poll/\data/"
-DEFINES += POLL_DATA_PATH=\\\"$$POLL_DATA_ROOT\\\"
-
-
-POLL_SHADER_ROOT = "C:/\Users/\ms/\poll/\shaders/"
-DEFINES += POLL_SHADER_PATH=\\\"$$POLL_SHADER_ROOT\\\"
-
 TARGET = poll_core
 TEMPLATE = lib
 CONFIG+= staticlib
@@ -78,6 +71,11 @@ HEADERS  += \
 
 
 linux {
+    POLL_DATA_ROOT = "/\home/\ms/\git/\poll/\data/"
+    DEFINES += POLL_DATA_PATH=\\\"$$POLL_DATA_ROOT\\\"
+
+    POLL_SHADER_ROOT = "/\home/\ms/\git/\poll/\shaders/"
+    DEFINES += POLL_SHADER_PATH=\\\"$$POLL_SHADER_ROOT\\\"
 
     QMAKE_CXXFLAGS += -fPIC -Wall -pedantic -g -std=c++11 -DGLM_FORCE_RADIANS
     INCLUDEPATH  += /usr/include/ /usr/include/bullet/ /usr/include/jsoncpp /usr/include/GL ./src
@@ -85,6 +83,12 @@ linux {
 }
 
 win32 {
+    POLL_DATA_ROOT = "C:/\Users/\ms/\poll/\data/"
+    DEFINES += POLL_DATA_PATH=\\\"$$POLL_DATA_ROOT\\\"
+
+    POLL_SHADER_ROOT = "C:/\Users/\ms/\poll/\shaders/"
+    DEFINES += POLL_SHADER_PATH=\\\"$$POLL_SHADER_ROOT\\\"
+
     QMAKE_CXXFLAGS += /MDd -DGLM_FORCE_RADIANS
 
     # GLM

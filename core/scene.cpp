@@ -147,7 +147,6 @@ GLcontext &Scene::glcontext_get()
 void Scene::init(Poll &poll)
 {
   this->poll_ptr = &poll;
-  this->plugins_ptr = &poll.plugins;
 
   assets.init(*this);
 
@@ -329,7 +328,7 @@ Physics &Scene::physics_get()
 
 const Poll_Plugin_List &Scene::plugins_get() const
 {
-  return *plugins_ptr;
+  return poll_ptr->plugins_get();
 }
 
 
@@ -343,6 +342,7 @@ void Scene::resize(Node *ptr, const int width, const int height)
   Camera *camera = node->camera_get();
 
   if (camera) {
+    POLL_DEBUG(std::cout, "Found camera, resizing:" << camera);
     camera->transform_perspective_create(width, height);
   }
 

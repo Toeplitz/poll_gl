@@ -40,14 +40,12 @@ Poll::Poll(const std::string &config_file)
 // Return delta time in seconds.
 double Poll::delta_time_get()
 {
-  // double dt = 0.01;
-  //static unsigned long long time_last = std::chrono::system_clock::now().time_since_epoch() /  std::chrono::duration_cast<std::chrono::microseconds>(1);
-  //unsigned long long time_cur = std::chrono::system_clock::now().time_since_epoch() /  std::chrono::duration_cast<std::chrono::microseconds(1)>;
-  static auto time_last = std::chrono::high_resolution_clock::now();
-  auto time_cur = std::chrono::high_resolution_clock::now();
+  static auto time_last = std::chrono::duration_cast<std::chrono::milliseconds>
+        (std::chrono::system_clock::now().time_since_epoch()).count();
+  auto time_cur = std::chrono::duration_cast<std::chrono::milliseconds>
+        (std::chrono::system_clock::now().time_since_epoch()).count();
 
-  //double dt = (time_cur - time_last) / 1000.0 / 1000.0;
-  auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(time_cur - time_last).count();
+  double dt = (time_cur - time_last) / 1000.0;
   time_last = time_cur;
 
   return dt;
@@ -59,39 +57,15 @@ void Poll::init()
 }
 
 
-void Poll::profile_fps(const double dt)
-{
-  static int numFrames = 0;
-  static double t;
-
-  numFrames++;
-  t += dt;
-
-  if (t >= 1) {
-    char buf[30];
-    sprintf(buf, "%d frames/sec %.2f ms/frame", numFrames, 1000.0 / numFrames);
-    fps_text = std::string(buf);
-    POLL_DEBUG(std::cout, fps_text);
-    t = 0;
-    numFrames = 0;
-  }
-}
 
 void Poll::step(Scene &scene)
 {
-  // GLcontext &glcontext = glcontext_get();
-  // Assets &assets = assets_get();
-  //Stock_Shaders &shader = assets.stock_shaders_get();
-
   double dt = delta_time_get();
   profile_fps(dt);
 
-  //if (!window.poll_events(plugins))
-  //  return;
-
-  //  for (auto plugin : plugins) {
-  //   plugin->cb_custom(dt);
-  // }
+  for (auto plugin : plugins) {
+    plugin->cb_custom(dt);
+  }
 
   /* Update animations */
   auto &animated_nodes = scene.animated_nodes_get();
@@ -116,37 +90,14 @@ void Poll::step(Scene &scene)
   // ui.draw(fps_text_get());
 
   glcontext.check_error();
-  // window.swap();
 }
 
 
 void Poll::term()
 {
-  // Assets &assets = assets_get();
-  //GLcontext &glcontext = window.glcontext_get();
-  // Physics &physics = physics_get();
 
-  //console.term();
-  //physics.term();
-  //assets.term(scene);
   glcontext.term();
-  //window.term();
 }
-
-
-//Assets &Poll::assets_get()
-//{
-//  return scene_get().assets_get();
-//}
-
-
-
-/*
-Console &Poll::console_get() 
-{
-  return console;
-}
-*/
 
 
 GLcontext &Poll::glcontext_get()
@@ -155,15 +106,15 @@ GLcontext &Poll::glcontext_get()
 }
 
 
-//Physics &Poll::physics_get() 
-//{
-// return scene.physics_get();
-//}
-
-
 void Poll::plugin_add(Poll_Plugin &plugin)
 {
   plugins.push_back(&plugin);
+}
+
+
+const Poll_Plugin_List &Poll::plugins_get() const
+{
+  return plugins;
 }
 
 
@@ -171,6 +122,24 @@ void Poll::plugin_add(Poll_Plugin &plugin)
 /***************** PRIVATE METHODS ****************/
 /**************************************************/
 
+
+void Poll::profile_fps(const double dt)
+{
+  static int numFrames = 0;
+  static double t;
+
+  numFrames++;
+  t += dt;
+
+  if (t >= 1) {
+    char buf[30];
+    sprintf(buf, "%d frames/sec %.2f ms/frame", numFrames, 1000.0 / numFrames);
+    fps_text = std::string(buf);
+    POLL_DEBUG(std::cout, fps_text);
+    t = 0;
+    numFrames = 0;
+  }
+}
 
 
 std::string &Poll::fps_text_get()
