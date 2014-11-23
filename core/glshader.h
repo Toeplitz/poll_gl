@@ -15,7 +15,6 @@
 
 
 #define INCLUDE_STRING "#include"
-#define SHADER_PATH "/home/ms/git/poll/shaders/"
 #define GLSL_VERSION "#version 330"
 
 

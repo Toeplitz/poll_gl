@@ -4,6 +4,15 @@
 #
 #-------------------------------------------------
 
+
+POLL_DATA_ROOT = "C:/\Users/\ms/\poll/\data/"
+DEFINES += POLL_DATA_PATH=\\\"$$POLL_DATA_ROOT\\\"
+
+
+POLL_SHADER_ROOT = "C:/\Users/\ms/\poll/\shaders/"
+DEFINES += POLL_SHADER_PATH=\\\"$$POLL_SHADER_ROOT\\\"
+
+
 QT       += core gui opengl
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -59,3 +68,6 @@ win32 {
 
     LIBS += -L"C:\Users\ms\poll\core\debug" -lpoll_core
 }
+
+RESOURCES += \
+    gui_resources.qrc

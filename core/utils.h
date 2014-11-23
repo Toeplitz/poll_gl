@@ -12,6 +12,10 @@
 #include <sys/stat.h>
 //#include <unistd.h>
 
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+#define M_PI 3.14159265359
+#endif
+
 #define POLL_DEBUG( os, msg ) \
   (os) << "DEBUG: [" << __FILE__ << ":" << __LINE__ << "] " \
        << msg << std::endl

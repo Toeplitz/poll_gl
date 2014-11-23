@@ -41,9 +41,13 @@ Poll::Poll(const std::string &config_file)
 double Poll::delta_time_get()
 {
   // double dt = 0.01;
-  static unsigned long long time_last = std::chrono::system_clock::now().time_since_epoch() /  std::chrono::microseconds(1);
-  unsigned long long time_cur = std::chrono::system_clock::now().time_since_epoch() /  std::chrono::microseconds(1);
-  double dt = (time_cur - time_last) / 1000.0 / 1000.0;
+  //static unsigned long long time_last = std::chrono::system_clock::now().time_since_epoch() /  std::chrono::duration_cast<std::chrono::microseconds>(1);
+  //unsigned long long time_cur = std::chrono::system_clock::now().time_since_epoch() /  std::chrono::duration_cast<std::chrono::microseconds(1)>;
+  static auto time_last = std::chrono::high_resolution_clock::now();
+  auto time_cur = std::chrono::high_resolution_clock::now();
+
+  //double dt = (time_cur - time_last) / 1000.0 / 1000.0;
+  auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(time_cur - time_last).count();
   time_last = time_cur;
 
   return dt;

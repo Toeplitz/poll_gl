@@ -4,6 +4,13 @@
 #
 #-------------------------------------------------
 
+POLL_DATA_ROOT = "C:/\Users/\ms/\poll/\data/"
+DEFINES += POLL_DATA_PATH=\\\"$$POLL_DATA_ROOT\\\"
+
+
+POLL_SHADER_ROOT = "C:/\Users/\ms/\poll/\shaders/"
+DEFINES += POLL_SHADER_PATH=\\\"$$POLL_SHADER_ROOT\\\"
+
 TARGET = poll_core
 TEMPLATE = lib
 CONFIG+= staticlib

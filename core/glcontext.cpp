@@ -726,9 +726,6 @@ void GLcontext::shadow_texture_offset_build(int tex_size, int samples_u, int sam
   int buf_size = size * size * samples * 2;
   float *data = new float[buf_size];
 
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-  const float M_PI = 3.14;
-#endif
 
   for (int i = 0; i < size; i++) {
     for (int j = 0; j < size; j++) {

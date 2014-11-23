@@ -140,8 +140,6 @@ GLcontext &Scene::glcontext_get()
     POLL_ERROR(std::cerr, "No poll pointer!");
   }
 
-  POLL_DEBUG(std::cerr, "getting the glcontext from Scene");
-
   return poll_ptr->glcontext_get();
 }
 

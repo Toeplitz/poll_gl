@@ -84,7 +84,7 @@ int GLshader::get_block_index(std::string blockName)
 std::string GLshader::parse_file(const std::string &file)
 {
   std::string parsed;
-  std::ifstream t(SHADER_PATH + file);
+  std::ifstream t(std::string(POLL_SHADER_PATH) + file);
 
   std::string line;
   while(std::getline(t, line)) {
@@ -93,7 +93,7 @@ std::string GLshader::parse_file(const std::string &file)
     if (found != std::string::npos) {
       std::string included_file = line.replace(found, std::string(INCLUDE_STRING).length() + 1, "");
 
-      if (file_exists(SHADER_PATH + included_file) &&
+      if (file_exists(std::string(POLL_SHADER_PATH) + included_file) &&
           file.compare(included_file)) {
         add_str = parse_file(included_file);
       } else {
@@ -178,17 +178,17 @@ void GLshader::load(const std::string &vertex, const std::string &fragment, cons
   vertex_shader_file = vertex;
   fragment_shader_file = fragment;
 
-  if (!file_exists(SHADER_PATH + vertex)) {
-    std::cout << "GLSL (vertex shader) file '" << vertex << "' does not exist. Exiting ..." << std::endl;
+  if (!file_exists(std::string(POLL_SHADER_PATH) + vertex)) {
+    std::cout << "GLSL (vertex shader) file '" << std::string(POLL_SHADER_PATH) + vertex << "' does not exist. Exiting ..." << std::endl;
     exit(-1);
   }
-  if (!file_exists(SHADER_PATH + fragment)) {
+  if (!file_exists(std::string(POLL_SHADER_PATH) + fragment)) {
     std::cout << "GLSL (fragment shader) file '" << fragment << "' does not exist. Exiting ..." << std::endl;
     exit(-1);
   }
 
   if (!geometry.empty()) {
-    if (!file_exists(SHADER_PATH + geometry)) {
+    if (!file_exists(std::string(POLL_SHADER_PATH) + geometry)) {
       std::cout << "GLSL (geometry shader) file '" << geometry << "' does not exist. Exiting ..." << std::endl;
       exit(-1);
     }
