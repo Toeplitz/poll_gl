@@ -94,6 +94,9 @@ void Stock_Shaders::term()
     Mesh *mesh = node_symbol_cone->mesh_get();
     /* update the vertices since this is a blender export */
     mesh->positions_update(node_symbol_cone->transform_global_get());
+    POLL_DEBUG(std::cerr, "Trying to upload to gpu" << node_symbol_cone->name_get());
+    POLL_DEBUG(std::cerr, "glcontext pptr: " << &glcontext);
+
     glcontext.vertex_buffers_mesh_create(node_symbol_cone->mesh_get());
   }
 

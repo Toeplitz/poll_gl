@@ -140,10 +140,12 @@ void Poll::term()
 
 
 
+/*
 Console &Poll::console_get() 
 {
   return console;
 }
+*/
 
 
 GLcontext &Poll::glcontext_get()

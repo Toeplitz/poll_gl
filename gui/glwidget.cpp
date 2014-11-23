@@ -1,5 +1,6 @@
 #include "glwidget.h"
 #include "gldefaults.h"
+#include "poll.h"
 #include "utils.h"
 
 #include <QGLFormat>
@@ -8,10 +9,21 @@
 #include <iostream>
 
 
+QGLFormat fmt;
+
+QGLFormat *foo()
+{
+  fmt.setVersion(3, 3);  
+  fmt.setProfile(QGLFormat::CoreProfile);
+  return &fmt;
+
+}
+
 
 GLwidget::GLwidget(QWidget *parent) :
-  QGLWidget(),
-  poll()
+  QGLWidget(*foo()),
+  poll(),
+  scene()
 {
 
 }
@@ -19,9 +31,11 @@ GLwidget::GLwidget(QWidget *parent) :
 
 void GLwidget::initializeGL()
 {
+  std::cout << "Widget OpenGl: " << format().majorVersion() << "." << format().minorVersion() << std::endl;
+  std::cout << "Context valid: " << context()->isValid() << std::endl;
+
   poll.init();
-  scene.init(poll.plugins);
-  assets.init(scene);
+  scene.init(poll);
 
   QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(updateGL()));
   timer.start(0);
@@ -39,6 +53,7 @@ void GLwidget::mouseReleaseEvent(QMouseEvent *e)
   POLL_DEBUG(std::cout, "Mouse release GLwidget");
 }
 
+
 void GLwidget::paintGL()
 {
   double dt = poll.delta_time_get();
@@ -54,6 +69,8 @@ void GLwidget::resizeGL(int w, int h)
 {
   POLL_DEBUG(std::cout, "resizing gl viewport: " << w << " x " << h);
   GL_ASSERT(glViewport(0, 0, (GLint)w, (GLint)h));
+
+  scene.resize(w, h);
 
   /* change frustnum, framebuffers etc... */
 

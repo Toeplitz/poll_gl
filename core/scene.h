@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include "poll.h"
 #include "assets.h"
 #include "model.h"
 #include "node.h"
@@ -12,7 +13,6 @@
 
 
 typedef std::vector<Node *> Node_Ptr_List;
-
 
 class Scene 
 {
@@ -34,11 +34,10 @@ class Scene
 
     Assets assets;
     Physics physics;
-    GLcontext glcontext;
     Node root;
 
-
-    Poll_Plugin_List *plugins_ptr;
+    Poll *poll_ptr = nullptr;
+    Poll_Plugin_List *plugins_ptr = nullptr;
 
     void  animated_nodes_add(Node &node);
     Node *node_find_recursive(Node &node, const std::string &name);
@@ -58,7 +57,7 @@ class Scene
     const Node_Ptr_List    &draw_nodes_solid_diffuse_get() const;
     const Node_Ptr_List    &draw_nodes_texture_diffuse_get() const;
     GLcontext              &glcontext_get();
-    void                    init(Poll_Plugin_List &plugins);
+    void                    init(Poll &poll);
     Node                   &load(const std::string &prefix,  const std::string &filename, const unsigned int options);
     void                    mesh_nodes_add(Node &node);
     const Node_Ptr_List    &mesh_nodes_get() const;
@@ -72,6 +71,7 @@ class Scene
     Node                   &node_root_get();
     Physics                &physics_get();
     const Poll_Plugin_List &plugins_get() const;
+    void                    resize(const int width, const int height);
     void                    transform_update_global_recursive(Node *node);
 
 };

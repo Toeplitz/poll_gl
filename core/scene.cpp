@@ -136,13 +136,22 @@ const Node_Ptr_List &Scene::draw_nodes_texture_diffuse_get() const
 
 GLcontext &Scene::glcontext_get()
 {
-  return glcontext;
+  if (!poll_ptr) {
+    POLL_ERROR(std::cerr, "No poll pointer!");
+  }
+
+  POLL_DEBUG(std::cerr, "getting the glcontext from Scene");
+
+  return poll_ptr->glcontext_get();
 }
 
 
-void Scene::init(Poll_Plugin_List &plugins)
+void Scene::init(Poll &poll)
 {
-  this->plugins_ptr = &plugins;
+  this->poll_ptr = &poll;
+  this->plugins_ptr = &poll.plugins;
+
+  assets.init(*this);
 
   Node *cam_node = node_create("camera", &root, TRANSFORM_INHERIT_POSITION_ONLY);
   cam_node->camera_create(assets_get());
@@ -325,6 +334,23 @@ const Poll_Plugin_List &Scene::plugins_get() const
   return *plugins_ptr;
 }
 
+
+void Scene::resize(const int width, const int height)
+{
+  Node *node = &root;
+
+  /*
+  while (node != nullptr) {
+    POLL_DEBUG(std::cout, "node: " << node->name_get());
+
+    if (node->children_get().size() > 0) {
+
+    }
+
+  }
+  */
+
+}
 
 void Scene::transform_update_global_recursive(Node *node)
 {

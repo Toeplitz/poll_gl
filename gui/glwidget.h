@@ -2,6 +2,7 @@
 #define GLWIDGET_H
 
 #include "poll.h"
+#include "scene.h"
 #define GLEW_STATIC
 #include "glew.h"
 
@@ -15,14 +16,11 @@ class GLwidget : public QGLWidget
 
 
   private:
-    Assets assets;
     Poll poll;
     Scene scene;
 
     QTimer timer;
 
-
-    bool check_version(const int &major);
 
   public:
     explicit GLwidget(QWidget *parent = 0);

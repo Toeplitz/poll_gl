@@ -1,4 +1,5 @@
 #include "poll.h"
+#include "scene.h"
 #include "glcontext.h"
 #include "material.h"
 #include "node.h"
@@ -127,13 +128,13 @@ void GLcontext::draw_text(Node &node)
 
 void GLcontext::init()
 {
-  /*
+
   glewExperimental= GL_TRUE;
   if (glewInit() != GLEW_OK) {
     POLL_ERROR(std::cerr, "Failed to initalize GLEW, exiting ...");
     exit(-1);
   }
-  */
+
 
   check_error();
   check_version(3);
@@ -526,8 +527,15 @@ void GLcontext::vertex_buffers_mesh_create(Mesh *mesh, const size_t max_size)
   GLenum target;
   GLint index;
 
-  if (!mesh) 
+  if (!mesh) {
+    POLL_ERROR(std::cerr, "Mesh pointer is not valid");
     return;
+  }
+
+  POLL_DEBUG(std::cerr, "Crete vertex buffer for: " << mesh << " vertices" << mesh->positions_get().size());
+
+  glEnable(GL_DEPTH_TEST);
+  POLL_DEBUG(std::cerr, "gl_vao:" << mesh->gl_vao);
 
   if (glIsVertexArray(mesh->gl_vao)) {
     std::cout << "Error: vertex array already exists for the mesh" << std::endl;
