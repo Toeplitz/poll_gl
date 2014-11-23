@@ -1,5 +1,7 @@
 #pragma once
 #include "poll.h"
+#include "scene.h"
+#include "console.h"
 #include "poll_plugin.h"
 
 #include <memory>
@@ -18,6 +20,7 @@ class Plugin_Light_Tool: public Poll_Plugin
 
     void cb_custom_draw();
     void cb_light_create(Node *node);
+    /*
     void console_cmd_light_create(const std::string &prim, const std::string &sec, const std::string &val);
     void console_cmd_light_disable(const std::string &prim, const std::string &sec, const std::string &val);
     void console_cmd_light_enable(const std::string &prim, const std::string &sec, const std::string &val);
@@ -25,6 +28,8 @@ class Plugin_Light_Tool: public Poll_Plugin
     void console_cmd_light_select(const std::string &prim, const std::string &sec, const std::string &val);
     void console_cmd_light_type(const std::string &prim, const std::string &sec, const std::string &val);
     void console_cmd_light_print(const std::string &prim, const std::string &sec, const std::string &val);
+
+    */
     void light_active_set(Light *light);
     /*
     void raycast_collide_callback_gimbal_center(Node &node, vec3 &position);

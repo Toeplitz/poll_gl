@@ -80,6 +80,14 @@ void GLwidget::initializeGL()
     }
   }
 
+   {
+    Node *node = scene.node_create("Light_Directionl_Global");
+    Light *light = node->light_create(scene, Light::DIRECTIONAL, Light::GLOBAL);
+    node->translate(scene, glm::vec3(0, 40, 0));
+    light->properties_direction_set(glm::vec3(0, -1, -1));
+    light->properties_color_set(glm::vec3(0.5, 0.5, 0.5));
+  }
+
   {
     Node &mitsuba = scene.load("data/demo_room/mitsuba/", "mitsuba.obj", MODEL_IMPORT_DEFAULT);
     mitsuba.translate(scene, vec3(5 * scene_scalar, 0, 0));
@@ -94,12 +102,27 @@ void GLwidget::initializeGL()
 
   QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(updateGL()));
   timer.start(0);
+
+  this->setFocusPolicy(Qt::StrongFocus);
+  this->setFocus();
+}
+
+
+void GLwidget::keyPressEvent(QKeyEvent *event)
+{
+  POLL_DEBUG(std::cout, "Key press: " << event->key());
 }
 
 
 void GLwidget::mousePressEvent(QMouseEvent *e)
 {
   POLL_DEBUG(std::cout, "Mouse press GLwidget");
+}
+
+
+void GLwidget::mouseMoveEvent(QMouseEvent *e)
+{
+  POLL_DEBUG(std::cout, "Mouse move: " << e->globalX() << ", " << e->globalY());
 }
 
 
@@ -111,25 +134,21 @@ void GLwidget::mouseReleaseEvent(QMouseEvent *e)
 
 void GLwidget::paintGL()
 {
- // double dt = poll.delta_time_get();
- // poll.profile_fps(dt);
-
- // GL_ASSERT(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
- // GL_ASSERT(glClearColor(1.f, 0.0f, 0.0f, 1.f));
  poll.step(scene);
-
-
 }
 
 
 void GLwidget::resizeGL(int w, int h)
 {
-  POLL_DEBUG(std::cout, "resizing gl viewport: " << w << " x " << h);
-  GL_ASSERT(glViewport(0, 0, (GLint)w, (GLint)h));
+  GLcontext &glcontext = poll.glcontext_get();
 
-  scene.resize(w, h);
+  if (w <= 0 || h <= 0) return;
+
+  POLL_DEBUG(std::cout, "resizing gl viewport: " << w << " x " << h);
+
+  scene.resize(nullptr, w, h);
+  glcontext.resize(w, h);
 
   /* change frustnum, framebuffers etc... */
-
 }
 

@@ -77,8 +77,8 @@ class GLcontext {
     const int shadow_map_width = 2048;
     const int shadow_map_height = 2048;
 
-    const int window_width = 640;
-    const int window_height = 480;
+    int window_width = 640;
+    int window_height = 480;
 
   public:
     
@@ -87,6 +87,7 @@ class GLcontext {
     void draw_scene(Scene &scene, std::vector<Poll_Plugin *> &plugins);
     void draw_text(Node &node);
     void init();
+    void resize(const int width, const int height);
     void term();
     void texture_delete(Texture &texture);
     void texture_single_channel_create(Texture &texture);
@@ -97,7 +98,7 @@ class GLcontext {
     void uniform_buffers_delete();
     void uniform_buffers_update_armature(const Armature &armature);
     void uniform_buffers_update_camera(Camera &camera);
-    //void uniform_buffers_update_config(Config &config);
+    void uniform_buffers_update_config();
     void uniform_buffers_update_light(Light &light);
     void uniform_buffers_update_material(const Material &material);
     void uniform_buffers_update_matrices(Node &node);

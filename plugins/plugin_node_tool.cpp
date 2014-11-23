@@ -28,13 +28,14 @@ Plugin_Node_Tool::Plugin_Node_Tool(Console &console, Scene &scene, float gizmo_z
 
   this->console = &console;
   this->scene = &scene;
-
+/*
   keypress_map[SDLK_x] = std::make_pair(false, "maniplation on x-axis");
   keypress_map[SDLK_y] = std::make_pair(false, "maniplation on y-axis");
   keypress_map[SDLK_z] = std::make_pair(false, "maniplation on z-axis");
   keypress_map[SDLK_t] = std::make_pair(false, "translate mode");
   keypress_map[SDLK_g] = std::make_pair(false, "scale mode");
   keypress_map[SDLK_LSHIFT] = std::make_pair(false, "shift");
+  */
 
   this->gizmo_zoom_factor = gizmo_zoom_factor;
   node_gizmo = &scene.load("data/", "gizmo_translate.dae", MODEL_IMPORT_OPTIMIZED  | MODEL_IMPORT_NO_DRAW);
@@ -116,6 +117,7 @@ void Plugin_Node_Tool::cb_node_draw(Node &node)
 }
 
 
+/*
 void Plugin_Node_Tool::cb_keyboard_pressed(SDL_Keysym *keysym)
 {
   if (keypress_map.count(keysym->sym) == 0)
@@ -316,4 +318,4 @@ void Plugin_Node_Tool::cb_mouse_motion(SDL_MouseMotionEvent *ev)
   }
 }
 
-
+*/

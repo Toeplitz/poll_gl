@@ -4,12 +4,13 @@
 
 Plugin_Debug::Plugin_Debug(Console &console, Scene &scene)
 {
-  this->console = &console;
-  this->scene = &scene;
-  this->physics = &scene.physics_get();
+ // this->console = &console;
+ // this->scene = &scene;
+ // this->physics = &scene.physics_get();
 }
 
 
+/*
 void Plugin_Debug::cb_keyboard_pressed(SDL_Keysym *keysym)
 {
 
@@ -36,5 +37,6 @@ void Plugin_Debug::cb_keyboard_pressed(SDL_Keysym *keysym)
   }
 
 }
+*/
 
 

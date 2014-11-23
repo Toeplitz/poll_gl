@@ -6,7 +6,7 @@ Plugin_Firstperson_Camera::Plugin_Firstperson_Camera(Console &console, Scene &sc
 {
   this->console = &console;
   this->scene = &scene;
-  this->window = &scene.window_get();
+ // this->window = &scene.window_get();
 
   n = node;
   camera = n->camera_get();
@@ -15,6 +15,7 @@ Plugin_Firstperson_Camera::Plugin_Firstperson_Camera(Console &console, Scene &sc
 }
 
 
+/*
 void Plugin_Firstperson_Camera::cb_keyboard_pressed(SDL_Keysym *keysym)
 {
   if (console->active()) 
@@ -102,6 +103,8 @@ void Plugin_Firstperson_Camera::cb_mouse_motion(SDL_MouseMotionEvent *ev)
   last_x = ev->x;
   last_y = ev->y;
 }
+
+*/
 
 
 void Plugin_Firstperson_Camera::cb_custom(const float dt)

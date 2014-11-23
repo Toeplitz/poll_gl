@@ -10,7 +10,7 @@
 /**************************************************/
 
 Scene::Scene(): 
-  root("Fragmic") 
+        root("Fragmic")
 {
   auto transform = mat4(1.f);
   /*
@@ -112,7 +112,7 @@ void Scene::draw_nodes_add(Node &node)
 void Scene::draw_nodes_remove(Node &node)
 {
   draw_nodes_shadow_cast.erase(std::remove(draw_nodes_shadow_cast.begin(),
-        draw_nodes_shadow_cast.end(), &node), draw_nodes_shadow_cast.end());
+                                           draw_nodes_shadow_cast.end(), &node), draw_nodes_shadow_cast.end());
 }
 
 
@@ -183,9 +183,9 @@ const std::vector<Node *> &Scene::mesh_nodes_get() const
 
 Node *Scene::node_find(Node *root_ptr, const std::string &name)
 {
-  if (root_ptr) 
+  if (root_ptr)
     return node_find_recursive(*root_ptr, name);
-  
+
   return node_find_recursive(root, name);
 }
 
@@ -224,17 +224,17 @@ void Scene::scene_graph_print_by_node(Node &node, bool compact)
   }
 
   if(std::find(draw_nodes_shadow_cast.begin(),
-        draw_nodes_shadow_cast.end(), &node) != draw_nodes_shadow_cast.end()) {
+               draw_nodes_shadow_cast.end(), &node) != draw_nodes_shadow_cast.end()) {
     std::cout << " {shadow cast}";
   }
 
   if(std::find(draw_nodes_solid_diffuse.begin(),
-        draw_nodes_solid_diffuse.end(), &node) != draw_nodes_solid_diffuse.end()) {
+               draw_nodes_solid_diffuse.end(), &node) != draw_nodes_solid_diffuse.end()) {
     std::cout << " {draw solid diffuse}";
   }
 
   if(std::find(draw_nodes_texture_diffuse.begin(),
-        draw_nodes_texture_diffuse.end(), &node) != draw_nodes_texture_diffuse.end()) {
+               draw_nodes_texture_diffuse.end(), &node) != draw_nodes_texture_diffuse.end()) {
     std::cout << " {draw texture diffuse}";
   }
 
@@ -289,7 +289,7 @@ Node *Scene::node_create(const std::string &name, Node *parent, Transform_Inheri
   Node *node_ptr  = node.get();
   if (!parent)
     root.child_add(std::move(node), root.tree_level_get() + 1);
-  else 
+  else
     parent->child_add(std::move(node), parent->tree_level_get() + 1);
 
   auto plugins = plugins_get();
@@ -335,22 +335,25 @@ const Poll_Plugin_List &Scene::plugins_get() const
 }
 
 
-void Scene::resize(const int width, const int height)
+void Scene::resize(Node *ptr, const int width, const int height)
 {
-  Node *node = &root;
+  Node *node = nullptr;
 
-  /*
-  while (node != nullptr) {
-    POLL_DEBUG(std::cout, "node: " << node->name_get());
+  node = ptr;
+  if (!node) node = &root;
 
-    if (node->children_get().size() > 0) {
+  Camera *camera = node->camera_get();
 
-    }
-
+  if (camera) {
+    camera->transform_perspective_create(width, height);
   }
-  */
+
+  for (auto &child : node->children_get()) {
+    resize(child.get(), width, height);
+  }
 
 }
+
 
 void Scene::transform_update_global_recursive(Node *node)
 {
@@ -443,7 +446,7 @@ void Scene::node_recursive_init(GLcontext &glcontext, Node &node)
     if (!(node.import_options & MODEL_IMPORT_NO_UPLOAD)) {
       glcontext.vertex_buffers_mesh_create(mesh);
     }
-  } 
+  }
 
 
   if (material) {
@@ -451,8 +454,8 @@ void Scene::node_recursive_init(GLcontext &glcontext, Node &node)
       glcontext.texture_materials_create(material);
     }
   }
-  
- // node_state_recursive_update(node);
+
+  // node_state_recursive_update(node);
 
   for (auto &child : node.children_get()) {
     node_recursive_init(glcontext, *child);
@@ -479,13 +482,13 @@ void Scene::node_state_recursive_update(Node &node)
     } else if (node.material_get()->cubemap) {
       std::cout << "Updating material state" << std::endl;
       if (node.material_get()->cubemap->type == CUBEMAP_SKYBOX) {
-        state.cubemap_skybox = true;
-        std::cout << "Found skybox" << std::endl;
+  state.cubemap_skybox = true;
+  std::cout << "Found skybox" << std::endl;
       } else if (node.material_get()->cubemap->type == CUBEMAP_REFLECTION) {
-        std::cout << "Found reflection" << std::endl;
-        state.cubemap_reflect = true;
+  std::cout << "Found reflection" << std::endl;
+  state.cubemap_reflect = true;
       } else {
-        std::cout << "Error: cubemap type not recognized" << std::endl;
+  std::cout << "Error: cubemap type not recognized" << std::endl;
       }
       state.standard = false;
     } else {

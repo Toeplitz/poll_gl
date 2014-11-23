@@ -147,7 +147,6 @@ void main ()
   */
 
   out_color.rgb = light_apply(pos_eye, normalize(n_texel.rgb), vec3(diffuse_texel), shadow);
-  //out_color.rgb = vec3(p_shadow_map, p_shadow_map, p_shadow_map);
   //out_color.rgb = vec3(diffuse_texel.a, diffuse_texel.a, diffuse_texel.a);
  // out_color.rgb = vec3(0, 1, 0);
   //frag_color.rgb = occlusion * phong(pos_eye, normalize(n_texel.rgb), vec3(0.5, 0.5, 0.5));

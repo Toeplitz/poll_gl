@@ -86,7 +86,7 @@ void GLcontext::draw_scene(Scene &scene, Poll_Plugin_List &plugins)
     glReadBuffer(GL_COLOR_ATTACHMENT2);
     glBlitFramebuffer(0, 0, window_width, window_height,
         dest_width * 5, 0, dest_width * 6, 200, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-    glBindFramebuffer(GL_READ_FRAMEBUFFER_EXT, 0);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
   }
 
 }
@@ -371,7 +371,6 @@ void GLcontext::uniform_buffers_update_camera(Camera &camera)
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 }
 
-/*
 void GLcontext::uniform_buffers_update_config()
 {
   struct {
@@ -380,20 +379,24 @@ void GLcontext::uniform_buffers_update_config()
   } p;
 
 
-  const Conf_Global &conf_global = config.conf_global_get();
+  //const Conf_Global &conf_global = config.conf_global_get();
 
-  p.ssoa.x = conf_global.ssao.distance_threshold;
-  p.ssoa.y = conf_global.ssao.filter_radius;
-  p.ssoa.z = conf_global.ssao.sample_count;
+  //p.ssoa.x = conf_global.ssao.distance_threshold;
+  //p.ssoa.y = conf_global.ssao.filter_radius;
+  //p.ssoa.z = conf_global.ssao.sample_count;
+  p.ssoa.x = 5.0;
+  p.ssoa.y = 10.0;
+  p.ssoa.z = 1;
 
-  p.viewport.x = conf_global.viewport.width;
-  p.viewport.y = conf_global.viewport.height;
+  p.viewport.x = window_width;
+  p.viewport.y = window_height;
+  POLL_DEBUG(std::cout, "updating view uniform:" << window_width << " x " << window_height);
 
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, gl_buffer_config));
   GL_ASSERT(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(p), &p));
   GL_ASSERT(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 
-}  */
+}
 
 
 void GLcontext::uniform_buffers_update_light(Light &light)
@@ -1099,6 +1102,27 @@ void GLcontext::framebuffer_create()
 }
 
 
+void GLcontext::resize(const int width, const int height)
+{
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_diffuse));
+  GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
+
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_depth));
+  GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
+
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_normal));
+  GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
+
+  GL_ASSERT(glBindTexture(GL_TEXTURE_2D, gl_fb_tex_final));
+  GL_ASSERT(glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
+
+  GL_ASSERT(glViewport(0, 0, width, height));
+
+  this->window_width = width;
+  this->window_height = height;
+
+  uniform_buffers_update_config();
+}
 
 void GLcontext::texture_create(Texture &texture, GLenum active_texture, GLint filter,
     GLint wrap, GLint internal_format, GLenum format,  

@@ -71,7 +71,7 @@ class Scene
     Node                   &node_root_get();
     Physics                &physics_get();
     const Poll_Plugin_List &plugins_get() const;
-    void                    resize(const int width, const int height);
+    void                    resize(Node *node, const int width, const int height);
     void                    transform_update_global_recursive(Node *node);
 
 };

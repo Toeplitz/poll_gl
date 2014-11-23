@@ -14,6 +14,7 @@ Plugin_Light_Tool::Plugin_Light_Tool(Console &console, Scene &scene)
   node_symbol_cone = stock_nodes.sphere_get();
   symbol_shape = std::unique_ptr<Physics_Triangle_Mesh_Shape>(new Physics_Triangle_Mesh_Shape(*node_symbol_cone));
 
+  /*
   console.command_add("light", "add", std::bind(&Plugin_Light_Tool::console_cmd_light_create, this, _1, _2, _3));
   console.command_add("light", "disable", std::bind(&Plugin_Light_Tool::console_cmd_light_disable, this, _1, _2, _3));
   console.command_add("light", "enable", std::bind(&Plugin_Light_Tool::console_cmd_light_enable, this, _1, _2, _3));
@@ -21,6 +22,7 @@ Plugin_Light_Tool::Plugin_Light_Tool(Console &console, Scene &scene)
   console.command_add("light", "print", std::bind(&Plugin_Light_Tool::console_cmd_light_print, this, _1, _2, _3));
   console.command_add("light", "select", std::bind(&Plugin_Light_Tool::console_cmd_light_select, this, _1, _2, _3));
   console.command_add("light", "type", std::bind(&Plugin_Light_Tool::console_cmd_light_type, this, _1, _2, _3));
+  */
 }
 
 
@@ -74,6 +76,7 @@ void Plugin_Light_Tool::cb_light_create(Node *node_ptr)
 }
 
 
+#if 0
 void Plugin_Light_Tool::console_cmd_light_create(const std::string &prim, const std::string &sec, const std::string &val)
 {
   Camera *camera = scene->camera_get();
@@ -166,7 +169,7 @@ void Plugin_Light_Tool::console_cmd_light_list(const std::string &prim, const st
   std::cout << "\tCurrent selected light: " << light_active << std::endl;
 }
 
-
+#endif
 
 void Plugin_Light_Tool::light_active_set(Light *light)
 {
