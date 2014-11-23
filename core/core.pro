@@ -104,3 +104,32 @@ win32 {
     INCLUDEPATH += $$PWD/../../../../poll_qt_external/assimp-3.1.1/include
     DEPENDPATH += $$PWD/../../../../poll_qt_external/assimp-3.1.1/include
 }
+
+OTHER_FILES += \
+    ../shaders/fxaa.glsl \
+    ../shaders/light.glsl \
+    ../shaders/skinning.glsl \
+    ../shaders/ssao.glsl \
+    ../shaders/uniform_buffers.glsl \
+    ../shaders/main.g \
+    ../shaders/main.f \
+    ../shaders/screen_light.f \
+    ../shaders/screen_post_proc.f \
+    ../shaders/text.f \
+    ../shaders/world_basic_color.f \
+    ../shaders/world_geometry_shadow.f \
+    ../shaders/world_geometry_textured_diffuse.f \
+    ../shaders/world_geometry.f \
+    ../shaders/world_light.f \
+    ../shaders/world_physics_debug.f \
+    ../shaders/world_stencil.f \
+    ../shaders/main.v \
+    ../shaders/screen_light.v \
+    ../shaders/screen_post_proc.v \
+    ../shaders/text.v \
+    ../shaders/world_basic_color.v \
+    ../shaders/world_geometry_shadow.v \
+    ../shaders/world_geometry.v \
+    ../shaders/world_light.v \
+    ../shaders/world_physics_debug.v \
+    ../shaders/world_stencil.v

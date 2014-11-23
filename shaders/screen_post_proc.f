@@ -35,6 +35,7 @@ void main()
 
   //vec3 color =  frag / (frag + 1.0);
   frag_color.rgb = frag;
+  frag_color.rgb = vec3(1, 0, 0);
 
   //frag_color.rgb = frag;
 

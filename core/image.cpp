@@ -1,4 +1,5 @@
 #include "image.h"
+#include "utils.h"
 #include <cstring>
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
@@ -14,7 +15,6 @@
 
 #include "../external/stb_image.h"
 
-
 #pragma GCC diagnostic warning "-Wunused-parameter"
 #pragma GCC diagnostic warning "-Wunused-variable"
 #pragma GCC diagnostic warning "-Wunused-result"
@@ -24,8 +24,10 @@
 
 bool Image::load(const std::string &filename)
 {
-  unsigned char *buf = stbi_load(filename.c_str(), &width, &height, &components, 3);
+  unsigned char *buf = stbi_load(filename.c_str(), &width, &height, &components, 4);
   size_t size = width * height * components;
+  POLL_DEBUG(std::cout, "Loading image: " << filename << " size:" << size);
+
   data.assign(buf, buf + size);
   stbi_image_free(buf);
 

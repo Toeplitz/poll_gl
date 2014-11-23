@@ -39,7 +39,7 @@ class Poll {
     double       delta_time_get();
     void         profile_fps(const double dt);
     void         plugin_add(Poll_Plugin &plugin);
-    void         run();
+    void         step(Scene &scene);
     void         term();
 };
 

@@ -135,7 +135,6 @@ void GLcontext::init()
     exit(-1);
   }
 
-
   check_error();
   check_version(3);
 
@@ -144,8 +143,8 @@ void GLcontext::init()
   GL_ASSERT(glEnable(GL_CULL_FACE));
   GL_ASSERT(glEnable(GL_DEPTH_TEST));
 
- // framebuffer_create();
- // shadow_texture_offset_build(8, 4, 8);
+  framebuffer_create();
+  shadow_texture_offset_build(8, 4, 8);
 }
 
 

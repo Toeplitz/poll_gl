@@ -5,6 +5,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#define GLEW_STATIC
+#include "glew.h"
+
 using glm::vec2;
 using glm::vec3;
 using glm::ivec3;
