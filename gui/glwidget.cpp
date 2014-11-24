@@ -3,9 +3,14 @@
 #include "poll.h"
 #include "plugin_firstperson_cam.h"
 #include "utils.h"
+#include "window.h"
 
+#include <QApplication>
 #include <QGLFormat>
 #include <QMouseEvent>
+#include <QDebug>
+#include <QWidgetList>
+#include <QWidgetItem>
 
 #include <iostream>
 
@@ -35,9 +40,6 @@ GLwidget::GLwidget(QWidget *parent) :
 
 void GLwidget::initializeGL()
 {
-  std::cout << "Widget OpenGl: " << format().majorVersion() << "." << format().minorVersion() << std::endl;
-  std::cout << "Context valid: " << context()->isValid() << std::endl;
-
   poll.init();
   scene.init(poll);
 
@@ -46,10 +48,10 @@ void GLwidget::initializeGL()
   //auto plugin_light_tool = std::unique_ptr<Plugin_Light_Tool>(new Plugin_Light_Tool(poll.console_get(), scene));
   //auto plugin_node_tool = std::unique_ptr<Plugin_Node_Tool>(new Plugin_Node_Tool(poll.console_get(), scene, 0.7f));
   plugin_firstperson_camera = std::unique_ptr<Plugin_Firstperson_Camera>(new Plugin_Firstperson_Camera(scene, camera_node));
- // poll.plugin_add(*plugin_debug);
- // poll.plugin_add(*plugin_light_tool);
+  // poll.plugin_add(*plugin_debug);
+  // poll.plugin_add(*plugin_light_tool);
   poll.plugin_add(*plugin_firstperson_camera);
- // poll.plugin_add(*plugin_node_tool);
+  // poll.plugin_add(*plugin_node_tool);
 
   const float scene_scalar = 0.7;
 
@@ -122,7 +124,27 @@ void GLwidget::initializeGL()
 
 void GLwidget::keyPressEvent(QKeyEvent *event)
 {
-  POLL_DEBUG(std::cout, "Key press: " << event->key());
+  if (event->modifiers() & Qt::AltModifier) {
+    if (event->key() & Qt::Key_Return) {
+      POLL_DEBUG(std::cout, "FULLSCREEN!");
+      Window *win = (Window *) qApp->activeWindow();
+
+      /*
+      QWidgetList widgets = qApp->topLevelWidgets();
+      for (QWidgetList::iterator i = widgets.begin(); i != widgets.end(); ++i) {
+        std::cout << (*i)->objectName << std::endl;
+
+
+      }
+        //if ((*i)->objectName() == "MainWindow")
+         //   return (QMainWindow*) (*i);
+         */
+      win->setWindowTitle(QString("Poll testing ms"));
+      win->showFullScreen();
+      this->showFullScreen();
+    }
+
+  }
 
   for (auto plugin : poll.plugins_get()) {
     plugin->cb_keyboard_pressed(this, event);
@@ -132,8 +154,6 @@ void GLwidget::keyPressEvent(QKeyEvent *event)
 
 void GLwidget::keyReleaseEvent(QKeyEvent *event)
 {
-  POLL_DEBUG(std::cout, "Key release: " << event->key());
-
   for (auto plugin : poll.plugins_get()) {
     plugin->cb_keyboard_released(this, event);
   }
@@ -143,7 +163,6 @@ void GLwidget::keyReleaseEvent(QKeyEvent *event)
 
 void GLwidget::mousePressEvent(QMouseEvent *e)
 {
-  POLL_DEBUG(std::cout, "Mouse press GLwidget");
   for (auto plugin : poll.plugins_get()) {
     plugin->cb_mouse_pressed(e);
   }
@@ -152,7 +171,6 @@ void GLwidget::mousePressEvent(QMouseEvent *e)
 
 void GLwidget::mouseMoveEvent(QMouseEvent *e)
 {
-  POLL_DEBUG(std::cout, "Mouse move: " << e->globalX() << ", " << e->globalY());
   for (auto plugin : poll.plugins_get()) {
     plugin->cb_mouse_motion(this, e);
   }
@@ -161,7 +179,6 @@ void GLwidget::mouseMoveEvent(QMouseEvent *e)
 
 void GLwidget::mouseReleaseEvent(QMouseEvent *e)
 {
-  POLL_DEBUG(std::cout, "Mouse release GLwidget");
   for (auto plugin : poll.plugins_get()) {
     plugin->cb_mouse_released(e);
   }
@@ -184,7 +201,5 @@ void GLwidget::resizeGL(int w, int h)
 
   scene.resize(nullptr, w, h);
   glcontext.resize(w, h);
-
-  /* change frustnum, framebuffers etc... */
 }
 

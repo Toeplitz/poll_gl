@@ -166,8 +166,8 @@ void GLcontext::texture_materials_create(Material *material)
 {
   GLint filter = GL_LINEAR;
   GLenum wrap = GL_REPEAT;
-  GLint internal_format = GL_RGB;
-  GLenum format = GL_RGB;
+  GLint internal_format = GL_RGBA;
+  GLenum format = GL_RGBA;
   bool unpack_align = true;
 
   if (!material)
