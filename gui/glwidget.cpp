@@ -25,8 +25,8 @@ QGLFormat *foo()
   fmt.setDepthBufferSize(24);
   fmt.setStencilBufferSize(8);
   return &fmt;
-
 }
+
 
 
 GLwidget::GLwidget(QWidget *parent) :
@@ -126,8 +126,12 @@ void GLwidget::keyPressEvent(QKeyEvent *event)
 {
   if (event->modifiers() & Qt::AltModifier) {
     if (event->key() & Qt::Key_Return) {
+      /*
       POLL_DEBUG(std::cout, "FULLSCREEN!");
       Window *win = (Window *) qApp->activeWindow();
+      QGLWidget *foo = win->findChild<QGLWidget *>("widget");
+      foo->grabMouse();
+*/
 
       /*
       QWidgetList widgets = qApp->topLevelWidgets();
@@ -139,9 +143,14 @@ void GLwidget::keyPressEvent(QKeyEvent *event)
         //if ((*i)->objectName() == "MainWindow")
          //   return (QMainWindow*) (*i);
          */
+
+      /*
       win->setWindowTitle(QString("Poll testing ms"));
       win->showFullScreen();
+      this->setWindowState(Qt::WindowFullScreen);
+      this->setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
       this->showFullScreen();
+      */
     }
 
   }
