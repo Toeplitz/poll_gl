@@ -28,17 +28,17 @@ Fullscreen_Dialog::Fullscreen_Dialog(QWidget *parent)
 
 Fullscreen_Dialog::~Fullscreen_Dialog()
 {
-  if (dlg_layout) delete dlg_layout;
+ // if (dlg_layout) delete dlg_layout;
 }
 
 
 void Fullscreen_Dialog::gl_show_fullscreen()
 {
   Window *win = (Window *) qApp->activeWindow();
- // QGLWidget *gl_widget = win->findChild<QGLWidget *>("widget");
+  QGLWidget *gl_widget = win->findChild<QGLWidget *>("widget");
   dlg_layout = new QHBoxLayout(this);
   dlg_layout->setContentsMargins(0, 0, 0, 0);
-  //dlg_layout->addWidget(gl_widget);
+  dlg_layout->addWidget(gl_widget);
   this->setLayout(dlg_layout);
   this->showFullScreen();
   this->show();
@@ -47,23 +47,26 @@ void Fullscreen_Dialog::gl_show_fullscreen()
   this->activateWindow();
   this->raise();
   this->setFocus();
-
+  this->setAttribute( Qt::WA_DeleteOnClose, true );
 }
 
 
 void Fullscreen_Dialog::gl_show_normal()
 {
-  /*
   Window *win = (Window *) qApp->activeWindow();
   QHBoxLayout *gl_box = win->findChild<QHBoxLayout *>("gl_hbox");
   QGLWidget *gl_widget = this->findChild<QGLWidget *>("widget");
-  gl_box->addWidget(gl_widget);
-  this->hide();
-  delete dlg;
-  dlg_layout = nullptr;
-  */
+  gl_box->layout()->addWidget(gl_widget);
+  win->grabKeyboard();
+  win->grabMouse();
+  win->activateWindow();
+  win->raise();
+  win->setFocus();
 
-  this->close();
+  POLL_DEBUG(std::cout, "trying to close widget");
+  if (this->close()) {
+    POLL_DEBUG(std::cout, "success");
+  }
 }
 
 
@@ -136,4 +139,3 @@ void Window::on_menu_item_fullscreen_triggered()
 {
   fullscreen_dialog.gl_show_fullscreen();
 }
-

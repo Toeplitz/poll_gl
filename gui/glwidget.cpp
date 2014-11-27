@@ -117,7 +117,7 @@ void GLwidget::initializeGL()
   QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(updateGL()));
   timer.start(0);
 
-  this->setFocusPolicy(Qt::StrongFocus);
+ // this->setFocusPolicy(Qt::StrongFocus);
   this->setFocus();
 }
 
