@@ -43,6 +43,15 @@
         </property>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="sizeConstraint">
+           <enum>QLayout::SetDefaultConstraint</enum>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
           <item>
            <spacer name="horizontalSpacer">
             <property name="orientation">
@@ -53,7 +62,7 @@
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>40</width>
+              <width>150</width>
               <height>20</height>
              </size>
             </property>
