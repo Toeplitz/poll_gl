@@ -1,1 +1,33 @@
-<RCC/>
+<RCC>
+    <qresource prefix="/icons">
+        <file>icons/node.png</file>
+        <file>icons/camera-lens.png</file>
+        <file>icons/blue-folder-open-document.png</file>
+        <file>icons/new.png</file>
+        <file>icons/application-resize-full.png</file>
+        <file>icons/blue-document-node.png</file>
+        <file>icons/document-node.png</file>
+        <file>icons/node-delete.png</file>
+        <file>icons/node-delete-child.png</file>
+        <file>icons/node-delete-next.png</file>
+        <file>icons/node-delete-previous.png</file>
+        <file>icons/node-design.png</file>
+        <file>icons/node-insert.png</file>
+        <file>icons/node-insert-child.png</file>
+        <file>icons/node-insert-next.png</file>
+        <file>icons/node-insert-previous.png</file>
+        <file>icons/node-magnifier.png</file>
+        <file>icons/node-select.png</file>
+        <file>icons/node-select-all.png</file>
+        <file>icons/node-select-child.png</file>
+        <file>icons/node-select-next.png</file>
+        <file>icons/node-select-previous.png</file>
+        <file>icons/cross.png</file>
+        <file>icons/blue-document--pencil.png</file>
+        <file>icons/blue-folder--pencil.png</file>
+        <file>icons/flashlight.png</file>
+        <file>icons/light-bulb.png</file>
+        <file>icons/light-bulb--arrow.png</file>
+        <file>icons/stickman.png</file>
+    </qresource>
+</RCC>
