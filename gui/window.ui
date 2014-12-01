@@ -17,6 +17,12 @@
    <string>Poll</string>
   </property>
   <widget class="QWidget" name="centralWidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
      <layout class="QHBoxLayout" name="gl_hbox">
@@ -27,6 +33,9 @@
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::ClickFocus</enum>
         </property>
        </widget>
       </item>
@@ -43,21 +52,26 @@
         </property>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout">
+          <property name="spacing">
+           <number>6</number>
+          </property>
+          <property name="sizeConstraint">
+           <enum>QLayout::SetDefaultConstraint</enum>
+          </property>
+          <property name="leftMargin">
+           <number>6</number>
+          </property>
+          <property name="topMargin">
+           <number>6</number>
+          </property>
+          <property name="rightMargin">
+           <number>6</number>
+          </property>
+          <property name="bottomMargin">
+           <number>6</number>
+          </property>
           <item>
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
+           <widget class="QWidget" name="buttonGapWidget" native="true"/>
           </item>
           <item>
            <widget class="QToolButton" name="toolButton">
@@ -66,6 +80,12 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>22</width>
+              <height>24</height>
+             </size>
             </property>
             <property name="toolTip">
              <string>Expand all nodes</string>
@@ -87,6 +107,12 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="minimumSize">
+             <size>
+              <width>22</width>
+              <height>24</height>
+             </size>
+            </property>
             <property name="toolTip">
              <string>Insert node</string>
             </property>
@@ -101,6 +127,12 @@
           </item>
           <item>
            <widget class="QToolButton" name="toolButton_3">
+            <property name="minimumSize">
+             <size>
+              <width>22</width>
+              <height>24</height>
+             </size>
+            </property>
             <property name="toolTip">
              <string>Delete node</string>
             </property>
@@ -177,6 +209,13 @@
           </item>
          </widget>
         </item>
+        <item>
+         <widget class="QPushButton" name="updateTree">
+          <property name="text">
+           <string>update tree</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>
@@ -189,7 +228,7 @@
      <x>0</x>
      <y>0</y>
      <width>1310</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

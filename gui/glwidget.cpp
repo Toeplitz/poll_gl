@@ -12,6 +12,10 @@
 #include <QWidgetList>
 #include <QWidgetItem>
 
+#include <QLayoutItem>
+#include <QPushButton>
+#include <QTreeWidget>
+
 #include <iostream>
 
 
@@ -95,12 +99,12 @@ void GLwidget::initializeGL()
 
 
   {
-    Node &mitsuba = scene.load(std::string(POLL_DATA_PATH) +  "/demo_room/mitsuba/", "mitsuba.obj", MODEL_IMPORT_DEFAULT);
+    Node &mitsuba = scene.load(std::string(POLL_DATA_PATH) +  "demo_room/mitsuba/", "mitsuba.obj", MODEL_IMPORT_DEFAULT);
     mitsuba.translate(scene, vec3(5 * scene_scalar, 0, 0));
   }
 
   {
-    Node &mitsuba = scene.load(std::string(POLL_DATA_PATH) + "/demo_room/mitsuba/", "mitsuba.obj", MODEL_IMPORT_DEFAULT);
+    Node &mitsuba = scene.load(std::string(POLL_DATA_PATH) + "demo_room/mitsuba/", "mitsuba.obj", MODEL_IMPORT_DEFAULT);
     mitsuba.translate(scene, vec3(20.f * scene_scalar, 0, 0));
   }
 
@@ -112,7 +116,7 @@ void GLwidget::initializeGL()
     light->properties_color_set(glm::vec3(0.5, 0.5, 0.5));
   }
 
-  scene.scene_graph_print(true);
+  //scene.scene_graph_print(true);
 
   QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(updateGL()));
   timer.start(0);
@@ -124,8 +128,50 @@ void GLwidget::initializeGL()
 
 void GLwidget::keyPressEvent(QKeyEvent *event)
 {
-  if (event->modifiers() & Qt::AltModifier) {
-    if (event->key() & Qt::Key_Return) {
+    Window *win = (Window *) qApp->activeWindow();
+    if(!win->fullMode)
+    if (event->modifiers() == Qt::ControlModifier)
+        if(event->key() == Qt::Key_F)
+        {
+            std::cout << "go full screen\n";
+            // go full screen
+
+            for (auto child : win->centralWidget()->findChildren<QWidget *>()) {
+                if(child->objectName().compare(objectName()) != 0)
+                    child->hide();
+            }
+
+            QLayout *winLayout = win->findChild<QLayout *>("gl_hbox");
+            win->backupCentral = winLayout->takeAt(1);
+            // NOTE!!!
+            // this following line makes the window full screen
+//            win->setWindowState(win->windowState() ^ Qt::WindowFullScreen);
+            win->centralWidget()->layout()->setContentsMargins(0,0,0,0);
+            win->fullMode = true;
+        }
+    if(win->fullMode)
+    if(event->key() == Qt::Key_Escape)
+    {
+        std::cout << "back from full screen\n";
+        // back from full screen
+
+        QLayout *winLayout = win->findChild<QLayout *>("gl_hbox");
+        winLayout->addItem(win->backupCentral);
+        // NOTE!!!
+        // this following line brings the window back from full screen
+//        win->setWindowState(win->windowState() ^ Qt::WindowFullScreen);
+        win->centralWidget()->layout()->setContentsMargins(9,9,0,9);
+
+        for (auto child : win->centralWidget()->findChildren<QWidget *>()) {
+            if(child->objectName().compare(objectName()) != 0)
+                child->show();
+        }
+
+        win->fullMode = false;
+    }
+
+    if (event->modifiers() == Qt::AltModifier)
+        if (event->key() == Qt::Key_Return) {
       /*
       POLL_DEBUG(std::cout, "FULLSCREEN!");
       Window *win = (Window *) qApp->activeWindow();
@@ -151,7 +197,6 @@ void GLwidget::keyPressEvent(QKeyEvent *event)
       this->setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
       this->showFullScreen();
       */
-    }
 
   }
 

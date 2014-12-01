@@ -41,6 +41,9 @@ class GLwidget : public QGLWidget
     void paintGL();
     void resizeGL(int w, int h);
 
+public:
+    Scene& getScene(){return scene;}
+
 };
 
 #endif 
