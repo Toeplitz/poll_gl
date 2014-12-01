@@ -76,4 +76,5 @@ win32 {
 }
 
 RESOURCES += \
-    gui_resources.qrc
+    gui_resources.qrc \
+    qdarkstyle/style.qrc

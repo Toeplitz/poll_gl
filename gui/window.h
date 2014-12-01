@@ -57,6 +57,7 @@ public:
 
     bool fullMode;
     QLayoutItem *backupCentral;
+    QWidget *windowParent;
 
 private slots:
     void on_menu_item_load_model_triggered();

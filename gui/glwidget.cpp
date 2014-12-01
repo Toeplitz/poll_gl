@@ -145,7 +145,8 @@ void GLwidget::keyPressEvent(QKeyEvent *event)
             win->backupCentral = winLayout->takeAt(1);
             // NOTE!!!
             // this following line makes the window full screen
-//            win->setWindowState(win->windowState() ^ Qt::WindowFullScreen);
+            win->setWindowState(win->windowState() ^ Qt::WindowFullScreen);
+            win->windowParent = win->parentWidget();
             win->centralWidget()->layout()->setContentsMargins(0,0,0,0);
             win->fullMode = true;
         }
@@ -159,8 +160,10 @@ void GLwidget::keyPressEvent(QKeyEvent *event)
         winLayout->addItem(win->backupCentral);
         // NOTE!!!
         // this following line brings the window back from full screen
-//        win->setWindowState(win->windowState() ^ Qt::WindowFullScreen);
+        win->setWindowState(win->windowState() ^ Qt::WindowFullScreen);
+        win->setParent( win->windowParent );
         win->centralWidget()->layout()->setContentsMargins(9,9,0,9);
+
 
         for (auto child : win->centralWidget()->findChildren<QWidget *>()) {
             if(child->objectName().compare(objectName()) != 0)
