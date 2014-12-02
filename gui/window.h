@@ -56,7 +56,6 @@ public:
     }
 
     bool fullMode;
-    QLayoutItem *backupCentral;
     QWidget *windowParent;
 
 private slots:

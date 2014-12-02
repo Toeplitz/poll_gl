@@ -49,7 +49,7 @@
       </widget>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="page">
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -240,15 +240,29 @@
             <number>10</number>
            </property>
            <item>
-            <widget class="QPushButton" name="pushButton">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+            <widget class="QToolButton" name="toolButton_5">
+             <property name="statusTip">
+              <string>Move back to scene graph view.</string>
              </property>
              <property name="text">
-              <string>Back</string>
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="toolButton_4">
+             <property name="toolTip">
+              <string>Select parent</string>
+             </property>
+             <property name="statusTip">
+              <string>Select the parent of current node.</string>
+             </property>
+             <property name="icon">
+              <iconset resource="gui_resources.qrc">
+               <normaloff>:/icons/icons/node-select.png</normaloff>:/icons/icons/node-select.png</iconset>
+             </property>
+             <property name="checkable">
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -328,12 +342,12 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>419</width>
-                  <height>514</height>
+                  <width>982</width>
+                  <height>494</height>
                  </rect>
                 </property>
                 <property name="autoFillBackground">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_6">
                  <item>
@@ -343,6 +357,9 @@
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
+                   </property>
+                   <property name="statusTip">
+                    <string/>
                    </property>
                    <property name="title">
                     <string>Positioning</string>
@@ -443,8 +460,6 @@
                      </widget>
                     </item>
                    </layout>
-                   <zorder>groupBox</zorder>
-                   <zorder>textEdit</zorder>
                   </widget>
                  </item>
                 </layout>
@@ -491,7 +506,7 @@
      <x>0</x>
      <y>0</y>
      <width>1310</width>
-     <height>21</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -512,8 +527,17 @@
      <string>View</string>
     </property>
     <addaction name="menu_item_fullscreen"/>
+    <addaction name="separator"/>
+    <addaction name="actionCamera_settings"/>
+   </widget>
+   <widget class="QMenu" name="menuAssets">
+    <property name="title">
+     <string>Assets</string>
+    </property>
+    <addaction name="actionList_all"/>
    </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuAssets"/>
    <addaction name="menuView"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -575,6 +599,16 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionList_all">
+   <property name="text">
+    <string>List all</string>
+   </property>
+  </action>
+  <action name="actionCamera_settings">
+   <property name="text">
+    <string>Camera settings</string>
    </property>
   </action>
  </widget>

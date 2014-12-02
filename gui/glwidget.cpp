@@ -141,8 +141,9 @@ void GLwidget::keyPressEvent(QKeyEvent *event)
                     child->hide();
             }
 
-            QLayout *winLayout = win->findChild<QLayout *>("gl_hbox");
-            win->backupCentral = winLayout->takeAt(1);
+            QWidget *stackedWidget = win->findChild<QWidget *>("stackedWidget");
+            if(stackedWidget)
+                stackedWidget->hide();
             // NOTE!!!
             // this following line makes the window full screen
             win->setWindowState(win->windowState() ^ Qt::WindowFullScreen);
@@ -156,14 +157,14 @@ void GLwidget::keyPressEvent(QKeyEvent *event)
         std::cout << "back from full screen\n";
         // back from full screen
 
-        QLayout *winLayout = win->findChild<QLayout *>("gl_hbox");
-        winLayout->addItem(win->backupCentral);
+        QWidget *stackedWidget = win->findChild<QWidget *>("stackedWidget");
+        if(stackedWidget)
+            stackedWidget->show();
         // NOTE!!!
         // this following line brings the window back from full screen
         win->setWindowState(win->windowState() ^ Qt::WindowFullScreen);
         win->setParent( win->windowParent );
         win->centralWidget()->layout()->setContentsMargins(9,9,0,9);
-
 
         for (auto child : win->centralWidget()->findChildren<QWidget *>()) {
             if(child->objectName().compare(objectName()) != 0)

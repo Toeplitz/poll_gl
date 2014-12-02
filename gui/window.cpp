@@ -85,7 +85,6 @@ Window::Window(QWidget *parent):
 {
   ui->setupUi(this);
   fullMode = false;
-  backupCentral = NULL;
   windowParent = parent;
 }
 
