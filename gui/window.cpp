@@ -217,7 +217,7 @@ void Window::on_menu_item_new_scene_triggered()
 
 void Window::on_menu_item_fullscreen_triggered()
 {
-  fullscreen_dialog.gl_show_fullscreen();
+ // fullscreen_dialog.gl_show_fullscreen();
 }
 
 void Window::on_actionLoad_poll_scene_triggered()
