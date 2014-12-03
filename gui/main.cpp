@@ -20,10 +20,7 @@ int main(int argc, char *argv[])
 
   POLL_DEBUG(std::cout, "Poll data path: " << POLL_DATA_PATH);
   POLL_DEBUG(std::cout, "Poll shader path: " << POLL_SHADER_PATH);
-
   w.show();
 
-
   return a.exec();
-
 }

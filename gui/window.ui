@@ -48,10 +48,16 @@
        </property>
       </widget>
       <widget class="QStackedWidget" name="stackedWidget">
-       <property name="currentIndex">
-        <number>1</number>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
-       <widget class="QWidget" name="page">
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="page_tree">
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -69,13 +75,6 @@
              <property name="topMargin">
               <number>10</number>
              </property>
-             <item>
-              <widget class="QPushButton" name="updateTree">
-               <property name="text">
-                <string>update tree</string>
-               </property>
-              </widget>
-             </item>
              <item>
               <spacer name="horizontalSpacer">
                <property name="orientation">
@@ -164,7 +163,7 @@
             </layout>
            </item>
            <item>
-            <widget class="QTreeWidget" name="treeWidget">
+            <widget class="QTreeWidget" name="tree_nodes">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>
@@ -229,7 +228,7 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="page_2">
+       <widget class="QWidget" name="page_details">
         <property name="autoFillBackground">
          <bool>true</bool>
         </property>
@@ -342,8 +341,8 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>982</width>
-                  <height>494</height>
+                  <width>267</width>
+                  <height>252</height>
                  </rect>
                 </property>
                 <property name="autoFillBackground">
@@ -506,7 +505,7 @@
      <x>0</x>
      <y>0</y>
      <width>1310</width>
-     <height>27</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

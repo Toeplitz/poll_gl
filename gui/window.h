@@ -71,9 +71,11 @@ private slots:
 
     void on_actionSave_poll_scene_triggered();
 
-    void on_updateTree_clicked();
-
     void onCustomContextMenu(const QPoint &);
+
+    void on_tree_nodes_doubleClicked(const QModelIndex &index);
+
+    void on_tree_nodes_activated(const QModelIndex &index);
 
 private:
 //    Fullscreen_Dialog fullscreen_dialog;

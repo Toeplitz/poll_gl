@@ -81,18 +81,19 @@
 
 
 Window::Window(QWidget *parent):
-        QMainWindow(parent), ui(new Ui::window)
+    QMainWindow(parent), ui(new Ui::window)
 {
-  ui->setupUi(this);
-  fullMode = false;
-  windowParent = parent;
+    ui->setupUi(this);
+    fullMode = false;
+    windowParent = parent;
 }
 
 
 Window::~Window()
 {
-  delete ui;
+    delete ui;
 }
+
 
 void Window::dataExchange()
 {
@@ -100,10 +101,11 @@ void Window::dataExchange()
     QTreeWidget *treeWidget = findChild<QTreeWidget *>();
 
     treeWidget ->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(treeWidget, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(onCustomContextMenu(const QPoint &)));
+    connect(treeWidget, SIGNAL(customContextMenuRequested(const QPoint &)),
+            this, SLOT(onCustomContextMenu(const QPoint &)));
     treeWidget->clear();
 
-    Scene& widgetScene = gl_widget->getScene();
+    Scene &widgetScene = gl_widget->getScene();
     Node &root = widgetScene.node_root_get();
 
     for (auto &child : root.children_get()) {
@@ -133,29 +135,29 @@ void Window::node_recursive_load_tree(Node& node, QTreeWidget* tree, QTreeWidget
     }
 
     if (mesh) {
-      if (!(node.import_options & MODEL_IMPORT_NO_DRAW)) {
-          QTreeWidgetItem *item = new QTreeWidgetItem();
-          item->setText(0, "mesh - no draw");
-          treeItem->addChild(item);
-      }
-      if (!(node.import_options & MODEL_IMPORT_NO_UPLOAD)) {
-          QTreeWidgetItem *item = new QTreeWidgetItem();
-          item->setText(0, "mesh - no upload");
-          treeItem->addChild(item);
-      }
+        if (!(node.import_options & MODEL_IMPORT_NO_DRAW)) {
+            QTreeWidgetItem *item = new QTreeWidgetItem();
+            item->setText(0, "mesh - no draw");
+            treeItem->addChild(item);
+        }
+        if (!(node.import_options & MODEL_IMPORT_NO_UPLOAD)) {
+            QTreeWidgetItem *item = new QTreeWidgetItem();
+            item->setText(0, "mesh - no upload");
+            treeItem->addChild(item);
+        }
     }
 
     if (material) {
-      if (!(node.import_options & MODEL_IMPORT_NO_UPLOAD)) {
-          QTreeWidgetItem *item = new QTreeWidgetItem();
-          item->setText(0, "model - no upload");
-          treeItem->addChild(item);
-      }
+        if (!(node.import_options & MODEL_IMPORT_NO_UPLOAD)) {
+            QTreeWidgetItem *item = new QTreeWidgetItem();
+            item->setText(0, "model - no upload");
+            treeItem->addChild(item);
+        }
     }
 
 
     for (auto &child : node.children_get()) {
-      node_recursive_load_tree(*child, tree, treeItem);
+        node_recursive_load_tree(*child, tree, treeItem);
     }
 }
 
@@ -167,45 +169,45 @@ void Window::on_menu_item_load_model_triggered()
     QString openStartPoint = "/home/mike/Documents/";
 
     QString fileName = QFileDialog::getOpenFileName(NULL,
-        tr("Select Model file..."), openStartPoint, fileFormats);
+                                                    tr("Select Model file..."), openStartPoint, fileFormats);
 
     POLL_DEBUG(std::cout, "selected model file:");
     POLL_DEBUG(std::cout, fileName.toStdString());
 
-  /*
-  Window *win = (Window *) qApp->activeWindow();
-  QHBoxLayout *gl_box = win->findChild<QHBoxLayout *>("gl_hbox");
-  QGLWidget *gl_widget = win->findChild<QGLWidget *>("widget");
+    /*
+    Window *win = (Window *) qApp->activeWindow();
+    QHBoxLayout *gl_box = win->findChild<QHBoxLayout *>("gl_hbox");
+    QGLWidget *gl_widget = win->findChild<QGLWidget *>("widget");
 
-  QDialog *dlg = new QDialog(this);
-  QHBoxLayout *dlg_layout = new QHBoxLayout(dlg);
-  dlg_layout->setContentsMargins(0, 0, 0, 0);
-  dlg_layout->addWidget(gl_widget);
-  dlg->setLayout(dlg_layout);
-  dlg->showFullScreen();
+    QDialog *dlg = new QDialog(this);
+    QHBoxLayout *dlg_layout = new QHBoxLayout(dlg);
+    dlg_layout->setContentsMargins(0, 0, 0, 0);
+    dlg_layout->addWidget(gl_widget);
+    dlg->setLayout(dlg_layout);
+    dlg->showFullScreen();
 
-  bool r = connect(dlg, SIGNAL(accepted()), this, SLOT(showGlNormal()));
-  assert(r);
-  */
-  //r = connect(dlg, SIGNAL(accepted()), this, SLOT(showGlNormal()));
-  //assert(r);
+    bool r = connect(dlg, SIGNAL(accepted()), this, SLOT(showGlNormal()));
+    assert(r);
+    */
+    //r = connect(dlg, SIGNAL(accepted()), this, SLOT(showGlNormal()));
+    //assert(r);
 }
 
 
 void Window::showGlNormal()
 {
-  /*
-  Window *win = (Window *) qApp->activeWindow();
-  QHBoxLayout *gl_box = win->findChild<QHBoxLayout *>("gl_hbox");
-  QGLWidget *gl_widget = win->findChild<QGLWidget *>("widget");
-  gl_box->layout()->addWidget(gl_widget);
-  */
+    /*
+    Window *win = (Window *) qApp->activeWindow();
+    QHBoxLayout *gl_box = win->findChild<QHBoxLayout *>("gl_hbox");
+    QGLWidget *gl_widget = win->findChild<QGLWidget *>("widget");
+    gl_box->layout()->addWidget(gl_widget);
+    */
 }
 
 
 void Window::on_menu_item_exit_triggered()
 {
-  exit(-1);
+    QApplication::quit();
 }
 
 
@@ -220,8 +222,8 @@ void Window::on_menu_item_fullscreen_triggered()
     GLwidget *gl_widget = findChild<GLwidget *>("widget");
     if(gl_widget)
         gl_widget->goFullScreen();
- // fullscreen_dialog.gl_show_fullscreen();
 }
+
 
 void Window::on_actionLoad_poll_scene_triggered()
 {
@@ -231,7 +233,7 @@ void Window::on_actionLoad_poll_scene_triggered()
     QString openStartPoint = "/home/mike/Documents/";
 
     QString fileName = QFileDialog::getOpenFileName(NULL,
-        tr("Select Scene file..."), openStartPoint, fileFormats);
+                                                    tr("Select Scene file..."), openStartPoint, fileFormats);
 
     POLL_DEBUG(std::cout, "selected scene file:");
     POLL_DEBUG(std::cout, fileName.toStdString());
@@ -245,16 +247,13 @@ void Window::on_actionSave_poll_scene_triggered()
     QString openStartPoint = "/home/mike/Documents/";
 
     QString fileName = QFileDialog::getOpenFileName(NULL,
-        tr("Save as Scene file..."), openStartPoint, fileFormats);
+                                                    tr("Save as Scene file..."), openStartPoint, fileFormats);
 
     POLL_DEBUG(std::cout, "save to scene file:");
     POLL_DEBUG(std::cout, fileName.toStdString());
 }
 
-void Window::on_updateTree_clicked()
-{
-    dataExchange();
-}
+
 
 void Window::onCustomContextMenu(const QPoint &point)
 {
@@ -270,4 +269,14 @@ void Window::onCustomContextMenu(const QPoint &point)
             contextMenu.exec(treeWidget->mapToGlobal(point));
         }
     }
+}
+
+void Window::on_tree_nodes_doubleClicked(const QModelIndex &index)
+{
+    POLL_DEBUG(std::cout, "double clicked a tree node, row: " << index.row());
+}
+
+void Window::on_tree_nodes_activated(const QModelIndex &index)
+{
+
 }
