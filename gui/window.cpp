@@ -8,80 +8,80 @@
 
 
 
-Fullscreen_Dialog::Fullscreen_Dialog(QWidget *parent)
-{
-      /*
-  dlg = new QDialog(this);
-  dlg_layout = new QHBoxLayout(dlg);
-  dlg_layout->setContentsMargins(0, 0, 0, 0);
-  dlg->setLayout(dlg_layout);
-  dlg->showFullScreen();
-  dlg->hide();
+//Fullscreen_Dialog::Fullscreen_Dialog(QWidget *parent)
+//{
+//      /*
+//  dlg = new QDialog(this);
+//  dlg_layout = new QHBoxLayout(dlg);
+//  dlg_layout->setContentsMargins(0, 0, 0, 0);
+//  dlg->setLayout(dlg_layout);
+//  dlg->showFullScreen();
+//  dlg->hide();
 
-      */
-  /*
-  bool r = connect(dlg, SIGNAL(accepted()), this, SLOT(gl_show_fullscreen()));
-  assert(r);
+//      */
+//  /*
+//  bool r = connect(dlg, SIGNAL(accepted()), this, SLOT(gl_show_fullscreen()));
+//  assert(r);
 
-  r = connect(dlg, SIGNAL(rejected()), this, SLOT(gl_show_normal()));
-  assert(r);
-  */
-}
-
-
-Fullscreen_Dialog::~Fullscreen_Dialog()
-{
- // if (dlg_layout) delete dlg_layout;
-}
+//  r = connect(dlg, SIGNAL(rejected()), this, SLOT(gl_show_normal()));
+//  assert(r);
+//  */
+//}
 
 
-void Fullscreen_Dialog::gl_show_fullscreen()
-{
-  Window *win = (Window *) qApp->activeWindow();
-  QGLWidget *gl_widget = win->findChild<QGLWidget *>("widget");
-  dlg_layout = new QHBoxLayout(this);
-  dlg_layout->setContentsMargins(0, 0, 0, 0);
-  dlg_layout->addWidget(gl_widget);
-  this->setLayout(dlg_layout);
-  this->showFullScreen();
-  this->show();
-  this->grabKeyboard();
-  this->grabMouse();
-  this->activateWindow();
-  this->raise();
-  this->setFocus();
-  this->setAttribute( Qt::WA_DeleteOnClose, true );
-}
+//Fullscreen_Dialog::~Fullscreen_Dialog()
+//{
+// // if (dlg_layout) delete dlg_layout;
+//}
 
 
-void Fullscreen_Dialog::gl_show_normal()
-{
-  Window *win = (Window *) qApp->activeWindow();
-  QHBoxLayout *gl_box = win->findChild<QHBoxLayout *>("gl_hbox");
-  QGLWidget *gl_widget = this->findChild<QGLWidget *>("widget");
-  gl_box->layout()->addWidget(gl_widget);
-  win->grabKeyboard();
-  win->grabMouse();
-  win->activateWindow();
-  win->raise();
-  win->setFocus();
+//void Fullscreen_Dialog::gl_show_fullscreen()
+//{
+//  Window *win = (Window *) qApp->activeWindow();
+//  QGLWidget *gl_widget = win->findChild<QGLWidget *>("widget");
+//  dlg_layout = new QHBoxLayout(this);
+//  dlg_layout->setContentsMargins(0, 0, 0, 0);
+//  dlg_layout->addWidget(gl_widget);
+//  this->setLayout(dlg_layout);
+//  this->showFullScreen();
+//  this->show();
+//  this->grabKeyboard();
+//  this->grabMouse();
+//  this->activateWindow();
+//  this->raise();
+//  this->setFocus();
+//  this->setAttribute( Qt::WA_DeleteOnClose, true );
+//}
 
-  POLL_DEBUG(std::cout, "trying to close widget");
-  if (this->close()) {
-    POLL_DEBUG(std::cout, "success");
-  }
-}
+
+//void Fullscreen_Dialog::gl_show_normal()
+//{
+//  Window *win = (Window *) qApp->activeWindow();
+//  QHBoxLayout *gl_box = win->findChild<QHBoxLayout *>("gl_hbox");
+//  QGLWidget *gl_widget = this->findChild<QGLWidget *>("widget");
+//  gl_box->layout()->addWidget(gl_widget);
+//  win->grabKeyboard();
+//  win->grabMouse();
+//  win->activateWindow();
+//  win->raise();
+//  win->setFocus();
+
+//  POLL_DEBUG(std::cout, "trying to close widget");
+//  if (this->close()) {
+//    POLL_DEBUG(std::cout, "success");
+//  }
+//}
 
 
-void Fullscreen_Dialog::keyPressEvent(QKeyEvent *event)
-{
-  POLL_DEBUG(std::cout, "key pressed on fullscreen dialog");
-  gl_show_normal();
-}
+//void Fullscreen_Dialog::keyPressEvent(QKeyEvent *event)
+//{
+//  POLL_DEBUG(std::cout, "key pressed on fullscreen dialog");
+//  gl_show_normal();
+//}
 
 
 Window::Window(QWidget *parent):
-        QMainWindow(parent), ui(new Ui::window), fullscreen_dialog(this)
+        QMainWindow(parent), ui(new Ui::window)
 {
   ui->setupUi(this);
   fullMode = false;
@@ -217,6 +217,9 @@ void Window::on_menu_item_new_scene_triggered()
 
 void Window::on_menu_item_fullscreen_triggered()
 {
+    GLwidget *gl_widget = findChild<GLwidget *>("widget");
+    if(gl_widget)
+        gl_widget->goFullScreen();
  // fullscreen_dialog.gl_show_fullscreen();
 }
 

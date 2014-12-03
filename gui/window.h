@@ -11,24 +11,24 @@ class window;
 }
 
 
-class Fullscreen_Dialog: public QDialog
-{
-  Q_OBJECT
+//class Fullscreen_Dialog: public QDialog
+//{
+//  Q_OBJECT
 
-  public:
-    Fullscreen_Dialog(QWidget *parent = 0);
-    ~Fullscreen_Dialog();
+//  public:
+//    Fullscreen_Dialog(QWidget *parent = 0);
+//    ~Fullscreen_Dialog();
 
-    QDialog *dlg;
-    QHBoxLayout *dlg_layout;
+//    QDialog *dlg;
+//    QHBoxLayout *dlg_layout;
 
-  public:
-    void gl_show_fullscreen();
-    void gl_show_normal();
+//  public:
+//    void gl_show_fullscreen();
+//    void gl_show_normal();
 
-  private:
-    void keyPressEvent(QKeyEvent *event);
-};
+//  private:
+//    void keyPressEvent(QKeyEvent *event);
+//};
 
 class Node;
 class QTreeWidget;
@@ -76,7 +76,7 @@ private slots:
     void onCustomContextMenu(const QPoint &);
 
 private:
-    Fullscreen_Dialog fullscreen_dialog;
+//    Fullscreen_Dialog fullscreen_dialog;
     Ui::window *ui;
 };
 

@@ -44,6 +44,9 @@ class GLwidget : public QGLWidget
 public:
     Scene& getScene(){return scene;}
 
+    void goFullScreen();
+    void backFromFullScreen();
+
 };
 
 #endif 

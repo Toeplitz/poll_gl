@@ -134,7 +134,7 @@ void GLwidget::keyPressEvent(QKeyEvent *event)
   if(!win->fullMode) {
     POLL_DEBUG(std::cerr, "we are in normal mode" << event->modifiers());
     POLL_DEBUG(std::cerr, "we are in normal mode" << event->key());
-    if (event->modifiers() == Qt::ControlModifier)
+    if (event->modifiers() == Qt::ControlModifier){
       POLL_DEBUG(std::cerr, "modifier ctrl pressed");
       printf("Modifier: %.2X\n", event->modifiers());
       printf("Key: %.2X\n", event->key());
@@ -144,21 +144,10 @@ void GLwidget::keyPressEvent(QKeyEvent *event)
         POLL_DEBUG(std::cerr, "TRYING TO GO FULLSCREEN");
         // go full screen
 
-        for (auto child : win->centralWidget()->findChildren<QWidget *>()) {
-          if(child->objectName().compare(objectName()) != 0)
-            child->hide();
-        }
+        goFullScreen();
 
-        QWidget *stackedWidget = win->findChild<QWidget *>("stackedWidget");
-        if(stackedWidget)
-          stackedWidget->hide();
-        // NOTE!!!
-        // this following line makes the window full screen
-        win->setWindowState(win->windowState() ^ Qt::WindowFullScreen);
-        win->windowParent = win->parentWidget();
-        win->centralWidget()->layout()->setContentsMargins(0,0,0,0);
-        win->fullMode = true;
       }
+    }
   }
   if(win->fullMode) {
     POLL_DEBUG(std::cerr, "we are in fullscreen mode");
@@ -168,21 +157,8 @@ void GLwidget::keyPressEvent(QKeyEvent *event)
       POLL_DEBUG(std::cerr, "TRYING TO GO NORMAL");
       // back from full screen
 
-      QWidget *stackedWidget = win->findChild<QWidget *>("stackedWidget");
-      if(stackedWidget)
-        stackedWidget->show();
-      // NOTE!!!
-      // this following line brings the window back from full screen
-      win->setWindowState(win->windowState() ^ Qt::WindowFullScreen);
-      win->setParent( win->windowParent );
-      win->centralWidget()->layout()->setContentsMargins(9,9,0,9);
+      backFromFullScreen();
 
-      for (auto child : win->centralWidget()->findChildren<QWidget *>()) {
-        if(child->objectName().compare(objectName()) != 0)
-          child->show();
-      }
-
-      win->fullMode = false;
     }
   }
 
@@ -273,3 +249,43 @@ void GLwidget::resizeGL(int w, int h)
   glcontext.resize(w, h);
 }
 
+void GLwidget::goFullScreen()
+{
+    Window *win = (Window *) qApp->activeWindow();
+
+    for (auto child : win->centralWidget()->findChildren<QWidget *>()) {
+      if(child->objectName().compare(objectName()) != 0)
+        child->hide();
+    }
+
+    QWidget *stackedWidget = win->findChild<QWidget *>("stackedWidget");
+    if(stackedWidget)
+      stackedWidget->hide();
+    // NOTE!!!
+    // this following line makes the window full screen
+    win->setWindowState(win->windowState() ^ Qt::WindowFullScreen);
+    win->windowParent = win->parentWidget();
+    win->centralWidget()->layout()->setContentsMargins(0,0,0,0);
+    win->fullMode = true;
+}
+
+void GLwidget::backFromFullScreen()
+{
+    Window *win = (Window *) qApp->activeWindow();
+
+    QWidget *stackedWidget = win->findChild<QWidget *>("stackedWidget");
+    if(stackedWidget)
+      stackedWidget->show();
+    // NOTE!!!
+    // this following line brings the window back from full screen
+    win->setWindowState(win->windowState() ^ Qt::WindowFullScreen);
+    win->setParent( win->windowParent );
+    win->centralWidget()->layout()->setContentsMargins(9,9,0,9);
+
+    for (auto child : win->centralWidget()->findChildren<QWidget *>()) {
+      if(child->objectName().compare(objectName()) != 0)
+        child->show();
+    }
+
+    win->fullMode = false;
+}
