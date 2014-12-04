@@ -29,5 +29,12 @@
         <file>icons/light-bulb.png</file>
         <file>icons/light-bulb--arrow.png</file>
         <file>icons/stickman.png</file>
+        <file>icons/arrow-180.png</file>
+        <file>icons/arrow-180-medium.png</file>
+        <file>icons/gear.png</file>
+        <file>icons/gear-small.png</file>
+        <file>icons/application-sidebar-collapse.png</file>
+        <file>icons/application-sidebar-expand.png</file>
+        <file>icons/wrap-edit.png</file>
     </qresource>
 </RCC>

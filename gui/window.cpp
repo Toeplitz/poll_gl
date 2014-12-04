@@ -8,80 +8,8 @@
 
 
 
-//Fullscreen_Dialog::Fullscreen_Dialog(QWidget *parent)
-//{
-//      /*
-//  dlg = new QDialog(this);
-//  dlg_layout = new QHBoxLayout(dlg);
-//  dlg_layout->setContentsMargins(0, 0, 0, 0);
-//  dlg->setLayout(dlg_layout);
-//  dlg->showFullScreen();
-//  dlg->hide();
-
-//      */
-//  /*
-//  bool r = connect(dlg, SIGNAL(accepted()), this, SLOT(gl_show_fullscreen()));
-//  assert(r);
-
-//  r = connect(dlg, SIGNAL(rejected()), this, SLOT(gl_show_normal()));
-//  assert(r);
-//  */
-//}
-
-
-//Fullscreen_Dialog::~Fullscreen_Dialog()
-//{
-// // if (dlg_layout) delete dlg_layout;
-//}
-
-
-//void Fullscreen_Dialog::gl_show_fullscreen()
-//{
-//  Window *win = (Window *) qApp->activeWindow();
-//  QGLWidget *gl_widget = win->findChild<QGLWidget *>("widget");
-//  dlg_layout = new QHBoxLayout(this);
-//  dlg_layout->setContentsMargins(0, 0, 0, 0);
-//  dlg_layout->addWidget(gl_widget);
-//  this->setLayout(dlg_layout);
-//  this->showFullScreen();
-//  this->show();
-//  this->grabKeyboard();
-//  this->grabMouse();
-//  this->activateWindow();
-//  this->raise();
-//  this->setFocus();
-//  this->setAttribute( Qt::WA_DeleteOnClose, true );
-//}
-
-
-//void Fullscreen_Dialog::gl_show_normal()
-//{
-//  Window *win = (Window *) qApp->activeWindow();
-//  QHBoxLayout *gl_box = win->findChild<QHBoxLayout *>("gl_hbox");
-//  QGLWidget *gl_widget = this->findChild<QGLWidget *>("widget");
-//  gl_box->layout()->addWidget(gl_widget);
-//  win->grabKeyboard();
-//  win->grabMouse();
-//  win->activateWindow();
-//  win->raise();
-//  win->setFocus();
-
-//  POLL_DEBUG(std::cout, "trying to close widget");
-//  if (this->close()) {
-//    POLL_DEBUG(std::cout, "success");
-//  }
-//}
-
-
-//void Fullscreen_Dialog::keyPressEvent(QKeyEvent *event)
-//{
-//  POLL_DEBUG(std::cout, "key pressed on fullscreen dialog");
-//  gl_show_normal();
-//}
-
-
 Window::Window(QWidget *parent):
-    QMainWindow(parent), ui(new Ui::window)
+  QMainWindow(parent), ui(new Ui::window)
 {
     ui->setupUi(this);
     fullMode = false;
@@ -116,55 +44,39 @@ void Window::dataExchange()
 
 void Window::node_recursive_load_tree(Node& node, QTreeWidget* tree, QTreeWidgetItem* treeItemIn)
 {
-    QTreeWidgetItem* treeItem = new QTreeWidgetItem();
+    QTreeWidgetItem *tree_item = new QTreeWidgetItem();
 
-    treeItem->setText(0, node.name_get().c_str());
+    tree_item->setText(0, node.name_get().c_str());
     if(treeItemIn)
-        treeItemIn->addChild(treeItem);
+        treeItemIn->addChild(tree_item);
     else
-        tree->addTopLevelItem(treeItem);
+        tree->addTopLevelItem(tree_item);
 
     Armature *armature = node.armature_get();
     Mesh *mesh = node.mesh_get();
     Material *material = node.material_get();
+    Camera *camera = node.camera_get();
+    Light *light = node.light_get();
 
-    if (armature) {
-        QTreeWidgetItem *item = new QTreeWidgetItem();
-        item->setText(0, "armature");
-        treeItem->addChild(item);
+    QString icon_string = tr("icons/node.png");
+
+    if (camera) {
+        icon_string = tr("icons/camera-lens.png");
+    } else if (light) {
+        icon_string = tr("icons/light-bulb.png");
     }
 
-    if (mesh) {
-        if (!(node.import_options & MODEL_IMPORT_NO_DRAW)) {
-            QTreeWidgetItem *item = new QTreeWidgetItem();
-            item->setText(0, "mesh - no draw");
-            treeItem->addChild(item);
-        }
-        if (!(node.import_options & MODEL_IMPORT_NO_UPLOAD)) {
-            QTreeWidgetItem *item = new QTreeWidgetItem();
-            item->setText(0, "mesh - no upload");
-            treeItem->addChild(item);
-        }
-    }
-
-    if (material) {
-        if (!(node.import_options & MODEL_IMPORT_NO_UPLOAD)) {
-            QTreeWidgetItem *item = new QTreeWidgetItem();
-            item->setText(0, "model - no upload");
-            treeItem->addChild(item);
-        }
-    }
-
+    tree_item->setIcon(0, QIcon(icon_string));
 
     for (auto &child : node.children_get()) {
-        node_recursive_load_tree(*child, tree, treeItem);
+        node_recursive_load_tree(*child, tree, tree_item);
     }
 }
+
 
 void Window::on_menu_item_load_model_triggered()
 {
     // adapted from http://qt-project.org/doc/qt-5/qfiledialog.html
-
     QString fileFormats = tr("Model Files (*.obj)");
     QString openStartPoint = "/home/mike/Documents/";
 
@@ -174,34 +86,6 @@ void Window::on_menu_item_load_model_triggered()
     POLL_DEBUG(std::cout, "selected model file:");
     POLL_DEBUG(std::cout, fileName.toStdString());
 
-    /*
-    Window *win = (Window *) qApp->activeWindow();
-    QHBoxLayout *gl_box = win->findChild<QHBoxLayout *>("gl_hbox");
-    QGLWidget *gl_widget = win->findChild<QGLWidget *>("widget");
-
-    QDialog *dlg = new QDialog(this);
-    QHBoxLayout *dlg_layout = new QHBoxLayout(dlg);
-    dlg_layout->setContentsMargins(0, 0, 0, 0);
-    dlg_layout->addWidget(gl_widget);
-    dlg->setLayout(dlg_layout);
-    dlg->showFullScreen();
-
-    bool r = connect(dlg, SIGNAL(accepted()), this, SLOT(showGlNormal()));
-    assert(r);
-    */
-    //r = connect(dlg, SIGNAL(accepted()), this, SLOT(showGlNormal()));
-    //assert(r);
-}
-
-
-void Window::showGlNormal()
-{
-    /*
-    Window *win = (Window *) qApp->activeWindow();
-    QHBoxLayout *gl_box = win->findChild<QHBoxLayout *>("gl_hbox");
-    QGLWidget *gl_widget = win->findChild<QGLWidget *>("widget");
-    gl_box->layout()->addWidget(gl_widget);
-    */
 }
 
 
@@ -209,6 +93,7 @@ void Window::on_menu_item_exit_triggered()
 {
     QApplication::quit();
 }
+
 
 
 void Window::on_menu_item_new_scene_triggered()
@@ -238,6 +123,7 @@ void Window::on_actionLoad_poll_scene_triggered()
     POLL_DEBUG(std::cout, "selected scene file:");
     POLL_DEBUG(std::cout, fileName.toStdString());
 }
+
 
 void Window::on_actionSave_poll_scene_triggered()
 {
@@ -271,12 +157,26 @@ void Window::onCustomContextMenu(const QPoint &point)
     }
 }
 
+
 void Window::on_tree_nodes_doubleClicked(const QModelIndex &index)
 {
     POLL_DEBUG(std::cout, "double clicked a tree node, row: " << index.row());
 }
 
+
 void Window::on_tree_nodes_activated(const QModelIndex &index)
 {
+    POLL_DEBUG(std::cout, "activated tree node, row: " << index.row());
+
+}
+
+
+void Window::showEvent(QShowEvent *)
+{
+     QMainWindow::show();
+     QApplication::processEvents();
+     POLL_DEBUG(std::cerr, "showing window...");
+
+     dataExchange();
 
 }

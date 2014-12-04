@@ -25,13 +25,6 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="Line" name="line">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item>
      <widget class="QSplitter" name="splitter">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
@@ -135,6 +128,23 @@
               </widget>
              </item>
              <item>
+              <widget class="QToolButton" name="toolButton_6">
+               <property name="toolTip">
+                <string>Collapse all nodes</string>
+               </property>
+               <property name="statusTip">
+                <string>Collapse all items in the node tree.</string>
+               </property>
+               <property name="text">
+                <string>...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="gui_resources.qrc">
+                 <normaloff>:/icons/icons/node.png</normaloff>:/icons/icons/node.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QToolButton" name="toolButton">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -150,6 +160,9 @@
                </property>
                <property name="toolTip">
                 <string>Expand all nodes</string>
+               </property>
+               <property name="statusTip">
+                <string>Expand all items in the node tree.</string>
                </property>
                <property name="text">
                 <string>...</string>
@@ -240,11 +253,18 @@
            </property>
            <item>
             <widget class="QToolButton" name="toolButton_5">
+             <property name="toolTip">
+              <string>Return to tree view.</string>
+             </property>
              <property name="statusTip">
               <string>Move back to scene graph view.</string>
              </property>
              <property name="text">
               <string>...</string>
+             </property>
+             <property name="icon">
+              <iconset resource="gui_resources.qrc">
+               <normaloff>:/icons/icons/arrow-180-medium.png</normaloff>:/icons/icons/arrow-180-medium.png</iconset>
              </property>
             </widget>
            </item>
@@ -341,8 +361,8 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>267</width>
-                  <height>252</height>
+                  <width>956</width>
+                  <height>516</height>
                  </rect>
                 </property>
                 <property name="autoFillBackground">
@@ -623,5 +643,38 @@
  <resources>
   <include location="gui_resources.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>toolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>tree_nodes</receiver>
+   <slot>expandAll()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1277</x>
+     <y>89</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1233</x>
+     <y>159</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toolButton_6</sender>
+   <signal>clicked()</signal>
+   <receiver>tree_nodes</receiver>
+   <slot>collapseAll()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1249</x>
+     <y>80</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1109</x>
+     <y>164</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
