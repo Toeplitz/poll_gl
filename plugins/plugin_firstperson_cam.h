@@ -41,13 +41,13 @@ class Plugin_Firstperson_Camera: public Poll_Plugin
     void cb_mouse_pressed(SDL_MouseButtonEvent *ev);
     void cb_mouse_released(SDL_MouseButtonEvent *ev);
     */
-    void cb_mouse_motion(QWidget *w, QMouseEvent *ev);
+    void cb_mouse_motion(QWidget *w, QMouseEvent *ev, const double dt);
     void cb_custom(const float dt);
     void common_fpcamera_defaults_set();
     void common_fpcamera_directions_calc();
     void common_fpcamera_move_add(Camera_Move move);
     void common_fpcamera_move_delete(Camera_Move move);
-    void common_fpcamera_mouse_update(int x, int y, int width, int height) ;
+    void common_fpcamera_mouse_update(int x, int y, int width, int height, const double dt);
     void common_fpcamera_moves_process(const float dt);
 
   public:

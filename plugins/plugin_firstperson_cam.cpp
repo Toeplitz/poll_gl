@@ -4,9 +4,7 @@
 
 Plugin_Firstperson_Camera::Plugin_Firstperson_Camera(Scene &scene, Node *node)
 {
- // this->console = &console;
   this->scene = &scene;
- // this->window = &scene.window_get();
 
   n = node;
   camera = n->camera_get();
@@ -34,7 +32,6 @@ void Plugin_Firstperson_Camera::cb_keyboard_pressed(QWidget *w, QKeyEvent *e)
       common_fpcamera_move_add(SIDESTEP_RIGHT);
       break;
     case Qt::Key_M:
-    //  window->mouse_cursor_toggle();
       if (!mouse_view_toggle) {
         w->setCursor(Qt::BlankCursor);
         w->setMouseTracking(true);
@@ -95,21 +92,19 @@ void Plugin_Firstperson_Camera::cb_mouse_released(SDL_MouseButtonEvent *ev)
 
 */
 
-void Plugin_Firstperson_Camera::cb_mouse_motion(QWidget *w, QMouseEvent *ev)
+void Plugin_Firstperson_Camera::cb_mouse_motion(QWidget *w, QMouseEvent *ev, const double dt)
 {
   if (!mouse_view_toggle)
     return;
 
   auto width = w->width();
   auto height = w->height();
-  common_fpcamera_mouse_update(ev->x(), ev->y(), width, height);
 
   QCursor c = w->cursor();
-  c.setPos(w->mapToGlobal(QPoint(width / 2, height / 2)));
- // c.setShape(Qt::BlankCursor);
+  c.setPos(w->mapToGlobal(QPoint((float) width / 2.f, (float) height / 2.f)));
   w->setCursor(c);
+  common_fpcamera_mouse_update(ev->x(), ev->y(), width, height, dt);
 }
-
 
 
 void Plugin_Firstperson_Camera::cb_custom(const float dt)
@@ -118,14 +113,17 @@ void Plugin_Firstperson_Camera::cb_custom(const float dt)
 }
 
 
-
-
 void Plugin_Firstperson_Camera::common_fpcamera_defaults_set()
 {
-  horizontal_angle = 3.14;
+  horizontal_angle = 3.14f;
   vertical_angle = 0; 
   speed = 10.f;
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+  mouse_speed = 0.2f;
+#else
   mouse_speed = 0.00025f;
+#endif
+
   position = glm::vec3(0, 5, 16);
   target = glm::vec3(0, 0, 0);
   up = glm::vec3(0, 1, 0);
@@ -175,10 +173,11 @@ void Plugin_Firstperson_Camera::common_fpcamera_move_delete(Camera_Move move)
 }
 
 
-void Plugin_Firstperson_Camera::common_fpcamera_mouse_update(int x, int y, int width, int height) 
+void Plugin_Firstperson_Camera::common_fpcamera_mouse_update(int x, int y, int width, int height, const double dt)
 {
-  horizontal_angle += mouse_speed * float(width / 2 - x);
-  vertical_angle += mouse_speed * float(height / 2 - y);
+  POLL_DEBUG(std::cout, "x, y, width, height: " << x << " , " << y);
+  horizontal_angle += dt * mouse_speed * float(width / 2 - x);
+  vertical_angle += dt * mouse_speed * float(height / 2 - y);
 
   common_fpcamera_directions_calc();
   camera->transform_view_create(position, direction);

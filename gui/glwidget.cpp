@@ -178,8 +178,10 @@ void GLwidget::mousePressEvent(QMouseEvent *e)
 
 void GLwidget::mouseMoveEvent(QMouseEvent *e)
 {
+  double dt = poll.delta_time_get();
+
   for (auto plugin : poll.plugins_get()) {
-    plugin->cb_mouse_motion(this, e);
+    plugin->cb_mouse_motion(this, e, dt);
   }
 }
 

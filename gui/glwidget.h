@@ -42,7 +42,7 @@ class GLwidget : public QGLWidget
     void resizeGL(int w, int h);
 
 public:
-    Scene& getScene(){return scene;}
+    Scene &getScene() { return scene; }
 
     void goFullScreen();
     void backFromFullScreen();

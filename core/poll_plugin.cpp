@@ -38,7 +38,7 @@ void Poll_Plugin::cb_mouse_released(QMouseEvent *ev)
 }
 
 
-void Poll_Plugin::cb_mouse_motion(QWidget *w, QMouseEvent *ev)
+void Poll_Plugin::cb_mouse_motion(QWidget *w, QMouseEvent *ev, const double dt)
 {
 }
 

@@ -38,18 +38,17 @@ Poll::Poll(const std::string &config_file)
 /**************************************************/
 
 // Return delta time in seconds.
-double Poll::delta_time_get()
+void Poll::delta_time_step()
 {
   static auto time_last = std::chrono::duration_cast<std::chrono::milliseconds>
         (std::chrono::system_clock::now().time_since_epoch()).count();
   auto time_cur = std::chrono::duration_cast<std::chrono::milliseconds>
         (std::chrono::system_clock::now().time_since_epoch()).count();
 
-  double dt = (time_cur - time_last) / 1000.0;
+  this->dt = (time_cur - time_last) / 1000.0;
   time_last = time_cur;
-
-  return dt;
 }
+
 
 void Poll::init()
 {
@@ -60,7 +59,9 @@ void Poll::init()
 
 void Poll::step(Scene &scene)
 {
+  delta_time_step();
   double dt = delta_time_get();
+
   profile_fps(dt);
 
   for (auto plugin : plugins) {
