@@ -361,8 +361,8 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>956</width>
-                  <height>516</height>
+                  <width>339</width>
+                  <height>299</height>
                  </rect>
                 </property>
                 <property name="autoFillBackground">
@@ -525,7 +525,7 @@
      <x>0</x>
      <y>0</y>
      <width>1310</width>
-     <height>21</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -536,8 +536,8 @@
     <addaction name="menu_item_load_model"/>
     <addaction name="separator"/>
     <addaction name="menu_item_new_scene"/>
-    <addaction name="actionLoad_poll_scene"/>
-    <addaction name="actionSave_poll_scene"/>
+    <addaction name="menu_item_load_poll_scene"/>
+    <addaction name="menu_item_save_poll_scene"/>
     <addaction name="separator"/>
     <addaction name="menu_item_exit"/>
    </widget>
@@ -569,7 +569,7 @@
     <string>Load model</string>
    </property>
   </action>
-  <action name="actionLoad_poll_scene">
+  <action name="menu_item_load_poll_scene">
    <property name="icon">
     <iconset resource="gui_resources.qrc">
      <normaloff>:/icons/icons/blue-folder-open-document.png</normaloff>:/icons/icons/blue-folder-open-document.png</iconset>
@@ -577,14 +577,20 @@
    <property name="text">
     <string>Load scene</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
   </action>
-  <action name="actionSave_poll_scene">
+  <action name="menu_item_save_poll_scene">
    <property name="icon">
     <iconset resource="gui_resources.qrc">
      <normaloff>:/icons/icons/blue-document--pencil.png</normaloff>:/icons/icons/blue-document--pencil.png</iconset>
    </property>
    <property name="text">
     <string>Save scene</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
   <action name="menu_item_exit">
@@ -606,6 +612,9 @@
    </property>
    <property name="text">
     <string>New scene</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
    </property>
   </action>
   <action name="menu_item_fullscreen">
@@ -651,8 +660,8 @@
    <slot>expandAll()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1277</x>
-     <y>89</y>
+     <x>1255</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
      <x>1233</x>
@@ -667,8 +676,8 @@
    <slot>collapseAll()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1249</x>
-     <y>80</y>
+     <x>1221</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
      <x>1109</x>

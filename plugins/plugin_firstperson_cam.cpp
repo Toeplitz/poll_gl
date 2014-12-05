@@ -121,7 +121,7 @@ void Plugin_Firstperson_Camera::common_fpcamera_defaults_set()
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
   mouse_speed = 0.2f;
 #else
-  mouse_speed = 0.00025f;
+  mouse_speed = 0.1f;
 #endif
 
   position = glm::vec3(0, 5, 16);

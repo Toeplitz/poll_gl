@@ -240,7 +240,6 @@ void GLcontext::uniform_buffers_block_bind(GLshader &shader)
 
   for (auto &name : shader.block_names_get()) {
     bind_index = uniform_buffer_map.at(name);
-    POLL_DEBUG(std::cout, "Shader: " << shader.filename_get() << "Binding " << name << " at index: " << bind_index);
     block_index = shader.get_block_index(name);
     GL_ASSERT(glUniformBlockBinding(shader.program_get(), block_index, bind_index));
   }

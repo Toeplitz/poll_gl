@@ -5,6 +5,9 @@
 #include <QTreeWidgetItem>
 #include <QFileDialog>
 #include <QMenu>
+#include <QIcon>
+#include <QPixmap>
+#include <QDebug>
 
 
 
@@ -23,7 +26,7 @@ Window::~Window()
 }
 
 
-void Window::dataExchange()
+void Window::scene_tree_fill()
 {
     GLwidget *gl_widget = findChild<GLwidget *>("widget");
     QTreeWidget *treeWidget = findChild<QTreeWidget *>();
@@ -42,32 +45,36 @@ void Window::dataExchange()
 }
 
 
-void Window::node_recursive_load_tree(Node& node, QTreeWidget* tree, QTreeWidgetItem* treeItemIn)
+void Window::node_recursive_load_tree(Node &node, QTreeWidget *tree,
+                                      QTreeWidgetItem *tree_item_in)
 {
     QTreeWidgetItem *tree_item = new QTreeWidgetItem();
 
-    tree_item->setText(0, node.name_get().c_str());
-    if(treeItemIn)
-        treeItemIn->addChild(tree_item);
-    else
-        tree->addTopLevelItem(tree_item);
-
-    Armature *armature = node.armature_get();
-    Mesh *mesh = node.mesh_get();
-    Material *material = node.material_get();
     Camera *camera = node.camera_get();
     Light *light = node.light_get();
 
-    QString icon_string = tr("icons/node.png");
+    QString icon_string = tr(":/icons/icons/node.png");
 
     if (camera) {
-        icon_string = tr("icons/camera-lens.png");
+        icon_string = tr(":/icons/icons/camera-lens.png");
     } else if (light) {
-        icon_string = tr("icons/light-bulb.png");
+        icon_string = tr(":/icons/icons/light-bulb.png");
     }
 
-    tree_item->setIcon(0, QIcon(icon_string));
+    tree_item->setText(0, node.name_get().c_str());
 
+    if (!QFile(icon_string).exists()) {
+      qDebug() << "wrong file name : " << icon_string;
+    } else {
+      tree_item->setIcon(0, QIcon(icon_string));
+      qDebug() << "Setting icon: " << icon_string;
+    }
+
+
+    if(tree_item_in)
+        tree_item_in->addChild(tree_item);
+    else
+        tree->addTopLevelItem(tree_item);
     for (auto &child : node.children_get()) {
         node_recursive_load_tree(*child, tree, tree_item);
     }
@@ -95,7 +102,6 @@ void Window::on_menu_item_exit_triggered()
 }
 
 
-
 void Window::on_menu_item_new_scene_triggered()
 {
 
@@ -108,37 +114,6 @@ void Window::on_menu_item_fullscreen_triggered()
     if(gl_widget)
         gl_widget->goFullScreen();
 }
-
-
-void Window::on_actionLoad_poll_scene_triggered()
-{
-    // adapted from http://qt-project.org/doc/qt-5/qfiledialog.html
-
-    QString fileFormats = tr("Scene Files (*.obj)");
-    QString openStartPoint = "/home/mike/Documents/";
-
-    QString fileName = QFileDialog::getOpenFileName(NULL,
-                                                    tr("Select Scene file..."), openStartPoint, fileFormats);
-
-    POLL_DEBUG(std::cout, "selected scene file:");
-    POLL_DEBUG(std::cout, fileName.toStdString());
-}
-
-
-void Window::on_actionSave_poll_scene_triggered()
-{
-    // adapted from http://qt-project.org/doc/qt-5/qfiledialog.html
-
-    QString fileFormats = tr("Scene Files (*.obj)");
-    QString openStartPoint = "/home/mike/Documents/";
-
-    QString fileName = QFileDialog::getOpenFileName(NULL,
-                                                    tr("Save as Scene file..."), openStartPoint, fileFormats);
-
-    POLL_DEBUG(std::cout, "save to scene file:");
-    POLL_DEBUG(std::cout, fileName.toStdString());
-}
-
 
 
 void Window::onCustomContextMenu(const QPoint &point)
@@ -160,7 +135,8 @@ void Window::onCustomContextMenu(const QPoint &point)
 
 void Window::on_tree_nodes_doubleClicked(const QModelIndex &index)
 {
-    POLL_DEBUG(std::cout, "double clicked a tree node, row: " << index.row());
+
+    POLL_DEBUG(std::cout, "double clicked a tree node, row: " << index.);
 }
 
 
@@ -177,6 +153,34 @@ void Window::showEvent(QShowEvent *)
      QApplication::processEvents();
      POLL_DEBUG(std::cerr, "showing window...");
 
-     dataExchange();
+     scene_tree_fill();
+
+}
+
+void Window::on_menu_item_save_poll_scene_triggered()
+{
+    QString fileFormats = tr("Scene Files (*.obj)");
+    QString openStartPoint = "/home/mike/Documents/";
+
+    QString fileName = QFileDialog::getOpenFileName(NULL,
+      tr("Save as Scene file..."), openStartPoint, fileFormats);
+
+    POLL_DEBUG(std::cout, "save to scene file:");
+    POLL_DEBUG(std::cout, fileName.toStdString());
+
+}
+
+
+void Window::on_menu_item_load_poll_scene_triggered()
+{
+    // adapted from http://qt-project.org/doc/qt-5/qfiledialog.html
+    QString fileFormats = tr("Scene Files (*.obj)");
+    QString openStartPoint = "/home/mike/Documents/";
+
+    QString fileName = QFileDialog::getOpenFileName(NULL,
+      tr("Select Scene file..."), openStartPoint, fileFormats);
+
+    POLL_DEBUG(std::cout, "selected scene file:");
+    POLL_DEBUG(std::cout, fileName.toStdString());
 
 }
