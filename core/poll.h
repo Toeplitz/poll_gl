@@ -25,7 +25,6 @@ class Poll {
     Poll_Plugin_List plugins;
 
     std::string  fps_text;
-    std::string &fps_text_get();
     void         profile_fps(const double dt);
     double       dt;
 
@@ -40,6 +39,7 @@ class Poll {
     void                    init();
     void                    delta_time_step();
     const double            delta_time_get() { return dt; }
+    std::string            &fps_text_get();
     void                    plugin_add(Poll_Plugin &plugin);
     const Poll_Plugin_List &plugins_get() const;
     void                    step(Scene &scene);

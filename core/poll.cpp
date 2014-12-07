@@ -50,6 +50,12 @@ void Poll::delta_time_step()
 }
 
 
+std::string &Poll::fps_text_get()
+{
+  return fps_text;
+}
+
+
 void Poll::init()
 {
   glcontext.init();
@@ -136,15 +142,9 @@ void Poll::profile_fps(const double dt)
     char buf[30];
     sprintf(buf, "%d frames/sec %.2f ms/frame", numFrames, 1000.0 / numFrames);
     fps_text = std::string(buf);
-    POLL_DEBUG(std::cout, fps_text);
     t = 0;
     numFrames = 0;
   }
 }
 
-
-std::string &Poll::fps_text_get()
-{
-  return fps_text;
-}
 

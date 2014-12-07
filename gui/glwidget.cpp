@@ -16,7 +16,8 @@
 #include <QPushButton>
 #include <QTreeWidget>
 #include <QStatusBar>
-
+#include <QString>
+#include <QLabel>
 #include <iostream>
 
 
@@ -197,6 +198,8 @@ void GLwidget::mouseReleaseEvent(QMouseEvent *e)
 void GLwidget::paintGL()
 {
   poll.step(scene);
+  label_fps_set();
+
 }
 
 
@@ -212,6 +215,19 @@ void GLwidget::resizeGL(int w, int h)
   glcontext.resize(w, h);
 }
 
+
+void GLwidget::label_fps_set()
+{
+  Window *win = (Window *) qApp->activeWindow();
+  if (!win) return;
+
+  QLabel *label_fps = win->findChild<QLabel *>("label_fps");
+  if (!label_fps) return;
+
+  auto fps = poll.fps_text_get();
+  QString str = QString::fromUtf8(fps.c_str());
+  label_fps->setText(str);
+}
 
 void GLwidget::goFullScreen()
 {

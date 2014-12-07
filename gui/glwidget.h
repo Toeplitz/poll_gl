@@ -41,6 +41,8 @@ class GLwidget : public QGLWidget
     void paintGL();
     void resizeGL(int w, int h);
 
+    void label_fps_set();
+
 public:
     Scene &getScene() { return scene; }
 
