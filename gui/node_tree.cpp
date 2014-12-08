@@ -16,6 +16,8 @@
 
 Node_Tree::Node_Tree(QObject *parent)
 {
+  connect(this, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)),
+          this, SLOT(on_tree_nodes_itemDoubleClicked(QTreeWidgetItem *, int)));
 }
 
 
@@ -23,11 +25,8 @@ void Node_Tree::keyPressEvent(QKeyEvent *event)
 {
   if (event->key() == Qt::Key_Return) {
     QList<QTreeWidgetItem *> items = this->selectedItems();
-    item_selected(items.back());
-    POLL_DEBUG(std::cout, "pressed RETURN key on tree widget");
-
+    emit itemDoubleClicked(items.back(), 0);
     return;
-
   }
 
   QTreeView::keyPressEvent(event);
@@ -73,3 +72,10 @@ void Node_Tree::item_selected(QTreeWidgetItem *item)
   }
 
 }
+
+
+void Node_Tree::on_tree_nodes_itemDoubleClicked(QTreeWidgetItem *item, int column)
+{
+  item_selected(item);
+}
+

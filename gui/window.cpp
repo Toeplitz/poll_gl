@@ -41,7 +41,7 @@ void Window::scene_tree_fill()
   GLwidget *gl_widget = findChild<GLwidget *>("widget");
   QTreeWidget *treeWidget = findChild<QTreeWidget *>();
 
-  treeWidget ->setContextMenuPolicy(Qt::CustomContextMenu);
+  treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(treeWidget, SIGNAL(customContextMenuRequested(const QPoint &)),
           this, SLOT(onCustomContextMenu(const QPoint &)));
   treeWidget->clear();
@@ -210,14 +210,3 @@ void Window::on_menu_item_load_poll_scene_triggered()
   POLL_DEBUG(std::cout, fileName.toStdString());
 }
 
-
-void Window::on_tree_nodes_itemDoubleClicked(QTreeWidgetItem *item, int column)
-{
-  ui->tree_nodes->item_selected(item);
-}
-
-
-void Window::on_tree_nodes_itemActivated(QTreeWidgetItem *item, int column)
-{
-
-}

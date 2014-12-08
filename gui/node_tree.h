@@ -23,6 +23,7 @@ private:
 signals:
 
 public slots:
+  void on_tree_nodes_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
 };
 

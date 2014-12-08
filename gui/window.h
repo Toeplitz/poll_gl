@@ -42,13 +42,9 @@ private slots:
     void on_menu_item_fullscreen_triggered();
     void on_menu_item_save_poll_scene_triggered();
     void on_menu_item_load_poll_scene_triggered();
-    void on_tree_nodes_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
     void onCustomContextMenu(const QPoint &);
     void showEvent(QShowEvent *);
-
-
-    void on_tree_nodes_itemActivated(QTreeWidgetItem *item, int column);
 
 private:
     Ui::window *ui;
