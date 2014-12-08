@@ -10,9 +10,9 @@
 #include <QDebug>
 #include <QVariant>
 #include "node.h"
+#include "texture.h"
 
 
-Q_DECLARE_METATYPE(Node *)
 
 
 Window::Window(QWidget *parent):
@@ -21,6 +21,7 @@ Window::Window(QWidget *parent):
   ui->setupUi(this);
   fullMode = false;
   windowParent = parent;
+
 }
 
 
@@ -33,7 +34,6 @@ Window::~Window()
 /**************************************************/
 /***************** PUBLIC METHODS *****************/
 /**************************************************/
-
 
 
 void Window::scene_tree_fill()
@@ -57,7 +57,6 @@ void Window::scene_tree_fill()
 
   ui->label_total_vertices->setText(tr(std::to_string(vertices_total).c_str()));
   ui->label_num_nodes->setText(tr(std::to_string(nodes_total).c_str()));
-
 }
 
 
@@ -70,6 +69,7 @@ void Window::node_recursive_load_tree(Node &node, QTreeWidget *tree,
   Camera *camera = node.camera_get();
   Light *light = node.light_get();
   Mesh *mesh = node.mesh_get();
+  Material *material = node.material_get();
 
   QString icon_string = tr(":/icons/icons/node.png");
 
@@ -89,9 +89,11 @@ void Window::node_recursive_load_tree(Node &node, QTreeWidget *tree,
     tree_item->setText(1, "0");
   }
 
+
   QVariant v;
   v.setValue(&node);
   tree_item->setData(0, Qt::UserRole, v);
+
 
   if (!QFile(icon_string).exists()) {
     qDebug() << "wrong file name : " << icon_string;
@@ -99,6 +101,8 @@ void Window::node_recursive_load_tree(Node &node, QTreeWidget *tree,
     tree_item->setIcon(0, QIcon(icon_string));
   }
 
+  //material->diffuse->filename
+  //tree_item->setIcon(2, QIcon(tr(material->diffuse->filename.c_str())));
 
   if(tree_item_in)
     tree_item_in->addChild(tree_item);
@@ -115,11 +119,9 @@ void Window::onCustomContextMenu(const QPoint &point)
 {
   QTreeWidget *treeWidget = findChild<QTreeWidget *>();
 
-  if(treeWidget)
-  {
+  if(treeWidget) {
     QTreeWidgetItem *item = treeWidget->itemAt(point);
-    if(item)
-    {
+    if(item) {
       QMenu contextMenu;
       contextMenu.addAction(item->text(0).toStdString().c_str());
       contextMenu.exec(treeWidget->mapToGlobal(point));
@@ -132,12 +134,9 @@ void Window::showEvent(QShowEvent *)
 {
   QMainWindow::show();
   QApplication::processEvents();
-  POLL_DEBUG(std::cerr, "showing window...");
 
   scene_tree_fill();
-
 }
-
 
 
 /**************************************************/
@@ -161,7 +160,6 @@ void Window::on_menu_item_load_model_triggered()
 
   POLL_DEBUG(std::cout, "selected model file:");
   POLL_DEBUG(std::cout, fileName.toStdString());
-
 }
 
 
@@ -210,42 +208,16 @@ void Window::on_menu_item_load_poll_scene_triggered()
 
   POLL_DEBUG(std::cout, "selected scene file:");
   POLL_DEBUG(std::cout, fileName.toStdString());
-
 }
 
 
 void Window::on_tree_nodes_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
-  QVariant v = item->data(0,Qt::UserRole);
-  Node *node = v.value<Node *>();
-
-  POLL_DEBUG(std::cout, "node clicked: " << node->name_get());
-  ui->stackedWidget->setCurrentIndex(1);
-
-  QString str = QString::fromUtf8(node->name_get().c_str());
-  ui->ledit_node_name->setText(str);
-
-  {
-    std::string summary;
-
-    if (node->material_get()) {
-     summary += "Material\n";
-    }
-    if (node->light_get()) {
-     summary += "Light\n";
-    }
-
-
-    Mesh *mesh = node->mesh_get();
-    if (mesh) {
-      summary += "Vertices: " + std::to_string(mesh->num_vertices_get()) + "\n";
-      summary += "Indices: " + std::to_string(mesh->num_indices_get()) + "\n";
-      summary += "Texture coordinates: " + std::to_string(mesh->num_texture_st_get()) + "\n";
-    }
-
-    QString qsummary = QString::fromUtf8(summary.c_str());
-    ui->tedit_summary->setText(qsummary);
-  }
-
+  ui->tree_nodes->item_selected(item);
 }
 
+
+void Window::on_tree_nodes_itemActivated(QTreeWidgetItem *item, int column)
+{
+
+}

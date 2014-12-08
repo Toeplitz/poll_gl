@@ -10,10 +10,11 @@
 
 class Image {
   private:
+
+public:
     QImage image;
     QImage gl_image;
 
-public:
   int width;
   int height;
 

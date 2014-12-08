@@ -48,6 +48,8 @@ private slots:
     void showEvent(QShowEvent *);
 
 
+    void on_tree_nodes_itemActivated(QTreeWidgetItem *item, int column);
+
 private:
     Ui::window *ui;
 };

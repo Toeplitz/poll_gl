@@ -16,11 +16,13 @@ TEMPLATE = app
 SOURCES += \
     glwidget.cpp \
     main.cpp \
-    window.cpp
+    window.cpp \
+    node_tree.cpp
 
 HEADERS  += \
     glwidget.h \
-    window.h
+    window.h \
+    node_tree.h
 
 FORMS    += window.ui
 
