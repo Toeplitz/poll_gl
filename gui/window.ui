@@ -602,7 +602,7 @@
                       <x>0</x>
                       <y>-43</y>
                       <width>948</width>
-                      <height>497</height>
+                      <height>520</height>
                      </rect>
                     </property>
                     <property name="sizePolicy">
@@ -882,6 +882,9 @@
                         </item>
                         <item row="2" column="1">
                          <widget class="QLineEdit" name="lineEdit">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
                             <horstretch>0</horstretch>
@@ -890,6 +893,9 @@
                           </property>
                           <property name="text">
                            <string>0</string>
+                          </property>
+                          <property name="readOnly">
+                           <bool>false</bool>
                           </property>
                          </widget>
                         </item>
@@ -969,6 +975,13 @@
                           </property>
                          </widget>
                         </item>
+                        <item row="2" column="3">
+                         <widget class="QLabel" name="label_31">
+                          <property name="text">
+                           <string>/</string>
+                          </property>
+                         </widget>
+                        </item>
                         <item row="1" column="4">
                          <widget class="QLabel" name="label_25">
                           <property name="styleSheet">
@@ -996,6 +1009,16 @@
                          <widget class="QLabel" name="label_22">
                           <property name="text">
                            <string>uvs / tangents / bitangents</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="2" column="2">
+                         <widget class="QLabel" name="label_30">
+                          <property name="styleSheet">
+                           <string notr="true">color: rgb(85, 255, 127);</string>
+                          </property>
+                          <property name="text">
+                           <string>0</string>
                           </property>
                          </widget>
                         </item>
@@ -1051,8 +1074,42 @@
                           </property>
                          </widget>
                         </item>
+                        <item row="2" column="4">
+                         <widget class="QLabel" name="label_32">
+                          <property name="styleSheet">
+                           <string notr="true">color: rgb(85, 255, 127);</string>
+                          </property>
+                          <property name="text">
+                           <string>0</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="2" column="0">
+                         <widget class="QLabel" name="label_12">
+                          <property name="text">
+                           <string>bones / bone indices / keyframes</string>
+                          </property>
+                         </widget>
+                        </item>
                         <item row="1" column="2">
                          <widget class="QLabel" name="label_27">
+                          <property name="styleSheet">
+                           <string notr="true">color: rgb(85, 255, 127);</string>
+                          </property>
+                          <property name="text">
+                           <string>0</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="2" column="5">
+                         <widget class="QLabel" name="label_33">
+                          <property name="text">
+                           <string>/</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item row="2" column="6">
+                         <widget class="QLabel" name="label_34">
                           <property name="styleSheet">
                            <string notr="true">color: rgb(85, 255, 127);</string>
                           </property>
@@ -1087,6 +1144,40 @@
                 <attribute name="title">
                  <string>Material</string>
                 </attribute>
+               </widget>
+               <widget class="QWidget" name="tab_animation">
+                <attribute name="title">
+                 <string>Animation</string>
+                </attribute>
+                <layout class="QVBoxLayout" name="verticalLayout_7">
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_4">
+                   <property name="title">
+                    <string>Keyframes</string>
+                   </property>
+                   <layout class="QVBoxLayout" name="verticalLayout_9">
+                    <item>
+                     <widget class="QListWidget" name="listWidget">
+                      <item>
+                       <property name="text">
+                        <string>Walk_animation</string>
+                       </property>
+                       <property name="icon">
+                        <iconset resource="gui_resources.qrc">
+                         <normaloff>:/icons/icons/gear.png</normaloff>:/icons/icons/gear.png</iconset>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>Jump_animation</string>
+                       </property>
+                      </item>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                </layout>
                </widget>
                <widget class="QWidget" name="tab_3">
                 <attribute name="icon">
