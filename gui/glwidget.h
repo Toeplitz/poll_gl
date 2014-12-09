@@ -44,7 +44,7 @@ class GLwidget : public QGLWidget
     void label_fps_set();
 
 public:
-    Scene &getScene() { return scene; }
+    Scene &scene_get() { return scene; }
 
     void goFullScreen();
     void backFromFullScreen();

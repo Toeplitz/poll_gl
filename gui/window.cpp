@@ -9,7 +9,9 @@
 #include <QPixmap>
 #include <QDebug>
 #include <QVariant>
+#include <QMessageBox>
 #include "node.h"
+#include "scene.h"
 #include "texture.h"
 
 
@@ -22,6 +24,8 @@ Window::Window(QWidget *parent):
   fullMode = false;
   windowParent = parent;
 
+
+  connect(ui->spin_translate_x, SIGNAL(valueChanged(double)), this, SLOT(slot_translate_x_changed(double)));
 }
 
 
@@ -36,106 +40,24 @@ Window::~Window()
 /**************************************************/
 
 
-void Window::scene_tree_fill()
-{
-  GLwidget *gl_widget = findChild<GLwidget *>("widget");
-  QTreeWidget *treeWidget = findChild<QTreeWidget *>();
-
-  treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(treeWidget, SIGNAL(customContextMenuRequested(const QPoint &)),
-          this, SLOT(onCustomContextMenu(const QPoint &)));
-  treeWidget->clear();
-
-  Scene &widgetScene = gl_widget->getScene();
-  Node &root = widgetScene.node_root_get();
-  vertices_total = 0;
-  nodes_total = 0;
-
-  for (auto &child : root.children_get()) {
-    node_recursive_load_tree(*child, treeWidget, NULL);
-  }
-
-  ui->label_total_vertices->setText(tr(std::to_string(vertices_total).c_str()));
-  ui->label_num_nodes->setText(tr(std::to_string(nodes_total).c_str()));
-}
-
-
-void Window::node_recursive_load_tree(Node &node, QTreeWidget *tree,
-                                      QTreeWidgetItem *tree_item_in)
-{
-  QTreeWidgetItem *tree_item = new QTreeWidgetItem();
-  nodes_total++;
-
-  Camera *camera = node.camera_get();
-  Light *light = node.light_get();
-  Mesh *mesh = node.mesh_get();
-  Material *material = node.material_get();
-
-  QString icon_string = tr(":/icons/icons/node.png");
-
-  if (camera) {
-    icon_string = tr(":/icons/icons/camera-lens.png");
-  } else if (light) {
-    icon_string = tr(":/icons/icons/light-bulb.png");
-  }
-
-
-  tree_item->setText(0, node.name_get().c_str());
-
-  if (mesh) {
-    tree_item->setText(1, tr(std::to_string(mesh->num_vertices_get()).c_str()));
-    vertices_total += mesh->num_vertices_get();
-  } else {
-    tree_item->setText(1, "0");
-  }
-
-
-  QVariant v;
-  v.setValue(&node);
-  tree_item->setData(0, Qt::UserRole, v);
-
-
-  if (!QFile(icon_string).exists()) {
-    qDebug() << "wrong file name : " << icon_string;
-  } else {
-    tree_item->setIcon(0, QIcon(icon_string));
-  }
-
-  //material->diffuse->filename
-  //tree_item->setIcon(2, QIcon(tr(material->diffuse->filename.c_str())));
-
-  if(tree_item_in)
-    tree_item_in->addChild(tree_item);
-  else
-    tree->addTopLevelItem(tree_item);
-  for (auto &child : node.children_get()) {
-    node_recursive_load_tree(*child, tree, tree_item);
-  }
-}
-
-
-
-void Window::onCustomContextMenu(const QPoint &point)
-{
-  QTreeWidget *treeWidget = findChild<QTreeWidget *>();
-
-  if(treeWidget) {
-    QTreeWidgetItem *item = treeWidget->itemAt(point);
-    if(item) {
-      QMenu contextMenu;
-      contextMenu.addAction(item->text(0).toStdString().c_str());
-      contextMenu.exec(treeWidget->mapToGlobal(point));
-    }
-  }
-}
-
-
 void Window::showEvent(QShowEvent *)
 {
   QMainWindow::show();
   QApplication::processEvents();
 
-  scene_tree_fill();
+  tree_populate();
+}
+
+
+void Window::tree_populate()
+{
+  Scene &scene = ui->widget->scene_get();
+
+  auto tree = ui->tree_nodes;
+  tree->populate(scene);
+
+  ui->label_total_vertices->setText(tr(std::to_string(tree->vertices_total_get()).c_str()));
+  ui->label_num_nodes->setText(tr(std::to_string(tree->nodes_total_get()).c_str()));
 }
 
 
@@ -146,6 +68,7 @@ void Window::showEvent(QShowEvent *)
 
 void Window::on_button_node_back_clicked()
 {
+  node_active_set(nullptr);
   ui->stackedWidget->setCurrentIndex(0);
 }
 
@@ -210,3 +133,88 @@ void Window::on_menu_item_load_poll_scene_triggered()
   POLL_DEBUG(std::cout, fileName.toStdString());
 }
 
+
+void Window::on_button_select_parent_node_clicked()
+{
+  Node *node = node_active_get();
+  if (!node) return;
+
+  Node *parent = node->parent_get();
+  if (!parent) return;
+
+  node_populate(parent);
+}
+
+
+void Window::node_details_show()
+{
+  ui->stackedWidget->setCurrentIndex(1);
+}
+
+
+void Window::node_populate(Node *node)
+{
+
+  if (node) {
+    node_active_set(node);
+  } else {
+    node_active_set(nullptr);
+    POLL_DEBUG(std::cerr, "no node!");
+    return;
+  }
+
+  /* Fill main text edit */
+  {
+    QString str = QString::fromUtf8(node->name_get().c_str());
+    ui->ledit_node_name->setText(str);
+  }
+
+  {
+    glm::vec3 v = node->position_get();
+    ui->spin_translate_x->setValue(v.x);
+    ui->spin_translate_y->setValue(v.y);
+    ui->spin_translate_z->setValue(v.z);
+
+
+  }
+
+  /* Fill text area */
+  {
+    std::string summary;
+
+    if (node->material_get()) {
+      summary += "Material\n";
+    }
+    if (node->light_get()) {
+      summary += "Light\n";
+    }
+
+
+    Mesh *mesh = node->mesh_get();
+    if (mesh) {
+      summary += "Vertices: " + std::to_string(mesh->num_vertices_get()) + "\n";
+      summary += "Indices: " + std::to_string(mesh->num_indices_get()) + "\n";
+      summary += "Texture coordinates: " + std::to_string(mesh->num_texture_st_get()) + "\n";
+    }
+
+    QString qsummary = QString::fromUtf8(summary.c_str());
+    ui->tedit_summary->setText(qsummary);
+  }
+
+}
+
+
+void Window::slot_translate_x_changed(double d)
+{
+  Node *node = node_active_get();
+
+  if (!node) {
+    QMessageBox msgBox;
+    msgBox.setText("No active node!");
+    msgBox.exec();
+    return;
+  }
+
+  glm::vec3 v = node->position_get();
+  node->translate_identity(ui->widget->scene_get(), glm::vec3(d, v.y, v.z));
+}

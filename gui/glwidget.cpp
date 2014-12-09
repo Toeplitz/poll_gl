@@ -40,7 +40,7 @@ GLwidget::GLwidget(QWidget *parent) :
         poll(),
         scene()
 {
-
+  parent = nullptr;
 }
 
 
@@ -206,10 +206,7 @@ void GLwidget::paintGL()
 void GLwidget::resizeGL(int w, int h)
 {
   GLcontext &glcontext = poll.glcontext_get();
-
   if (w <= 0 || h <= 0) return;
-
-  POLL_DEBUG(std::cout, "resizing gl viewport: " << w << " x " << h);
 
   scene.resize(nullptr, w, h);
   glcontext.resize(w, h);

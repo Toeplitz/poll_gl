@@ -112,7 +112,7 @@
             </sizepolicy>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="page_tree">
             <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -480,7 +480,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QToolButton" name="toolButton_4">
+                <widget class="QToolButton" name="button_select_parent_node">
                  <property name="toolTip">
                   <string>Select parent</string>
                  </property>
@@ -490,6 +490,9 @@
                  <property name="icon">
                   <iconset resource="gui_resources.qrc">
                    <normaloff>:/icons/icons/node-select.png</normaloff>:/icons/icons/node-select.png</iconset>
+                 </property>
+                 <property name="shortcut">
+                  <string>Ctrl+Left</string>
                  </property>
                  <property name="checkable">
                   <bool>false</bool>
@@ -599,7 +602,7 @@
                          <widget class="QDoubleSpinBox" name="doubleSpinBox_7"/>
                         </item>
                         <item row="1" column="3">
-                         <widget class="QDoubleSpinBox" name="doubleSpinBox_3"/>
+                         <widget class="QDoubleSpinBox" name="spin_translate_z"/>
                         </item>
                         <item row="3" column="0">
                          <widget class="QLabel" name="label_4">
@@ -618,7 +621,7 @@
                          <widget class="QDoubleSpinBox" name="doubleSpinBox_6"/>
                         </item>
                         <item row="1" column="2">
-                         <widget class="QDoubleSpinBox" name="doubleSpinBox_2"/>
+                         <widget class="QDoubleSpinBox" name="spin_translate_y"/>
                         </item>
                         <item row="1" column="0">
                          <widget class="QLabel" name="label_2">
@@ -631,7 +634,26 @@
                          <widget class="QDoubleSpinBox" name="doubleSpinBox_4"/>
                         </item>
                         <item row="1" column="1">
-                         <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
+                         <widget class="QDoubleSpinBox" name="spin_translate_x">
+                          <property name="wrapping">
+                           <bool>true</bool>
+                          </property>
+                          <property name="decimals">
+                           <number>3</number>
+                          </property>
+                          <property name="minimum">
+                           <double>-9999999.000000000000000</double>
+                          </property>
+                          <property name="maximum">
+                           <double>9999999.000000000000000</double>
+                          </property>
+                          <property name="singleStep">
+                           <double>0.100000000000000</double>
+                          </property>
+                          <property name="value">
+                           <double>0.000000000000000</double>
+                          </property>
+                         </widget>
                         </item>
                         <item row="2" column="0">
                          <widget class="QLabel" name="label_3">
