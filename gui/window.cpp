@@ -197,8 +197,8 @@ void Window::node_populate(Node *node)
       summary += "Texture coordinates: " + std::to_string(mesh->num_texture_st_get()) + "\n";
     }
 
-    QString qsummary = QString::fromUtf8(summary.c_str());
-    ui->tedit_summary->setText(qsummary);
+   // QString qsummary = QString::fromUtf8(summary.c_str());
+   // ui->tedit_summary->setText(qsummary);
   }
 
 }
