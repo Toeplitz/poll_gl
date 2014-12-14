@@ -36,5 +36,34 @@
         <file>icons/application-sidebar-collapse.png</file>
         <file>icons/application-sidebar-expand.png</file>
         <file>icons/wrap-edit.png</file>
+        <file>icons/Standing-skeleton-icon.png</file>
+        <file>icons/camera-icon.png</file>
+        <file>icons/light_bulb.png</file>
+        <file>icons/folder_green.png</file>
+        <file>icons/vertex_icon.png</file>
+        <file>icons/polygon_icon.png</file>
+        <file>icons/Objects-Behavior-Normal.png</file>
+        <file>icons/Objects-Camera-Normal.png</file>
+        <file>icons/Objects-Component-Normal.png</file>
+        <file>icons/Objects-Effect-Normal.png</file>
+        <file>icons/Objects-Image-Normal.png</file>
+        <file>icons/Objects-Light-Normal.png</file>
+        <file>icons/Objects-Material-Normal.png</file>
+        <file>icons/Objects-Model-Normal.png</file>
+        <file>icons/Objects-Music-Normal.png</file>
+        <file>icons/Objects-Property-Normal.png</file>
+        <file>icons/Objects-References-Normal.png</file>
+        <file>icons/Objects-Scene-Normal.png</file>
+        <file>icons/Objects-Sound-Normal.png</file>
+        <file>icons/Objects-Text-Normal.png</file>
+        <file>icons/Objects-Unknown-Normal.png</file>
+        <file>icons/Objects-Video-Normal.png</file>
+        <file>icons/disk-black.png</file>
+        <file>icons/disks-black.png</file>
+        <file>icons/folder_horizontal_plus.png</file>
+        <file>icons/folder_horizontal_open.png</file>
+        <file>icons/Bones-icon.png</file>
+        <file>icons/Lock-Lock-icon.png</file>
+        <file>icons/Lock-Unlock-icon.png</file>
     </qresource>
 </RCC>

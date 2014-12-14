@@ -94,17 +94,21 @@ void Node_Tree::populate_recursive(Node &node, QTreeWidget *tree, QTreeWidgetIte
     icon_string = tr(":/icons/icons/camera-lens.png");
   } else if (light) {
     icon_string = tr(":/icons/icons/light-bulb.png");
+  } else if (mesh) {
+    icon_string = tr(":/icons/icons/Objects-Model-Normal.png");
   }
 
 
   tree_item->setText(0, node.name_get().c_str());
 
+  /*
   if (mesh) {
     tree_item->setText(1, tr(std::to_string(mesh->num_vertices_get()).c_str()));
     vertices_total += mesh->num_vertices_get();
   } else {
     tree_item->setText(1, "0");
   }
+  */
 
 
   QVariant v;
@@ -112,10 +116,14 @@ void Node_Tree::populate_recursive(Node &node, QTreeWidget *tree, QTreeWidgetIte
   tree_item->setData(0, Qt::UserRole, v);
 
 
-  if (!QFile(icon_string).exists()) {
-    qDebug() << "wrong file name : " << icon_string;
+  if (icon_string.length() > 0) {
+    if (!QFile(icon_string).exists()) {
+      qDebug() << "wrong file name : " << icon_string;
+    } else {
+      tree_item->setIcon(0, QIcon(icon_string));
+    }
   } else {
-    tree_item->setIcon(0, QIcon(icon_string));
+    tree_item->setIcon(0, QIcon());
   }
 
   //material->diffuse->filename

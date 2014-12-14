@@ -17,14 +17,12 @@ SOURCES += \
     glwidget.cpp \
     main.cpp \
     window.cpp \
-    node_tree.cpp \
-    assets_tree.cpp
+    node_tree.cpp
 
 HEADERS  += \
     glwidget.h \
     window.h \
-    node_tree.h \
-    assets_tree.h
+    node_tree.h
 
 FORMS    += window.ui
 

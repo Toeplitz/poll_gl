@@ -56,8 +56,10 @@ void Window::tree_populate()
   auto tree = ui->tree_nodes;
   tree->populate(scene);
 
+  /*
   ui->label_total_vertices->setText(tr(std::to_string(tree->vertices_total_get()).c_str()));
   ui->label_num_nodes->setText(tr(std::to_string(tree->nodes_total_get()).c_str()));
+  */
 }
 
 
