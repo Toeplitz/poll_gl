@@ -9,10 +9,12 @@
 #include <QPixmap>
 #include <QDebug>
 #include <QVariant>
+#include <QListWidgetItem>
 #include <QMessageBox>
 #include "node.h"
 #include "scene.h"
 #include "texture.h"
+#include <memory>
 
 
 
@@ -25,6 +27,7 @@ Window::Window(QWidget *parent):
   windowParent = parent;
 
 
+  connect(ui->list_assets, SIGNAL(itemClicked(QListWidgetItem *)), this, SLOT(slot_asset_tree_item_clicked(QListWidgetItem *)));
   connect(ui->spin_translate_x, SIGNAL(valueChanged(double)), this, SLOT(slot_translate_x_changed(double)));
 }
 
@@ -40,26 +43,94 @@ Window::~Window()
 /**************************************************/
 
 
+void Window::asset_list_items_populate_materials(const Material_List &materials)
+{
+
+  for (auto &material: materials) {
+    QListWidgetItem *item = new QListWidgetItem(ui->list_asset_items);
+
+    QString item_text = QString("Material");
+    item->setText(item_text);
+  }
+}
+
+
+void Window::asset_list_items_populate(const int selection)
+{
+  Scene &scene = ui->gl_widget->scene_get();
+  Assets &assets = scene.assets_get();
+  ui->list_asset_items->clear();
+
+  switch (selection) {
+    case 1:
+      auto &materials = assets.material_get_all();
+      asset_list_items_populate_materials(materials);
+      break;
+  }
+
+}
+
+
+void Window::asset_list_populate()
+{
+  Scene &scene = ui->gl_widget->scene_get();
+  Assets &assets = scene.assets_get();
+
+  ui->list_assets->clear();
+
+  auto &armatures = assets.armature_get_all();
+  const unsigned int num_armatures = armatures.size();
+  if (num_armatures > 0) {
+    QListWidgetItem *item = new QListWidgetItem(ui->list_assets);
+    QString icon_res = tr(":/icons/icons/Bones-icon.png");
+    QString item_text = QString("Armatures (%1)").arg(num_armatures);
+    item->setText(item_text);
+    item->setIcon(QIcon(icon_res));
+    item->setData(Qt::UserRole, QVariant(0));
+  }
+
+  auto &materials = assets.material_get_all();
+  const unsigned int num_materials = materials.size();
+  if (num_materials > 0) {
+    QListWidgetItem *item = new QListWidgetItem(ui->list_assets);
+    QString icon_res = tr(":/icons/icons/Objects-Material-Normal.png");
+    QString item_text = QString("Materials (%1)").arg(num_materials);
+    item->setText(item_text);
+    item->setIcon(QIcon(icon_res));
+    item->setData(Qt::UserRole, QVariant(1));
+  }
+
+  auto &meshes = assets.mesh_get_all();
+  const unsigned int num_meshes = meshes.size();
+  if (num_meshes > 0) {
+    QListWidgetItem *item = new QListWidgetItem(ui->list_assets);
+    QString icon_res = tr(":/icons/icons/Objects-Model-Normal.png");
+    QString item_text = QString("Meshes (%1)").arg(num_meshes);
+    item->setText(item_text);
+    item->setIcon(QIcon(icon_res));
+    item->setData(Qt::UserRole, QVariant(2));
+  }
+}
+
+
 void Window::showEvent(QShowEvent *)
 {
   QMainWindow::show();
   QApplication::processEvents();
 
-  tree_populate();
+  asset_list_populate();
+  node_tree_populate();
+
 }
 
 
-void Window::tree_populate()
+void Window::node_tree_populate()
 {
-  Scene &scene = ui->widget->scene_get();
+  Scene &scene = ui->gl_widget->scene_get();
 
   auto tree = ui->tree_nodes;
   tree->populate(scene);
 
-  /*
-  ui->label_total_vertices->setText(tr(std::to_string(tree->vertices_total_get()).c_str()));
-  ui->label_num_nodes->setText(tr(std::to_string(tree->nodes_total_get()).c_str()));
-  */
 }
 
 
@@ -102,9 +173,7 @@ void Window::on_menu_item_new_scene_triggered()
 
 void Window::on_menu_item_fullscreen_triggered()
 {
-  GLwidget *gl_widget = findChild<GLwidget *>("widget");
-  if(gl_widget)
-    gl_widget->goFullScreen();
+  ui->gl_widget->goFullScreen();
 }
 
 
@@ -206,6 +275,13 @@ void Window::node_populate(Node *node)
 }
 
 
+void Window::slot_asset_tree_item_clicked(QListWidgetItem *item)
+{
+  int selection = item->data(Qt::UserRole).toInt();
+  asset_list_items_populate(selection);
+}
+
+
 void Window::slot_translate_x_changed(double d)
 {
   Node *node = node_active_get();
@@ -218,5 +294,5 @@ void Window::slot_translate_x_changed(double d)
   }
 
   glm::vec3 v = node->position_get();
-  node->translate_identity(ui->widget->scene_get(), glm::vec3(d, v.y, v.z));
+  node->translate_identity(ui->gl_widget->scene_get(), glm::vec3(d, v.y, v.z));
 }
