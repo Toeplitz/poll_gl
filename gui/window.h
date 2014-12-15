@@ -6,6 +6,8 @@
 #include <QHBoxLayout>
 #include <QMetaType>
 #include <QListWidgetItem>
+#include <QPixmap>
+#include <QIcon>
 #include "assets.h"
 
 namespace Ui {
@@ -27,6 +29,8 @@ public:
     bool     fullMode;
     QWidget *windowParent;
     Node    *node_active = nullptr;
+
+    std::vector<std::unique_ptr<QPixmap>> thumbnails;
 
 
     explicit Window(QWidget *parent = 0);

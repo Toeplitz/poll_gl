@@ -45,11 +45,40 @@ Window::~Window()
 
 void Window::asset_list_items_populate_materials(const Material_List &materials)
 {
+  const int icon_width = 128;
+  const int icon_height = 128;
+
+  ui->list_asset_items->setViewMode(QListWidget::IconMode);
+  ui->list_asset_items->setIconSize(QSize(icon_width, icon_height));
+  ui->list_asset_items->setResizeMode(QListWidget::Adjust);
+
+  thumbnails.clear();
 
   for (auto &material: materials) {
     QListWidgetItem *item = new QListWidgetItem(ui->list_asset_items);
 
-    QString item_text = QString("Material");
+    auto &diffuse = material->diffuse;
+    if (diffuse) {
+      Image &diffuse_img = diffuse->image_get();
+      item->setIcon(QIcon(QPixmap::fromImage(diffuse_img.image)));
+    } else {
+      glm::vec4 kd = material->properties.Kd;
+
+    //  QPixmap *pix = new QPixmap(icon_width, icon_height);
+      std::unique_ptr<QPixmap> pix_ptr(new QPixmap(icon_width, icon_height));
+      QPixmap &pix = *pix_ptr;
+      thumbnails.push_back(std::move(pix_ptr));
+
+      pix.fill(QColor(255, 255, 255, 0));
+
+      QPainter paint(&pix);
+      QRect rect(0, 0, icon_width, icon_height);
+      paint.fillRect(rect, QBrush(QColor(kd.x * 255,  kd.y * 255, kd.z * 255, 255)));
+      item->setIcon(QIcon(pix));
+
+    }
+
+    QString item_text = QString("Material name");
     item->setText(item_text);
   }
 }

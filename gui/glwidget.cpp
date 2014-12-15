@@ -68,7 +68,7 @@ void GLwidget::initializeGL()
   {
     Node &floor = scene.load(std::string(POLL_DATA_PATH) + "/demo_room/floor/", "floor.obj", MODEL_IMPORT_OPTIMIZED );
     Material *material = floor.material_get();
-    vec3 v(0.5, 0.5, 0.5);
+    vec3 v(0.1, 0.8, 0.5);
     material->color_set(v, v, v, 1);
   }
 
@@ -82,7 +82,6 @@ void GLwidget::initializeGL()
     zombie.translate(scene, vec3(-18 * scene_scalar, -12.5 * scene_scalar, 9 * scene_scalar));
   }
 
-  /*
   {
     Node &backdrop= scene.load(std::string(POLL_DATA_PATH) + "/demo_room/backdrop/", "backdrop.dae", MODEL_IMPORT_OPTIMIZED);
     backdrop.rotate(scene, M_PI, vec3(0, 1, 0));
@@ -99,9 +98,7 @@ void GLwidget::initializeGL()
       child->shadow_cast_set(scene, true);
     }
   }
-  */
 
-/*
   {
     Node &mitsuba = scene.load(std::string(POLL_DATA_PATH) +  "demo_room/mitsuba/", "mitsuba.obj", MODEL_IMPORT_DEFAULT);
     mitsuba.translate(scene, vec3(5 * scene_scalar, 0, 0));
@@ -111,7 +108,6 @@ void GLwidget::initializeGL()
     Node &mitsuba = scene.load(std::string(POLL_DATA_PATH) + "demo_room/mitsuba/", "mitsuba.obj", MODEL_IMPORT_DEFAULT);
     mitsuba.translate(scene, vec3(20.f * scene_scalar, 0, 0));
   }
-  */
 
   {
     Node *node = scene.node_create("Light_Directionl_Global");
